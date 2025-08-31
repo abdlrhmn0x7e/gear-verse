@@ -6,19 +6,36 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { categories } from "./categories";
+import { brands } from "./brands";
+import { relations } from "drizzle-orm";
+import { media } from "./media";
 
 export const products = pgTable("products", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
   title: text("title").notNull(),
   description: text("description").notNull(),
-  price: numeric("price", { precision: 4, scale: 2 }).notNull(),
-  image: text("image").notNull(),
-  stock: integer("stock").notNull(),
 
-  category: text("category").notNull(),
-  brand: text("brand").notNull(),
+  categoryId: bigint("category_id", { mode: "number" })
+    .notNull()
+    .references(() => categories.id),
+  brandId: bigint("brand_id", { mode: "number" })
+    .notNull()
+    .references(() => brands.id),
 
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const productRelations = relations(products, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
+  brand: one(brands, {
+    fields: [products.brandId],
+    references: [brands.id],
+  }),
+  media: many(media),
+}));
