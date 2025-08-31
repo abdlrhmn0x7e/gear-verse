@@ -20,5 +20,11 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
+
+  advanced: {
+    database: {
+      generateId: false,
+    },
+  },
   plugins: [admin()],
 });

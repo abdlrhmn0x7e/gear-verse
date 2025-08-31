@@ -2,7 +2,13 @@
 
 import { Logo } from "./logo";
 import { Button } from "./ui/button";
-import { DoorOpenIcon, HomeIcon, Menu, type LucideIcon } from "lucide-react";
+import {
+  DoorOpenIcon,
+  HomeIcon,
+  Menu,
+  ShieldUserIcon,
+  type LucideIcon,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -54,7 +60,18 @@ export function Navbar() {
 
           <div className="flex items-center justify-end gap-2">
             {data ? (
-              <ProfileDropdown />
+              <>
+                {data.user.role === "admin" && (
+                  <Button variant="ghost" asChild>
+                    <Link href="/admin">
+                      <ShieldUserIcon />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
+
+                <ProfileDropdown />
+              </>
             ) : (
               <Button asChild>
                 <Link href="/auth">

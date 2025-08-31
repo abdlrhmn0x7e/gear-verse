@@ -5,8 +5,6 @@ import { Geist } from "next/font/google";
 import localFont from "next/font/local";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { Navbar } from "~/components/navbar";
-import { Footer } from "~/components/footer";
 
 export const metadata: Metadata = {
   title: "Gear Verse",
@@ -29,11 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable} ${tanNimbus.variable}`}>
       <body>
-        <TRPCReactProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </TRPCReactProvider>
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );
