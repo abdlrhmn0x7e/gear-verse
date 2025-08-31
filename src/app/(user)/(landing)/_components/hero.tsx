@@ -8,7 +8,7 @@ export function Hero() {
   return (
     <section className="relative">
       <MaxWidthWrapper className="flex h-screen flex-col items-center justify-center">
-        <div className="flex w-full flex-1 flex-col items-center gap-12 pt-48 pb-12">
+        <div className="flex w-full flex-1 flex-col items-center justify-center gap-12 pb-12">
           <div className="flex w-full flex-col items-center gap-6">
             <Badge>
               <Sparkles />
@@ -25,7 +25,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="bg-card flex w-full flex-1 flex-col gap-3 rounded-lg border p-4 text-center">
+          {/* <div className="bg-card flex w-full flex-1 flex-col gap-3 rounded-lg border p-4 text-center">
             <Heading level={2} font="sans">
               Featured Products
             </Heading>
@@ -35,7 +35,7 @@ export function Hero() {
               <div className="from-primary/5 rounded-lg border bg-gradient-to-bl to-transparent p-4" />
               <div className="from-primary/5 rounded-lg border bg-gradient-to-bl to-transparent p-4" />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="absolute inset-0 -z-10 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_70%,transparent)]">
