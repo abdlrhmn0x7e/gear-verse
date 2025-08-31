@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   theme: {
     extend: {
       typography: () => ({
@@ -43,3 +43,5 @@ module.exports = {
     },
   },
 };
+
+export default config;

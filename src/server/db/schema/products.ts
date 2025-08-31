@@ -1,11 +1,4 @@
-import {
-  bigint,
-  integer,
-  numeric,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { bigint, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
 import { brands } from "./brands";
 import { relations } from "drizzle-orm";

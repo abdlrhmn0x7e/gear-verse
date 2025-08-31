@@ -11,7 +11,6 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { NavMain } from "./nav-main";
-import { Button } from "~/components/ui/button";
 import { HomeIcon, PackageIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";

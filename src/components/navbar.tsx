@@ -23,6 +23,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { ProfileDropdown } from "./profile-dropdown";
+import { ModeToggle } from "./mode-toggle";
 
 export interface NavigationLink {
   title: string;
@@ -80,6 +81,8 @@ export function Navbar() {
                 </Link>
               </Button>
             )}
+
+            <ModeToggle />
 
             <MobileMenu>
               <Button variant="outline" size="icon" className="rounded-full">
