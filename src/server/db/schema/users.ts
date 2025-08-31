@@ -15,14 +15,18 @@ export const user = pgTable(
       .generatedAlwaysAsIdentity(),
     name: text("name").notNull(),
     email: text("email").notNull().unique(),
-    emailVerified: boolean("email_verified")
-      .$defaultFn(() => false)
-      .notNull(),
+    emailVerified: boolean("email_verified").default(false).notNull(),
     image: text("image"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+    // Auth related fields
+    role: text("role").default("user"),
+    banned: boolean("banned").default(false),
+    banReason: text("ban_reason"),
+    banExpiresAt: timestamp("ban_expires_at"),
   },
-  (table) => [uniqueIndex("email_unique").on(table.email)],
+  (table) => [uniqueIndex("user_email_unique_idx").on(table.email)],
 );
 
 export const session = pgTable(
@@ -37,13 +41,13 @@ export const session = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
-    userId: text("user_id")
+    userId: bigint("user_id", { mode: "number" })
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
   (table) => [
-    uniqueIndex("user_id").on(table.userId),
-    uniqueIndex("token").on(table.token),
+    uniqueIndex("session_user_id_unique_idx").on(table.userId),
+    uniqueIndex("session_token_unique_idx").on(table.token),
   ],
 );
 
@@ -55,7 +59,7 @@ export const account = pgTable(
       .generatedAlwaysAsIdentity(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
-    userId: text("user_id")
+    userId: bigint("user_id", { mode: "number" })
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     accessToken: text("access_token"),
@@ -68,7 +72,7 @@ export const account = pgTable(
     createdAt: timestamp("created_at").notNull(),
     updatedAt: timestamp("updated_at").notNull(),
   },
-  (table) => [uniqueIndex("user_id").on(table.userId)],
+  (table) => [uniqueIndex("account_user_id_unique_idx").on(table.userId)],
 );
 
 export const verification = pgTable(
@@ -83,5 +87,7 @@ export const verification = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [uniqueIndex("identifier").on(table.identifier)],
+  (table) => [
+    uniqueIndex("verification_identifier_unique_idx").on(table.identifier),
+  ],
 );
