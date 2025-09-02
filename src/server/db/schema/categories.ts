@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   bigint,
   foreignKey,
+  index,
   pgTable,
   text,
   timestamp,
@@ -15,23 +16,24 @@ export const categories = pgTable(
       .generatedAlwaysAsIdentity(),
 
     name: text("name").notNull(),
-    parentId: bigint("parent_id", { mode: "number" }),
+    parent_id: bigint("parent_id", { mode: "number" }),
     slug: text("slug").notNull(),
 
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    created_at: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
     foreignKey({
-      columns: [table.parentId],
+      columns: [table.parent_id],
       foreignColumns: [table.id],
-      name: "fk_categories_parent_id",
+      name: "categories_parent_id_fkey",
     }),
+    index("categories_parent_id_idx").on(table.parent_id),
   ],
 );
 
 export const categoryRelations = relations(categories, ({ one }) => ({
   parent: one(categories, {
-    fields: [categories.parentId],
+    fields: [categories.parent_id],
     references: [categories.id],
   }),
 }));

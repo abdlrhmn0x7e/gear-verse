@@ -1,4 +1,4 @@
-import { bigint, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
 import { brands } from "./brands";
 import { relations } from "drizzle-orm";
@@ -8,7 +8,7 @@ export const products = pgTable("products", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  description: jsonb("description").notNull(),
 
   categoryId: bigint("category_id", { mode: "number" })
     .notNull()

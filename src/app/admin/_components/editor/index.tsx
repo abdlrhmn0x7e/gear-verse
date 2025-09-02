@@ -14,11 +14,18 @@ import { Text } from "@tiptap/extension-text";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Underline } from "@tiptap/extension-underline";
 import { UndoRedo } from "@tiptap/extensions";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, type JSONContent, useEditor } from "@tiptap/react";
 import { EditorMenuBar } from "./editor-menu-bar";
 
-export function Editor() {
+export function Editor({
+  onUpdate,
+}: {
+  onUpdate: (json: JSONContent) => void;
+}) {
   const editor = useEditor({
+    onUpdate: ({ editor }) => {
+      onUpdate(editor.getJSON());
+    },
     extensions: [
       UndoRedo,
 
@@ -65,7 +72,7 @@ export function Editor() {
   if (!editor) return null;
 
   return (
-    <div className="rounded-lg border">
+    <div className="bg-input/40 rounded-lg border">
       <EditorMenuBar editor={editor} />
       <div className="p-4">
         <EditorContent editor={editor} className="w-full" />

@@ -3,7 +3,11 @@ import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { brands } from "./brands";
 
-const ownerTypeEnum = pgEnum("owner_type", ["PRODUCT", "CATEGORY", "BRAND"]);
+export const ownerTypeEnum = pgEnum("owner_type", [
+  "PRODUCT",
+  "CATEGORY",
+  "BRAND",
+]);
 
 export const media = pgTable("media", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),

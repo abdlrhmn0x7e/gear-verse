@@ -11,9 +11,11 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { NavMain } from "./nav-main";
-import { HomeIcon, PackageIcon, SparklesIcon } from "lucide-react";
+import { HomeIcon, PackageIcon, SearchIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
+import { Button } from "~/components/ui/button";
+import { CommandShortcut } from "~/components/ui/command";
 
 const DASHBOARD_ITEMS = [
   {
@@ -49,6 +51,11 @@ export function AdminSidebar({
             </div>
           </Link>
         </SidebarMenuButton>
+        <Button variant="outline" className="w-full justify-start">
+          <SearchIcon className="size-4" />
+          Search Products...
+          <CommandShortcut>⌘K</CommandShortcut>
+        </Button>
       </SidebarHeader>
 
       <SidebarContent>

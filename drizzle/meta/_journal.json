@@ -8,6 +8,13 @@
       "when": 1756639648131,
       "tag": "0000_complex_the_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756706768694,
+      "tag": "0001_lying_puff_adder",
+      "breakpoints": true
     }
   ]
 }

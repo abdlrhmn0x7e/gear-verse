@@ -10,7 +10,20 @@ import { ThemeProvider } from "~/components/theme-provider";
 export const metadata: Metadata = {
   title: "Gear Verse",
   description: "Gear Verse",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: {
+    icon: [
+      {
+        rel: "icon",
+        media: "(prefers-color-scheme: dark)",
+        url: "/favicon-dark.ico",
+      },
+      {
+        rel: "icon",
+        media: "(prefers-color-scheme: light)",
+        url: "/favicon-light.ico",
+      },
+    ],
+  },
 };
 
 const geist = Geist({
@@ -26,7 +39,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable} ${tanNimbus.variable}`}>
+    <html
+      lang="en"
+      className={`${geist.variable} ${tanNimbus.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <TRPCReactProvider>
           <ThemeProvider
