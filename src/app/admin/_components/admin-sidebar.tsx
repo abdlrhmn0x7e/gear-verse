@@ -51,11 +51,14 @@ export function AdminSidebar({
             </div>
           </Link>
         </SidebarMenuButton>
-        <Button variant="outline" className="w-full justify-start">
-          <SearchIcon className="size-4" />
-          Search Products...
-          <CommandShortcut>⌘K</CommandShortcut>
-        </Button>
+
+        <SidebarMenuButton asChild>
+          <Button variant="outline" className="w-full justify-start">
+            <SearchIcon className="size-4" />
+            Search Products...
+            <CommandShortcut>⌘K</CommandShortcut>
+          </Button>
+        </SidebarMenuButton>
       </SidebarHeader>
 
       <SidebarContent>

@@ -29,8 +29,23 @@ import {
 } from "~/components/ui/dropdown-menu";
 
 import { Separator } from "~/components/ui/separator";
+import { FileDropzone } from "../inputs/file-dropzone";
+import {
+  DrawerDialog,
+  DrawerDialogContent,
+  DrawerDialogDescription,
+  DrawerDialogHeader,
+  DrawerDialogTitle,
+  DrawerDialogTrigger,
+} from "~/components/ui/drawer-dialog";
+import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export function EditorMenuBar({ editor }: { editor: Editor }) {
+  const { mutate: uploadFile, isPending: isUploading } =
+    useUploadFileMutation();
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const editorState = useEditorState({
     editor,
     selector: (ctx) => ({
@@ -61,12 +76,30 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
     }),
   });
 
+  function handleAddImage(files: File[]) {
+    const file = files[0];
+    if (!file) return;
+
+    uploadFile(file, {
+      onSuccess: (data) => {
+        editor.chain().focus().setImage({ src: data.url }).run();
+        setImageDialogOpen(false);
+      },
+      onError: (error) => {
+        toast.error("Failed to upload file", {
+          description: error.message,
+        });
+      },
+    });
+  }
+
   return (
     <div className="flex flex-wrap items-center justify-center gap-1 border-b p-1">
       {/* Undo / Redo */}
       <Button
         variant="ghost"
         size="icon"
+        type="button"
         disabled={!editorState.canUndo}
         onClick={() => editor.chain().focus().undo().run()}
       >
@@ -75,6 +108,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant="ghost"
         size="icon"
+        type="button"
         disabled={!editorState.canRedo}
         onClick={() => editor.chain().focus().redo().run()}
       >
@@ -89,7 +123,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       {/* Heading */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" type="button">
             <HeadingIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -127,7 +161,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       {/* List */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" type="button">
             <ListIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -158,6 +192,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isBold ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
         <BoldIcon />
@@ -165,6 +200,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isItalic ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
         <ItalicIcon />
@@ -173,6 +209,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isUnderline ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
         <UnderlineIcon />
@@ -180,6 +217,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isStrikethrough ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleStrike().run()}
       >
         <StrikethroughIcon />
@@ -187,6 +225,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isHighlight ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleHighlight().run()}
       >
         <HighlighterIcon />
@@ -194,6 +233,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isLink ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().toggleLink().run()}
       >
         <LinkIcon />
@@ -208,6 +248,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isAlignLeft ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().setTextAlign("left").run()}
       >
         <AlignLeftIcon />
@@ -215,6 +256,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isAlignCenter ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().setTextAlign("center").run()}
       >
         <AlignCenterIcon />
@@ -222,6 +264,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isAlignRight ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().setTextAlign("right").run()}
       >
         <AlignRightIcon />
@@ -229,6 +272,7 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       <Button
         variant={editorState.isAlignJustify ? "default" : "ghost"}
         size="icon"
+        type="button"
         onClick={() => editor.chain().focus().setTextAlign("justify").run()}
       >
         <AlignJustifyIcon />
@@ -240,10 +284,29 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       />
 
       {/* Image */}
-      <Button variant="ghost">
-        <ImagePlusIcon />
-        Add
-      </Button>
+      <DrawerDialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+        <DrawerDialogTrigger asChild>
+          <Button variant="ghost" type="button">
+            <ImagePlusIcon />
+            Add
+          </Button>
+        </DrawerDialogTrigger>
+        <DrawerDialogContent>
+          <DrawerDialogHeader>
+            <DrawerDialogTitle>Add Image</DrawerDialogTitle>
+            <DrawerDialogDescription>
+              Add an image to the editor
+            </DrawerDialogDescription>
+          </DrawerDialogHeader>
+
+          <FileDropzone
+            onChange={handleAddImage}
+            maxFiles={1}
+            showFiles={false}
+            isLoading={isUploading}
+          />
+        </DrawerDialogContent>
+      </DrawerDialog>
     </div>
   );
 }

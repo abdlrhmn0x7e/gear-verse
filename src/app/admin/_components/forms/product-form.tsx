@@ -15,6 +15,7 @@ import { imageSchema } from "~/lib/schemas/image";
 import { productSchema } from "~/lib/schemas/product";
 import { Editor } from "../editor";
 import { CategoryCombobox } from "../inputs/category-combobox";
+import { FileDropzone } from "../inputs/file-dropzone";
 
 const productFormSchema = productSchema.and(
   z.object({
@@ -80,6 +81,19 @@ export function ProductForm({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Editor onUpdate={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <FileDropzone onChange={field.onChange} options={{}} />
               </FormControl>
             </FormItem>
           )}

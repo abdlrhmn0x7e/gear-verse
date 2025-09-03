@@ -189,26 +189,6 @@ const CategoryComboboxItem = ({
 } & React.ComponentProps<typeof CommandItem>) => {
   const [open, setOpen] = React.useState(false);
 
-  if (!category.children) {
-    return (
-      <CommandItem
-        key={category.id}
-        value={`${category.id}-${category.name}`}
-        onSelect={() => handleItemSelect(category.id)}
-        {...props}
-      >
-        <TagIcon />
-        {category.name}
-        <Check
-          className={cn(
-            "ml-auto",
-            category.id === selectedValue ? "opacity-100" : "opacity-0",
-          )}
-        />
-      </CommandItem>
-    );
-  }
-
   function onItemSelect(categoryId: number) {
     setValue(categoryId === selectedValue ? null : categoryId);
     setParentComboboxOpen(false);
@@ -223,6 +203,25 @@ const CategoryComboboxItem = ({
     onItemSelect(categoryId);
   }
 
+  if (!category.children) {
+    return (
+      <CommandItem
+        key={category.id}
+        value={`${category.id}-${category.name}`}
+        onSelect={() => onItemSelect(category.id)}
+        {...props}
+      >
+        <TagIcon />
+        {category.name}
+        <Check
+          className={cn(
+            "ml-auto",
+            category.id === selectedValue ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </CommandItem>
+    );
+  }
   return (
     <Collapsible
       className="group/collapsible [&[data-state=open]>div>svg:first-child]:rotate-90"
@@ -258,8 +257,7 @@ const CategoryComboboxItem = ({
             key={child.id}
             category={child}
             setValue={setValue}
-            setParentComboboxOpen={setOpen}
-            onSelect={() => handleItemSelect(child.id)}
+            setParentComboboxOpen={setParentComboboxOpen}
             selectedValue={selectedValue}
             {...props}
           />

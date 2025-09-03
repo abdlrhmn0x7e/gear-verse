@@ -3,18 +3,25 @@ import {
   categoryTreeSchema,
   type Category,
 } from "~/lib/schemas/category";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import slugify from "slugify";
 import { DB } from "~/server/repositories";
 import { z } from "zod";
 
 export const categoriesRouter = createTRPCRouter({
+  /**
+   * Queries
+   */
   findAll: publicProcedure
     .output(z.array(categoryTreeSchema))
     .query(async () => {
       return await DB.categories.queries.findAll();
     }),
-  create: publicProcedure
+
+  /**
+   * Mutations
+   */
+  create: protectedProcedure
     .input(categorySchema.omit({ id: true, slug: true, created_at: true }))
     .mutation(async ({ input }) => {
       let parentCategory: Category | undefined = undefined;
@@ -25,7 +32,10 @@ export const categoriesRouter = createTRPCRouter({
 
       return await DB.categories.mutations.create({
         ...input,
-        slug: slugify(`${input.name} ${parentCategory?.name ?? ""}`),
+        slug: slugify(`${input.name} ${parentCategory?.name ?? ""}`, {
+          lower: true,
+          strict: true,
+        }),
       });
     }),
 });

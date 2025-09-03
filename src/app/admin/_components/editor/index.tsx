@@ -55,7 +55,12 @@ export function Editor({
         types: ["heading", "paragraph"],
       }),
 
-      Image,
+      Image.configure({
+        inline: false,
+        HTMLAttributes: {
+          class: "size-full object-contain rounded-lg overflow-hidden",
+        },
+      }),
     ],
     content: "<p>Hello World! 🌎️</p>",
 
@@ -72,7 +77,7 @@ export function Editor({
   if (!editor) return null;
 
   return (
-    <div className="bg-input/40 rounded-lg border">
+    <div className="bg-input/40 max-w-full overflow-hidden rounded-lg border">
       <EditorMenuBar editor={editor} />
       <div className="p-4">
         <EditorContent editor={editor} className="w-full" />
