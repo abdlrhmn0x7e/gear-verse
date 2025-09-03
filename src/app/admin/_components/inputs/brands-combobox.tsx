@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { api } from "~/trpc/react";
-import { useInView } from "motion/react";
+import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
 import { AddBrandDialog } from "../dialogs/add-brand-dialog";
 import { Separator } from "~/components/ui/separator";
@@ -36,8 +36,7 @@ export function BrandsCombobox({
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef);
+  const { ref, inView } = useInView();
   const {
     data: brands,
     isPending: brandsPending,
@@ -167,10 +166,7 @@ export function BrandsCombobox({
             </CommandGroup>
 
             {hasNextPage && (
-              <div
-                className="flex items-center justify-center p-4"
-                ref={containerRef}
-              >
+              <div className="flex items-center justify-center p-4" ref={ref}>
                 <Spinner />
               </div>
             )}

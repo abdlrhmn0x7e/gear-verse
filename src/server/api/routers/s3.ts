@@ -112,7 +112,7 @@ export const s3Router = createTRPCRouter({
       }
 
       presignedUrls.forEach((item) => {
-        returnedData.set(item.url, {
+        returnedData.set(item.accessUrl, {
           ...item,
           mediaId: 0,
         });

@@ -9,6 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { imageSchema } from "~/lib/schemas/image";
@@ -22,8 +23,12 @@ const productFormSchema = productSchema
   .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
   .and(
     z.object({
-      thumbnail: z.array(imageSchema),
-      images: z.array(imageSchema),
+      thumbnail: z
+        .array(imageSchema, "Thumbnail is required")
+        .min(1, "Thumbnail is required"),
+      images: z
+        .array(imageSchema, "Images are required")
+        .min(1, "Images are required"),
     }),
   );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -60,6 +65,7 @@ export function ProductForm({
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -77,6 +83,7 @@ export function ProductForm({
                     setValue={field.onChange}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -93,6 +100,7 @@ export function ProductForm({
                     onValueChange={field.onChange}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -108,6 +116,7 @@ export function ProductForm({
                 <FormControl>
                   <FileDropzone onChange={field.onChange} maxFiles={1} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -121,6 +130,7 @@ export function ProductForm({
                 <FormControl>
                   <FileDropzone onChange={field.onChange} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -135,6 +145,7 @@ export function ProductForm({
               <FormControl>
                 <Editor onUpdate={field.onChange} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />

@@ -7,10 +7,76 @@ import {
 } from "~/app/admin/_components/forms/product-form";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
+import { api } from "~/trpc/react";
+import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
+import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Spinner } from "~/components/spinner";
+import { useRouter } from "next/navigation";
 
 export function AddProduct() {
-  function onSubmit(data: ProductFormValues) {
-    console.log(data);
+  const [submitOutput, setSubmitOutput] = useState<string | null>(null);
+  const router = useRouter();
+  const { mutateAsync: uploadThumbnail, isPending: isUploadingThumbnail } =
+    useUploadFileMutation();
+  const { mutateAsync: createProduct, isPending: isCreatingProduct } =
+    api.products.create.useMutation();
+  const { mutateAsync: uploadImages, isPending: isUploadingImages } =
+    useUploadFilesMutation();
+  const isLoading =
+    isUploadingThumbnail || isCreatingProduct || isUploadingImages;
+
+  async function onSubmit(data: ProductFormValues) {
+    const thumbnail = data.thumbnail[0];
+    if (!thumbnail) {
+      toast.error("Please upload a thumbnail");
+      return;
+    }
+
+    setSubmitOutput("Uploading thumbnail...");
+    const { data: thumbnailData, error: thumbnailError } = await tryCatch(
+      uploadThumbnail({ file: thumbnail }),
+    );
+    if (thumbnailError) {
+      setSubmitOutput(null);
+      toast.error("Failed to upload thumbnail. Please try again.");
+      return;
+    }
+
+    setSubmitOutput("Creating product...");
+    const { data: productData, error: productError } = await tryCatch(
+      createProduct({
+        ...data,
+        thumbnailMediaId: thumbnailData.mediaId,
+      }),
+    );
+    if (productError || !productData) {
+      setSubmitOutput(null);
+      toast.error("Failed to create product. Please try again.");
+      return;
+    }
+
+    setSubmitOutput("Uploading images...");
+    const { error: imagesError } = await tryCatch(
+      uploadImages({
+        files: data.images,
+        ownerType: "PRODUCT",
+        ownerId: productData.id,
+      }),
+    );
+
+    if (imagesError) {
+      setSubmitOutput(null);
+      console.error(imagesError);
+      toast.error("Failed to upload images. Please try again.");
+      return;
+    }
+
+    setSubmitOutput(null);
+    router.push(`/admin/products`); // Todo: redirect to the product page
+    toast.success("Product created successfully");
   }
 
   return (
@@ -31,28 +97,38 @@ export function AddProduct() {
                 </p>
               </div>
 
-              <Button type="submit" form="product-form">
+              <Button type="submit" form="product-form" disabled={isLoading}>
                 <SaveIcon size={16} />
                 Save Product
               </Button>
             </div>
           </motion.div>
 
-          <AnimatePresence>
-            <motion.div
-              className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm"
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{
-                duration: 0.2,
-                ease: "easeOut",
-              }}
-              layout
-            >
-              <p>Dummy Content</p>
-            </motion.div>
-          </AnimatePresence>
+          {submitOutput && (
+            <AnimatePresence>
+              <motion.div
+                className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm"
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{
+                  duration: 0.2,
+                  ease: "easeOut",
+                }}
+                layout
+              >
+                <div className="flex items-center gap-3">
+                  <Spinner />
+                  <div>
+                    <p className="flex-1">{submitOutput}</p>
+                    <p className="text-muted-foreground text-sm">
+                      Please be patient untill the process is complete.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          )}
         </motion.div>
       </motion.div>
     </div>

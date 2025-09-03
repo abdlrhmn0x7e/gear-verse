@@ -5,7 +5,11 @@ type NewProduct = typeof products.$inferInsert;
 export const _productsRepository = {
   mutations: {
     create: (product: NewProduct) => {
-      return db.insert(products).values(product);
+      return db
+        .insert(products)
+        .values(product)
+        .returning({ id: products.id })
+        .then(([result]) => result);
     },
   },
 };

@@ -55,7 +55,7 @@ import { api } from "~/trpc/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import Image from "next/image";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { useInView } from "motion/react";
+import { useInView } from "react-intersection-observer";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Spinner } from "~/components/spinner";
 
@@ -413,8 +413,7 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
     },
   );
 
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef);
+  const { ref, inView } = useInView();
 
   React.useEffect(() => {
     if (inView && hasNextPage) {
@@ -465,9 +464,9 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
   return (
     <ScrollArea className="h-[24rem]">
       <div className="grid grid-cols-3 gap-4 p-1">
-        {imagesData.map((image) => (
+        {imagesData.map((image, idx) => (
           <AspectRatio
-            key={`image-${image.id}`}
+            key={`image-${image.id}-${idx}`}
             ratio={16 / 9}
             className="bg-muted ring-primary cursor-pointer overflow-hidden rounded-lg border ring-0 transition-all hover:opacity-80 hover:ring-2"
             role="button"
@@ -485,10 +484,7 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
       </div>
 
       {hasNextPage && (
-        <div
-          className="flex items-center justify-center p-4"
-          ref={containerRef}
-        >
+        <div className="flex items-center justify-center p-4" ref={ref}>
           <Spinner />
         </div>
       )}

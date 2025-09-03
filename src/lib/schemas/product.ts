@@ -3,13 +3,13 @@ import * as z from "zod";
 export const productSchema = z.object({
   id: z.number(),
 
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is too short"),
   description: z.record(z.string(), z.unknown()),
 
-  thumbnailMediaId: z.number().min(1),
+  thumbnailMediaId: z.number().min(1, "Thumbnail is required"),
 
-  categoryId: z.number().min(1),
-  brandId: z.number().min(1),
+  categoryId: z.number().min(1, "Category is required"),
+  brandId: z.number().min(1, "Brand is required"),
 
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import type { UpdateMediaDto } from "~/lib/schemas/media";
+import cuid from "cuid";
+import type { Media, UpdateMediaDto } from "~/lib/schemas/media";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { api } from "~/trpc/react";
 
@@ -13,6 +14,7 @@ import { api } from "~/trpc/react";
  */
 async function uploadFiles(
   files: File[],
+
   getPresignedUrls: (
     params: { fileId: string; type: string; size: number }[],
   ) => Promise<
@@ -28,23 +30,26 @@ async function uploadFiles(
     id: number;
     data: UpdateMediaDto;
   }) => Promise<{ id: number } | undefined>,
+
+  ownerType?: Media["ownerType"],
+  ownerId?: Media["ownerId"],
 ) {
   // Map to associate fileId with its upload URL and mediaId
-  const fileMap = new Map<string, { url: string; mediaId: number }>();
+  const filesMap = new Map<string, { url: string; mediaId: number }>();
 
   // Request presigned URLs for all files
   const { data, error } = await tryCatch(
     getPresignedUrls(
-      files.map((file, idx) => {
+      files.map((file) => {
         // Assign a unique fileId property to each file object
-        Object.defineProperties(file, {
-          fileId: {
-            value: `${file.name}-${idx}-id`,
-          },
+        const fileId = cuid(); // cuid to avoid collision with file names
+        Object.defineProperty(file, "fileId", {
+          value: fileId,
+          configurable: true,
         });
 
         return {
-          fileId: `${file.name}-${idx}-id`,
+          fileId,
           type: file.type,
           size: file.size,
         };
@@ -58,7 +63,7 @@ async function uploadFiles(
 
   // Populate the fileMap with presigned URL and mediaId for each file
   data.forEach((item) => {
-    fileMap.set(item.fileId, { url: item.url, mediaId: item.mediaId });
+    filesMap.set(item.fileId, { url: item.url, mediaId: item.mediaId });
   });
 
   // Upload each file to S3 and update its media status
@@ -66,7 +71,7 @@ async function uploadFiles(
     Promise.all(
       files.map(async (file) => {
         // Retrieve upload data for the current file
-        const fileUploadData = fileMap.get(
+        const fileUploadData = filesMap.get(
           (file as File & { fileId: string }).fileId,
         );
         if (!fileUploadData) {
@@ -92,7 +97,7 @@ async function uploadFiles(
         const { error: updateMediaError } = await tryCatch(
           updateMedia({
             id: fileUploadData.mediaId,
-            data: { status: "READY" },
+            data: { status: "READY", ownerType, ownerId },
           }),
         );
         if (updateMediaError) {
@@ -118,15 +123,22 @@ async function uploadFiles(
  *
  * @returns Mutation object for uploading files.
  */
-export function useUploadFileMutation() {
+export function useUploadFilesMutation() {
   const utils = api.useUtils();
   const { mutateAsync: getPresignedUrls } =
     api.s3.getPresignedUrls.useMutation();
   const { mutateAsync: updateMedia } = api.media.update.useMutation();
 
   return useMutation({
-    mutationFn: ({ files }: { files: File[] }) =>
-      uploadFiles(files, getPresignedUrls, updateMedia),
+    mutationFn: ({
+      files,
+      ownerType,
+      ownerId,
+    }: {
+      files: File[];
+      ownerType?: Media["ownerType"];
+      ownerId?: Media["ownerId"];
+    }) => uploadFiles(files, getPresignedUrls, updateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload
       void utils.media.getPage.invalidate();
