@@ -120,7 +120,7 @@ export function AddProduct() {
                 <div className="flex items-center gap-3">
                   <Spinner />
                   <div>
-                    <p className="flex-1">{submitOutput}</p>
+                    <p className="flex-1 font-medium">{submitOutput}</p>
                     <p className="text-muted-foreground text-sm">
                       Please be patient untill the process is complete.
                     </p>

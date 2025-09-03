@@ -64,7 +64,7 @@ export const _categoriesRepository = {
 
       // fuck the ORM, use raw SQL
       const result = (await db.execute(query))[0]!.tree as string;
-      return JSON.parse(result) as CategoryTree[]; // this is validated on the router level
+      return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
     },
 
     findById(id: number) {

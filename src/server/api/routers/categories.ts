@@ -12,11 +12,9 @@ export const categoriesRouter = createTRPCRouter({
   /**
    * Queries
    */
-  findAll: publicProcedure
-    .output(z.array(categoryTreeSchema))
-    .query(async () => {
-      return await DB.categories.queries.findAll();
-    }),
+  findAll: publicProcedure.output(z.array(categoryTreeSchema)).query(() => {
+    return DB.categories.queries.findAll();
+  }),
 
   /**
    * Mutations
