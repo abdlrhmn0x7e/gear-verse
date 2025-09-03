@@ -6,6 +6,9 @@ import z from "zod";
 import { DB } from "~/server/repositories";
 
 export const s3Router = createTRPCRouter({
+  /**
+   * Queries
+   */
   getPresignedUrl: adminProcedure
     .input(
       z.object({

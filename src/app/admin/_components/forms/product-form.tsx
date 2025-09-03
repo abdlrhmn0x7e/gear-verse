@@ -16,13 +16,16 @@ import { productSchema } from "~/lib/schemas/product";
 import { Editor } from "../editor";
 import { CategoryCombobox } from "../inputs/category-combobox";
 import { FileDropzone } from "../inputs/file-dropzone";
+import { BrandsCombobox } from "../inputs/brands-combobox";
 
-const productFormSchema = productSchema.and(
-  z.object({
-    thumbnail: z.array(imageSchema),
-    images: z.array(imageSchema),
-  }),
-);
+const productFormSchema = productSchema
+  .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
+  .and(
+    z.object({
+      thumbnail: z.array(imageSchema),
+      images: z.array(imageSchema),
+    }),
+  );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export function ProductForm({
@@ -44,19 +47,20 @@ export function ProductForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="categoryId"
@@ -67,6 +71,22 @@ export function ProductForm({
                   <CategoryCombobox
                     value={field.value}
                     setValue={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="brandId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Brand</FormLabel>
+                <FormControl>
+                  <BrandsCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
                   />
                 </FormControl>
               </FormItem>

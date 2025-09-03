@@ -34,7 +34,7 @@ import {
 } from "~/components/ui/collapsible";
 import { Spinner } from "~/components/spinner";
 import { Separator } from "~/components/ui/separator";
-import { AddCategoryDialog } from "../add-category-dialog";
+import { AddCategoryDialog } from "../dialogs/add-category-dialog";
 
 export function CategoryCombobox({
   value,
@@ -141,9 +141,11 @@ export function CategoryCombobox({
           aria-expanded={open}
           className="justify-between"
         >
-          {value
-            ? renderValue(value, flattenedCategories)
-            : "Select category..."}
+          {value ? (
+            renderValue(value, flattenedCategories)
+          ) : (
+            <span className="text-muted-foreground">Select category...</span>
+          )}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

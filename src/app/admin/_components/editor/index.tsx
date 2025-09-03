@@ -82,7 +82,6 @@ export function Editor({
         },
       }),
     ],
-    content: "<p>Hello World! 🌎️</p>",
 
     editorProps: {
       attributes: {

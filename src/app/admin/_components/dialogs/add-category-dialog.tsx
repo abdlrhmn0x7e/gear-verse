@@ -7,7 +7,7 @@ import {
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
 
-import { CategoryForm, type CategoryFormValues } from "./forms/category-form";
+import { CategoryForm, type CategoryFormValues } from "../forms/category-form";
 import { PlusCircleIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";

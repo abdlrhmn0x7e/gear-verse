@@ -10,7 +10,7 @@ export const products = pgTable("products", {
   title: text("title").notNull(),
   description: jsonb("description").notNull(),
 
-  thumbnail_media_id: bigint("thumbnail_media_id", {
+  thumbnailMediaId: bigint("thumbnail_media_id", {
     mode: "number",
   })
     .references(() => media.id)

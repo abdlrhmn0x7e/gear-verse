@@ -11,6 +11,7 @@ import {
   HeadingIcon,
   HighlighterIcon,
   ImageIcon,
+  ImageOffIcon,
   ImagePlusIcon,
   ItalicIcon,
   LinkIcon,
@@ -45,7 +46,7 @@ import {
 } from "~/components/ui/drawer-dialog";
 import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { toast } from "sonner";
-import { useState } from "react";
+import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -54,6 +55,9 @@ import { api } from "~/trpc/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import Image from "next/image";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { useInView } from "motion/react";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Spinner } from "~/components/spinner";
 
 export function EditorMenuBar({
   editor,
@@ -317,7 +321,7 @@ function ImageDrawerDialog({
 }: {
   onImageUpload: (url: string) => void;
 }) {
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = React.useState(false);
   const { mutate: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   function handleAddImage(files: File[]) {
@@ -394,16 +398,36 @@ function ImageDrawerDialog({
 }
 
 function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
-  const { data: images, isPending: imagesPending } = api.media.getPage.useQuery(
+  const {
+    data: images,
+    isPending: imagesPending,
+    isError: imagesError,
+    fetchNextPage,
+    hasNextPage,
+  } = api.media.getPage.useInfiniteQuery(
     {
       pageSize: 10,
     },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
   );
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef);
+
+  React.useEffect(() => {
+    if (inView && hasNextPage) {
+      void fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
+  const imagesData = images?.pages.flatMap((page) => page.data);
 
   if (imagesPending) {
     return (
       <div className="min-h-[24rem]">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 p-1">
           {Array.from({ length: 9 }).map((_, index) => (
             <AspectRatio
               key={`image-skeleton-${index}`}
@@ -417,10 +441,31 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
       </div>
     );
   }
+
+  if (imagesError) {
+    return (
+      <div className="flex min-h-[24rem] flex-col items-center justify-center gap-2 p-1">
+        <ImageOffIcon size={48} />
+        <p className="text-muted-foreground text-center">
+          An error occurred while loading images
+        </p>
+      </div>
+    );
+  }
+
+  if (!imagesData?.length) {
+    return (
+      <div className="flex min-h-[24rem] flex-col items-center justify-center gap-2 p-1">
+        <ImageOffIcon size={48} />
+        <p className="text-muted-foreground text-center">No images found</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-[24rem]">
-      <div className="grid grid-cols-3 gap-4">
-        {images?.data.map((image) => (
+    <ScrollArea className="h-[24rem]">
+      <div className="grid grid-cols-3 gap-4 p-1">
+        {imagesData.map((image) => (
           <AspectRatio
             key={`image-${image.id}`}
             ratio={16 / 9}
@@ -438,7 +483,16 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
           </AspectRatio>
         ))}
       </div>
-    </div>
+
+      {hasNextPage && (
+        <div
+          className="flex items-center justify-center p-4"
+          ref={containerRef}
+        >
+          <Spinner />
+        </div>
+      )}
+    </ScrollArea>
   );
 }
 
@@ -449,8 +503,8 @@ function LinkDrawerDialog({
   isLink: boolean;
   onLink: (url: string) => void;
 }) {
-  const [url, setUrl] = useState("");
-  const [open, setOpen] = useState(false);
+  const [url, setUrl] = React.useState("");
+  const [open, setOpen] = React.useState(false);
 
   function handleLink() {
     const urlSchema = z.url();
