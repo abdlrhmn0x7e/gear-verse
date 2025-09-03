@@ -1,4 +1,4 @@
-import { desc, eq, lt, and, gt } from "drizzle-orm";
+import { desc, eq, and, gt, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { media, mediaStatusEnum } from "../db/schema";
 
@@ -29,7 +29,7 @@ export const _mediaRepository = {
   },
 
   mutations: {
-    create: (data: NewMediaDto) => {
+    async create(data: NewMediaDto) {
       return db
         .insert(media)
         .values(data)
@@ -37,13 +37,33 @@ export const _mediaRepository = {
         .then(([data]) => data);
     },
 
-    update: (id: number, data: UpdateMediaDto) => {
+    async createMany(data: NewMediaDto[]) {
+      return db
+        .insert(media)
+        .values(data)
+        .returning({ id: media.id, url: media.url });
+    },
+
+    async update(id: number, data: UpdateMediaDto) {
       return db
         .update(media)
         .set(data)
         .where(eq(media.id, id))
         .returning({ id: media.id })
         .then(([data]) => data);
+    },
+
+    updateMany(data: (UpdateMediaDto & { id: number })[]) {
+      return db.transaction(async (tx) => {
+        for (const item of data) {
+          const { id, ...data } = item;
+          await tx
+            .update(media)
+            .set(data)
+            .where(eq(media.id, id))
+            .returning({ id: media.id });
+        }
+      });
     },
   },
 };

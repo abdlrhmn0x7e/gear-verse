@@ -72,4 +72,9 @@ export const mediaRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return DB.media.mutations.update(input.id, input.data);
     }),
+  updateMany: adminProcedure
+    .input(z.array(mediaSchema))
+    .mutation(({ input }) => {
+      return DB.media.mutations.updateMany(input);
+    }),
 });

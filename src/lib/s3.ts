@@ -11,7 +11,7 @@ const s3 = new S3Client({
   },
 });
 
-async function s3GetPresignedUrl(type: string, size: number) {
+async function s3GetPresignedUrl(type: string, size: number, fileId: string) {
   const key = cuid();
   const command = new PutObjectCommand({
     Bucket: env.AWS_S3_BUCKET_NAME,
@@ -22,6 +22,7 @@ async function s3GetPresignedUrl(type: string, size: number) {
 
   return {
     key,
+    fileId,
     url: await getSignedUrl(s3, command, {
       expiresIn: 60 * 5, // 5 minutes
     }),
