@@ -13,7 +13,7 @@ import { cn } from "~/lib/utils";
 
 export function FileDropzone({
   onChange,
-  maxFiles = 1,
+  maxFiles,
   options = {},
   isLoading = false,
   showFiles = true,
@@ -27,7 +27,7 @@ export function FileDropzone({
   const [files, setFiles] = useState<File[]>([]);
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      if (files.length + acceptedFiles.length > maxFiles) {
+      if (maxFiles && files.length + acceptedFiles.length > maxFiles) {
         return;
       }
 
@@ -57,7 +57,7 @@ export function FileDropzone({
         className={cn(
           "hover:bg-input/50 bg-input/40 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-4",
           isDragActive && "bg-input/60",
-          (files.length >= maxFiles || isLoading) &&
+          ((maxFiles && files.length >= maxFiles) ?? isLoading) &&
             "pointer-events-none opacity-50",
         )}
         {...getRootProps()}
@@ -102,11 +102,21 @@ export function FileDropzone({
       </div>
 
       {files.length > 0 && showFiles && (
-        <div className="flex flex-col gap-2">
+        <div
+          className={cn(
+            "grid grid-cols-2 items-start gap-4",
+            maxFiles === 1 && "grid-cols-1",
+          )}
+        >
           {files.map((file, idx) => (
             <div
               key={`${file.name}-${idx}`}
-              className="relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2"
+              className={cn(
+                "relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2",
+                files.length % 2 === 1 &&
+                  files.length - 1 === idx &&
+                  "col-span-2",
+              )}
             >
               <div className="relative z-10 flex items-center gap-2">
                 <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">

@@ -19,6 +19,7 @@ import { FileDropzone } from "../inputs/file-dropzone";
 
 const productFormSchema = productSchema.and(
   z.object({
+    thumbnail: z.array(imageSchema),
     images: z.array(imageSchema),
   }),
 );
@@ -42,7 +43,7 @@ export function ProductForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-2 items-start gap-4">
           <FormField
             control={form.control}
@@ -73,6 +74,34 @@ export function ProductForm({
           />
         </div>
 
+        <div className="grid grid-cols-2 items-start gap-4">
+          <FormField
+            control={form.control}
+            name="thumbnail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Thumbnail</FormLabel>
+                <FormControl>
+                  <FileDropzone onChange={field.onChange} maxFiles={1} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Images</FormLabel>
+                <FormControl>
+                  <FileDropzone onChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="description"
@@ -81,19 +110,6 @@ export function ProductForm({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Editor onUpdate={field.onChange} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="images"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Images</FormLabel>
-              <FormControl>
-                <FileDropzone onChange={field.onChange} options={{}} />
               </FormControl>
             </FormItem>
           )}

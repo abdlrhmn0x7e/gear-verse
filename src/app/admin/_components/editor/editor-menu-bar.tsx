@@ -1,4 +1,4 @@
-import { useEditorState, type Editor } from "@tiptap/react";
+import { EditorContent, useEditorState, type Editor } from "@tiptap/react";
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -15,6 +15,8 @@ import {
   LinkIcon,
   ListIcon,
   ListOrderedIcon,
+  Maximize2Icon,
+  Minimize2Icon,
   RedoIcon,
   StrikethroughIcon,
   UnderlineIcon,
@@ -34,15 +36,30 @@ import {
   DrawerDialog,
   DrawerDialogContent,
   DrawerDialogDescription,
+  DrawerDialogFooter,
   DrawerDialogHeader,
   DrawerDialogTitle,
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
 import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { cn } from "~/lib/utils";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import z from "zod";
 
-export function EditorMenuBar({ editor }: { editor: Editor }) {
+export function EditorMenuBar({
+  editor,
+  onExpand,
+  className,
+  expanded,
+}: {
+  editor: Editor;
+  onExpand: () => void;
+  className?: string;
+  expanded?: boolean;
+}) {
   const { mutate: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -94,7 +111,12 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1 border-b p-1">
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-1 border-b p-1",
+        className,
+      )}
+    >
       {/* Undo / Redo */}
       <Button
         variant="ghost"
@@ -230,14 +252,6 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
       >
         <HighlighterIcon />
       </Button>
-      <Button
-        variant={editorState.isLink ? "default" : "ghost"}
-        size="icon"
-        type="button"
-        onClick={() => editor.chain().focus().toggleLink().run()}
-      >
-        <LinkIcon />
-      </Button>
 
       <Separator
         orientation="vertical"
@@ -278,6 +292,11 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
         <AlignJustifyIcon />
       </Button>
 
+      <LinkDrawerDialog
+        isLink={editorState.isLink}
+        onLink={(url) => editor.chain().focus().setLink({ href: url }).run()}
+      />
+
       <Separator
         orientation="vertical"
         className="mx-2 data-[orientation=vertical]:h-4"
@@ -307,6 +326,88 @@ export function EditorMenuBar({ editor }: { editor: Editor }) {
           />
         </DrawerDialogContent>
       </DrawerDialog>
+
+      <Button variant="ghost" type="button" onClick={onExpand}>
+        {expanded ? (
+          <>
+            <Minimize2Icon />
+            Minimize
+          </>
+        ) : (
+          <>
+            <Maximize2Icon />
+            Expand
+          </>
+        )}
+      </Button>
     </div>
+  );
+}
+
+function LinkDrawerDialog({
+  isLink,
+  onLink,
+}: {
+  isLink: boolean;
+  onLink: (url: string) => void;
+}) {
+  const [url, setUrl] = useState("");
+  const [open, setOpen] = useState(false);
+
+  function handleLink() {
+    const urlSchema = z.url();
+    const result = urlSchema.safeParse(url);
+    if (!result.success) {
+      console.log("Invalid URL", result.error);
+      toast.error("Invalid URL. Please enter a valid URL.");
+      return;
+    }
+
+    onLink(result.data);
+
+    setUrl("");
+    setOpen(false);
+  }
+
+  return (
+    <DrawerDialog open={open} onOpenChange={setOpen}>
+      <DrawerDialogTrigger asChild>
+        <Button
+          variant={isLink ? "default" : "ghost"}
+          size="icon"
+          type="button"
+        >
+          <LinkIcon />
+        </Button>
+      </DrawerDialogTrigger>
+      <DrawerDialogContent>
+        <DrawerDialogHeader>
+          <DrawerDialogTitle>Add Link</DrawerDialogTitle>
+          <DrawerDialogDescription>
+            Add a link to the editor
+          </DrawerDialogDescription>
+        </DrawerDialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="url">URL</Label>
+          <Input
+            id="url"
+            value={url}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleLink();
+              }
+            }}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+        </div>
+        <DrawerDialogFooter>
+          <Button type="button" onClick={handleLink}>
+            <LinkIcon />
+            Add Link
+          </Button>
+        </DrawerDialogFooter>
+      </DrawerDialogContent>
+    </DrawerDialog>
   );
 }
