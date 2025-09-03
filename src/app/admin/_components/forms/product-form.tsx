@@ -44,7 +44,7 @@ export function ProductForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-2 items-start gap-4">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="title"
@@ -74,7 +74,7 @@ export function ProductForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 items-start gap-4">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="thumbnail"

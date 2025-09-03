@@ -3,7 +3,7 @@ import {
   categoryTreeSchema,
   type Category,
 } from "~/lib/schemas/category";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, publicProcedure } from "../trpc";
 import slugify from "slugify";
 import { DB } from "~/server/repositories";
 import { z } from "zod";
@@ -21,7 +21,7 @@ export const categoriesRouter = createTRPCRouter({
   /**
    * Mutations
    */
-  create: protectedProcedure
+  create: adminProcedure
     .input(categorySchema.omit({ id: true, slug: true, created_at: true }))
     .mutation(async ({ input }) => {
       let parentCategory: Category | undefined = undefined;

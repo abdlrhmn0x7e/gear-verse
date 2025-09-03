@@ -3,18 +3,21 @@ import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { brands } from "./brands";
 
-export const ownerTypeEnum = pgEnum("owner_type", [
+export const mediaOwnerTypeEnum = pgEnum("owner_type", [
   "PRODUCT",
   "CATEGORY",
   "BRAND",
+  "USER",
 ]);
+export const mediaStatusEnum = pgEnum("status", ["PENDING", "READY"]);
 
 export const media = pgTable("media", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
-  ownerType: ownerTypeEnum().notNull(),
+  ownerType: mediaOwnerTypeEnum().notNull(),
   ownerId: bigint("owner_id", { mode: "number" }).notNull(),
 
+  status: mediaStatusEnum().notNull().default("PENDING"),
   url: text("url").notNull(),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),

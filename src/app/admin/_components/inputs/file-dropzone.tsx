@@ -17,12 +17,14 @@ export function FileDropzone({
   options = {},
   isLoading = false,
   showFiles = true,
+  className,
 }: {
   onChange: (files: File[]) => void;
   maxFiles?: number;
   options?: DropzoneOptions;
   isLoading?: boolean;
   showFiles?: boolean;
+  className?: string;
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const onDropAccepted = useCallback(
@@ -59,6 +61,7 @@ export function FileDropzone({
           isDragActive && "bg-input/60",
           ((maxFiles && files.length >= maxFiles) ?? isLoading) &&
             "pointer-events-none opacity-50",
+          className,
         )}
         {...getRootProps()}
       >

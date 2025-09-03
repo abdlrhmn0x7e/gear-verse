@@ -52,6 +52,18 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
 
   return next({ ctx: { ...ctx, session: ctx.session } });
 });
+const adminMiddleware = t.middleware(async ({ next, ctx }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (ctx.session?.user.role !== "admin") {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({ ctx: { ...ctx, session: ctx.session } });
+});
 
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(authMiddleware);
+export const adminProcedure = t.procedure.use(adminMiddleware);

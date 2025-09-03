@@ -1,4 +1,4 @@
-import { EditorContent, useEditorState, type Editor } from "@tiptap/react";
+import { useEditorState, type Editor } from "@tiptap/react";
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -10,6 +10,7 @@ import {
   Heading3Icon,
   HeadingIcon,
   HighlighterIcon,
+  ImageIcon,
   ImagePlusIcon,
   ItalicIcon,
   LinkIcon,
@@ -22,6 +23,7 @@ import {
   UnderlineIcon,
   UndoIcon,
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -43,11 +45,15 @@ import {
 } from "~/components/ui/drawer-dialog";
 import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { toast } from "sonner";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import z from "zod";
+import { api } from "~/trpc/react";
+import { Skeleton } from "~/components/ui/skeleton";
+import Image from "next/image";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
 
 export function EditorMenuBar({
   editor,
@@ -60,9 +66,6 @@ export function EditorMenuBar({
   className?: string;
   expanded?: boolean;
 }) {
-  const { mutate: uploadFile, isPending: isUploading } =
-    useUploadFileMutation();
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const editorState = useEditorState({
     editor,
     selector: (ctx) => ({
@@ -92,23 +95,6 @@ export function EditorMenuBar({
         ctx.editor.isActive("textAlign", { align: "justify" }) ?? false,
     }),
   });
-
-  function handleAddImage(files: File[]) {
-    const file = files[0];
-    if (!file) return;
-
-    uploadFile(file, {
-      onSuccess: (data) => {
-        editor.chain().focus().setImage({ src: data.url }).run();
-        setImageDialogOpen(false);
-      },
-      onError: (error) => {
-        toast.error("Failed to upload file", {
-          description: error.message,
-        });
-      },
-    });
-  }
 
   return (
     <div
@@ -303,29 +289,11 @@ export function EditorMenuBar({
       />
 
       {/* Image */}
-      <DrawerDialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DrawerDialogTrigger asChild>
-          <Button variant="ghost" type="button">
-            <ImagePlusIcon />
-            Add
-          </Button>
-        </DrawerDialogTrigger>
-        <DrawerDialogContent>
-          <DrawerDialogHeader>
-            <DrawerDialogTitle>Add Image</DrawerDialogTitle>
-            <DrawerDialogDescription>
-              Add an image to the editor
-            </DrawerDialogDescription>
-          </DrawerDialogHeader>
-
-          <FileDropzone
-            onChange={handleAddImage}
-            maxFiles={1}
-            showFiles={false}
-            isLoading={isUploading}
-          />
-        </DrawerDialogContent>
-      </DrawerDialog>
+      <ImageDrawerDialog
+        onImageUpload={(url) =>
+          editor.chain().focus().setImage({ src: url }).run()
+        }
+      />
 
       <Button variant="ghost" type="button" onClick={onExpand}>
         {expanded ? (
@@ -340,6 +308,136 @@ export function EditorMenuBar({
           </>
         )}
       </Button>
+    </div>
+  );
+}
+
+function ImageDrawerDialog({
+  onImageUpload,
+}: {
+  onImageUpload: (url: string) => void;
+}) {
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const { mutate: uploadFile, isPending: isUploading } =
+    useUploadFileMutation();
+  function handleAddImage(files: File[]) {
+    const file = files[0];
+    if (!file) return;
+
+    uploadFile(
+      { file },
+      {
+        onSuccess: (data) => {
+          onImageUpload(data.url);
+          setImageDialogOpen(false);
+        },
+        onError: (error) => {
+          toast.error("Failed to upload file", {
+            description: error.message,
+          });
+        },
+      },
+    );
+  }
+
+  return (
+    <DrawerDialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+      <DrawerDialogTrigger asChild>
+        <Button variant="ghost" type="button">
+          <ImagePlusIcon />
+          Add
+        </Button>
+      </DrawerDialogTrigger>
+      <DrawerDialogContent className="sm:max-w-2xl">
+        <DrawerDialogHeader>
+          <div className="flex items-center gap-2">
+            <ImagePlusIcon />
+            <DrawerDialogTitle>Add Image</DrawerDialogTitle>
+          </div>
+          <DrawerDialogDescription>
+            Add an image to the editor
+          </DrawerDialogDescription>
+        </DrawerDialogHeader>
+
+        <Tabs defaultValue="upload-media">
+          <TabsList>
+            <TabsTrigger value="upload-media">
+              <ImagePlusIcon />
+              Upload Media
+            </TabsTrigger>
+            <TabsTrigger value="gallery">
+              <ImageIcon />
+              Gallery
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="gallery">
+            <ImageGallery
+              addImage={(url) => {
+                onImageUpload(url);
+                setImageDialogOpen(false);
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="upload-media">
+            <FileDropzone
+              onChange={handleAddImage}
+              isLoading={isUploading}
+              className="min-h-[24rem]"
+              showFiles={false}
+              maxFiles={1}
+            />
+          </TabsContent>
+        </Tabs>
+      </DrawerDialogContent>
+    </DrawerDialog>
+  );
+}
+
+function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
+  const { data: images, isPending: imagesPending } = api.media.getPage.useQuery(
+    {
+      pageSize: 10,
+    },
+  );
+
+  if (imagesPending) {
+    return (
+      <div className="min-h-[24rem]">
+        <div className="grid grid-cols-3 gap-4">
+          {Array.from({ length: 9 }).map((_, index) => (
+            <AspectRatio
+              key={`image-skeleton-${index}`}
+              ratio={16 / 9}
+              className="bg-muted overflow-hidden rounded-lg"
+            >
+              <Skeleton className="size-full" />
+            </AspectRatio>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="min-h-[24rem]">
+      <div className="grid grid-cols-3 gap-4">
+        {images?.data.map((image) => (
+          <AspectRatio
+            key={`image-${image.id}`}
+            ratio={16 / 9}
+            className="bg-muted ring-primary cursor-pointer overflow-hidden rounded-lg border ring-0 transition-all hover:opacity-80 hover:ring-2"
+            role="button"
+            onClick={() => addImage(image.url)}
+          >
+            <Image
+              alt={`Media Image ${image.id}`}
+              src={image.url}
+              height={100}
+              width={100}
+              className="size-full object-cover"
+            />
+          </AspectRatio>
+        ))}
+      </div>
     </div>
   );
 }

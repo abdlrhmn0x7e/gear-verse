@@ -41,6 +41,7 @@ export function Editor({
     onUpdate: ({ editor }) => {
       onUpdate(editor.getJSON());
     },
+    autofocus: true,
     extensions: [
       UndoRedo,
 
