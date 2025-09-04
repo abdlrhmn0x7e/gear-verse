@@ -30,7 +30,7 @@ export default function AdminLayout({
           <ModeToggle />
         </header>
 
-        <main className="p-4">{children}</main>
+        <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

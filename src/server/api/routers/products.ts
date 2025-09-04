@@ -4,6 +4,13 @@ import { productSchema } from "~/lib/schemas/product";
 
 export const productsRouter = createTRPCRouter({
   /**
+   * Queries
+   */
+  findAll: adminProcedure.query(() => {
+    return DB.products.queries.all();
+  }),
+
+  /**
    * Mutations
    */
   create: adminProcedure

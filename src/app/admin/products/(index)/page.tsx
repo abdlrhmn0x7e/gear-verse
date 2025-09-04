@@ -3,8 +3,14 @@ import PageHeader from "../../_components/page-header";
 import { Package, PackagePlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import SummaryCard from "../../_components/summary-card";
+import { ProductsTable } from "../../_components/tables/products/table";
+import { Suspense } from "react";
+import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
+import { api, HydrateClient } from "~/trpc/server";
 
 export default function AdminProductsPage() {
+  void api.products.findAll.prefetch();
+
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
@@ -22,14 +28,11 @@ export default function AdminProductsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <SummaryCard
-          title="Total Products"
-          value="100"
-          Icon={Package}
-          description="Total number of products in your store"
-        />
-      </div>
+      <HydrateClient>
+        <Suspense fallback={<ProductsTableSkeleton />}>
+          <ProductsTable />
+        </Suspense>
+      </HydrateClient>
     </section>
   );
 }
