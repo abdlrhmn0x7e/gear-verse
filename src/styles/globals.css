@@ -219,7 +219,7 @@ html body[data-scroll-locked] {
 }
 
 .scroll-shadow:not([data-shadow="false"]) {
-  --shadow-height: 10px;
+  --shadow-height: 20px;
   --scrollbar-width: 0px;
   mask-image:
     linear-gradient(

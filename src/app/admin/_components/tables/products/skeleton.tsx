@@ -4,7 +4,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export function ProductsTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-md border">
+    <div className="bg-background overflow-hidden rounded-md border">
       <Table>
         <ProductsTableHeader />
         <TableBody>

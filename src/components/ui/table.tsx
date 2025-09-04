@@ -4,11 +4,15 @@ import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  containerClassName,
+  ...props
+}: React.ComponentProps<"table"> & { containerClassName?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className={cn("relative w-full overflow-x-auto", containerClassName)}
     >
       <table
         data-slot="table"
@@ -23,7 +27,10 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-muted [&_th]:border-r [&_tr]:border-b", className)}
+      className={cn(
+        "[&_tr]:bg-muted [&_th]:border-r [&_tr]:border-b-0",
+        className,
+      )}
       {...props}
     />
   );
@@ -57,7 +64,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors [&_td]:border-r [&_td]:last:border-r-0",
+        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors [&_td]:border-r [&_td]:last:border-r-0 [&_th]:border-r [&_th]:last:border-r-0",
         className,
       )}
       {...props}
@@ -70,7 +77,8 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "text-accent-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "shadow-border sticky top-0 shadow-[inset_0_-1px_0_0]",
         className,
       )}
       {...props}
