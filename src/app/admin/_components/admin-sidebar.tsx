@@ -11,7 +11,14 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { NavMain } from "./nav-main";
-import { HomeIcon, PackageIcon, SearchIcon, SparklesIcon } from "lucide-react";
+import {
+  BadgeDollarSignIcon,
+  HomeIcon,
+  PackageIcon,
+  SearchIcon,
+  ShoppingBagIcon,
+  SparklesIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
 import { Button } from "~/components/ui/button";
@@ -27,6 +34,16 @@ const DASHBOARD_ITEMS = [
     title: "Products",
     url: "/admin/products",
     icon: PackageIcon,
+  },
+  {
+    title: "Listings",
+    url: "/admin/listings",
+    icon: ShoppingBagIcon,
+  },
+  {
+    title: "Orders",
+    url: "/admin/orders",
+    icon: BadgeDollarSignIcon,
   },
 ];
 

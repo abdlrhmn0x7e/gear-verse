@@ -4,10 +4,10 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
-import type { Product } from "~/lib/schemas/product";
+import type { RouterOutputs } from "~/trpc/react";
 
 export const productColumns: ColumnDef<
-  Omit<Product, "description" | "thumbnailMediaId" | "categoryId" | "brandId">
+  RouterOutputs["products"]["getPage"]["data"][0]
 >[] = [
   {
     accessorKey: "id",

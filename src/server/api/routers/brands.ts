@@ -1,49 +1,16 @@
 import { DB } from "~/server/repositories";
-import { adminProcedure, createTRPCRouter, publicProcedure } from "../trpc";
-import z from "zod";
-import { base64DecodeNumber, base64EncodeNumber } from "~/lib/utils/base64";
-import { TRPCError } from "@trpc/server";
-import { tryCatch } from "~/lib/utils/try-catch";
+import { adminProcedure, createTRPCRouter } from "../trpc";
 import { brandSchema } from "~/lib/schemas/brand";
+import { paginationSchema } from "~/lib/schemas/pagination";
+import { paginate } from "../helpers/pagination";
 
 export const brandsRouter = createTRPCRouter({
   /**
    * Queries
    */
-  getPage: publicProcedure
-    .input(z.object({ cursor: z.string().optional(), pageSize: z.number() }))
-    .query(async ({ input }) => {
-      const cursor = input.cursor
-        ? base64DecodeNumber(input.cursor)
-        : undefined;
-
-      const { error, data } = await tryCatch(
-        DB.brands.queries.getPage({
-          cursor,
-          pageSize: input.pageSize,
-        }),
-      );
-
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get brands page",
-        });
-      }
-
-      const hasNextPage = data.length > input.pageSize && !!data.pop();
-      const lastItem = data[data.length - 1];
-      if (!lastItem) {
-        return { data: [], nextCursor: null };
-      }
-
-      const nextCursor = hasNextPage ? base64EncodeNumber(lastItem.id) : null;
-
-      return {
-        data,
-        nextCursor,
-      };
-    }),
+  getPage: adminProcedure.input(paginationSchema).query(({ input }) => {
+    return paginate({ input, getPage: DB.brands.queries.getPage });
+  }),
 
   /**
    * Mutations

@@ -4,15 +4,17 @@ import Link from "next/link";
 export function QuickAction({
   title,
   description,
+  href,
   Icon,
 }: {
   title: string;
   description: string;
+  href: string;
   Icon: LucideIcon;
 }) {
   return (
     <Link
-      href="/admin/products/new"
+      href={href}
       className="ring-primary rounded-lg border transition-all hover:ring-2"
     >
       <div className="from-card to-background flex items-center justify-center gap-3 overflow-hidden rounded-[calc(var(--radius)+1px)] bg-gradient-to-t">

@@ -2,14 +2,15 @@ import Link from "next/link";
 import PageHeader from "../../_components/page-header";
 import { Package, PackagePlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import SummaryCard from "../../_components/summary-card";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { Suspense } from "react";
 import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default function AdminProductsPage() {
-  void api.products.findAll.prefetch();
+  void api.products.getPage.prefetchInfinite({
+    pageSize: 10,
+  });
 
   return (
     <section className="space-y-6">

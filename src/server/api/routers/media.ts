@@ -3,46 +3,16 @@ import { adminProcedure, createTRPCRouter } from "../trpc";
 import { DB } from "~/server/repositories";
 import z from "zod";
 import { s3GetPublicUrl } from "~/lib/s3";
-import { tryCatch } from "~/lib/utils/try-catch";
-import { TRPCError } from "@trpc/server";
-import { base64DecodeNumber, base64EncodeNumber } from "~/lib/utils/base64";
+import { paginate } from "../helpers/pagination";
+import { paginationSchema } from "~/lib/schemas/pagination";
 
 export const mediaRouter = createTRPCRouter({
   /**
    * Queries
    */
-  getPage: adminProcedure
-    .input(z.object({ cursor: z.string().optional(), pageSize: z.number() }))
-    .query(async ({ input }) => {
-      const cursor = input.cursor
-        ? base64DecodeNumber(input.cursor)
-        : undefined;
-      const { data, error } = await tryCatch(
-        DB.media.queries.getPage({
-          cursor,
-          pageSize: input.pageSize,
-        }),
-      );
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get media page",
-        });
-      }
-
-      const hasNextPage = data.length > input.pageSize && !!data.pop();
-      const lastItem = data[data.length - 1];
-      if (!lastItem) {
-        return { data: [], nextCursor: null };
-      }
-
-      const nextCursor = hasNextPage ? base64EncodeNumber(lastItem.id) : null;
-
-      return {
-        data,
-        nextCursor,
-      };
-    }),
+  getPage: adminProcedure.input(paginationSchema).query(({ input }) => {
+    return paginate({ input, getPage: DB.media.queries.getPage });
+  }),
 
   /**
    * Mutations

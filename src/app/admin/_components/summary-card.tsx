@@ -14,10 +14,12 @@ export default function SummaryCard({
 }) {
   return (
     <Card className="from-card to-background bg-gradient-to-b">
-      <CardContent className="flex items-center justify-between">
+      <CardContent className="flex items-center justify-between gap-3">
         <div>
-          <h4 className="text-muted-foreground text-lg">{title}</h4>
-          <p className="text-accent-foreground text-4xl font-bold">{value}</p>
+          <h4 className="text-muted-foreground text-md xl:text-lg">{title}</h4>
+          <p className="text-accent-foreground font-bold md:text-3xl xl:text-4xl">
+            {value}
+          </p>
           <p className="text-muted-foreground mt-2 text-sm">{description}</p>
         </div>
 

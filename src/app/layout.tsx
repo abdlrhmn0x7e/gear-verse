@@ -7,6 +7,7 @@ import localFont from "next/font/local";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
   title: "Gear Verse",
@@ -53,7 +54,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <NuqsAdapter>{children}</NuqsAdapter>
             <Toaster richColors />
           </ThemeProvider>
         </TRPCReactProvider>

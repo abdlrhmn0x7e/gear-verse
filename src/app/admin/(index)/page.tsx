@@ -34,14 +34,7 @@ export default async function AdminPage() {
       />
 
       <div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <SummaryCard
-            title="Total Products"
-            value="100"
-            description="Total number of products in the database"
-            Icon={PackageIcon}
-          />
-
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <SummaryCard
             title="Pending Orders"
             value="100"
@@ -64,11 +57,14 @@ export default async function AdminPage() {
           <QuickAction
             title="New Product"
             description="Create a new product to add to your store."
+            href="/admin/products/add"
             Icon={PlusIcon}
           />
+
           <QuickAction
             title="New Listing"
             description="Publish a new listing to your store."
+            href="#"
             Icon={ShoppingBagIcon}
           />
         </div>

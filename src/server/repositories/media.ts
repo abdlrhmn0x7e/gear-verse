@@ -7,13 +7,13 @@ type UpdateMediaDto = Partial<NewMediaDto>;
 
 export const _mediaRepository = {
   queries: {
-    getPage({
+    getPage: ({
       cursor,
       pageSize,
     }: {
       cursor: number | undefined;
       pageSize: number;
-    }) {
+    }) => {
       return db
         .select({ id: media.id, url: media.url })
         .from(media)
