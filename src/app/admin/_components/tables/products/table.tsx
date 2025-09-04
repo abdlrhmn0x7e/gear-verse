@@ -18,22 +18,7 @@ export function ProductsTable() {
   const router = useRouter();
 
   const table = useReactTable({
-    data: [
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-      ...products,
-    ],
+    data: products,
     columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
   });
