@@ -1,4 +1,4 @@
-import { desc, eq, and, gt, inArray } from "drizzle-orm";
+import { desc, eq, and, gt } from "drizzle-orm";
 import { db } from "../db";
 import { media, mediaStatusEnum } from "../db/schema";
 
