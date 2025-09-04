@@ -1,21 +1,15 @@
 import { PackageIcon } from "lucide-react";
-import { Heading } from "~/components/heading";
 import { AddProduct } from "./_components/add-product";
+import PageHeader from "../../_components/page-header";
 
 export default function AdminProductsAddPage() {
   return (
     <section className="space-y-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <PackageIcon />
-          <Heading level={3} font="sans">
-            Add Product
-          </Heading>
-        </div>
-        <p className="text-muted-foreground">
-          Add a new product to your store. silly you...
-        </p>
-      </div>
+      <PageHeader
+        title="Add Product"
+        description="Add a new product to your store"
+        Icon={PackageIcon}
+      />
 
       <AddProduct />
     </section>
