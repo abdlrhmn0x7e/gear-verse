@@ -5,54 +5,56 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useInView } from "react-intersection-observer";
 
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { api } from "~/trpc/react";
-import { productColumns } from "./columns";
-import { useRouter } from "next/navigation";
-import { ProductsTableHeader } from "./header";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Spinner } from "~/components/spinner";
-import { useEffect } from "react";
 import { SearchInput } from "../../inputs/search-input";
-import { parseAsString, useQueryState } from "nuqs";
+import { debounce, parseAsString, useQueryState } from "nuqs";
+import { ProductsTableHeader } from "./header";
+import { productColumns } from "./columns";
+import { api } from "~/trpc/react";
 import {
   keepPreviousData,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { useInView } from "react-intersection-observer";
+import { Spinner } from "~/components/spinner";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { useRouter } from "next/navigation";
+import { PackageOpenIcon } from "lucide-react";
 
 export function ProductsTable() {
-  const [title] = useQueryState(
+  const [title, setTitle] = useQueryState(
     "title",
     parseAsString.withOptions({
-      shallow: true,
+      shallow: false,
     }),
   );
   const utils = api.useUtils();
-
   const {
     data: products,
-    fetchNextPage,
     hasNextPage,
+    fetchNextPage,
   } = useSuspenseInfiniteQuery(
     utils.products.getPage.infiniteQueryOptions(
       {
-        title,
         pageSize: 10,
+        title: title ?? undefined,
       },
       {
         placeholderData: keepPreviousData,
-        getNextPageParam(lastPage) {
-          return lastPage.nextCursor;
-        },
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     ),
   );
+  const productsData = useMemo(
+    () => products?.pages.flatMap((page) => page.data),
+    [products],
+  );
+
+  const { ref, inView } = useInView();
 
   const router = useRouter();
-  const { ref, inView } = useInView();
-  const productsData = products?.pages.flatMap((page) => page.data);
 
   const table = useReactTable({
     data: productsData,
@@ -67,14 +69,20 @@ export function ProductsTable() {
   }, [inView, fetchNextPage]);
 
   return (
-    <Card className="gap-1 py-2">
+    <Card className="gap-2 py-2">
       <CardHeader className="px-2">
-        <SearchInput className="max-w-xs" />
+        <SearchInput
+          className="max-w-xs"
+          defaultValue={title ?? ""}
+          onChange={(e) =>
+            setTitle(e.target.value, { limitUrlUpdates: debounce(500) })
+          }
+        />
       </CardHeader>
 
       <CardContent className="px-2">
         <div className="bg-background overflow-hidden rounded-md border">
-          <Table containerClassName="scroll-shadow max-h-[70svh] overflow-y-auto">
+          <Table containerClassName="h-fit max-h-[75svh] overflow-y-auto">
             <ProductsTableHeader />
 
             <TableBody>
@@ -82,10 +90,10 @@ export function ProductsTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
                     onClick={() =>
                       router.push(`/admin/products/${row.original.id}`)
                     }
-                    data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer"
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -104,17 +112,23 @@ export function ProductsTable() {
                     colSpan={productColumns.length}
                     className="h-24 text-center"
                   >
-                    No results.
+                    <div className="flex flex-col items-center justify-center gap-2 py-32">
+                      <PackageOpenIcon size={64} />
+                      <p className="text-lg font-medium">No Products Found.</p>
+                      <p className="text-muted-foreground text-sm">
+                        What a shame get your ass to work and create some
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
-
-              {hasNextPage && (
-                <div className="flex items-center justify-center p-4" ref={ref}>
-                  <Spinner />
-                </div>
-              )}
             </TableBody>
+
+            {hasNextPage && (
+              <div className="flex items-center justify-center p-4" ref={ref}>
+                <Spinner />
+              </div>
+            )}
           </Table>
         </div>
       </CardContent>

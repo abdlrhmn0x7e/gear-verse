@@ -3,7 +3,6 @@ import { auth } from "~/server/auth";
 import PageHeader from "../_components/page-header";
 import {
   HomeIcon,
-  PackageIcon,
   PlusIcon,
   ShoppingBagIcon,
   ShoppingCartIcon,

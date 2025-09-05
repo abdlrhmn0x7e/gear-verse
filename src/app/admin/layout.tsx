@@ -7,15 +7,27 @@ import { AdminSidebar } from "./_components/admin-sidebar";
 import { Separator } from "~/components/ui/separator";
 import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
 import { ModeToggle } from "~/components/mode-toggle";
+import { auth } from "~/server/auth";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user.role !== "admin") {
+    return notFound();
+  }
+
   return (
     <SidebarProvider>
       <AdminSidebar />
+
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b pr-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">

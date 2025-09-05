@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
-import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigint,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { brands } from "./brands";
 
@@ -11,17 +18,23 @@ export const mediaOwnerTypeEnum = pgEnum("owner_type", [
 ]);
 export const mediaStatusEnum = pgEnum("status", ["PENDING", "READY"]);
 
-export const media = pgTable("media", {
-  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+export const media = pgTable(
+  "media",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
 
-  ownerType: mediaOwnerTypeEnum().notNull(),
-  ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+    ownerType: mediaOwnerTypeEnum().notNull(),
+    ownerId: bigint("owner_id", { mode: "number" }).notNull(),
 
-  status: mediaStatusEnum().notNull().default("PENDING"),
-  url: text("url").notNull(),
+    status: mediaStatusEnum().notNull().default("PENDING"),
+    url: text("url").notNull(),
 
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("media_owner_id_idx").on(table.ownerId)],
+);
 
 export const mediaRelations = relations(media, ({ one }) => ({
   products: one(products, {

@@ -5,6 +5,7 @@ import {
   boolean,
   bigint,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable(
@@ -46,7 +47,7 @@ export const session = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
   },
   (table) => [
-    uniqueIndex("session_user_id_unique_idx").on(table.userId),
+    index("session_user_id_unique_idx").on(table.userId),
     uniqueIndex("session_token_unique_idx").on(table.token),
   ],
 );

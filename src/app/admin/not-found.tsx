@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 
 export default function AdminNotFoundPage() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3">
+    <div className="flex h-full flex-col items-center justify-center gap-3 pb-12">
       <SkullIcon className="size-24" />
       <Heading level={3}>Page Not Found</Heading>
       <p className="text-muted-foreground">

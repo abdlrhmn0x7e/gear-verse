@@ -3,8 +3,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { admin } from "better-auth/plugins";
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
+  baseURL: env.NEXT_PUBLIC_BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -26,5 +28,5 @@ export const auth = betterAuth({
       generateId: false,
     },
   },
-  plugins: [admin()],
+  plugins: [nextCookies(), admin()],
 });

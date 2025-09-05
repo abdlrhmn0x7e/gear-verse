@@ -26,6 +26,7 @@ export async function paginate<
   );
 
   if (error) {
+    console.error("pagination error", error);
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get page",

@@ -2,7 +2,6 @@
 
 import { SearchIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { debounce, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef } from "react";
 
 export function SearchInput({
@@ -10,12 +9,6 @@ export function SearchInput({
   ...props
 }: React.ComponentProps<"input">) {
   const searchRef = useRef<HTMLInputElement>(null);
-  const [title, setTitle] = useQueryState(
-    "title",
-    parseAsString.withOptions({
-      shallow: true,
-    }),
-  );
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -33,7 +26,7 @@ export function SearchInput({
   return (
     <div
       className={cn(
-        "from-primary/40 ring-primary to-accent rounded-lg bg-gradient-to-br p-px transition-shadow has-focus:ring-2",
+        "ring-primary to-accent from-primary/40 rounded-lg bg-gradient-to-br p-px transition-shadow has-focus:ring-2",
         className,
       )}
     >
@@ -48,14 +41,7 @@ export function SearchInput({
         <input
           ref={searchRef}
           placeholder="Search"
-          className="ring-input flex-1 focus-visible:outline-none"
-          value={title ?? ""}
-          onChange={(e) =>
-            setTitle(e.target.value, {
-              limitUrlUpdates:
-                e.target.value === "" ? undefined : debounce(500),
-            })
-          }
+          className="ring-input w-full flex-1 focus-visible:outline-none"
           {...props}
         />
         <div className="from-primary/30 to-primary/5 bordermd flex size-6 items-center justify-center rounded-[calc(var(--radius)-1px)] bg-radial">

@@ -46,19 +46,35 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  if (!ctx.session) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+  if (!ctx.session?.user) {
+    console.log("Auth middleware: No session found");
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Authentication required",
+    });
   }
 
   return next({ ctx: { ...ctx, session: ctx.session } });
 });
+
 const adminMiddleware = t.middleware(async ({ next, ctx }) => {
   if (!ctx.session?.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+    console.log("Admin middleware: No session found");
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Authentication required",
+    });
   }
 
-  if (ctx.session?.user.role !== "admin") {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+  if (ctx.session.user.role !== "admin") {
+    console.log(
+      "Admin middleware: User is not admin, role:",
+      ctx.session.user.role,
+    );
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
   }
 
   return next({ ctx: { ...ctx, session: ctx.session } });

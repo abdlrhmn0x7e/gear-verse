@@ -19,6 +19,12 @@ export const productsRouter = createTRPCRouter({
       return paginate({ input, getPage: DB.products.queries.getPage });
     }),
 
+  findById: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(({ input }) => {
+      return DB.products.queries.findById(input.id);
+    }),
+
   /**
    * Mutations
    */

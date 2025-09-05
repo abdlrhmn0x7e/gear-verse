@@ -475,8 +475,8 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
             <Image
               alt={`Media Image ${image.id}`}
               src={image.url}
-              height={100}
-              width={100}
+              height={256}
+              width={256}
               className="size-full object-cover"
             />
           </AspectRatio>
