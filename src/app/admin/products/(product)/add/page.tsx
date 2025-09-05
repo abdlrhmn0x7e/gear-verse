@@ -1,6 +1,6 @@
 import { PackageIcon } from "lucide-react";
 import { AddProduct } from "./_components/add-product";
-import PageHeader from "../../_components/page-header";
+import PageHeader from "../../../_components/page-header";
 
 export default function AdminProductsAddPage() {
   return (

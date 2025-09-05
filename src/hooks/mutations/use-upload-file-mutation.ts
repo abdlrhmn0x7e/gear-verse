@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import type { UpdateMediaDto } from "~/lib/schemas/media";
+import type { Media, UpdateMediaDto } from "~/lib/schemas/media";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { api } from "~/trpc/react";
 
@@ -28,6 +28,9 @@ async function uploadFile(
     id: number;
     data: UpdateMediaDto;
   }) => Promise<{ id: number } | undefined>,
+
+  ownerType?: Media["ownerType"],
+  ownerId?: Media["ownerId"],
 ) {
   // Request a presigned URL for the file
   const { data, error } = await tryCatch(
@@ -51,7 +54,10 @@ async function uploadFile(
   }
 
   // Update the media record status to "READY"
-  await updateMedia({ id: data.mediaId, data: { status: "READY" } });
+  await updateMedia({
+    id: data.mediaId,
+    data: { status: "READY", ownerType, ownerId },
+  });
 
   // Return the public access URL and mediaId
   return { url: data.accessUrl, mediaId: data.mediaId };
@@ -72,8 +78,15 @@ export function useUploadFileMutation() {
   const { mutateAsync: updateMedia } = api.media.update.useMutation();
 
   return useMutation({
-    mutationFn: ({ file }: { file: File }) =>
-      uploadFile(file, getPresignedUrl, updateMedia),
+    mutationFn: ({
+      file,
+      ownerType,
+      ownerId,
+    }: {
+      file: File;
+      ownerType?: Media["ownerType"];
+      ownerId?: Media["ownerId"];
+    }) => uploadFile(file, getPresignedUrl, updateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload
       void utils.media.getPage.invalidate();

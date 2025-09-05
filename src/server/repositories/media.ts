@@ -65,5 +65,12 @@ export const _mediaRepository = {
         }
       });
     },
+
+    delete(id: number) {
+      return db
+        .delete(media)
+        .where(eq(media.id, id))
+        .returning({ id: media.id });
+    },
   },
 };

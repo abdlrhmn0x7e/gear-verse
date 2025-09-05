@@ -33,4 +33,25 @@ export const productsRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return DB.products.mutations.create(input);
     }),
+
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        data: productSchema.omit({
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+        }),
+      }),
+    )
+    .mutation(({ input }) => {
+      return DB.products.mutations.update(input.id, input.data);
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ input }) => {
+      return DB.products.mutations.delete(input.id);
+    }),
 });

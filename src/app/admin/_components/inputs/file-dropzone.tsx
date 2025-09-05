@@ -5,11 +5,25 @@ import {
   UploadIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
+import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
+import { api } from "~/trpc/react";
+
+interface FileDropZoneProps {
+  onChange: (files: File[]) => void;
+  maxFiles?: number;
+  options?: DropzoneOptions;
+  isLoading?: boolean;
+  showFiles?: boolean;
+  className?: string;
+  initialFiles?: { id: number; url: string }[];
+  onRemoveFilePreview?: (fileId: number) => void;
+}
 
 export function FileDropzone({
   onChange,
@@ -18,25 +32,23 @@ export function FileDropzone({
   isLoading = false,
   showFiles = true,
   className,
-}: {
-  onChange: (files: File[]) => void;
-  maxFiles?: number;
-  options?: DropzoneOptions;
-  isLoading?: boolean;
-  showFiles?: boolean;
-  className?: string;
-}) {
+  initialFiles,
+}: FileDropZoneProps) {
   const [files, setFiles] = useState<File[]>([]);
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      if (maxFiles && files.length + acceptedFiles.length > maxFiles) {
+      if (
+        maxFiles &&
+        files.length + acceptedFiles.length + (initialFiles?.length ?? 0) >
+          maxFiles
+      ) {
         return;
       }
 
       onChange([...files, ...acceptedFiles]);
       setFiles((prev) => [...prev, ...acceptedFiles]);
     },
-    [onChange, files, maxFiles],
+    [onChange, files, maxFiles, initialFiles],
   );
 
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
@@ -59,7 +71,9 @@ export function FileDropzone({
         className={cn(
           "hover:bg-input/50 bg-input/40 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-4 text-center",
           isDragActive && "bg-input/60",
-          ((maxFiles && files.length >= maxFiles) ?? isLoading) &&
+          ((maxFiles &&
+            files.length + (initialFiles?.length ?? 0) >= maxFiles) ??
+            isLoading) &&
             "pointer-events-none opacity-50",
           className,
         )}
@@ -104,7 +118,7 @@ export function FileDropzone({
         )}
       </div>
 
-      {files.length > 0 && showFiles && (
+      {showFiles && (
         <div
           className={cn(
             "grid grid-cols-2 items-start gap-4",
@@ -112,53 +126,129 @@ export function FileDropzone({
           )}
         >
           {files.map((file, idx) => (
-            <div
-              key={`${file.name}-${idx}`}
-              className={cn(
-                "relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2",
-                files.length % 2 === 1 &&
-                  files.length - 1 === idx &&
-                  "col-span-2",
-              )}
-            >
-              <div className="relative z-10 flex items-center gap-2">
-                <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    width={100}
-                    height={100}
-                    className="object-cover object-center"
-                  />
-                </div>
-
-                <div>
-                  <p className="text-foreground text-sm font-medium">
-                    {file.name}
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    {file.size / 1024 > 1024
-                      ? Math.round(file.size / 1024 / 1024) + " MB"
-                      : Math.round(file.size / 1024) + " KB"}
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                variant="destructiveGhost"
-                type="button"
-                size="icon"
-                className="relative z-10"
-                onClick={() => handleRemoveFile(file)}
-              >
-                <TrashIcon />
-              </Button>
-
-              <div className="bg-input/40 absolute inset-0" />
-            </div>
+            <FileItem
+              key={`file-${file.name}-${idx}`}
+              file={file}
+              handleRemoveFile={handleRemoveFile}
+            />
           ))}
+
+          {initialFiles &&
+            initialFiles.length > 0 &&
+            initialFiles.map((file, idx) => (
+              <FileItemPreview
+                key={`file-${file.url}-${idx}`}
+                file={file}
+                idx={idx}
+              />
+            ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function FileItemPreview({
+  file,
+  idx,
+}: {
+  file: { id: number; url: string };
+  idx: number;
+}) {
+  const { mutate: deleteMedia, isPending: deletingMedia } =
+    api.media.delete.useMutation();
+  const router = useRouter();
+
+  function handleRemoveFilePreview() {
+    deleteMedia(
+      { id: file.id },
+      {
+        onSuccess: () => {
+          router.refresh();
+          toast.success("Media deleted successfully");
+        },
+        onError: () => {
+          toast.error("Failed to delete media");
+        },
+      },
+    );
+  }
+
+  return (
+    <div className="relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2">
+      <div className="relative z-10 flex items-center gap-2">
+        <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">
+          <Image
+            src={file.url}
+            alt={`Product Image ${idx + 1}`}
+            width={100}
+            height={100}
+            className="object-cover object-center"
+          />
+        </div>
+
+        <p className="text-foreground text-sm font-medium">{`Product Image ${idx + 1}`}</p>
+      </div>
+
+      <Button
+        variant="destructiveGhost"
+        type="button"
+        size="icon"
+        className="relative z-10"
+        onClick={handleRemoveFilePreview}
+        disabled={deletingMedia}
+      >
+        {deletingMedia ? <Spinner /> : <TrashIcon />}
+      </Button>
+
+      <div className="bg-input/40 absolute inset-0" />
+    </div>
+  );
+}
+
+function FileItem({
+  file,
+
+  handleRemoveFile,
+}: {
+  file: File;
+
+  handleRemoveFile: (file: File) => void;
+}) {
+  return (
+    <div className="relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2">
+      <div className="relative z-10 flex items-center gap-2">
+        <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">
+          <Image
+            src={URL.createObjectURL(file)}
+            alt={file.name}
+            width={100}
+            height={100}
+            className="object-cover object-center"
+          />
+        </div>
+
+        <div>
+          <p className="text-foreground text-sm font-medium">{file.name}</p>
+          <p className="text-muted-foreground text-sm">
+            {file.size / 1024 > 1024
+              ? Math.round(file.size / 1024 / 1024) + " MB"
+              : Math.round(file.size / 1024) + " KB"}
+          </p>
+        </div>
+      </div>
+
+      <Button
+        variant="destructiveGhost"
+        type="button"
+        size="icon"
+        className="relative z-10"
+        onClick={() => handleRemoveFile(file)}
+      >
+        <TrashIcon />
+      </Button>
+
+      <div className="bg-input/40 absolute inset-0" />
     </div>
   );
 }

@@ -1,9 +1,17 @@
 import { eq, gt, ilike, and } from "drizzle-orm";
 import { db } from "../db";
-import { brands, media, mediaOwnerTypeEnum, products } from "../db/schema";
+import {
+  brands,
+  listings,
+  media,
+  mediaOwnerTypeEnum,
+  products,
+} from "../db/schema";
 import { alias } from "drizzle-orm/pg-core";
 
 type NewProduct = typeof products.$inferInsert;
+type UpdateProduct = Partial<NewProduct>;
+
 export const _productsRepository = {
   queries: {
     findAll() {
@@ -64,9 +72,13 @@ export const _productsRepository = {
             id: products.id,
             title: products.title,
             description: products.description,
-            thumbnailUrl: media.url,
+            thumbnail: {
+              id: media.id,
+              url: media.url,
+            },
             createdAt: products.createdAt,
             updatedAt: products.updatedAt,
+            categoryId: products.categoryId,
             brand: {
               id: brands.id,
               name: brands.name,
@@ -105,6 +117,7 @@ export const _productsRepository = {
       });
     },
   },
+
   mutations: {
     create: (product: NewProduct) => {
       return db
@@ -112,6 +125,30 @@ export const _productsRepository = {
         .values(product)
         .returning({ id: products.id })
         .then(([result]) => result);
+    },
+
+    update: (id: number, product: UpdateProduct) => {
+      return db
+        .update(products)
+        .set(product)
+        .where(eq(products.id, id))
+        .returning({ id: products.id })
+        .then(([result]) => result);
+    },
+
+    delete: (id: number) => {
+      return db.transaction(async (tx) => {
+        await tx.delete(products).where(eq(products.id, id));
+        await tx.delete(listings).where(eq(listings.productId, id));
+        await tx
+          .delete(media)
+          .where(
+            and(
+              eq(media.ownerId, id),
+              eq(media.ownerType, mediaOwnerTypeEnum.enumValues[0]),
+            ),
+          );
+      });
     },
   },
 };

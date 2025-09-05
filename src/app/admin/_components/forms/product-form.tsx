@@ -18,6 +18,7 @@ import { Editor } from "../editor";
 import { CategoryCombobox } from "../inputs/category-combobox";
 import { FileDropzone } from "../inputs/file-dropzone";
 import { BrandsCombobox } from "../inputs/brands-combobox";
+import { useMemo } from "react";
 
 const productFormSchema = productSchema
   .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
@@ -25,22 +26,52 @@ const productFormSchema = productSchema
     z.object({
       thumbnail: z
         .array(imageSchema, "Thumbnail is required")
-        .min(1, "Thumbnail is required"),
+        .min(1, "Thumbnail is required")
+        .optional(),
       images: z
         .array(imageSchema, "Images are required")
-        .min(1, "Images are required"),
+        .min(1, "Images are required")
+        .optional(),
     }),
   );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export function ProductForm({
   onSubmit,
+  defaultValues,
+  oldThumbnail,
+  oldImages,
 }: {
   onSubmit: (data: ProductFormValues) => void;
+  defaultValues?: Partial<ProductFormValues>;
+  oldThumbnail?: { id: number; url: string };
+  oldImages?: { id: number; url: string }[];
 }) {
+  const schema = useMemo(() => {
+    return productFormSchema.superRefine((data, ctx) => {
+      if (defaultValues) {
+        return;
+      }
+
+      if (data.thumbnail?.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Thumbnail is required",
+        });
+      }
+
+      if (data.images?.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Images are required",
+        });
+      }
+    });
+  }, [defaultValues]);
+
   const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: {
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues ?? {
       title: "",
       description: {},
       categoryId: 0,
@@ -114,7 +145,11 @@ export function ProductForm({
               <FormItem>
                 <FormLabel>Thumbnail</FormLabel>
                 <FormControl>
-                  <FileDropzone onChange={field.onChange} maxFiles={1} />
+                  <FileDropzone
+                    onChange={field.onChange}
+                    maxFiles={1}
+                    initialFiles={oldThumbnail ? [oldThumbnail] : undefined}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -128,7 +163,10 @@ export function ProductForm({
               <FormItem>
                 <FormLabel>Images</FormLabel>
                 <FormControl>
-                  <FileDropzone onChange={field.onChange} />
+                  <FileDropzone
+                    onChange={field.onChange}
+                    initialFiles={oldImages}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,7 +181,10 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Editor onUpdate={field.onChange} />
+                <Editor
+                  onUpdate={field.onChange}
+                  defaultContent={field.value}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

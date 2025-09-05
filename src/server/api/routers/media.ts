@@ -42,9 +42,16 @@ export const mediaRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return DB.media.mutations.update(input.id, input.data);
     }),
+
   updateMany: adminProcedure
     .input(z.array(mediaSchema))
     .mutation(({ input }) => {
       return DB.media.mutations.updateMany(input);
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ input }) => {
+      return DB.media.mutations.delete(input.id);
     }),
 });
