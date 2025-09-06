@@ -9,3 +9,4 @@ export const brandSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
+export type Brand = z.infer<typeof brandSchema>;

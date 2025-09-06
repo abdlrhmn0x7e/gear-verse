@@ -1,4 +1,4 @@
-import { eq, gt, ilike, and } from "drizzle-orm";
+import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
 import {
   brands,
@@ -30,13 +30,24 @@ export const _productsRepository = {
     getPage: ({
       cursor,
       pageSize,
-      title,
+      filters,
     }: {
       cursor: number | undefined;
       pageSize: number;
-      title?: string | null;
+      filters?: {
+        title?: string | null;
+        brands?: number[] | null;
+      };
     }) => {
       const brandsMedia = alias(media, "brandsMedia");
+      const whereClause = [gt(products.id, cursor ?? 0)];
+      if (filters?.title) {
+        whereClause.push(ilike(products.title, `%${filters.title}%`));
+      }
+      if (filters?.brands) {
+        whereClause.push(inArray(products.brandId, filters.brands));
+      }
+
       return db
         .select({
           id: products.id,
@@ -54,12 +65,7 @@ export const _productsRepository = {
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
-        .where(
-          and(
-            gt(products.id, cursor ?? 0),
-            ilike(products.title, `%${title ?? ""}%`),
-          ),
-        )
+        .where(and(...whereClause))
         .limit(pageSize + 1)
         .orderBy(products.id);
     },

@@ -6,8 +6,11 @@ import { useEffect, useRef } from "react";
 
 export function SearchInput({
   className,
+  children,
   ...props
-}: React.ComponentProps<"input">) {
+}: React.ComponentProps<"input"> & {
+  children?: React.ReactNode;
+}) {
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,7 +35,7 @@ export function SearchInput({
     >
       <div
         className={cn(
-          "bg-background flex items-center gap-3 rounded-[calc(var(--radius)-1px)] px-2 py-1",
+          "bg-background flex items-center gap-3 rounded-[calc(var(--radius)-1px)] py-1 pr-3 pl-2",
           className,
         )}
       >
@@ -42,10 +45,19 @@ export function SearchInput({
           ref={searchRef}
           placeholder="Search"
           className="ring-input w-full flex-1 focus-visible:outline-none"
+          autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck="false"
           {...props}
         />
-        <div className="from-primary/30 to-primary/5 bordermd flex size-6 items-center justify-center rounded-[calc(var(--radius)-1px)] bg-radial">
-          <kbd className="text-muted-foreground text-sm">/</kbd>
+
+        <div className="flex items-center gap-2">
+          <div className="from-primary/30 to-primary/5 bordermd flex size-6 items-center justify-center rounded-[calc(var(--radius)-1px)] bg-radial">
+            <kbd className="text-muted-foreground text-sm">/</kbd>
+          </div>
+
+          {children}
         </div>
       </div>
     </div>

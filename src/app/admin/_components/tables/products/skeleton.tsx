@@ -6,6 +6,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { SearchInput } from "../../inputs/search-input";
 import { parseAsString, useQueryState } from "nuqs";
+import { ListFilterIcon } from "lucide-react";
 
 export function ProductsTableSkeleton() {
   const [title] = useQueryState(
@@ -18,7 +19,11 @@ export function ProductsTableSkeleton() {
   return (
     <Card className="gap-1 py-2">
       <CardHeader className="px-2">
-        <SearchInput className="max-w-xs" disabled defaultValue={title ?? ""} />
+        <SearchInput className="max-w-sm" disabled defaultValue={title ?? ""}>
+          <button className="text-muted-foreground [&_svg]:size-4" disabled>
+            <ListFilterIcon />
+          </button>
+        </SearchInput>
       </CardHeader>
 
       <CardContent className="px-2">

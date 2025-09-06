@@ -7,8 +7,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { SearchInput } from "../../inputs/search-input";
-import { debounce, parseAsString, useQueryState } from "nuqs";
 import { ProductsTableHeader } from "./header";
 import { productColumns } from "./columns";
 import { api } from "~/trpc/react";
@@ -22,14 +20,11 @@ import { Spinner } from "~/components/spinner";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { useRouter } from "next/navigation";
 import { PackageOpenIcon } from "lucide-react";
+import { ProductsFilter } from "./filters";
+import { useProductsFilterParams } from "./hooks";
 
 export function ProductsTable() {
-  const [title, setTitle] = useQueryState(
-    "title",
-    parseAsString.withOptions({
-      shallow: false,
-    }),
-  );
+  const [filters] = useProductsFilterParams();
   const utils = api.useUtils();
   const {
     data: products,
@@ -39,7 +34,10 @@ export function ProductsTable() {
     utils.products.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
-        title: title ?? undefined,
+        filters: {
+          title: filters.title ?? undefined,
+          brands: filters.brands ?? undefined,
+        },
       },
       {
         placeholderData: keepPreviousData,
@@ -53,7 +51,6 @@ export function ProductsTable() {
   );
 
   const { ref, inView } = useInView();
-
   const router = useRouter();
 
   const table = useReactTable({
@@ -71,13 +68,7 @@ export function ProductsTable() {
   return (
     <Card className="gap-2 py-2">
       <CardHeader className="px-2">
-        <SearchInput
-          className="max-w-xs"
-          defaultValue={title ?? ""}
-          onChange={(e) =>
-            setTitle(e.target.value, { limitUrlUpdates: debounce(500) })
-          }
-        />
+        <ProductsFilter />
       </CardHeader>
 
       <CardContent className="px-2">
@@ -110,7 +101,7 @@ export function ProductsTable() {
                 <TableRow>
                   <TableCell
                     colSpan={productColumns.length}
-                    className="h-24 text-center"
+                    className="text-center"
                   >
                     <div className="flex flex-col items-center justify-center gap-2 py-32">
                       <PackageOpenIcon size={64} />

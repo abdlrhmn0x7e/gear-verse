@@ -6,9 +6,19 @@ import { ProductsTable } from "../../_components/tables/products/table";
 import { Suspense } from "react";
 import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
 import { api, HydrateClient } from "~/trpc/server";
+import { loadProductFiltersSearchParams } from "../../_components/tables/products/hooks";
+import type { SearchParams } from "nuqs";
 
-export default function AdminProductsPage() {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  void loadProductFiltersSearchParams(await searchParams);
   void api.products.getPage.prefetchInfinite({
+    pageSize: 10,
+  });
+  void api.brands.getPage.prefetchInfinite({
     pageSize: 10,
   });
 

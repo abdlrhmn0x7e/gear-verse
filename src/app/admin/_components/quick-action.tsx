@@ -15,13 +15,13 @@ export function QuickAction({
   return (
     <Link
       href={href}
-      className="ring-primary rounded-lg border transition-all hover:ring-2"
+      className="ring-primary overflow-hidden rounded-lg border transition-all hover:ring-2"
     >
       <div className="from-card to-background flex items-center justify-center gap-3 overflow-hidden rounded-[calc(var(--radius)+1px)] bg-gradient-to-t">
         <div className="bg-background flex size-24 items-center justify-center overflow-hidden border-r">
-          <div className="bg-card relative flex size-18 items-center justify-center overflow-hidden rounded-full border">
-            <Icon className="text-accent-foreground size-12 -rotate-12" />
-            <div className="bg-accent/80 absolute inset-x-0 inset-y-2/3 z-10 size-full backdrop-blur" />
+          <div className="from-card to-primary/20 relative flex size-18 items-center justify-center overflow-hidden rounded-full border bg-gradient-to-t">
+            <Icon className="text-accent-foreground size-12" />
+            <div className="bg-accent/80 absolute inset-x-0 inset-y-2/3 z-10 size-full -rotate-4" />
           </div>
         </div>
 

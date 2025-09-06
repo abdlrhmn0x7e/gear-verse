@@ -14,7 +14,17 @@ export const productsRouter = createTRPCRouter({
   }),
 
   getPage: adminProcedure
-    .input(paginationSchema.extend({ title: z.string().nullish() }))
+    .input(
+      paginationSchema.extend({
+        filters: z
+          .object({
+            title: z.string(),
+            brands: z.array(z.number()),
+          })
+          .partial()
+          .optional(),
+      }),
+    )
     .query(({ input }) => {
       return paginate({ input, getPage: DB.products.queries.getPage });
     }),

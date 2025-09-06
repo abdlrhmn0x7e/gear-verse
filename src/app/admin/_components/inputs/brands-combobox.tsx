@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
 import { AddBrandDialog } from "../dialogs/add-brand-dialog";
@@ -127,56 +127,86 @@ export function BrandsCombobox({
           {value ? (
             brandsData.find((brand) => brand.id === value)?.name
           ) : (
-            <span className="text-muted-foreground">Select a brand</span>
+            <div className="flex items-center gap-2">
+              <TargetIcon className="text-muted-foreground size-4" />
+              <span className="text-muted-foreground">Select a brand</span>
+            </div>
           )}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <Command>
-          <CommandInput placeholder="Search brands" className="h-9" />
-          <CommandList>
-            <CommandEmpty>No brands found</CommandEmpty>
-            <CommandGroup>
-              {brandsData.map((brand) => (
-                <CommandItem
-                  key={brand.id}
-                  value={brand.name}
-                  onSelect={() => {
-                    if (brand.id === value) {
-                      onValueChange(0);
-                      setOpen(false);
-                      return;
-                    }
-
-                    onValueChange(brand.id);
-                    setOpen(false);
-                  }}
-                >
-                  <TargetIcon />
-                  {brand.name}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === brand.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-
-            {hasNextPage && (
-              <div className="flex items-center justify-center p-4" ref={ref}>
-                <Spinner />
-              </div>
-            )}
-          </CommandList>
-
-          <Separator />
-
-          <AddBrandDialog />
-        </Command>
+        <BrandsCommand
+          brands={brands.pages.flatMap((page) => page.data)}
+          hasNextPage={hasNextPage}
+          onValueChange={onValueChange}
+          setOpen={setOpen}
+          value={value}
+          ref={ref}
+        />
       </PopoverContent>
     </Popover>
+  );
+}
+
+export function BrandsCommand({
+  brands,
+  hasNextPage,
+  onValueChange,
+  setOpen,
+  value,
+  ref,
+}: {
+  brands: RouterOutputs["brands"]["getPage"]["data"];
+  value: number;
+  onValueChange: (value: number) => void;
+  setOpen: (open: boolean) => void;
+  hasNextPage: boolean;
+  ref: (node?: Element | null) => void;
+}) {
+  return (
+    <Command>
+      <CommandInput placeholder="Search brands" className="h-9" />
+      <CommandList>
+        <CommandEmpty>No brands found</CommandEmpty>
+        <CommandGroup>
+          {brands.map((brand) => (
+            <CommandItem
+              key={brand.id}
+              value={brand.name}
+              onSelect={() => {
+                if (brand.id === value) {
+                  onValueChange(0);
+                  setOpen(false);
+                  return;
+                }
+
+                onValueChange(brand.id);
+                setOpen(false);
+              }}
+            >
+              <TargetIcon />
+              {brand.name}
+              <Check
+                className={cn(
+                  "ml-auto",
+                  value === brand.id ? "opacity-100" : "opacity-0",
+                )}
+              />
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        {hasNextPage && (
+          <div className="flex items-center justify-center p-4" ref={ref}>
+            <Spinner />
+          </div>
+        )}
+      </CommandList>
+
+      <Separator />
+
+      <AddBrandDialog />
+    </Command>
   );
 }
