@@ -25,7 +25,7 @@ export default function Loading() {
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
-            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-48" />
           </div>
           <div className="flex items-center gap-2">
             <Skeleton className="h-10 w-32" />

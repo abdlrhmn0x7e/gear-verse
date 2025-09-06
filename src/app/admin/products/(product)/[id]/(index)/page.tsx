@@ -48,9 +48,9 @@ export default async function ProductPage({
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
             <p className="text-muted-foreground text-sm font-medium">
-              Created at {format(product.createdAt, "MMM d, yyyy")}
+              Created at {format(product.createdAt, "MMM d, yyyy hh:mm a")}
             </p>
-          </div>{" "}
+          </div>
           <div className="flex items-center gap-2">
             <Button asChild>
               <Link href={`/admin/products/${product.id}/edit`}>

@@ -3,6 +3,7 @@ import {
   integer,
   numeric,
   pgTable,
+  text,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
@@ -12,6 +13,7 @@ import { media } from "./media";
 export const listings = pgTable("listings", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
+  title: text("title").notNull(),
   price: numeric("price", { precision: 4, scale: 2 }).notNull(),
   stock: integer("stock").notNull(),
 

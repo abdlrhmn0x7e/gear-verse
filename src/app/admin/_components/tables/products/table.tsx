@@ -6,49 +6,51 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { ProductsTableHeader } from "./header";
-import { productColumns } from "./columns";
-import { api } from "~/trpc/react";
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-} from "@tanstack/react-query";
+// React & Next
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+
+// Third-party hooks & utilities
+import { keepPreviousData } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
+
+// UI & Icons
+import { PackageOpenIcon } from "lucide-react";
 import { Spinner } from "~/components/spinner";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { useRouter } from "next/navigation";
-import { PackageOpenIcon } from "lucide-react";
-import { ProductsFilter } from "./filters";
-import { useProductsFilterParams } from "./hooks";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
+
+// Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
+import { useProductsFilterParams } from "./hooks";
+
+// Table logic & components
+import { api } from "~/trpc/react";
+import { productColumns } from "./columns";
+import { ProductsFilter } from "./filters";
+import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 
 export function ProductsTable() {
   const [filters] = useProductsFilterParams();
   const debouncedFilters = useDebounce(filters);
-  const utils = api.useUtils();
   const {
     data: products,
-    isFetchedAfterMount,
+    isFetched,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteQuery(
-    utils.products.getPage.infiniteQueryOptions(
-      {
-        pageSize: 10,
-        filters: {
-          title: debouncedFilters.title ?? undefined,
-          brands: filters.brands ?? undefined,
-        },
+  } = api.products.getPage.useInfiniteQuery(
+    {
+      pageSize: 10,
+      filters: {
+        title: debouncedFilters.title ?? undefined,
+        brands: filters.brands ?? undefined,
       },
-      {
-        placeholderData: keepPreviousData,
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      },
-    ),
+    },
+    {
+      placeholderData: keepPreviousData,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
   );
   const productsData = useMemo(
     () => products?.pages.flatMap((page) => page.data) ?? [],
@@ -70,7 +72,7 @@ export function ProductsTable() {
     }
   }, [inView, fetchNextPage]);
 
-  if (!isFetchedAfterMount) {
+  if (!isFetched) {
     return <ProductsTableSkeleton />;
   }
 

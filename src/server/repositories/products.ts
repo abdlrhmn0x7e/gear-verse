@@ -1,7 +1,6 @@
 import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { brands, media, mediaOwnerTypeEnum, products } from "../db/schema";
-import { alias } from "drizzle-orm/pg-core";
 import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
@@ -32,7 +31,6 @@ export const _productsRepository = {
         brands?: number[] | null;
       };
     }) => {
-      const brandsMedia = alias(media, "brandsMedia");
       const whereClause = [gt(products.id, cursor ?? 0)];
       if (filters?.title) {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
@@ -50,19 +48,18 @@ export const _productsRepository = {
           brand: {
             id: brands.id,
             name: brands.name,
-            logo: brandsMedia.url,
+            logoUrl: media.url,
           },
         })
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
-        .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
+        .leftJoin(media, eq(brands.logoMediaId, media.id))
         .where(and(...whereClause))
         .limit(pageSize + 1)
         .orderBy(products.id);
     },
 
     findById: (id: number) => {
-      const brandsMedia = alias(media, "brandsMedia");
       return db.transaction(async (tx) => {
         const product = await tx
           .select({
@@ -75,12 +72,12 @@ export const _productsRepository = {
             brand: {
               id: brands.id,
               name: brands.name,
-              logo: brandsMedia.url,
+              logoUrl: media.url,
             },
           })
           .from(products)
           .leftJoin(brands, eq(products.brandId, brands.id))
-          .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
+          .leftJoin(media, eq(brands.logoMediaId, media.id))
           .where(eq(products.id, id))
           .limit(1)
           .then(([result]) => result);

@@ -39,7 +39,7 @@ export const productColumns: ColumnDef<
         <div className="flex items-center gap-3">
           <div className="size-8 overflow-hidden rounded-sm border">
             <Image
-              src={row.original.brand.logo ?? ""}
+              src={row.original.brand.logoUrl ?? ""}
               alt={row.original.brand.name ?? "Brand Logo"}
               width={40}
               height={40}

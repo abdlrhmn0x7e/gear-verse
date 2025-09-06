@@ -1,9 +1,9 @@
-import { DB } from "~/server/repositories";
-import { adminProcedure, createTRPCRouter } from "../trpc";
-import { productSchema } from "~/lib/schemas/product";
-import { paginationSchema } from "~/lib/schemas/pagination";
-import { paginate } from "../helpers/pagination";
 import z from "zod";
+import { paginationSchema } from "~/lib/schemas/pagination";
+import { productSchema } from "~/lib/schemas/product";
+import { DB } from "~/server/repositories";
+import { paginate } from "../helpers/pagination";
+import { adminProcedure, createTRPCRouter } from "../trpc";
 
 export const productsRouter = createTRPCRouter({
   /**
