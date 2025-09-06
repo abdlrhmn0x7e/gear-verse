@@ -1,13 +1,8 @@
 import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
-import {
-  brands,
-  listings,
-  media,
-  mediaOwnerTypeEnum,
-  products,
-} from "../db/schema";
+import { brands, media, mediaOwnerTypeEnum, products } from "../db/schema";
 import { alias } from "drizzle-orm/pg-core";
+import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
 type UpdateProduct = Partial<NewProduct>;
@@ -23,8 +18,7 @@ export const _productsRepository = {
           createdAt: products.createdAt,
           updatedAt: products.updatedAt,
         })
-        .from(products)
-        .leftJoin(media, eq(products.thumbnailMediaId, media.id));
+        .from(products);
     },
 
     getPage: ({
@@ -52,7 +46,6 @@ export const _productsRepository = {
         .select({
           id: products.id,
           title: products.title,
-          thumbnailUrl: media.url,
           createdAt: products.createdAt,
           updatedAt: products.updatedAt,
           brand: {
@@ -63,7 +56,6 @@ export const _productsRepository = {
         })
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
-        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .where(and(...whereClause))
         .limit(pageSize + 1)
@@ -93,7 +85,6 @@ export const _productsRepository = {
           })
           .from(products)
           .leftJoin(brands, eq(products.brandId, brands.id))
-          .leftJoin(media, eq(products.thumbnailMediaId, media.id))
           .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
           .where(eq(products.id, id))
           .limit(1)
@@ -144,8 +135,12 @@ export const _productsRepository = {
 
     delete: (id: number) => {
       return db.transaction(async (tx) => {
-        await tx.delete(products).where(eq(products.id, id));
-        await tx.delete(listings).where(eq(listings.productId, id));
+        // delete all listings products
+        await tx
+          .delete(listingProducts)
+          .where(eq(listingProducts.productId, id));
+
+        // delete all media
         await tx
           .delete(media)
           .where(
@@ -154,6 +149,9 @@ export const _productsRepository = {
               eq(media.ownerType, mediaOwnerTypeEnum.enumValues[0]),
             ),
           );
+
+        // delete product
+        await tx.delete(products).where(eq(products.id, id));
       });
     },
   },

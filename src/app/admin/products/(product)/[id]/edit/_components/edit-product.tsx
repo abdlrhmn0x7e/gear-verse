@@ -12,7 +12,6 @@ import {
 } from "~/app/admin/_components/forms/product-form";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -30,40 +29,15 @@ export function EditProduct({
     api.products.update.useMutation();
   const { mutateAsync: uploadFiles, isPending: uploadingFiles } =
     useUploadFilesMutation();
-  const { mutateAsync: uploadFile, isPending: uploadingFile } =
-    useUploadFileMutation();
 
-  const isLoading = updatingProduct || uploadingFiles || uploadingFile;
+  const isLoading = updatingProduct || uploadingFiles;
 
   const onSubmit = async (data: ProductFormValues) => {
-    const thumbnail = data.thumbnail?.[0];
-    let thumbnailMediaId = product.thumbnail!.id;
-    if (thumbnail) {
-      const { data: thumbnailData, error: thumbnailError } = await tryCatch(
-        uploadFile({
-          file: thumbnail,
-          ownerType: "PRODUCT",
-          ownerId: product.id,
-        }),
-      );
-
-      if (thumbnailError) {
-        setSubmitOutput(null);
-        toast.error("Failed to upload thumbnail. Please try again.");
-        return;
-      }
-
-      thumbnailMediaId = thumbnailData.mediaId;
-    }
-
     setSubmitOutput("Updating product...");
     const { error: productError } = await tryCatch(
       updateProduct({
         id: product.id,
-        data: {
-          ...data,
-          thumbnailMediaId,
-        },
+        data,
       }),
     );
 
@@ -104,7 +78,6 @@ export function EditProduct({
           categoryId: product.categoryId,
           brandId: product.brand.id!,
         }}
-        oldThumbnail={product.thumbnail!}
         oldImages={product.media}
       />
 

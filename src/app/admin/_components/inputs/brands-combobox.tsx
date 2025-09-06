@@ -23,6 +23,7 @@ import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
 import { AddBrandDialog } from "../dialogs/add-brand-dialog";
 import { Separator } from "~/components/ui/separator";
+import Image from "next/image";
 
 export function BrandsCombobox({
   value,
@@ -185,7 +186,15 @@ export function BrandsCommand({
                 setOpen(false);
               }}
             >
-              <TargetIcon />
+              <div className="bg-muted size-6 overflow-hidden rounded-sm border">
+                <Image
+                  src={brand.logoUrl ?? ""}
+                  alt={brand.name}
+                  className="size-full object-cover"
+                  width={24}
+                  height={24}
+                />
+              </div>
               {brand.name}
               <Check
                 className={cn(

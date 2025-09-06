@@ -5,7 +5,6 @@ import {
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { categories } from "./categories";
 import { brands } from "./brands";
@@ -23,12 +22,6 @@ export const products = pgTable(
     title: text("title").notNull(),
     description: jsonb("description").notNull(),
 
-    thumbnailMediaId: bigint("thumbnail_media_id", {
-      mode: "number",
-    })
-      .references(() => media.id)
-      .notNull(),
-
     categoryId: bigint("category_id", { mode: "number" })
       .notNull()
       .references(() => categories.id),
@@ -43,7 +36,6 @@ export const products = pgTable(
     index("products_title_idx").on(table.title),
     index("products_brand_id_idx").on(table.brandId),
     index("products_category_id_idx").on(table.categoryId),
-    uniqueIndex("products_thumbnail_media_id_idx").on(table.thumbnailMediaId),
   ],
 );
 

@@ -8,7 +8,6 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
-import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { toast } from "sonner";
@@ -20,40 +19,17 @@ import { cn } from "~/lib/utils";
 export function AddProduct() {
   const [submitOutput, setSubmitOutput] = useState<string | null>(null);
   const router = useRouter();
-  const { mutateAsync: uploadThumbnail, isPending: isUploadingThumbnail } =
-    useUploadFileMutation();
   const { mutateAsync: createProduct, isPending: isCreatingProduct } =
     api.products.create.useMutation();
   const { mutateAsync: uploadImages, isPending: isUploadingImages } =
     useUploadFilesMutation();
-  const isLoading =
-    isUploadingThumbnail || isCreatingProduct || isUploadingImages;
+  const isLoading = isCreatingProduct || isUploadingImages;
 
   async function onSubmit(data: ProductFormValues) {
-    const thumbnail = data.thumbnail?.[0];
-    if (!thumbnail) {
-      toast.error("Please upload a thumbnail");
-      return;
-    }
-
-    setSubmitOutput("Uploading thumbnail...");
-    const { data: thumbnailData, error: thumbnailError } = await tryCatch(
-      uploadThumbnail({
-        file: thumbnail,
-        ownerType: "PRODUCT",
-      }),
-    );
-    if (thumbnailError) {
-      setSubmitOutput(null);
-      toast.error("Failed to upload thumbnail. Please try again.");
-      return;
-    }
-
     setSubmitOutput("Creating product...");
     const { data: productData, error: productError } = await tryCatch(
       createProduct({
         ...data,
-        thumbnailMediaId: thumbnailData.mediaId,
       }),
     );
     if (productError || !productData) {

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductCarousel } from "~/components/product-carousel";
 import { api } from "~/trpc/server";
-import PageHeader from "../../../../_components/page-header";
+import PageHeader from "~/app/admin/_components/page-header";
 import {
   CalendarIcon,
   ContainerIcon,
@@ -73,12 +73,7 @@ export default async function ProductPage({
               </div>
             </CardHeader>
             <CardContent>
-              <ProductCarousel
-                photos={[
-                  { id: 0, url: product.thumbnail!.url },
-                  ...product.media,
-                ]}
-              />
+              <ProductCarousel photos={product.media} />
             </CardContent>
           </Card>
 

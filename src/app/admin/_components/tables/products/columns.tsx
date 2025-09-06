@@ -28,20 +28,7 @@ export const productColumns: ColumnDef<
   {
     accessorKey: "title",
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-3">
-          <div className="size-8 overflow-hidden rounded-sm">
-            <Image
-              src={row.original.thumbnailUrl ?? ""}
-              alt={row.original.title}
-              width={40}
-              height={40}
-              className="size-full object-cover"
-            />
-          </div>
-          <p className="font-medium">{row.original.title}</p>
-        </div>
-      );
+      return <p className="font-medium">{row.original.title}</p>;
     },
   },
   {

@@ -24,10 +24,6 @@ const productFormSchema = productSchema
   .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
   .and(
     z.object({
-      thumbnail: z
-        .array(imageSchema, "Thumbnail is required")
-        .min(1, "Thumbnail is required")
-        .optional(),
       images: z
         .array(imageSchema, "Images are required")
         .min(1, "Images are required")
@@ -39,12 +35,10 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 export function ProductForm({
   onSubmit,
   defaultValues,
-  oldThumbnail,
   oldImages,
 }: {
   onSubmit: (data: ProductFormValues) => void;
   defaultValues?: Partial<ProductFormValues>;
-  oldThumbnail?: { id: number; url: string };
   oldImages?: { id: number; url: string }[];
 }) {
   const schema = useMemo(() => {
@@ -52,14 +46,6 @@ export function ProductForm({
       if (defaultValues) {
         return;
       }
-
-      if (data.thumbnail?.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Thumbnail is required",
-        });
-      }
-
       if (data.images?.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -137,42 +123,22 @@ export function ProductForm({
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="thumbnail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Thumbnail</FormLabel>
-                <FormControl>
-                  <FileDropzone
-                    onChange={field.onChange}
-                    maxFiles={1}
-                    initialFiles={oldThumbnail ? [oldThumbnail] : undefined}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="images"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Images</FormLabel>
-                <FormControl>
-                  <FileDropzone
-                    onChange={field.onChange}
-                    initialFiles={oldImages}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <FileDropzone
+                  onChange={field.onChange}
+                  initialFiles={oldImages}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
