@@ -22,9 +22,11 @@ import { useRouter } from "next/navigation";
 import { PackageOpenIcon } from "lucide-react";
 import { ProductsFilter } from "./filters";
 import { useProductsFilterParams } from "./hooks";
+import { useDebounce } from "~/hooks/use-debounce";
 
 export function ProductsTable() {
   const [filters] = useProductsFilterParams();
+  const debouncedFilters = useDebounce(filters);
   const utils = api.useUtils();
   const {
     data: products,
@@ -35,8 +37,8 @@ export function ProductsTable() {
       {
         pageSize: 10,
         filters: {
-          title: filters.title ?? undefined,
-          brands: filters.brands ?? undefined,
+          title: debouncedFilters.title ?? undefined,
+          brands: debouncedFilters.brands ?? undefined,
         },
       },
       {

@@ -47,7 +47,7 @@ export default async function ProductPage({
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm font-medium">
               Created at {format(product.createdAt, "MMM d, yyyy")}
             </p>
           </div>{" "}

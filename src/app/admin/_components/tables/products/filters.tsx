@@ -20,6 +20,7 @@ import { motion } from "motion/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
+import { debounce } from "nuqs";
 
 export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,33 +50,39 @@ export function ProductsFilter() {
   function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
 
-    void setFilters((prev) => {
-      if (prev.title === value) {
+    void setFilters(
+      (prev) => {
+        if (prev.title === value) {
+          return {
+            ...prev,
+            title: undefined,
+          };
+        }
+
         return {
           ...prev,
-          title: undefined,
+          title: value,
         };
-      }
-
-      return {
-        ...prev,
-        title: value,
-      };
-    });
+      },
+      { limitUrlUpdates: debounce(500) },
+    );
   }
 
   function handleBrandsChange(value: number) {
-    void setFilters((prev) => {
-      if (prev.brands?.includes(value)) {
-        const filteredBrands = prev.brands.filter((brand) => brand !== value);
-        return {
-          ...prev,
-          brands: filteredBrands.length > 0 ? filteredBrands : null,
-        };
-      }
+    void setFilters(
+      (prev) => {
+        if (prev.brands?.includes(value)) {
+          const filteredBrands = prev.brands.filter((brand) => brand !== value);
+          return {
+            ...prev,
+            brands: filteredBrands.length > 0 ? filteredBrands : null,
+          };
+        }
 
-      return { ...prev, brands: [...(prev.brands ?? []), value] };
-    });
+        return { ...prev, brands: [...(prev.brands ?? []), value] };
+      },
+      { limitUrlUpdates: debounce(500) },
+    );
   }
 
   function handleBrandsRemove(brandId: number) {

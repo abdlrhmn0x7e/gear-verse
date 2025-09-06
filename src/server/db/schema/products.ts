@@ -11,6 +11,7 @@ import { categories } from "./categories";
 import { brands } from "./brands";
 import { relations } from "drizzle-orm";
 import { media } from "./media";
+import { listingProducts } from "./listing-products";
 
 export const products = pgTable(
   "products",
@@ -56,4 +57,5 @@ export const productRelations = relations(products, ({ one, many }) => ({
     references: [brands.id],
   }),
   media: many(media),
+  productsToListings: many(listingProducts),
 }));
