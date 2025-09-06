@@ -3,6 +3,7 @@ import { ProductCarousel } from "~/components/product-carousel";
 import { api } from "~/trpc/server";
 import PageHeader from "../../../../_components/page-header";
 import {
+  CalendarIcon,
   ContainerIcon,
   FileTextIcon,
   ImageIcon,
@@ -17,6 +18,7 @@ import type { JSONContent } from "@tiptap/react";
 import { Button } from "~/components/ui/button";
 import { DeleteProductDialog } from "./_components/delete-product-dialog";
 import Link from "next/link";
+import { format } from "date-fns";
 
 export default async function ProductPage({
   params,
@@ -42,14 +44,22 @@ export default async function ProductPage({
           Icon={Package2Icon}
         />
 
-        <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link href={`/admin/products/${product.id}/edit`}>
-              <PencilIcon className="size-4" />
-              Edit Product
-            </Link>
-          </Button>
-          <DeleteProductDialog id={product.id} />
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="size-4" />
+            <p className="text-muted-foreground text-sm">
+              Created at {format(product.createdAt, "MMM d, yyyy")}
+            </p>
+          </div>{" "}
+          <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link href={`/admin/products/${product.id}/edit`}>
+                <PencilIcon className="size-4" />
+                Edit Product
+              </Link>
+            </Button>
+            <DeleteProductDialog id={product.id} />
+          </div>
         </div>
       </div>
 
