@@ -5,21 +5,20 @@ import { ProductsTableHeader } from "./header";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { SearchInput } from "../../inputs/search-input";
-import { parseAsString, useQueryState } from "nuqs";
 import { ListFilterIcon } from "lucide-react";
+import { useProductsFilterParams } from "./hooks";
 
 export function ProductsTableSkeleton() {
-  const [title] = useQueryState(
-    "title",
-    parseAsString.withOptions({
-      shallow: false,
-    }),
-  );
+  const [filters] = useProductsFilterParams();
 
   return (
     <Card className="gap-1 py-2">
       <CardHeader className="px-2">
-        <SearchInput className="max-w-sm" disabled defaultValue={title ?? ""}>
+        <SearchInput
+          className="max-w-sm"
+          disabled
+          defaultValue={filters.title ?? ""}
+        >
           <button className="text-muted-foreground [&_svg]:size-4" disabled>
             <ListFilterIcon />
           </button>
