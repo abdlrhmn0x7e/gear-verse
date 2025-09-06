@@ -12,6 +12,7 @@ import { productColumns } from "./columns";
 import { api } from "~/trpc/react";
 import {
   keepPreviousData,
+  useInfiniteQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
@@ -23,6 +24,7 @@ import { PackageOpenIcon } from "lucide-react";
 import { ProductsFilter } from "./filters";
 import { useProductsFilterParams } from "./hooks";
 import { useDebounce } from "~/hooks/use-debounce";
+import { ProductsTableSkeleton } from "./skeleton";
 
 export function ProductsTable() {
   const [filters] = useProductsFilterParams();
@@ -30,15 +32,16 @@ export function ProductsTable() {
   const utils = api.useUtils();
   const {
     data: products,
+    isFetchedAfterMount,
     hasNextPage,
     fetchNextPage,
-  } = useSuspenseInfiniteQuery(
+  } = useInfiniteQuery(
     utils.products.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
           title: debouncedFilters.title ?? undefined,
-          brands: debouncedFilters.brands ?? undefined,
+          brands: filters.brands ?? undefined,
         },
       },
       {
@@ -48,7 +51,7 @@ export function ProductsTable() {
     ),
   );
   const productsData = useMemo(
-    () => products?.pages.flatMap((page) => page.data),
+    () => products?.pages.flatMap((page) => page.data) ?? [],
     [products],
   );
 
@@ -66,6 +69,10 @@ export function ProductsTable() {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage]);
+
+  if (!isFetchedAfterMount) {
+    return <ProductsTableSkeleton />;
+  }
 
   return (
     <Card className="gap-2 py-2">

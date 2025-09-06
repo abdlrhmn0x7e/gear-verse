@@ -14,7 +14,6 @@ export const _productsRepository = {
         .select({
           id: products.id,
           title: products.title,
-          thumbnailUrl: media.url,
           createdAt: products.createdAt,
           updatedAt: products.updatedAt,
         })
@@ -70,10 +69,6 @@ export const _productsRepository = {
             id: products.id,
             title: products.title,
             description: products.description,
-            thumbnail: {
-              id: media.id,
-              url: media.url,
-            },
             createdAt: products.createdAt,
             updatedAt: products.updatedAt,
             categoryId: products.categoryId,

@@ -3,8 +3,6 @@ import PageHeader from "../../_components/page-header";
 import { Package, PackagePlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { ProductsTable } from "../../_components/tables/products/table";
-import { Suspense } from "react";
-import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
 import { api, HydrateClient } from "~/trpc/server";
 import { loadProductFiltersSearchParams } from "../../_components/tables/products/hooks";
 import type { SearchParams } from "nuqs";
@@ -40,9 +38,7 @@ export default async function AdminProductsPage({
       </div>
 
       <HydrateClient>
-        <Suspense fallback={<ProductsTableSkeleton />}>
-          <ProductsTable />
-        </Suspense>
+        <ProductsTable />
       </HydrateClient>
     </section>
   );
