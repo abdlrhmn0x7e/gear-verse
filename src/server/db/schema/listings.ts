@@ -14,6 +14,7 @@ export const listings = pgTable("listings", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
   title: text("title").notNull(),
+  description: text("description").notNull(),
   price: numeric("price", { precision: 4, scale: 2 }).notNull(),
   stock: integer("stock").notNull(),
 

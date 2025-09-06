@@ -224,7 +224,7 @@ function FileItem({
             alt={file.name}
             width={100}
             height={100}
-            className="object-cover object-center"
+            className="size-full object-cover object-center"
           />
         </div>
 

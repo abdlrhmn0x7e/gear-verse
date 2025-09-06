@@ -15,6 +15,7 @@ export const mediaOwnerTypeEnum = pgEnum("owner_type", [
   "CATEGORY",
   "BRAND",
   "USER",
+  "LISTING",
 ]);
 export const mediaStatusEnum = pgEnum("status", ["PENDING", "READY"]);
 
