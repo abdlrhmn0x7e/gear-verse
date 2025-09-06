@@ -86,7 +86,7 @@ export function AddListingDrawer() {
 
       <DrawerContent>
         <DrawerHeader>
-          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-start">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
             <IconShoppingBagPlus className="mt-1 size-6 shrink-0" />
             <div>
               <DrawerTitle>Create a new listing</DrawerTitle>

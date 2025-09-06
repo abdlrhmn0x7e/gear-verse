@@ -5,6 +5,7 @@ import z from "zod";
 import { s3GetPublicUrl } from "~/lib/s3";
 import { paginate } from "../helpers/pagination";
 import { paginationSchema } from "~/lib/schemas/pagination";
+import { TRPCError } from "@trpc/server";
 
 export const mediaRouter = createTRPCRouter({
   /**
@@ -39,19 +40,43 @@ export const mediaRouter = createTRPCRouter({
           .partial(),
       }),
     )
-    .mutation(({ input }) => {
-      return DB.media.mutations.update(input.id, input.data);
+    .mutation(async ({ input }) => {
+      const media = await DB.media.mutations.update(input.id, input.data);
+      if (!media) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Media not found",
+        });
+      }
+
+      return media;
     }),
 
   updateMany: adminProcedure
     .input(z.array(mediaSchema))
-    .mutation(({ input }) => {
-      return DB.media.mutations.updateMany(input);
+    .mutation(async ({ input }) => {
+      const media = await DB.media.mutations.updateMany(input);
+      if (media.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "None of the media items were found to be updated",
+        });
+      }
+
+      return media;
     }),
 
   delete: adminProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(({ input }) => {
-      return DB.media.mutations.delete(input.id);
+    .mutation(async ({ input }) => {
+      const media = await DB.media.mutations.delete(input.id);
+      if (!media) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Media not found",
+        });
+      }
+
+      return media;
     }),
 });

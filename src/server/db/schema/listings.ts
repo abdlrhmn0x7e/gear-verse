@@ -29,8 +29,8 @@ export const listings = pgTable("listings", {
 });
 
 export const listingRelations = relations(listings, ({ one, many }) => ({
-  listingToProducts: many(listingProducts),
-  thumbnailMedia: one(media, {
+  products: many(listingProducts),
+  thumbnail: one(media, {
     fields: [listings.thumbnailMediaId],
     references: [media.id],
   }),

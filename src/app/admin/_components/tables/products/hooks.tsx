@@ -6,15 +6,15 @@ import {
   parseAsInteger,
 } from "nuqs/server";
 
-const productFiltersSearchParams = {
+const productFilterSearchParams = {
   title: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
 };
 
 export function useProductsFilterParams() {
-  return useQueryStates(productFiltersSearchParams, { shallow: true });
+  return useQueryStates(productFilterSearchParams, { shallow: true });
 }
 
 export const loadProductFiltersSearchParams = createLoader(
-  productFiltersSearchParams,
+  productFilterSearchParams,
 );

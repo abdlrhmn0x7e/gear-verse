@@ -55,14 +55,18 @@ export const _mediaRepository = {
 
     updateMany(data: (UpdateMediaDto & { id: number })[]) {
       return db.transaction(async (tx) => {
+        const updatedMedia = [];
         for (const item of data) {
           const { id, ...data } = item;
-          await tx
+          const updatedMediaItem = await tx
             .update(media)
             .set(data)
             .where(eq(media.id, id))
             .returning({ id: media.id });
+          updatedMedia.push(updatedMediaItem);
         }
+
+        return updatedMedia;
       });
     },
 

@@ -4,6 +4,7 @@ import { productSchema } from "~/lib/schemas/product";
 import { DB } from "~/server/repositories";
 import { paginate } from "../helpers/pagination";
 import { adminProcedure, createTRPCRouter } from "../trpc";
+import { TRPCError } from "@trpc/server";
 
 export const productsRouter = createTRPCRouter({
   /**
@@ -31,8 +32,16 @@ export const productsRouter = createTRPCRouter({
 
   findById: adminProcedure
     .input(z.object({ id: z.number() }))
-    .query(({ input }) => {
-      return DB.products.queries.findById(input.id);
+    .query(async ({ input }) => {
+      const product = await DB.products.queries.findById(input.id);
+      if (!product) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
+      return product;
     }),
 
   /**

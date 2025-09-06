@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { ProductCarousel } from "~/components/product-carousel";
+import { VerseCarousel } from "~/components/verse-carousel";
 import { api } from "~/trpc/server";
 import PageHeader from "~/app/admin/_components/page-header";
 import {
@@ -73,7 +73,7 @@ export default async function ProductPage({
               </div>
             </CardHeader>
             <CardContent>
-              <ProductCarousel photos={product.media} />
+              <VerseCarousel photos={product.media} />
             </CardContent>
           </Card>
 

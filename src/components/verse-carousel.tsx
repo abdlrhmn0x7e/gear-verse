@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 
-export function ProductCarousel({
+export function VerseCarousel({
   className,
   photos,
 }: {
