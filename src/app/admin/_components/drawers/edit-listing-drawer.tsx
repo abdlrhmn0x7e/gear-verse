@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Skeleton } from "~/components/ui/skeleton";
 import { AlertTriangleIcon } from "lucide-react";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export function EditListingDrawer() {
   const isMobile = useIsMobile();
@@ -132,7 +133,7 @@ function EditListingDrawerContent({
   return (
     <DrawerContent>
       <DrawerHeader>
-        <div className="flex items-start gap-3">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
           <IconShoppingBagEdit className="mt-1.5 size-6 shrink-0" />
           <div>
             <DrawerTitle>Edit {listing.title} Listing</DrawerTitle>
@@ -141,18 +142,20 @@ function EditListingDrawerContent({
         </div>
       </DrawerHeader>
 
-      <ListingForm
-        className="p-4"
-        defaultValues={{
-          title: listing.title,
-          description: listing.description,
-          price: listing.price,
-          stock: listing.stock,
-          products: listing.products?.map((product) => product.id),
-        }}
-        oldThumbnail={listing.thumbnail ?? undefined}
-        onSubmit={onSubmit}
-      />
+      <ScrollArea className="h-[calc(100vh-28rem)] sm:h-full">
+        <ListingForm
+          className="p-4"
+          defaultValues={{
+            title: listing.title,
+            description: listing.description,
+            price: listing.price,
+            stock: listing.stock,
+            products: listing.products?.map((product) => product.id),
+          }}
+          oldThumbnail={listing.thumbnail ?? undefined}
+          onSubmit={onSubmit}
+        />
+      </ScrollArea>
 
       <DrawerFooter>
         <Button type="submit" form="listing-form" disabled={isSubmitting}>

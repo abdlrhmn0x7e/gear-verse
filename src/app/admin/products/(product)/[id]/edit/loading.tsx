@@ -2,23 +2,13 @@ import { PackageIcon, SaveIcon } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
+import { HeaderSkeleton } from "~/app/admin/_components/header";
 
 export default function Loading() {
   return (
     <section className="space-y-6">
       {/* Page Header Skeleton */}
-      <div className="flex items-center gap-3">
-        <div className="from-card to-accent rounded-lg bg-radial-[at_50%_75%] p-px">
-          <div className="to-card from-accent flex size-10 items-center justify-center rounded-[calc(var(--radius)-2px)] bg-radial-[at_25%_25%]">
-            <PackageIcon className="text-muted-foreground" size={24} />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-4 w-96" />
-        </div>
-      </div>
+      <HeaderSkeleton Icon={PackageIcon} />
 
       {/* Product Form Skeleton */}
       <div className="space-y-8">

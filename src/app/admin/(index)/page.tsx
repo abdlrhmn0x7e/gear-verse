@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "~/server/auth";
-import Header from "../_components/page-header";
+import Header from "../_components/header";
 import {
   HomeIcon,
   PlusIcon,

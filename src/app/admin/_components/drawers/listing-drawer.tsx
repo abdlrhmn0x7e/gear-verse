@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
-import Header from "~/app/admin/_components/page-header";
+import Header, { HeaderSkeleton } from "~/app/admin/_components/header";
 import { useListingSearchParams } from "~/app/admin/_hooks/use-listing-search-params";
 import { DeleteProductDialog } from "~/app/admin/_components/dialogs/delete-product-dialog";
 import { Button } from "~/components/ui/button";
@@ -89,8 +89,6 @@ function ListingDrawerContent() {
     return photos;
   }, [listing]);
 
-  console.log(listing);
-
   if (listingPending) {
     return <ListingDrawerSkeleton />;
   }
@@ -99,7 +97,7 @@ function ListingDrawerContent() {
     return (
       <>
         <DrawerHeader>
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
             <IconShoppingBagX className="mt-1.5 size-6 shrink-0" />
             <div>
               <DrawerTitle>Listing not found</DrawerTitle>
@@ -108,10 +106,10 @@ function ListingDrawerContent() {
           </div>
         </DrawerHeader>
 
-        <div className="flex h-full flex-col items-center justify-center gap-3">
+        <div className="flex h-full flex-col items-center justify-center gap-3 py-32">
           <InfoIcon className="text-info size-24" />
           <div className="text-center">
-            <p className="text-info text-lg">Listing not found</p>
+            <p className="text-lg font-medium">Listing not found</p>
             <p className="text-muted-foreground text-sm">
               (this time it&apos;s your fault daddy)
             </p>
@@ -125,10 +123,10 @@ function ListingDrawerContent() {
     return (
       <>
         <DrawerHeader>
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
             <IconShoppingBagX className="mt-1.5 size-6 shrink-0" />
             <div>
-              <DrawerTitle>Error</DrawerTitle>
+              <DrawerTitle>Listing Error</DrawerTitle>
               <DrawerDescription>
                 An error occurred while loading the listing
               </DrawerDescription>
@@ -136,10 +134,10 @@ function ListingDrawerContent() {
           </div>
         </DrawerHeader>
 
-        <div className="flex h-full flex-col items-center justify-center gap-3">
+        <div className="flex h-full flex-col items-center justify-center gap-3 py-32">
           <AlertTriangleIcon className="text-destructive size-24" />
           <div className="text-center">
-            <p className="text-destructive text-lg">
+            <p className="text-destructive text-lg font-medium">
               An error occurred while loading the listing
             </p>
             <p className="text-muted-foreground text-sm">
@@ -168,18 +166,20 @@ function ListingDrawerContent() {
   return (
     <>
       <DrawerHeader>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-start gap-3">
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <div className="flex flex-col items-center gap-3 sm:items-start">
             <ShoppingBagIcon className="mt-1.5 size-6 shrink-0" />
             <div>
               <DrawerTitle>{listing.title}</DrawerTitle>
-              <DrawerDescription>{listing.description}</DrawerDescription>
+              <DrawerDescription className="hidden sm:block">
+                {listing.description}
+              </DrawerDescription>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:flex-row">
             <Button
               variant="outline"
-              className="w-full flex-1 justify-start"
+              className="w-full flex-1 justify-start sm:w-auto"
               onClick={handleEditListing}
             >
               <PencilIcon />
@@ -202,6 +202,7 @@ function ListingDrawerContent() {
               description="View the photos of the listing"
               Icon={ImagesIcon}
               headingLevel={4}
+              className="flex-row text-left"
             />
             <VerseCarousel photos={photos} />
           </div>
@@ -214,6 +215,7 @@ function ListingDrawerContent() {
               description="silly ahh description for silly ahh listing"
               Icon={FileTextIcon}
               headingLevel={4}
+              className="flex-row text-left"
             />
             <p className="text-muted-foreground text-lg">
               {listing.description}
@@ -228,6 +230,7 @@ function ListingDrawerContent() {
               description="View the related products of the listing"
               Icon={PackageIcon}
               headingLevel={4}
+              className="flex-row text-left"
             />
 
             <div className="space-y-3">
@@ -301,14 +304,9 @@ function ListingDrawerSkeleton() {
     <>
       <DrawerHeader>
         <DrawerTitle></DrawerTitle>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Skeleton className="size-12 shrink-0" />
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-          </div>
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <HeaderSkeleton Icon={ShoppingBagIcon} />
+
           <div className="flex gap-2">
             <Skeleton className="h-10 w-28" />
             <Skeleton className="h-10 w-32" />
@@ -327,13 +325,11 @@ function ListingDrawerSkeleton() {
                 <Skeleton className="h-4 w-40" />
               </div>
             </div>
+
             <div className="space-y-3">
               <Skeleton className="h-96 w-full rounded-lg" />
 
-              <div className="flex gap-2">
-                <Skeleton className="h-16 w-16 rounded-md" />
-                <Skeleton className="h-16 w-16 rounded-md" />
-                <Skeleton className="h-16 w-16 rounded-md" />
+              <div className="flex gap-2 overflow-hidden">
                 <Skeleton className="h-16 w-16 rounded-md" />
                 <Skeleton className="h-16 w-16 rounded-md" />
                 <Skeleton className="h-16 w-16 rounded-md" />

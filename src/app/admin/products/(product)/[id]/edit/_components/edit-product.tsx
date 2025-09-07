@@ -81,7 +81,10 @@ export function EditProduct({
         oldImages={product.media}
       />
 
-      <motion.div className="fixed right-10 bottom-10" layoutRoot>
+      <motion.div
+        className="fixed right-2 bottom-2 sm:right-10 sm:bottom-10"
+        layoutRoot
+      >
         <motion.div className="flex flex-col gap-1" layout>
           <motion.div
             className={cn(

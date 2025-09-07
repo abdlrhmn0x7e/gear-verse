@@ -8,24 +8,19 @@ import {
   Package2Icon,
   ShoppingBagIcon,
 } from "lucide-react";
+import { HeaderSkeleton } from "~/app/admin/_components/header";
 
 export default function Loading() {
   return (
     <section className="space-y-6">
       {/* Page Header Skeleton */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Package2Icon className="text-muted-foreground size-8" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+        <HeaderSkeleton Icon={Package2Icon} />
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-center gap-3 sm:items-end">
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
-            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-4 w-32" />
           </div>
           <div className="flex items-center gap-2">
             <Skeleton className="h-10 w-32" />
@@ -34,9 +29,9 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="relative grid grid-cols-7 gap-6">
+      <div className="relative grid gap-6 sm:grid-cols-7">
         {/* Left Column - Photos and Listings */}
-        <div className="sticky top-3 col-span-3 h-fit space-y-6">
+        <div className="h-fit space-y-6 sm:sticky sm:top-3 sm:col-span-3">
           {/* Product Photos Card */}
           <Card className="h-fit gap-3">
             <CardHeader>
@@ -62,7 +57,7 @@ export default function Loading() {
           {/* Related Listing Card */}
           <Card className="h-fit gap-3">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <ShoppingBagIcon className="size-6" />
                   <Skeleton className="h-6 w-32" />
@@ -80,7 +75,7 @@ export default function Loading() {
         </div>
 
         {/* Right Column - Description */}
-        <Card className="col-span-4">
+        <Card className="sm:col-span-4">
           <CardHeader>
             <div className="flex items-center gap-2">
               <FileTextIcon className="size-6" />

@@ -3,7 +3,7 @@ import { Package, PackagePlusIcon } from "lucide-react";
 import type { SearchParams } from "nuqs";
 
 import { Button } from "~/components/ui/button";
-import Header from "../../_components/page-header";
+import Header from "../../_components/header";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
 import { api, HydrateClient } from "~/trpc/server";

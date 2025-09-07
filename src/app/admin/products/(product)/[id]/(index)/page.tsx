@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { VerseCarousel } from "~/components/verse-carousel";
 import { api } from "~/trpc/server";
-import Header from "~/app/admin/_components/page-header";
+import Header from "~/app/admin/_components/header";
 import {
   CalendarIcon,
   ContainerIcon,
@@ -37,17 +37,17 @@ export default async function ProductPage({
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
         <Header
           title={product.title}
           description="Silly ahh product"
           Icon={Package2Icon}
         />
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-center gap-3 sm:items-end">
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
-            <p className="text-muted-foreground text-sm font-medium">
+            <p className="text-muted-foreground text-center text-sm font-medium sm:text-left">
               Created at {format(product.createdAt, "MMM d, yyyy hh:mm a")}
             </p>
           </div>
@@ -63,8 +63,8 @@ export default async function ProductPage({
         </div>
       </div>
 
-      <div className="relative grid grid-cols-7 gap-6">
-        <div className="sticky top-3 col-span-3 h-fit space-y-6">
+      <div className="relative grid gap-6 sm:grid-cols-7">
+        <div className="h-fit space-y-6 sm:sticky sm:top-3 sm:col-span-3">
           <Card className="h-fit gap-3">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default async function ProductPage({
           </Card>
         </div>
 
-        <Card className="col-span-4">
+        <Card className="sm:col-span-4">
           <CardHeader>
             <div className="flex items-center gap-2">
               <FileTextIcon className="size-6" />
