@@ -15,16 +15,24 @@ import {
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
-export function DeleteProductDialog({ id }: { id: number }) {
+export function DeleteProductDialog({
+  id,
+  showText = true,
+  variant = "destructive",
+}: {
+  id: number;
+  showText?: boolean;
+  variant?: "destructive" | "destructiveGhost";
+}) {
   const { mutate: deleteProduct, isPending } =
     api.products.delete.useMutation();
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild disabled={isPending}>
-        <Button variant="destructive">
+        <Button variant={variant} size={showText ? "default" : "icon"}>
           <TrashIcon />
-          Delete product
+          {showText && "Delete product"}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

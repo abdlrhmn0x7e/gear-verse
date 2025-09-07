@@ -1,6 +1,11 @@
 import { desc, eq, and, gt } from "drizzle-orm";
 import { db } from "../db";
-import { media, mediaStatusEnum } from "../db/schema";
+import {
+  listings,
+  media,
+  type mediaOwnerTypeEnum,
+  mediaStatusEnum,
+} from "../db/schema";
 
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
@@ -70,7 +75,18 @@ export const _mediaRepository = {
       });
     },
 
-    delete(id: number) {
+    delete(
+      id: number,
+      ownerType: (typeof mediaOwnerTypeEnum.enumValues)[number],
+    ) {
+      if (ownerType === "LISTING") {
+        return db
+          .update(listings)
+          .set({ thumbnailMediaId: null })
+          .where(eq(listings.thumbnailMediaId, id))
+          .returning({ id: media.id });
+      }
+
       return db
         .delete(media)
         .where(eq(media.id, id))

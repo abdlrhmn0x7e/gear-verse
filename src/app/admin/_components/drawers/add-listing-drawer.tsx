@@ -32,7 +32,7 @@ export function AddListingDrawer() {
   const { mutateAsync: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   const { mutateAsync: createListing, isPending: isCreating } =
-    api.listing.mutations.create.useMutation();
+    api.listing.create.useMutation();
   const isSubmitting = isUploading || isCreating;
 
   async function onSubmit(data: ListingFormValues) {
@@ -99,8 +99,11 @@ export function AddListingDrawer() {
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <ListingForm onSubmit={onSubmit} className="px-4" />
+        <ScrollArea>
+          <ListingForm
+            onSubmit={onSubmit}
+            className="h-[calc(100vh-32rem)] p-4"
+          />
         </ScrollArea>
 
         <DrawerFooter>

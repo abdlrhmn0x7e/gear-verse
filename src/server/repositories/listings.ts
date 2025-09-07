@@ -5,6 +5,7 @@ import { listings } from "../db/schema/listings";
 import { media } from "../db/schema/media";
 
 type NewListing = typeof listings.$inferInsert;
+type UpdateListing = Partial<NewListing>;
 
 export const _listingsRepository = {
   queries: {
@@ -38,12 +39,60 @@ export const _listingsRepository = {
         })
         .from(listings)
         .limit(pageSize + 1)
-        .leftJoin(media, eq(listings.thumbnailMediaId, media.id))
+        .leftJoin(
+          media,
+          and(
+            eq(listings.thumbnailMediaId, media.id),
+            eq(media.ownerType, "LISTING"),
+          ),
+        )
         .orderBy(asc(listings.id))
         .where(and(...where));
     },
 
     findById: async (id: number) => {
+      const listingData = await db.query.listings.findFirst({
+        where: eq(listings.id, id),
+        columns: {
+          id: true,
+          title: true,
+          description: true,
+          price: true,
+          stock: true,
+          createdAt: true,
+        },
+        with: {
+          thumbnail: {
+            columns: {
+              id: true,
+              url: true,
+              ownerType: true,
+            },
+          },
+          products: {
+            columns: {},
+            with: {
+              product: {
+                columns: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!listingData) {
+        return;
+      }
+
+      return {
+        ...listingData,
+        products: listingData.products.map((product) => product.product),
+      };
+    },
+
+    findFullById: async (id: number) => {
       const listingData = await db.query.listings.findFirst({
         where: eq(listings.id, id),
         columns: {
@@ -97,9 +146,13 @@ export const _listingsRepository = {
         },
       });
 
+      if (!listingData) {
+        return;
+      }
+
       return {
         ...listingData,
-        products: listingData?.products.map((product) => product.product),
+        products: listingData.products.map((product) => product.product),
       };
     },
   },
@@ -116,16 +169,18 @@ export const _listingsRepository = {
         }
 
         /**
-         * Take ownership of thumbnail
+         * Take ownership of thumbnail if it is provided
          * because it is uploaded by the user before the listing is created
          */
-        await tx
-          .update(media)
-          .set({
-            ownerId: listing.id,
-            ownerType: "LISTING",
-          })
-          .where(eq(media.id, data.thumbnailMediaId));
+        if (data.thumbnailMediaId) {
+          await tx
+            .update(media)
+            .set({
+              ownerId: listing.id,
+              ownerType: "LISTING",
+            })
+            .where(eq(media.id, data.thumbnailMediaId));
+        }
 
         // link products to listing
         await tx.insert(listingProducts).values(
@@ -136,6 +191,43 @@ export const _listingsRepository = {
         );
 
         return listing;
+      });
+    },
+
+    update: async (id: number, data: UpdateListing, products: number[]) => {
+      if (products.length === 0) {
+        throw new Error("Products are required");
+      }
+
+      return db.transaction(async (tx) => {
+        await tx.update(listings).set(data).where(eq(listings.id, id));
+
+        // Delete old products, cause I'm too lazy to diff them
+        await tx
+          .delete(listingProducts)
+          .where(eq(listingProducts.listingId, id));
+        await tx.insert(listingProducts).values(
+          products.map((productId) => ({
+            listingId: id,
+            productId,
+          })),
+        );
+      });
+    },
+
+    delete: async (id: number) => {
+      return db.transaction(async (tx) => {
+        await tx
+          .delete(listingProducts)
+          .where(eq(listingProducts.listingId, id));
+        const deletedListing = await tx
+          .delete(listings)
+          .where(eq(listings.id, id))
+          .returning({ id: listings.id })
+          .then(([listing]) => listing);
+        await tx.delete(media).where(eq(media.ownerId, id));
+
+        return deletedListing;
       });
     },
   },

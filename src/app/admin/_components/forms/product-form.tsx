@@ -19,6 +19,7 @@ import { CategoryCombobox } from "../inputs/category-combobox";
 import { FileDropzone } from "../inputs/file-dropzone";
 import { BrandsCombobox } from "../inputs/brands-combobox";
 import { useMemo } from "react";
+import type { MediaOwnerType } from "~/lib/schemas/media";
 
 const productFormSchema = productSchema
   .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
@@ -39,7 +40,7 @@ export function ProductForm({
 }: {
   onSubmit: (data: ProductFormValues) => void;
   defaultValues?: Partial<ProductFormValues>;
-  oldImages?: { id: number; url: string }[];
+  oldImages?: { id: number; url: string; ownerType: MediaOwnerType }[];
 }) {
   const schema = useMemo(() => {
     return productFormSchema.superRefine((data, ctx) => {

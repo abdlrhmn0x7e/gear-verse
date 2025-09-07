@@ -1,14 +1,17 @@
+import { cva } from "class-variance-authority";
 import type { LucideIcon } from "lucide-react";
 import { Heading } from "~/components/heading";
 
-export default function PageHeader({
+export default function Header({
   title,
   description,
   Icon,
+  headingLevel = 3,
 }: {
   title: string;
   description: string;
   Icon: LucideIcon;
+  headingLevel?: 3 | 4 | 5;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -19,7 +22,7 @@ export default function PageHeader({
       </div>
 
       <div>
-        <Heading level={3}>{title}</Heading>
+        <Heading level={headingLevel}>{title}</Heading>
         <p className="text-muted-foreground text-sm">{description}</p>
       </div>
     </div>

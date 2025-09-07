@@ -3,9 +3,9 @@ import { Package, PackagePlusIcon } from "lucide-react";
 import type { SearchParams } from "nuqs";
 
 import { Button } from "~/components/ui/button";
-import PageHeader from "../../_components/page-header";
+import Header from "../../_components/page-header";
 import { ProductsTable } from "../../_components/tables/products/table";
-import { loadProductFiltersSearchParams } from "../../_components/tables/products/hooks";
+import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function AdminProductsPage({
@@ -13,7 +13,7 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  void loadProductFiltersSearchParams(await searchParams);
+  void loadProductSearchParams(await searchParams);
   void api.products.getPage.prefetchInfinite({
     pageSize: 10,
   });
@@ -24,7 +24,7 @@ export default async function AdminProductsPage({
   return (
     <section className="space-y-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <PageHeader
+        <Header
           title="Products Overview"
           description="Manage your products and their information"
           Icon={Package}

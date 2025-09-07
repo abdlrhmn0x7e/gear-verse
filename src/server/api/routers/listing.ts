@@ -10,49 +10,87 @@ export const listingRouter = createTRPCRouter({
   /**
    * Queries
    */
-  queries: {
-    getPage: adminProcedure
-      .input(
-        paginationSchema.extend({
-          filters: z.object({ title: z.string() }).partial().optional(),
-        }),
-      )
-      .query(({ input }) => {
-        return paginate({ input, getPage: DB.listings.queries.getPage });
+  getPage: adminProcedure
+    .input(
+      paginationSchema.extend({
+        filters: z.object({ title: z.string() }).partial().optional(),
       }),
+    )
+    .query(({ input }) => {
+      return paginate({ input, getPage: DB.listings.queries.getPage });
+    }),
 
-    findById: adminProcedure
-      .input(
-        z.object({
-          id: z.number(),
-        }),
-      )
-      .query(async ({ input }) => {
-        const listing = await DB.listings.queries.findById(input.id);
-        if (!listing) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Listing not found",
-          });
-        }
-
-        return listing;
+  findFullById: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
       }),
-  },
+    )
+    .query(async ({ input }) => {
+      const listing = await DB.listings.queries.findFullById(input.id);
+      if (!listing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+
+      return listing;
+    }),
+
+  findById: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const listing = await DB.listings.queries.findFullById(input.id);
+      if (!listing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Listing not found",
+        });
+      }
+      return listing;
+    }),
 
   /**
    * Mutations
    */
-  mutations: {
-    create: adminProcedure
-      .input(
-        listingSchema
-          .omit({ id: true, createdAt: true, updatedAt: true })
-          .and(z.object({ products: z.array(z.number()) })),
-      )
-      .mutation(({ input }) => {
-        const { products, ...data } = input;
-        return DB.listings.mutations.create(data, products);
+  create: adminProcedure
+    .input(
+      listingSchema
+        .omit({ id: true, createdAt: true, updatedAt: true })
+        .and(z.object({ products: z.array(z.number()) })),
+    )
+    .mutation(({ input }) => {
+      const { products, ...data } = input;
+      return DB.listings.mutations.create(data, products);
+    }),
+
+  update: adminProcedure
+
+    .input(
+      z.object({
+        id: z.number(),
+        data: listingSchema
+          .omit({
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+          })
+          .partial(),
+        products: z.array(z.number()),
       }),
-  },
+    )
+    .mutation(({ input }) => {
+      return DB.listings.mutations.update(input.id, input.data, input.products);
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ input }) => {
+      return DB.listings.mutations.delete(input.id);
+    }),
 });

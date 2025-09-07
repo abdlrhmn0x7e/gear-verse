@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { ListingsTableHeader } from "./header";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { useListingSearchParams } from "./hooks";
+import { useListingSearchParams } from "../../../_hooks/use-listing-search-params";
 import { SearchInput } from "../../inputs/search-input";
 
 export function ListingsTableSkeleton() {

@@ -176,7 +176,13 @@ export function ListingForm({
                   onChange={(files) => field.onChange(files[0])}
                   initialFiles={
                     oldThumbnail
-                      ? [{ id: oldThumbnail.id, url: oldThumbnail.url }]
+                      ? [
+                          {
+                            id: oldThumbnail.id,
+                            url: oldThumbnail.url,
+                            ownerType: "LISTING",
+                          },
+                        ]
                       : undefined
                   }
                 />

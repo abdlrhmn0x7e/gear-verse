@@ -1,12 +1,13 @@
 import { ShoppingBagIcon } from "lucide-react";
-import PageHeader from "../../_components/page-header";
-import { AddListingDrawer } from "./_components/add-listing-drawer";
+import Header from "../../_components/page-header";
+import { AddListingDrawer } from "../../_components/drawers/add-listing-drawer";
 import { ListingsTable } from "../../_components/tables/listing/table";
 import { HydrateClient } from "~/trpc/server";
 import { api } from "~/trpc/server";
-import { loadListingSearchParams } from "../../_components/tables/listing/hooks";
+import { loadListingSearchParams } from "../../_hooks/use-listing-search-params";
 import type { SearchParams } from "nuqs/server";
-import { ListingDrawer } from "./_components/listing-drawer";
+import { ListingDrawer } from "../../_components/drawers/listing-drawer";
+import { EditListingDrawer } from "../../_components/drawers/edit-listing-drawer";
 
 export default async function ListingsPage({
   searchParams,
@@ -15,18 +16,18 @@ export default async function ListingsPage({
 }) {
   const params = await loadListingSearchParams(searchParams);
   if (params.listingId) {
-    void api.listing.queries.findById.prefetch({
+    void api.listing.findFullById.prefetch({
       id: params.listingId,
     });
   }
-  void api.listing.queries.getPage.prefetch({
+  void api.listing.getPage.prefetch({
     pageSize: 10,
   });
 
   return (
     <section className="space-y-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <PageHeader
+        <Header
           title="Listings"
           description="Manage your listings and start selling some shit you fat ass ugh..."
           Icon={ShoppingBagIcon}
@@ -38,6 +39,7 @@ export default async function ListingsPage({
       <HydrateClient>
         <ListingsTable />
         <ListingDrawer />
+        <EditListingDrawer />
       </HydrateClient>
     </section>
   );

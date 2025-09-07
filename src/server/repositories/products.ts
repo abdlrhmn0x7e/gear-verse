@@ -1,6 +1,6 @@
 import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { brands, media, mediaOwnerTypeEnum, products } from "../db/schema";
+import { brands, media, products } from "../db/schema";
 import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
@@ -90,13 +90,11 @@ export const _productsRepository = {
           .select({
             id: media.id,
             url: media.url,
+            ownerType: media.ownerType,
           })
           .from(media)
           .where(
-            and(
-              eq(media.ownerId, product.id),
-              eq(media.ownerType, mediaOwnerTypeEnum.enumValues[0]),
-            ),
+            and(eq(media.ownerId, product.id), eq(media.ownerType, "PRODUCT")),
           );
 
         return {
@@ -135,12 +133,7 @@ export const _productsRepository = {
         // delete all media
         await tx
           .delete(media)
-          .where(
-            and(
-              eq(media.ownerId, id),
-              eq(media.ownerType, mediaOwnerTypeEnum.enumValues[0]),
-            ),
-          );
+          .where(and(eq(media.ownerId, id), eq(media.ownerType, "PRODUCT")));
 
         // delete product
         await tx.delete(products).where(eq(products.id, id));

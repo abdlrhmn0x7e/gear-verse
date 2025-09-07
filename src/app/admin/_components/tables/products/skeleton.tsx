@@ -6,10 +6,10 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { SearchInput } from "../../inputs/search-input";
 import { ListFilterIcon } from "lucide-react";
-import { useProductsFilterParams } from "./hooks";
+import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 
 export function ProductsTableSkeleton() {
-  const [filters] = useProductsFilterParams();
+  const [filters] = useProductSearchParams();
 
   return (
     <Card className="gap-1 py-2">

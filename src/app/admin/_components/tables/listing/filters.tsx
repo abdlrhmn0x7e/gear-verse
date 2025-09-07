@@ -2,7 +2,7 @@
 
 import { debounce } from "nuqs";
 import { SearchInput } from "../../inputs/search-input";
-import { useListingSearchParams } from "./hooks";
+import { useListingSearchParams } from "../../../_hooks/use-listing-search-params";
 
 export function ListingsTableFilters() {
   const [params, setParams] = useListingSearchParams();

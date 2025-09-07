@@ -11,6 +11,7 @@ import { useDropzone, type DropzoneOptions } from "react-dropzone";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
+import type { MediaOwnerType } from "~/lib/schemas/media";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
@@ -21,8 +22,7 @@ interface FileDropZoneProps {
   isLoading?: boolean;
   showFiles?: boolean;
   className?: string;
-  initialFiles?: { id: number; url: string }[];
-  onRemoveFilePreview?: (fileId: number) => void;
+  initialFiles?: { id: number; url: string; ownerType: MediaOwnerType }[];
 }
 
 export function FileDropzone({
@@ -152,20 +152,38 @@ function FileItemPreview({
   file,
   idx,
 }: {
-  file: { id: number; url: string };
+  file: { id: number; url: string; ownerType: MediaOwnerType };
   idx: number;
 }) {
   const { mutate: deleteMedia, isPending: deletingMedia } =
     api.media.delete.useMutation();
+  const utils = api.useUtils();
   const router = useRouter();
 
   function handleRemoveFilePreview() {
     deleteMedia(
-      { id: file.id },
+      { id: file.id, ownerType: file.ownerType },
       {
         onSuccess: () => {
           router.refresh();
           toast.success("Media deleted successfully");
+          switch (file.ownerType) {
+            case "PRODUCT":
+              void utils.products.findById.invalidate();
+              break;
+            case "BRAND":
+              void utils.brands.getPage.invalidate();
+              break;
+            case "USER":
+              void utils.media.getPage.invalidate();
+              break;
+            case "LISTING":
+              void utils.listing.getPage.invalidate();
+              void utils.listing.findById.invalidate();
+              break;
+            default:
+              break;
+          }
         },
         onError: () => {
           toast.error("Failed to delete media");
@@ -183,7 +201,7 @@ function FileItemPreview({
             alt={`Product Image ${idx + 1}`}
             width={100}
             height={100}
-            className="object-cover object-center"
+            className="size-full object-cover object-center"
           />
         </div>
 

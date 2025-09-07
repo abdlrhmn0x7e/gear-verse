@@ -1,5 +1,6 @@
 import {
   bigint,
+  index,
   integer,
   numeric,
   pgTable,
@@ -10,23 +11,27 @@ import { relations } from "drizzle-orm";
 import { listingProducts } from "./listing-products";
 import { media } from "./media";
 
-export const listings = pgTable("listings", {
-  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+export const listings = pgTable(
+  "listings",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
 
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  price: numeric("price", { precision: 4, scale: 2 }).notNull(),
-  stock: integer("stock").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    price: numeric("price", { precision: 4, scale: 2 }).notNull(),
+    stock: integer("stock").notNull(),
 
-  thumbnailMediaId: bigint("thumbnail_media_id", {
-    mode: "number",
-  })
-    .references(() => media.id)
-    .notNull(),
+    thumbnailMediaId: bigint("thumbnail_media_id", {
+      mode: "number",
+    }).references(() => media.id),
 
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("thumbnail_media_id_idx").on(table.thumbnailMediaId)],
+);
 
 export const listingRelations = relations(listings, ({ one, many }) => ({
   products: many(listingProducts),

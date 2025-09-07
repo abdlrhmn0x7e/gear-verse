@@ -1,4 +1,4 @@
-import { mediaSchema } from "~/lib/schemas/media";
+import { mediaOwnerTypeEnum, mediaSchema } from "~/lib/schemas/media";
 import { adminProcedure, createTRPCRouter } from "../trpc";
 import { DB } from "~/server/repositories";
 import z from "zod";
@@ -67,9 +67,14 @@ export const mediaRouter = createTRPCRouter({
     }),
 
   delete: adminProcedure
-    .input(z.object({ id: z.number() }))
+    .input(
+      z.object({
+        id: z.number(),
+        ownerType: mediaOwnerTypeEnum,
+      }),
+    )
     .mutation(async ({ input }) => {
-      const media = await DB.media.mutations.delete(input.id);
+      const media = await DB.media.mutations.delete(input.id, input.ownerType);
       if (!media) {
         throw new TRPCError({
           code: "NOT_FOUND",

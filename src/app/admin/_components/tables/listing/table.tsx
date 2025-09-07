@@ -16,14 +16,14 @@ import { IconShoppingBagX } from "@tabler/icons-react";
 import { Spinner } from "~/components/spinner";
 import { ListingsTableSkeleton } from "./skeleton";
 import { ListingsTableFilters } from "./filters";
-import { useListingSearchParams } from "./hooks";
+import { useListingSearchParams } from "../../../_hooks/use-listing-search-params";
 import { useDebounce } from "~/hooks/use-debounce";
 
 export function ListingsTable() {
   const [params, setParams] = useListingSearchParams();
   const titleFilter = useDebounce(params.title);
   const { data, isFetching, hasNextPage, fetchNextPage } =
-    api.listing.queries.getPage.useInfiniteQuery(
+    api.listing.getPage.useInfiniteQuery(
       {
         pageSize: 10,
         filters: {

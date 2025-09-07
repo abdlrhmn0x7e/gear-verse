@@ -218,8 +218,15 @@ html body[data-scroll-locked] {
   @apply border-primary/5 shadow-primary/5 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
 }
 
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent !important;
+  }
+}
+
 .scroll-shadow:not([data-shadow="false"]) {
-  --shadow-height: 20px;
+  --shadow-height: 10px;
   --scrollbar-width: 0px;
   mask-image:
     linear-gradient(

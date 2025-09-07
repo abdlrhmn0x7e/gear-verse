@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import type { RouterOutputs } from "~/trpc/react";
 
 export const productColumns: ColumnDef<
-  RouterOutputs["products"]["getPage"]["data"][0]
+  RouterOutputs["products"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",

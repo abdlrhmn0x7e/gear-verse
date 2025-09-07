@@ -1,9 +1,18 @@
 import z from "zod";
 
+export const mediaOwnerTypeEnum = z.enum([
+  "PRODUCT",
+  "CATEGORY",
+  "BRAND",
+  "USER",
+  "LISTING",
+]);
+export type MediaOwnerType = z.infer<typeof mediaOwnerTypeEnum>;
+
 export const mediaSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
-  ownerType: z.enum(["PRODUCT", "CATEGORY", "BRAND", "USER", "LISTING"]),
+  ownerType: mediaOwnerTypeEnum,
   ownerId: z
     .number("Owner ID must be a number")
     .nonnegative("Owner ID must be positive"),

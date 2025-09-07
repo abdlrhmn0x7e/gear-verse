@@ -22,7 +22,7 @@ import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
 // Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
-import { useProductsFilterParams } from "./hooks";
+import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 
 // Table logic & components
 import { api } from "~/trpc/react";
@@ -32,7 +32,7 @@ import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 
 export function ProductsTable() {
-  const [filters] = useProductsFilterParams();
+  const [filters] = useProductSearchParams();
   const debouncedFilters = useDebounce(filters);
   const {
     data: products,

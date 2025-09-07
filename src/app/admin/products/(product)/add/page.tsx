@@ -1,6 +1,6 @@
 import { PackageIcon, TriangleAlertIcon } from "lucide-react";
 import { AddProduct } from "./_components/add-product";
-import PageHeader from "../../../_components/page-header";
+import Header from "../../../_components/page-header";
 
 export default function AdminProductsAddPage() {
   return (
@@ -14,7 +14,7 @@ export default function AdminProductsAddPage() {
         </div>
       </div>
 
-      <PageHeader
+      <Header
         title="Add Product"
         description="Add a new product to your store"
         Icon={PackageIcon}

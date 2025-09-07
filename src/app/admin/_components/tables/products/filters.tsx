@@ -2,7 +2,7 @@
 
 import { ListFilterIcon, XIcon } from "lucide-react";
 import { SearchInput } from "../../inputs/search-input";
-import { useProductsFilterParams } from "./hooks";
+import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import { debounce } from "nuqs";
 
 export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useProductsFilterParams();
+  const [filters, setFilters] = useProductSearchParams();
   const [brands, { fetchNextPage, hasNextPage, isPending: brandsPending }] =
     api.brands.getPage.useSuspenseInfiniteQuery(
       {

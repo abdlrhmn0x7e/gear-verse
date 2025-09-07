@@ -1,6 +1,6 @@
 import { PackageIcon } from "lucide-react";
 import { notFound } from "next/navigation";
-import PageHeader from "~/app/admin/_components/page-header";
+import Header from "~/app/admin/_components/page-header";
 import { EditProduct } from "./_components/edit-product";
 import { api } from "~/trpc/server";
 
@@ -21,7 +21,7 @@ export default async function EditProductPage({
 
   return (
     <section className="space-y-6">
-      <PageHeader
+      <Header
         title={`Edit ${product.title}`}
         description="Let's get this product looking good alright?"
         Icon={PackageIcon}

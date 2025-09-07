@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { VerseCarousel } from "~/components/verse-carousel";
 import { api } from "~/trpc/server";
-import PageHeader from "~/app/admin/_components/page-header";
+import Header from "~/app/admin/_components/page-header";
 import {
   CalendarIcon,
   ContainerIcon,
@@ -16,7 +16,7 @@ import { ProductDescription } from "./_components/product-description";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import type { JSONContent } from "@tiptap/react";
 import { Button } from "~/components/ui/button";
-import { DeleteProductDialog } from "./_components/delete-product-dialog";
+import { DeleteProductDialog } from "../../../../_components/dialogs/delete-product-dialog";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -38,7 +38,7 @@ export default async function ProductPage({
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <PageHeader
+        <Header
           title={product.title}
           description="Silly ahh product"
           Icon={Package2Icon}

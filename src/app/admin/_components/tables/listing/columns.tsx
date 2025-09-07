@@ -1,12 +1,12 @@
 import { IconPackageOff } from "@tabler/icons-react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { DollarSignIcon, Package2Icon } from "lucide-react";
+import { DollarSignIcon, ImageOffIcon, Package2Icon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import type { RouterOutputs } from "~/trpc/react";
 
 export const listingColumns: ColumnDef<
-  RouterOutputs["listing"]["queries"]["getPage"]["data"][0]
+  RouterOutputs["listing"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",
@@ -23,15 +23,21 @@ export const listingColumns: ColumnDef<
     id: "title",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <div className="size-6 overflow-hidden rounded-sm border">
-          <Image
-            src={row.original.thumbnail?.url ?? ""}
-            alt={row.original.title}
-            width={24}
-            height={24}
-            className="size-full object-cover"
-          />
-        </div>
+        {row.original.thumbnail?.url ? (
+          <div className="size-6 overflow-hidden rounded-sm border">
+            <Image
+              src={row.original.thumbnail?.url}
+              alt={row.original.title}
+              width={24}
+              height={24}
+              className="size-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="flex size-6 items-center justify-center overflow-hidden rounded-sm border">
+            <ImageOffIcon className="size-4" />
+          </div>
+        )}
         <p className="font-medium">{row.original.title}</p>
       </div>
     ),

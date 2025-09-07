@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "~/server/auth";
-import PageHeader from "../_components/page-header";
+import Header from "../_components/page-header";
 import {
   HomeIcon,
   PlusIcon,
@@ -26,7 +26,7 @@ export default async function AdminPage() {
 
   return (
     <section className="space-y-6">
-      <PageHeader
+      <Header
         title={`Good Morning, ${session?.user.name}`}
         description="What would you like to do today?"
         Icon={HomeIcon}
