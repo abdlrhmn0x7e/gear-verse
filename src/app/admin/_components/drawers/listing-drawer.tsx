@@ -24,7 +24,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { VerseCarousel } from "~/components/verse-carousel";
@@ -37,17 +36,22 @@ export function ListingDrawer() {
   const isMobile = useIsMobile();
   const [params, setParams] = useListingSearchParams();
 
-  function handleClose() {
-    void setParams({
-      ...params,
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      void setParams((prev) => ({ ...prev, listingId: null }));
+      return;
+    }
+
+    void setParams((prev) => ({
+      ...prev,
       listingId: null,
-    });
+    }));
   }
 
   return (
     <Drawer
       open={!!params.listingId}
-      onOpenChange={handleClose}
+      onOpenChange={handleOpenChange}
       direction={isMobile ? "bottom" : "right"}
       handleOnly={!isMobile}
     >
@@ -167,7 +171,7 @@ function ListingDrawerContent() {
     <>
       <DrawerHeader>
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-          <div className="flex flex-col items-center gap-3 sm:items-start">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
             <ShoppingBagIcon className="mt-1.5 size-6 shrink-0" />
             <div>
               <DrawerTitle>{listing.title}</DrawerTitle>
@@ -314,67 +318,65 @@ function ListingDrawerSkeleton() {
         </div>
       </DrawerHeader>
 
-      <ScrollArea className="h-[calc(100vh-8rem)]">
-        <div className="space-y-6 p-4 pb-32">
-          <div className="space-y-6">
-            {/* Photos Section */}
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-12" />
-              <div className="space-y-1">
-                <Skeleton className="h-5 w-16" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Skeleton className="h-96 w-full rounded-lg" />
-
-              <div className="flex gap-2 overflow-hidden">
-                <Skeleton className="h-16 w-16 rounded-md" />
-                <Skeleton className="h-16 w-16 rounded-md" />
-                <Skeleton className="h-16 w-16 rounded-md" />
-              </div>
+      <div className="scroll-shadow h-[calc(100vh-8rem)] overflow-y-auto">
+        <div className="space-y-6 p-4">
+          {/* Photos Section */}
+          <div className="flex items-center gap-3">
+            <Skeleton className="size-12" />
+            <div className="space-y-1">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-40" />
             </div>
           </div>
 
-          <Separator />
+          <div className="space-y-3">
+            <Skeleton className="h-96 w-full rounded-lg" />
 
-          <div className="space-y-6">
-            {/* Description Section */}
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-12" />
-              <div className="space-y-1">
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-4 w-56" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-4/5" />
-              <Skeleton className="h-5 w-3/5" />
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-6">
-            {/* Related Products Section */}
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-12" />
-              <div className="space-y-1">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-48" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <ProductCardSkeleton key={index} />
-              ))}
+            <div className="flex gap-2 overflow-hidden">
+              <Skeleton className="h-16 w-16 rounded-md" />
+              <Skeleton className="h-16 w-16 rounded-md" />
+              <Skeleton className="h-16 w-16 rounded-md" />
             </div>
           </div>
         </div>
-      </ScrollArea>
+
+        <Separator />
+
+        <div className="space-y-6">
+          {/* Description Section */}
+          <div className="flex items-center gap-3">
+            <Skeleton className="size-12" />
+            <div className="space-y-1">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-4/5" />
+            <Skeleton className="h-5 w-3/5" />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-6">
+          {/* Related Products Section */}
+          <div className="flex items-center gap-3">
+            <Skeleton className="size-12" />
+            <div className="space-y-1">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 }

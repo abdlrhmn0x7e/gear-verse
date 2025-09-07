@@ -20,25 +20,29 @@ import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Skeleton } from "~/components/ui/skeleton";
 import { AlertTriangleIcon } from "lucide-react";
-import { ScrollArea } from "~/components/ui/scroll-area";
 
 export function EditListingDrawer() {
   const isMobile = useIsMobile();
   const [params, setParams] = useListingSearchParams();
 
-  function handleClose() {
-    void setParams({ ...params, type: null });
+  function handleOpenChange(open: boolean) {
+    if (open) {
+      void setParams((prev) => ({ ...prev, type: null }));
+      return;
+    }
+
+    void setParams((prev) => ({ ...prev, type: null }));
   }
 
   return (
     <Drawer
       open={!!params.type && !!params.listingId && params.type === "edit"}
-      onOpenChange={handleClose}
+      onOpenChange={handleOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
       <EditListingDrawerContent
         listingId={params.listingId ?? 0}
-        handleDrawerClose={handleClose}
+        handleDrawerClose={() => handleOpenChange(false)}
       />
     </Drawer>
   );
@@ -142,20 +146,18 @@ function EditListingDrawerContent({
         </div>
       </DrawerHeader>
 
-      <ScrollArea className="h-[calc(100vh-28rem)] sm:h-full">
-        <ListingForm
-          className="p-4"
-          defaultValues={{
-            title: listing.title,
-            description: listing.description,
-            price: listing.price,
-            stock: listing.stock,
-            products: listing.products?.map((product) => product.id),
-          }}
-          oldThumbnail={listing.thumbnail ?? undefined}
-          onSubmit={onSubmit}
-        />
-      </ScrollArea>
+      <ListingForm
+        className="scroll-shadow h-[calc(100vh-32rem)] overflow-y-auto p-4 sm:h-auto"
+        defaultValues={{
+          title: listing.title,
+          description: listing.description,
+          price: listing.price,
+          stock: listing.stock,
+          products: listing.products?.map((product) => product.id),
+        }}
+        oldThumbnail={listing.thumbnail ?? undefined}
+        onSubmit={onSubmit}
+      />
 
       <DrawerFooter>
         <Button type="submit" form="listing-form" disabled={isSubmitting}>

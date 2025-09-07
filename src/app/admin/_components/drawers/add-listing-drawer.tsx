@@ -2,7 +2,6 @@
 
 import { IconShoppingBagPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 import {
   ListingForm,
@@ -19,21 +18,30 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "~/components/ui/drawer";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { api } from "~/trpc/react";
+import { useListingSearchParams } from "../../_hooks/use-listing-search-params";
 
 export function AddListingDrawer() {
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
+  const [params, setParams] = useListingSearchParams();
   const router = useRouter();
   const { mutateAsync: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   const { mutateAsync: createListing, isPending: isCreating } =
     api.listing.create.useMutation();
   const isSubmitting = isUploading || isCreating;
+
+  function handleOpenChange(open: boolean) {
+    if (open) {
+      void setParams((prev) => ({ ...prev, type: "create" }));
+      return;
+    }
+
+    void setParams((prev) => ({ ...prev, type: null }));
+  }
 
   async function onSubmit(data: ListingFormValues) {
     const { thumbnail, ...rest } = data;
@@ -66,7 +74,7 @@ export function AddListingDrawer() {
     }
 
     router.refresh();
-    setOpen(false);
+    handleOpenChange(false);
     toast.dismiss(createLoadingToast);
     toast.success("Listing created successfully");
   }
@@ -74,8 +82,8 @@ export function AddListingDrawer() {
   return (
     <Drawer
       direction={isMobile ? "bottom" : "right"}
-      open={open}
-      onOpenChange={setOpen}
+      open={!!params.type && params.type === "create"}
+      onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>
         <Button size="lg">
@@ -99,12 +107,10 @@ export function AddListingDrawer() {
           </div>
         </DrawerHeader>
 
-        <ScrollArea>
-          <ListingForm
-            onSubmit={onSubmit}
-            className="h-[calc(100vh-32rem)] p-4"
-          />
-        </ScrollArea>
+        <ListingForm
+          onSubmit={onSubmit}
+          className="h-[calc(100vh-32rem)] overflow-y-auto p-4 sm:h-auto"
+        />
 
         <DrawerFooter>
           <Button type="submit" form="listing-form" disabled={isSubmitting}>
