@@ -8,7 +8,6 @@ import {
 
 // React & Next
 import { useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 
 // Third-party hooks & utilities
 import { keepPreviousData } from "@tanstack/react-query";
@@ -32,8 +31,8 @@ import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 
 export function ProductsTable() {
-  const [filters] = useProductSearchParams();
-  const debouncedFilters = useDebounce(filters);
+  const [params, setParams] = useProductSearchParams();
+  const debouncedFilters = useDebounce(params);
   const {
     data: products,
     isFetched,
@@ -44,7 +43,7 @@ export function ProductsTable() {
       pageSize: 10,
       filters: {
         title: debouncedFilters.title ?? undefined,
-        brands: filters.brands ?? undefined,
+        brands: params.brands ?? undefined,
       },
     },
     {
@@ -58,7 +57,6 @@ export function ProductsTable() {
   );
 
   const { ref, inView } = useInView();
-  const router = useRouter();
 
   const table = useReactTable({
     data: productsData,
@@ -94,7 +92,7 @@ export function ProductsTable() {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() =>
-                      router.push(`/admin/products/${row.original.id}`)
+                      setParams({ ...params, productId: row.original.id })
                     }
                     className="cursor-pointer"
                   >

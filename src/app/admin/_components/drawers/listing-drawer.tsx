@@ -1,5 +1,11 @@
 "use client";
 
+// External Libraries
+import { useMemo, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+// Icon Libraries
 import {
   AlertTriangleIcon,
   EyeIcon,
@@ -10,12 +16,15 @@ import {
   PencilIcon,
   ShoppingBagIcon,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useMemo, useRef } from "react";
+import { IconShoppingBagX } from "@tabler/icons-react";
+
+// App Components
 import Header, { HeaderSkeleton } from "~/app/admin/_components/header";
 import { useListingSearchParams } from "~/app/admin/_hooks/use-listing-search-params";
 import { DeleteProductDialog } from "~/app/admin/_components/dialogs/delete-product-dialog";
+import { DeleteListingDialog } from "../dialogs/delete-listing-dialog";
+
+// UI Components
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -26,11 +35,14 @@ import {
 } from "~/components/ui/drawer";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
-import { VerseCarousel } from "~/components/verse-carousel";
+import {
+  VerseCarousel,
+  VerseCarouselSkeleton,
+} from "~/components/verse-carousel";
+
+// Hooks & API
 import { useIsMobile } from "~/hooks/use-mobile";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { IconShoppingBagX } from "@tabler/icons-react";
-import { DeleteListingDialog } from "../dialogs/delete-listing-dialog";
 
 export function ListingDrawer() {
   const isMobile = useIsMobile();
@@ -270,7 +282,7 @@ function ProductCard({
       </div>
       <div className="flex-1 rounded-md">
         <Link
-          href={`/admin/products/${product.id}`}
+          href={`/admin/products?productId=${product.id}`}
           className="group flex cursor-pointer flex-col"
         >
           <p className="group-hover:text-primary-foreground text-muted-foreground text-sm transition-colors">
@@ -288,7 +300,7 @@ function ProductCard({
           </Link>
         </Button>
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/admin/products/${product.id}`}>
+          <Link href={`/admin/products?productId=${product.id}`}>
             <EyeIcon />
           </Link>
         </Button>
@@ -307,73 +319,55 @@ function ListingDrawerSkeleton() {
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle></DrawerTitle>
-        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-          <HeaderSkeleton Icon={ShoppingBagIcon} />
+        <DrawerTitle className="sr-only hidden">Loading</DrawerTitle>
+        <DrawerDescription className="sr-only hidden">
+          Listing is Loading
+        </DrawerDescription>
 
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-28" />
-            <Skeleton className="h-10 w-32" />
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+            <ShoppingBagIcon className="mt-1.5 size-6 shrink-0" />
+            <div>
+              <Skeleton className="h-7 w-48" /> {/* Title */}
+              <Skeleton className="mt-1 h-4 w-64 sm:block" />{" "}
+              {/* Description */}
+            </div>
+          </div>
+          <div className="flex gap-2 sm:flex-row">
+            <Skeleton className="h-10 w-28" /> {/* Edit button */}
+            <Skeleton className="h-10 w-32" /> {/* Delete button */}
           </div>
         </div>
       </DrawerHeader>
 
       <div className="scroll-shadow h-[calc(100vh-8rem)] overflow-y-auto">
-        <div className="space-y-6 p-4">
-          {/* Photos Section */}
-          <div className="flex items-center gap-3">
-            <Skeleton className="size-12" />
-            <div className="space-y-1">
-              <Skeleton className="h-5 w-16" />
-              <Skeleton className="h-4 w-40" />
+        <div className="space-y-6 p-4 pb-32">
+          <div className="space-y-6">
+            {/* Photos Section */}
+            <HeaderSkeleton Icon={ImagesIcon} />
+
+            <VerseCarouselSkeleton />
+          </div>
+
+          <Separator />
+
+          <div className="space-y-6">
+            {/* Description Section */}
+            <HeaderSkeleton Icon={FileTextIcon} />
+            <Skeleton className="h-6 w-full" /> {/* Single description line */}
+          </div>
+
+          <Separator />
+
+          <div className="space-y-6">
+            {/* Related Products Section */}
+            <HeaderSkeleton Icon={PackageIcon} />
+
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))}
             </div>
-          </div>
-
-          <div className="space-y-3">
-            <Skeleton className="h-96 w-full rounded-lg" />
-
-            <div className="flex gap-2 overflow-hidden">
-              <Skeleton className="h-16 w-16 rounded-md" />
-              <Skeleton className="h-16 w-16 rounded-md" />
-              <Skeleton className="h-16 w-16 rounded-md" />
-            </div>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="space-y-6">
-          {/* Description Section */}
-          <div className="flex items-center gap-3">
-            <Skeleton className="size-12" />
-            <div className="space-y-1">
-              <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-4 w-56" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-full" />
-            <Skeleton className="h-5 w-4/5" />
-            <Skeleton className="h-5 w-3/5" />
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="space-y-6">
-          {/* Related Products Section */}
-          <div className="flex items-center gap-3">
-            <Skeleton className="size-12" />
-            <div className="space-y-1">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <ProductCardSkeleton key={index} />
-            ))}
           </div>
         </div>
       </div>

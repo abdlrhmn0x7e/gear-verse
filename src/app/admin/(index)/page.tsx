@@ -63,7 +63,7 @@ export default async function AdminPage() {
           <QuickAction
             title="New Listing"
             description="Publish a new listing to your store."
-            href="#"
+            href="/admin/listings?type=create"
             Icon={ShoppingBagIcon}
           />
         </div>

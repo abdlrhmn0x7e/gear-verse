@@ -1,6 +1,6 @@
 import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { brands, media, products } from "../db/schema";
+import { brands, listings, media, products } from "../db/schema";
 import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
@@ -97,9 +97,22 @@ export const _productsRepository = {
             and(eq(media.ownerId, product.id), eq(media.ownerType, "PRODUCT")),
           );
 
+        const productListings = await tx
+          .select({
+            id: listings.id,
+            title: listings.title,
+            description: listings.description,
+            thumbnail: media.url,
+          })
+          .from(listings)
+          .leftJoin(listingProducts, eq(listings.id, listingProducts.listingId))
+          .leftJoin(media, eq(listings.thumbnailMediaId, media.id))
+          .where(inArray(listingProducts.productId, [product.id]));
+
         return {
           ...product,
           media: productMedia,
+          listings: productListings,
         };
       });
     },

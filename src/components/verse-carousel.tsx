@@ -147,3 +147,16 @@ function SuspendableImage({
     </>
   );
 }
+
+export function VerseCarouselSkeleton() {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="h-96 w-full rounded-lg" />
+      <div className="flex gap-2 overflow-hidden">
+        <Skeleton className="h-16 w-16 rounded-md" />
+        <Skeleton className="h-16 w-16 rounded-md" />
+        <Skeleton className="h-16 w-16 rounded-md" />
+      </div>
+    </div>
+  );
+}
