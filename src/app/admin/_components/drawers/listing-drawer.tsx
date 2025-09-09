@@ -188,7 +188,7 @@ function ListingDrawerContent() {
             <div>
               <DrawerTitle>{listing.title}</DrawerTitle>
               <DrawerDescription className="hidden sm:block">
-                {listing.description}
+                {listing.summary}
               </DrawerDescription>
             </div>
           </div>

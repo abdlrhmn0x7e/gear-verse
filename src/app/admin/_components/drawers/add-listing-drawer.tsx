@@ -1,7 +1,6 @@
 "use client";
 
 import { IconShoppingBagPlus } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   ListingForm,
@@ -27,7 +26,7 @@ import { useListingSearchParams } from "../../_hooks/use-listing-search-params";
 export function AddListingDrawer() {
   const isMobile = useIsMobile();
   const [params, setParams] = useListingSearchParams();
-  const router = useRouter();
+  const utils = api.useUtils();
   const { mutateAsync: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   const { mutateAsync: createListing, isPending: isCreating } =
@@ -73,7 +72,7 @@ export function AddListingDrawer() {
       return;
     }
 
-    router.refresh();
+    void utils.listing.getPage.invalidate();
     handleOpenChange(false);
     toast.dismiss(createLoadingToast);
     toast.success("Listing created successfully");

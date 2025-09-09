@@ -1,4 +1,10 @@
+import type { Icon, IconProps } from "@tabler/icons-react";
 import type { LucideIcon } from "lucide-react";
+import type {
+  ForwardRefExoticComponent,
+  ReactElement,
+  RefAttributes,
+} from "react";
 import { Heading } from "~/components/heading";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
@@ -12,7 +18,7 @@ export default function Header({
 }: {
   title: string;
   description: string;
-  Icon: LucideIcon;
+  Icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
   className?: string;
   headingLevel?: 3 | 4 | 5;
 }) {
@@ -25,7 +31,7 @@ export default function Header({
     >
       <div className="from-card to-accent rounded-lg bg-radial-[at_50%_75%] p-px">
         <div className="to-card from-accent flex size-10 items-center justify-center rounded-[calc(var(--radius)-2px)] bg-radial-[at_25%_25%]">
-          <Icon size={24} className="text-foreground" />
+          <Icon className="text-foreground size-5" />
         </div>
       </div>
 

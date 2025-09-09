@@ -19,6 +19,7 @@ export const listings = pgTable(
       .generatedAlwaysAsIdentity(),
 
     title: text("title").notNull(),
+    summary: text("summary").notNull(),
     description: text("description").notNull(),
     price: numeric("price", { precision: 4, scale: 2 }).notNull(),
     stock: integer("stock").notNull(),

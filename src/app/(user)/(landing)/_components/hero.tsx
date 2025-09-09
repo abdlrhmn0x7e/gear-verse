@@ -17,7 +17,7 @@ export function Hero() {
 
             <div className="flex flex-col items-center gap-1">
               <Heading>Gear Verse</Heading>
-              <p className="text-muted-foreground max-w-xl text-xl">
+              <p className="text-muted-foreground max-w-xl text-center text-xl">
                 Hard-to-find gaming peripherals and accessories from
                 international brands — hand-imported, customs cleared, and
                 delivered to your door.

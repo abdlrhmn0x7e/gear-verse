@@ -64,6 +64,7 @@ export function ListingForm({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues ?? {
       title: "",
+      summary: "",
       description: "",
       products: [],
       price: "",
@@ -86,6 +87,20 @@ export function ListingForm({
               <FormLabel>Title</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="summary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Summary</FormLabel>
+              <FormControl>
+                <Textarea {...field} className="min-h-12 resize-none" />
               </FormControl>
               <FormMessage />
             </FormItem>

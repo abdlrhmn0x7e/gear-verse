@@ -29,6 +29,8 @@ export const _listingsRepository = {
         .select({
           id: listings.id,
           title: listings.title,
+          summary: listings.summary,
+          description: listings.description,
           price: listings.price,
           stock: listings.stock,
           createdAt: listings.createdAt,
@@ -56,6 +58,7 @@ export const _listingsRepository = {
         columns: {
           id: true,
           title: true,
+          summary: true,
           description: true,
           price: true,
           stock: true,
@@ -99,6 +102,7 @@ export const _listingsRepository = {
           id: true,
           title: true,
           description: true,
+          summary: true,
           price: true,
           stock: true,
           createdAt: true,

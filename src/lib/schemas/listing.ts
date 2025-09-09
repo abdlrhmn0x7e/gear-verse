@@ -4,6 +4,10 @@ export const listingSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
   title: z.string("Title is required").min(1, "Title is required"),
+  summary: z
+    .string("Summary is required")
+    .min(1, "Summary is required")
+    .max(255, "Summary must be less than 255 characters"),
   description: z
     .string("Description is required")
     .min(1, "Description is required"),

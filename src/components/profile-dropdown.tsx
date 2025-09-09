@@ -1,20 +1,32 @@
 "use client";
 
-import { LogOutIcon } from "lucide-react";
+import {
+  CheckIcon,
+  LogOutIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { authClient } from "~/lib/auth-client";
+import { useTheme } from "next-themes";
 
 export function ProfileDropdown({ className }: { className?: string }) {
   const { data } = authClient.useSession();
+  const { setTheme, theme } = useTheme();
 
   if (!data) return null;
 
@@ -54,6 +66,30 @@ export function ProfileDropdown({ className }: { className?: string }) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <SunIcon className="text-muted-foreground mr-1 size-4 h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <MoonIcon className="text-muted-foreground absolute mr-1 size-4 h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            Theme
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                {theme === "light" ? <CheckIcon /> : <SunIcon />}
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                {theme === "dark" ? <CheckIcon /> : <MoonIcon />}
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                {theme === "system" ? <CheckIcon /> : <MonitorIcon />}
+                System
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
 
         <DropdownMenuItem onClick={() => void authClient.signOut()}>
           <LogOutIcon />
