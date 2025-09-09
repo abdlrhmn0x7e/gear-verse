@@ -6,6 +6,7 @@ import {
   DoorOpenIcon,
   HomeIcon,
   Menu,
+  PackageIcon,
   ShieldUserIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -18,12 +19,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { ProfileDropdown } from "./profile-dropdown";
 import { ModeToggle } from "./mode-toggle";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface NavigationLink {
   title: string;
@@ -46,16 +48,20 @@ export function Navbar() {
 
   return (
     <header className="fixed top-5 left-1/2 z-50 container -translate-x-1/2">
-      <div className="bg-card/40 rounded-full border px-8 py-2 backdrop-blur">
+      <motion.div
+        className="bg-card/40 flex-col gap-2 rounded-full border px-8 py-2 backdrop-blur"
+        style={{ height: "auto" }}
+        layout
+      >
         <nav className="flex items-center justify-between">
-          <div className="flex flex-1 items-center gap-12">
+          <div className="flex flex-1 items-center gap-8">
             <Link href="/">
               <Logo />
             </Link>
 
             {/* Nav Items */}
             <div className="hidden w-full items-center gap-2 lg:flex">
-              <p>Products</p>
+              <ProductsMenu />
             </div>
           </div>
 
@@ -91,8 +97,36 @@ export function Navbar() {
             </MobileMenu>
           </div>
         </nav>
-      </div>
+
+        <div id="nav-content" />
+      </motion.div>
     </header>
+  );
+}
+
+const productsMenuVariants = {
+  open: {
+    height: "auto",
+  },
+  closed: {
+    height: 0,
+  },
+};
+
+function ProductsMenu() {
+  const [open, setOpen] = useState(false);
+
+  function toggle() {
+    setOpen((open) => !open);
+  }
+
+  return (
+    <AnimatePresence>
+      <Button variant="ghost" onClick={toggle}>
+        <PackageIcon />
+        Products
+      </Button>
+    </AnimatePresence>
   );
 }
 

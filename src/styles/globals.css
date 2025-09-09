@@ -215,7 +215,7 @@ html body[data-scroll-locked] {
 }
 
 .hero-ring {
-  @apply border-primary/5 shadow-primary/5 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
+  @apply border-primary/10 shadow-primary/10 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
 }
 
 @supports not selector(::-webkit-scrollbar) {

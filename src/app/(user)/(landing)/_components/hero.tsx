@@ -45,17 +45,18 @@ export function Hero() {
           <div className="hero-ring size-[1220px]" />
 
           <Orbit
-            size={430}
+            size={470}
             rotation={-14}
-            shouldOrbit
             orbitDuration={30}
+            spinDuration={18}
+            shouldOrbit
             shouldSpin
-            spinDuration={6}
           >
             <Sparkles className="fill-primary text-primary size-8 opacity-20" />
           </Orbit>
+
           <Orbit
-            size={440}
+            size={460}
             rotation={79}
             shouldOrbit
             orbitDuration={32}
@@ -64,40 +65,43 @@ export function Hero() {
           >
             <Sparkles className="fill-primary text-primary size-5 opacity-20" />
           </Orbit>
-          <Orbit size={520} rotation={-41} shouldOrbit orbitDuration={34}>
+
+          <Orbit size={520} rotation={-41} orbitDuration={34} shouldOrbit>
             <div className="bg-primary size-2 rounded-full opacity-20" />
           </Orbit>
           <Orbit
             size={530}
             rotation={178}
-            shouldOrbit
             orbitDuration={36}
-            shouldSpin
             spinDuration={6}
+            shouldOrbit
+            shouldSpin
           >
             <Sparkles className="fill-primary text-primary size-10 opacity-20" />
           </Orbit>
+
           <Orbit
-            size={550}
+            size={625}
             rotation={20}
-            shouldOrbit
             orbitDuration={38}
-            shouldSpin
             spinDuration={8}
+            shouldOrbit
+            shouldSpin
           >
             <Sparkle className="fill-primary text-primary size-12" />
           </Orbit>
           <Orbit
-            size={590}
+            size={610}
             rotation={98}
-            shouldOrbit
             orbitDuration={40}
-            shouldSpin
             spinDuration={8}
+            shouldOrbit
+            shouldSpin
           >
             <Sparkle className="fill-primary text-primary size-8" />
           </Orbit>
-          <Orbit size={650} rotation={-5} shouldOrbit orbitDuration={42}>
+
+          <Orbit size={660} rotation={-5} shouldOrbit orbitDuration={42}>
             <div className="bg-primary size-2 rounded-full opacity-20" />
           </Orbit>
           <Orbit
@@ -110,16 +114,17 @@ export function Hero() {
           >
             <Sparkles className="fill-primary text-primary size-14 opacity-20" />
           </Orbit>
-          <Orbit size={720} rotation={85} shouldOrbit orbitDuration={46}>
+
+          <Orbit size={740} rotation={85} shouldOrbit orbitDuration={46}>
             <div className="bg-primary size-3 rounded-full opacity-20" />
           </Orbit>
           <Orbit
-            size={800}
+            size={840}
             rotation={-72}
-            shouldOrbit
             orbitDuration={48}
-            shouldSpin
             spinDuration={8}
+            shouldOrbit
+            shouldSpin
           >
             <Sparkle className="fill-primary text-primary size-28" />
           </Orbit>
