@@ -1,10 +1,6 @@
 import type { Icon, IconProps } from "@tabler/icons-react";
 import type { LucideIcon } from "lucide-react";
-import type {
-  ForwardRefExoticComponent,
-  ReactElement,
-  RefAttributes,
-} from "react";
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import { Heading } from "~/components/heading";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";

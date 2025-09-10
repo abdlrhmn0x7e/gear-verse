@@ -19,13 +19,28 @@ export function DeleteProductDialog({
   id,
   showText = true,
   variant = "destructive",
+  onDeleteSuccess,
 }: {
   id: number;
   showText?: boolean;
   variant?: "destructive" | "destructiveGhost";
+  onDeleteSuccess?: () => void;
 }) {
+  const utils = api.useUtils();
   const { mutate: deleteProduct, isPending } =
     api.products.delete.useMutation();
+
+  function handleDelete() {
+    deleteProduct(
+      { id },
+      {
+        onSuccess: () => {
+          onDeleteSuccess?.();
+          void utils.products.getPage.invalidate();
+        },
+      },
+    );
+  }
 
   return (
     <AlertDialog>
@@ -45,10 +60,7 @@ export function DeleteProductDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={isPending}
-            onClick={() => deleteProduct({ id })}
-          >
+          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
             Continue
           </AlertDialogAction>
         </AlertDialogFooter>

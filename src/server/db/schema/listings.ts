@@ -23,7 +23,7 @@ export const listings = pgTable(
     slug: text("slug").notNull(),
     summary: text("summary").notNull(),
     description: text("description").notNull(),
-    price: numeric("price", { precision: 4, scale: 2 }).notNull(),
+    price: numeric("price", { precision: 7, scale: 2 }).notNull(),
     stock: integer("stock").notNull(),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {

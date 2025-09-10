@@ -19,7 +19,7 @@ import {
 import { IconShoppingBagX } from "@tabler/icons-react";
 
 // App Components
-import Header, { HeaderSkeleton } from "~/app/admin/_components/header";
+import Header, { HeaderSkeleton } from "~/components/header";
 import { useListingSearchParams } from "~/app/admin/_hooks/use-listing-search-params";
 import { DeleteProductDialog } from "~/app/admin/_components/dialogs/delete-product-dialog";
 import { DeleteListingDialog } from "../dialogs/delete-listing-dialog";
@@ -285,10 +285,10 @@ function ProductCard({
           href={`/admin/products?productId=${product.id}`}
           className="group flex cursor-pointer flex-col"
         >
-          <p className="group-hover:text-primary-foreground text-muted-foreground text-sm transition-colors">
+          <p className="group-hover:text-primary text-muted-foreground text-sm transition-colors">
             {product.brand.name}
           </p>
-          <p className="group-hover:text-primary-foreground/80 text-sm font-medium transition-colors">
+          <p className="group-hover:text-primary text-sm font-medium transition-colors">
             {product.title}
           </p>
         </Link>

@@ -2,7 +2,7 @@ import { PackageIcon, SaveIcon } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
-import { HeaderSkeleton } from "~/app/admin/_components/header";
+import { HeaderSkeleton } from "~/components/header";
 
 export default function Loading() {
   return (

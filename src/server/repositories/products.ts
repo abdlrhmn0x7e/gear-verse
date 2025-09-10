@@ -101,7 +101,7 @@ export const _productsRepository = {
           .select({
             id: listings.id,
             title: listings.title,
-            description: listings.description,
+            summary: listings.summary,
             thumbnail: media.url,
           })
           .from(listings)

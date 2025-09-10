@@ -1,5 +1,5 @@
 import { ShoppingBagIcon } from "lucide-react";
-import Header from "../../_components/header";
+import Header from "../../../../components/header";
 import { AddListingDrawer } from "../../_components/drawers/add-listing-drawer";
 import { ListingsTable } from "../../_components/tables/listing/table";
 import { HydrateClient } from "~/trpc/server";

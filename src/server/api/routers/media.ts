@@ -6,6 +6,7 @@ import { s3GetPublicUrl } from "~/lib/s3";
 import { paginate } from "../helpers/pagination";
 import { paginationSchema } from "~/lib/schemas/pagination";
 import { TRPCError } from "@trpc/server";
+import { tryCatch } from "~/lib/utils/try-catch";
 
 export const mediaRouter = createTRPCRouter({
   /**
@@ -41,7 +42,18 @@ export const mediaRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const media = await DB.media.mutations.update(input.id, input.data);
+      const { data: media, error: mediaError } = await tryCatch(
+        DB.media.mutations.update(input.id, input.data),
+      );
+      if (mediaError) {
+        console.error("[MEDIA UPDATE] Error updating media", mediaError);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update media",
+          cause: mediaError,
+        });
+      }
+
       if (!media) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -53,10 +65,29 @@ export const mediaRouter = createTRPCRouter({
     }),
 
   updateMany: adminProcedure
-    .input(z.array(mediaSchema))
+    .input(
+      z.array(
+        mediaSchema
+          .partial()
+          .omit({ url: true, createdAt: true })
+          .extend({ id: z.number() }),
+      ),
+    )
     .mutation(async ({ input }) => {
-      const media = await DB.media.mutations.updateMany(input);
+      const { data: media, error: mediaError } = await tryCatch(
+        DB.media.mutations.updateMany(input),
+      );
+      if (mediaError) {
+        console.error("[MEDIA UPDATE MANY] Error updating media", mediaError);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update media",
+          cause: mediaError,
+        });
+      }
+
       if (media.length === 0) {
+        console.error("[MEDIA UPDATE MANY] No media returned");
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "None of the media items were found to be updated",

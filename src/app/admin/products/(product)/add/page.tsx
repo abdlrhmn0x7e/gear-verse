@@ -1,6 +1,6 @@
 import { PackageIcon, TriangleAlertIcon } from "lucide-react";
 import { AddProduct } from "./_components/add-product";
-import Header from "../../../_components/header";
+import Header from "../../../../../components/header";
 
 export default function AdminProductsAddPage() {
   return (

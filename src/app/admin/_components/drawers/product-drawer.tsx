@@ -30,7 +30,7 @@ import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 
 // Custom Components
-import Header, { HeaderSkeleton } from "~/app/admin/_components/header";
+import Header, { HeaderSkeleton } from "~/components/header";
 import { ProductDescription } from "../product-description";
 import { DeleteProductDialog } from "../dialogs/delete-product-dialog";
 import {
@@ -85,7 +85,7 @@ export function ProductDrawer() {
 }
 
 function ProductDrawerContent() {
-  const [params] = useProductSearchParams();
+  const [params, setParams] = useProductSearchParams();
 
   const paramsProductIdRef = useRef<number>(params.productId);
   const {
@@ -182,7 +182,12 @@ function ProductDrawerContent() {
               </Link>
             </Button>
 
-            <DeleteProductDialog id={product.id} />
+            <DeleteProductDialog
+              id={product.id}
+              onDeleteSuccess={() => {
+                void setParams((prev) => ({ ...prev, productId: null }));
+              }}
+            />
           </div>
         </div>
       </DrawerHeader>
@@ -211,9 +216,16 @@ function ProductDrawerContent() {
               className="flex-row text-left"
             />
             <div className="space-y-2">
-              {product.listings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
-              ))}
+              {product.listings.length === 0 ? (
+                <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-sm">
+                  <IconShoppingBagX className="size-12" />
+                  <span>No listings found</span>
+                </div>
+              ) : (
+                product.listings.map((listing) => (
+                  <ListingCard key={listing.id} listing={listing} />
+                ))
+              )}
             </div>
           </div>
 
@@ -297,11 +309,11 @@ function ListingCard({
           href={`/admin/listings?listingId=${listing.id}`}
           className="group flex cursor-pointer flex-col"
         >
-          <p className="group-hover:text-primary-foreground transition-colors">
+          <p className="group-hover:text-primary transition-colors">
             {listing.title}
           </p>
-          <p className="group-hover:text-primary-foreground/80 text-muted-foreground text-sm font-medium transition-colors">
-            {listing.description}
+          <p className="group-hover:text-primary text-muted-foreground line-clamp-1 text-sm font-medium transition-colors">
+            {listing.summary}
           </p>
         </Link>
       </div>

@@ -22,7 +22,7 @@ import { useMemo } from "react";
 import type { MediaOwnerType } from "~/lib/schemas/media";
 
 const productFormSchema = productSchema
-  .omit({ id: true, createdAt: true, updatedAt: true, thumbnailMediaId: true })
+  .omit({ id: true, createdAt: true, updatedAt: true })
   .and(
     z.object({
       images: z
@@ -49,7 +49,7 @@ export function ProductForm({
       }
       if (data.images?.length === 0) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Images are required",
         });
       }

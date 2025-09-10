@@ -1,4 +1,4 @@
-import * as z from "zod";
+import z from "zod";
 
 export const productSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),

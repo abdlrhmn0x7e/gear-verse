@@ -1,6 +1,6 @@
 import { PackageIcon, TriangleAlertIcon } from "lucide-react";
 import { notFound } from "next/navigation";
-import Header from "~/app/admin/_components/header";
+import Header from "~/components/header";
 import { EditProduct } from "./_components/edit-product";
 import { api } from "~/trpc/server";
 

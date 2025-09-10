@@ -26,10 +26,9 @@ async function uploadFiles(
       mediaId: number;
     }[]
   >,
-  updateMedia: (params: {
-    id: number;
-    data: UpdateMediaDto;
-  }) => Promise<{ id: number } | undefined>,
+  bulkUpdateMedia: (
+    media: (UpdateMediaDto & { id: number })[],
+  ) => Promise<({ id: number } | undefined)[]>,
 
   ownerType?: Media["ownerType"],
   ownerId?: Media["ownerId"],
@@ -93,24 +92,27 @@ async function uploadFiles(
           return Promise.reject(fileUploadResponseError);
         }
 
-        // Update the media record status to "READY"
-        const { error: updateMediaError } = await tryCatch(
-          updateMedia({
-            id: fileUploadData.mediaId,
-            data: { status: "READY", ownerType, ownerId },
-          }),
-        );
-        if (updateMediaError) {
-          return Promise.reject(updateMediaError);
-        }
-
         return Promise.resolve();
       }),
     ),
   );
-
   if (fileUploadError) {
     throw new Error("Failed to upload files");
+  }
+
+  const { error: bulkUpdateMediaError } = await tryCatch(
+    bulkUpdateMedia(
+      Array.from(filesMap.values()).map((value) => ({
+        id: value.mediaId,
+        status: "READY",
+        ownerType,
+        ownerId,
+      })),
+    ),
+  );
+
+  if (bulkUpdateMediaError) {
+    throw new Error("Failed to update media");
   }
 }
 
@@ -127,7 +129,7 @@ export function useUploadFilesMutation() {
   const utils = api.useUtils();
   const { mutateAsync: getPresignedUrls } =
     api.s3.getPresignedUrls.useMutation();
-  const { mutateAsync: updateMedia } = api.media.update.useMutation();
+  const { mutateAsync: bulkUpdateMedia } = api.media.updateMany.useMutation();
 
   return useMutation({
     mutationFn: ({
@@ -138,7 +140,8 @@ export function useUploadFilesMutation() {
       files: File[];
       ownerType?: Media["ownerType"];
       ownerId?: Media["ownerId"];
-    }) => uploadFiles(files, getPresignedUrls, updateMedia, ownerType, ownerId),
+    }) =>
+      uploadFiles(files, getPresignedUrls, bulkUpdateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload
       void utils.media.getPage.invalidate();

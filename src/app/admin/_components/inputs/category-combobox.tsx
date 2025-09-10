@@ -5,7 +5,6 @@ import {
   Check,
   ChevronRightIcon,
   ChevronsUpDown,
-  TagIcon,
   XCircleIcon,
 } from "lucide-react";
 
@@ -141,7 +140,7 @@ export function CategoryCombobox({
               key={`${p.name}-${idx}`}
               className="flex items-center justify-start"
             >
-              {Icon && <Icon className="size-4" />}
+              {Icon && <Icon className="mr-1 size-4" />}
               <span>{p.name}</span>
               {idx != currentCategory?.path.length - 1 && (
                 <ChevronRightIcon className="opacity-50" />

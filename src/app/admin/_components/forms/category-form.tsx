@@ -95,7 +95,10 @@ export function CategoryForm({
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input
+                    placeholder="This will show up in the category list outside"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

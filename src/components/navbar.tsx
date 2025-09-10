@@ -36,7 +36,7 @@ import { usePathname } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { ProfileDropdown } from "./profile-dropdown";
 import { AnimatePresence, motion } from "motion/react";
-import Header from "~/app/admin/_components/header";
+import Header from "~/components/header";
 import { api, type RouterOutputs } from "~/trpc/react";
 import Image from "next/image";
 import {

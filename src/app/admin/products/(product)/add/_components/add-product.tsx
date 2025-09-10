@@ -26,19 +26,20 @@ export function AddProduct() {
   const isLoading = isCreatingProduct || isUploadingImages;
 
   async function onSubmit(data: ProductFormValues) {
+    const { images, ...productData } = data;
     setSubmitOutput("Creating product...");
-    const { data: productData, error: productError } = await tryCatch(
+    const { data: product, error: productError } = await tryCatch(
       createProduct({
-        ...data,
+        ...productData,
       }),
     );
-    if (productError || !productData) {
+    if (productError || !product) {
       setSubmitOutput(null);
       toast.error("Failed to create product. Please try again.");
       return;
     }
 
-    if (!data.images) {
+    if (!images) {
       setSubmitOutput(null);
       router.push(`/admin/products`); // Todo: redirect to the product page
       toast.success("Product created successfully");
@@ -48,9 +49,9 @@ export function AddProduct() {
     setSubmitOutput("Uploading images...");
     const { error: imagesError } = await tryCatch(
       uploadImages({
-        files: data.images,
+        files: images,
         ownerType: "PRODUCT",
-        ownerId: productData.id,
+        ownerId: product.id,
       }),
     );
 

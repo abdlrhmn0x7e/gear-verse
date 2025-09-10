@@ -67,7 +67,8 @@ export const _mediaRepository = {
             .update(media)
             .set(data)
             .where(eq(media.id, id))
-            .returning({ id: media.id });
+            .returning({ id: media.id })
+            .then(([data]) => data);
           updatedMedia.push(updatedMediaItem);
         }
 

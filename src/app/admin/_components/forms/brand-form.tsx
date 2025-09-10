@@ -6,6 +6,7 @@ import { imageSchema } from "~/lib/schemas/image";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -73,6 +74,9 @@ export function BrandForm({
               <FormControl>
                 <FileDropzone onChange={field.onChange} />
               </FormControl>
+              <FormDescription>
+                Make sure this image is squared like your brain
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
