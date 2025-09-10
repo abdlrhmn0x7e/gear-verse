@@ -81,7 +81,7 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input placeholder="Hopefully a hit" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

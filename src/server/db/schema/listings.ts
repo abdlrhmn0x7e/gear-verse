@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { listingProducts } from "./listing-products";
@@ -19,6 +20,7 @@ export const listings = pgTable(
       .generatedAlwaysAsIdentity(),
 
     title: text("title").notNull(),
+    slug: text("slug").notNull(),
     summary: text("summary").notNull(),
     description: text("description").notNull(),
     price: numeric("price", { precision: 4, scale: 2 }).notNull(),
@@ -31,7 +33,10 @@ export const listings = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("thumbnail_media_id_idx").on(table.thumbnailMediaId)],
+  (table) => [
+    index("thumbnail_media_id_idx").on(table.thumbnailMediaId),
+    uniqueIndex("listings_slug_unique").on(table.slug),
+  ],
 );
 
 export const listingRelations = relations(listings, ({ one, many }) => ({

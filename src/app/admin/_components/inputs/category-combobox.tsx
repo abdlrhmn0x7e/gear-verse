@@ -25,7 +25,11 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { api } from "~/trpc/react";
-import type { Category, CategoryTree } from "~/lib/schemas/category";
+import type {
+  Category,
+  CategoryIconEnum,
+  CategoryTree,
+} from "~/lib/schemas/category";
 
 import {
   Collapsible,
@@ -35,6 +39,7 @@ import {
 import { Spinner } from "~/components/spinner";
 import { Separator } from "~/components/ui/separator";
 import { AddCategoryDialog } from "../dialogs/add-category-dialog";
+import { iconsMap } from "~/lib/icons-map";
 
 export function CategoryCombobox({
   value,
@@ -50,18 +55,24 @@ export function CategoryCombobox({
   const flatCategories = React.useCallback(
     (
       categories: CategoryTree[],
-      parentPath: string[] = [],
-      flat: Array<Category & { path: string[] }> = [],
+      parentPath: { icon: CategoryIconEnum; name: string }[] = [],
+      flat: Array<
+        Category & { path: { icon: CategoryIconEnum; name: string }[] }
+      > = [],
     ) => {
       for (const category of categories) {
         const { children, ...item } = category;
+        const currentItem = {
+          icon: item.icon,
+          name: item.name,
+        };
         flat.push({
           ...item,
-          path: [...parentPath, item.name],
+          path: [...parentPath, currentItem],
         });
 
         if (children) {
-          flatCategories(children, [...parentPath, item.name], flat);
+          flatCategories(children, [...parentPath, currentItem], flat);
         }
       }
 
@@ -112,7 +123,9 @@ export function CategoryCombobox({
 
   function renderValue(
     value: number,
-    flattenedCategories: Array<Category & { path: string[] }>,
+    flattenedCategories: Array<
+      Category & { path: { icon: CategoryIconEnum; name: string }[] }
+    >,
   ) {
     const currentCategory = flattenedCategories.find(
       (category) => category.id === value,
@@ -120,14 +133,22 @@ export function CategoryCombobox({
 
     return (
       <div className="flex items-center justify-start">
-        {currentCategory?.path.map((p, idx) => (
-          <div key={`${p}-${idx}`} className="flex items-center justify-start">
-            <span key={p}>{p}</span>
-            {idx != currentCategory?.path.length - 1 && (
-              <ChevronRightIcon className="opacity-50" />
-            )}
-          </div>
-        ))}
+        {currentCategory?.path.map((p, idx) => {
+          const Icon = iconsMap.get(p.icon);
+
+          return (
+            <div
+              key={`${p.name}-${idx}`}
+              className="flex items-center justify-start"
+            >
+              {Icon && <Icon className="size-4" />}
+              <span>{p.name}</span>
+              {idx != currentCategory?.path.length - 1 && (
+                <ChevronRightIcon className="opacity-50" />
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -190,6 +211,7 @@ const CategoryComboboxItem = ({
   setParentComboboxOpen: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof CommandItem>) => {
   const [open, setOpen] = React.useState(false);
+  const Icon = iconsMap.get(category.icon);
 
   function onItemSelect(categoryId: number) {
     setValue(categoryId === selectedValue ? null : categoryId);
@@ -213,7 +235,7 @@ const CategoryComboboxItem = ({
         onSelect={() => onItemSelect(category.id)}
         {...props}
       >
-        <TagIcon />
+        {Icon && <Icon />}
         {category.name}
         <Check
           className={cn(
@@ -243,6 +265,7 @@ const CategoryComboboxItem = ({
               setOpen(true);
             }}
           />
+          {Icon && <Icon />}
           {category.name}
           <Check
             className={cn(

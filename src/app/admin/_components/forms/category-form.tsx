@@ -14,6 +14,15 @@ import {
 import { Input } from "~/components/ui/input";
 import { categorySchema } from "~/lib/schemas/category";
 import { CategoryCombobox } from "../inputs/category-combobox";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectValue,
+  SelectTrigger,
+  SelectGroup,
+} from "~/components/ui/select";
+import { iconsMap } from "~/lib/icons-map";
 
 const categoryFormSchema = categorySchema.omit({
   id: true,
@@ -45,19 +54,54 @@ export function CategoryForm({
         className="space-y-4"
         id="category-form"
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-1">
+          <FormField
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Icon</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="Select an icon" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
+                    <SelectGroup>
+                      {Array.from(iconsMap.entries()).map(([key, Icon]) => (
+                        <SelectItem key={key} value={key}>
+                          <Icon />
+                          <span className="capitalize">
+                            {key.toLowerCase()}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="parent_id"

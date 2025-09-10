@@ -4,9 +4,9 @@ import {
   type Category,
 } from "~/lib/schemas/category";
 import { adminProcedure, createTRPCRouter, publicProcedure } from "../trpc";
-import slugify from "slugify";
 import { DB } from "~/server/repositories";
 import { z } from "zod";
+import { generateSlug } from "~/lib/utils/slugs";
 
 export const categoriesRouter = createTRPCRouter({
   /**
@@ -30,10 +30,7 @@ export const categoriesRouter = createTRPCRouter({
 
       return await DB.categories.mutations.create({
         ...input,
-        slug: slugify(`${input.name} ${parentCategory?.name ?? ""}`, {
-          lower: true,
-          strict: true,
-        }),
+        slug: generateSlug(`${input.name} ${parentCategory?.name ?? ""}`),
       });
     }),
 });

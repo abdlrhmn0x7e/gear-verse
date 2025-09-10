@@ -118,16 +118,11 @@ export function Navbar() {
                 }}
               >
                 {productsMenuOpen ? (
-                  <>
-                    <IconShoppingBagMinus />
-                    <span>Close Store</span>
-                  </>
+                  <IconShoppingBagMinus />
                 ) : (
-                  <>
-                    <IconShoppingBagPlus />
-                    <span>Explore Our Store</span>
-                  </>
+                  <IconShoppingBagPlus />
                 )}
+                <span>Explore Our Store</span>
               </Button>
 
               <CategoriesMenu
@@ -294,11 +289,9 @@ function ListingsMenuContent() {
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      {[...listings?.data, ...listings?.data, ...listings?.data].map(
-        (listing, idx) => (
-          <ListingCard key={`listing-${listing.id}-${idx}`} listing={listing} />
-        ),
-      )}
+      {listings.data.map((listing, idx) => (
+        <ListingCard key={`listing-${listing.id}-${idx}`} listing={listing} />
+      ))}
     </div>
   );
 }
@@ -374,10 +367,14 @@ function CategoriesMenu({
 
   if (isPendingCategories || !categories) {
     return (
-      <Button variant="ghost" disabled>
-        <ChevronDownIcon />
-        Categories
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">
+            <ChevronDownIcon />
+            Categories
+          </Button>
+        </DropdownMenuTrigger>
+      </DropdownMenu>
     );
   }
 

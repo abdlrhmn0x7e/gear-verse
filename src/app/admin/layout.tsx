@@ -10,8 +10,6 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { HydrateClient } from "~/trpc/server";
-import { api } from "~/trpc/server";
 
 export default async function AdminLayout({
   children,
@@ -21,10 +19,6 @@ export default async function AdminLayout({
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  void api.listing.getPage.prefetchInfinite({
-    pageSize: 6,
-  });
-  void api.categories.findAll.prefetch();
 
   if (session?.user.role !== "admin") {
     return notFound();
@@ -32,9 +26,7 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
-      <HydrateClient>
-        <AdminSidebar />
-      </HydrateClient>
+      <AdminSidebar />
 
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b pr-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

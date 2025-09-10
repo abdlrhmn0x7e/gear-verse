@@ -1,17 +1,23 @@
 import { Navbar } from "~/components/navbar";
 
 import { Footer } from "~/components/footer";
+import { api, HydrateClient } from "~/trpc/server";
 
 export default function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  void api.categories.findAll.prefetch();
+  void api.listing.getPage.prefetch({ pageSize: 6 });
+
   return (
     <div>
-      <Navbar />
-      {children}
-      <Footer />
+      <HydrateClient>
+        <Navbar />
+        {children}
+        <Footer />
+      </HydrateClient>
     </div>
   );
 }

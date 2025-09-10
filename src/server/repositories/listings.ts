@@ -3,8 +3,9 @@ import { db } from "../db";
 import { listingProducts } from "../db/schema/listing-products";
 import { listings } from "../db/schema/listings";
 import { media } from "../db/schema/media";
+import { generateSlug } from "~/lib/utils/slugs";
 
-type NewListing = typeof listings.$inferInsert;
+type NewListing = Omit<typeof listings.$inferInsert, "slug">;
 type UpdateListing = Partial<NewListing>;
 
 export const _listingsRepository = {
@@ -20,9 +21,9 @@ export const _listingsRepository = {
         title?: string;
       };
     }) => {
-      const where = [gt(listings.id, cursor ?? 0)];
+      const whereClause = [gt(listings.id, cursor ?? 0)];
       if (filters?.title) {
-        where.push(ilike(listings.title, `%${filters.title}%`));
+        whereClause.push(ilike(listings.title, `%${filters.title}%`));
       }
 
       return db
@@ -49,7 +50,7 @@ export const _listingsRepository = {
           ),
         )
         .orderBy(asc(listings.id))
-        .where(and(...where));
+        .where(and(...whereClause));
     },
 
     findById: async (id: number) => {
@@ -163,9 +164,10 @@ export const _listingsRepository = {
   mutations: {
     create: async (data: NewListing, products: number[]) => {
       return db.transaction(async (tx) => {
+        const slug = generateSlug(data.title);
         const [listing] = await tx
           .insert(listings)
-          .values(data)
+          .values({ ...data, slug })
           .returning({ id: listings.id });
 
         if (!listing) {
