@@ -202,7 +202,7 @@ function ProductDrawerContent() {
               headingLevel={4}
               className="flex-row text-left"
             />
-            <VerseCarousel photos={product.media} />
+            <VerseCarousel photos={product.images} />
           </div>
 
           <Separator />
@@ -292,7 +292,7 @@ function ListingCard({
       {listing.thumbnail ? (
         <div className="size-12 shrink-0 overflow-hidden rounded-md border">
           <Image
-            src={listing.thumbnail}
+            src={listing.thumbnail.url}
             alt={listing.title}
             width={48}
             height={48}

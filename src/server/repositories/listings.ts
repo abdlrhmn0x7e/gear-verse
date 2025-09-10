@@ -31,7 +31,7 @@ export const _listingsRepository = {
           id: listings.id,
           title: listings.title,
           summary: listings.summary,
-          description: listings.description,
+          slug: listings.slug,
           price: listings.price,
           stock: listings.stock,
           createdAt: listings.createdAt,

@@ -63,6 +63,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import type { CategoryTree } from "~/lib/schemas/category";
+import { iconsMap } from "~/lib/icons-map";
 
 export interface NavigationLink {
   title: string;
@@ -302,7 +303,7 @@ function ListingCard({
   listing: RouterOutputs["listing"]["getPage"]["data"][number];
 }) {
   return (
-    <Link href={`/listings/${listing.id}`}>
+    <Link href={`/listings/${listing.slug}`}>
       <div className="group bg-card space-y-3 rounded-lg border p-1">
         {listing.thumbnail?.url ? (
           <AspectRatio
@@ -400,23 +401,30 @@ function CategoriesMenu({
 }
 
 function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
+  const Icon = iconsMap.get(category.icon);
   if (!category.children || category.children.length === 0) {
     return (
-      <DropdownMenuItem asChild key={category.id}>
-        <Link href={`/categories/${category.id}`}>{category.name}</Link>
+      <DropdownMenuItem asChild key={category.slug}>
+        <Link href={`/categories/${category.slug}`}>
+          {Icon && <Icon />}
+          {category.name}
+        </Link>
       </DropdownMenuItem>
     );
   }
 
   return (
     <DropdownMenuSub>
-      <DropdownMenuSubTrigger key={category.id}>
-        {category.name}
-      </DropdownMenuSubTrigger>
+      <Link href={`/categories/${category.slug}`}>
+        <DropdownMenuSubTrigger key={category.slug}>
+          {Icon && <Icon className="text-muted-foreground mr-2 size-4" />}
+          {category.name}
+        </DropdownMenuSubTrigger>
+      </Link>
 
       <DropdownMenuSubContent>
         {category.children?.map((child) => (
-          <CategoryDropdownMenuContent key={child.id} category={child} />
+          <CategoryDropdownMenuContent key={child.slug} category={child} />
         ))}
       </DropdownMenuSubContent>
     </DropdownMenuSub>

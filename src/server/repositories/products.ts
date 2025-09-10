@@ -1,6 +1,6 @@
 import { eq, gt, ilike, and, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { brands, listings, media, products } from "../db/schema";
+import { media, products } from "../db/schema";
 import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
@@ -39,82 +39,89 @@ export const _productsRepository = {
         whereClause.push(inArray(products.brandId, filters.brands));
       }
 
-      return db
-        .select({
-          id: products.id,
-          title: products.title,
-          createdAt: products.createdAt,
-          updatedAt: products.updatedAt,
+      return db.query.products.findMany({
+        where: and(...whereClause),
+        columns: {
+          id: true,
+          title: true,
+          createdAt: true,
+        },
+        with: {
           brand: {
-            id: brands.id,
-            name: brands.name,
-            logoUrl: media.url,
+            columns: {
+              id: true,
+              name: true,
+            },
+            with: {
+              logo: {
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
+            },
           },
-        })
-        .from(products)
-        .leftJoin(brands, eq(products.brandId, brands.id))
-        .leftJoin(media, eq(brands.logoMediaId, media.id))
-        .where(and(...whereClause))
-        .limit(pageSize + 1)
-        .orderBy(products.id);
+        },
+        limit: pageSize + 1,
+        orderBy: products.id,
+      });
     },
 
-    findById: (id: number) => {
-      return db.transaction(async (tx) => {
-        const product = await tx
-          .select({
-            id: products.id,
-            title: products.title,
-            description: products.description,
-            createdAt: products.createdAt,
-            updatedAt: products.updatedAt,
-            categoryId: products.categoryId,
-            brand: {
-              id: brands.id,
-              name: brands.name,
-              logoUrl: media.url,
+    findById: async (id: number) => {
+      const product = await db.query.products.findFirst({
+        where: eq(products.id, id),
+        with: {
+          brand: {
+            with: {
+              logo: {
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
             },
-          })
-          .from(products)
-          .leftJoin(brands, eq(products.brandId, brands.id))
-          .leftJoin(media, eq(brands.logoMediaId, media.id))
-          .where(eq(products.id, id))
-          .limit(1)
-          .then(([result]) => result);
-
-        if (!product) {
-          return product;
-        }
-
-        const productMedia = await tx
-          .select({
-            id: media.id,
-            url: media.url,
-            ownerType: media.ownerType,
-          })
-          .from(media)
-          .where(
-            and(eq(media.ownerId, product.id), eq(media.ownerType, "PRODUCT")),
-          );
-
-        const productListings = await tx
-          .select({
-            id: listings.id,
-            title: listings.title,
-            summary: listings.summary,
-            thumbnail: media.url,
-          })
-          .from(listings)
-          .leftJoin(listingProducts, eq(listings.id, listingProducts.listingId))
-          .leftJoin(media, eq(listings.thumbnailMediaId, media.id))
-          .where(inArray(listingProducts.productId, [product.id]));
-
-        return {
-          ...product,
-          media: productMedia,
-          listings: productListings,
-        };
+          },
+          images: {
+            columns: {
+              id: true,
+              url: true,
+            },
+          },
+          listings: {
+            columns: {},
+            with: {
+              listing: {
+                columns: {
+                  id: true,
+                  slug: true,
+                  title: true,
+                  summary: true,
+                },
+                with: {
+                  thumbnail: {
+                    columns: {
+                      id: true,
+                      url: true,
+                      ownerType: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
+
+      if (!product) {
+        return;
+      }
+
+      return {
+        ...product,
+        brand: product.brand,
+        images: product.images,
+        listings: product.listings.map((listing) => listing.listing),
+      };
     },
   },
 
