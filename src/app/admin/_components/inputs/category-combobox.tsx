@@ -5,6 +5,7 @@ import {
   Check,
   ChevronRightIcon,
   ChevronsUpDown,
+  TagIcon,
   XCircleIcon,
 } from "lucide-react";
 
@@ -164,7 +165,10 @@ export function CategoryCombobox({
           {value ? (
             renderValue(value, flattenedCategories)
           ) : (
-            <span className="text-muted-foreground">Select category...</span>
+            <div className="text-muted-foreground flex items-center gap-2">
+              <TagIcon className="size-4" />
+              <span>Select category...</span>
+            </div>
           )}
           <ChevronsUpDown className="opacity-50" />
         </Button>

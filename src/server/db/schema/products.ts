@@ -1,3 +1,5 @@
+import type { JSONContent } from "@tiptap/react";
+import { relations } from "drizzle-orm";
 import {
   bigint,
   index,
@@ -6,11 +8,11 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { categories } from "./categories";
 import { brands } from "./brands";
-import { relations } from "drizzle-orm";
-import { media } from "./media";
+import { categories } from "./categories";
 import { listingProducts } from "./listing-products";
+import { media } from "./media";
+import { productVariants } from "./product-variants";
 
 export const products = pgTable(
   "products",
@@ -20,7 +22,7 @@ export const products = pgTable(
       .generatedAlwaysAsIdentity(),
 
     title: text("title").notNull(),
-    description: jsonb("description").notNull(),
+    description: jsonb("description").$type<JSONContent>().notNull(),
 
     categoryId: bigint("category_id", { mode: "number" })
       .notNull()
@@ -29,13 +31,21 @@ export const products = pgTable(
       .references(() => brands.id)
       .notNull(),
 
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    specifications: jsonb("specifications")
+      .$type<Record<string, string>>()
+      .notNull(),
+
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("products_title_idx").on(table.title),
     index("products_brand_id_idx").on(table.brandId),
     index("products_category_id_idx").on(table.categoryId),
+    index("products_specifications_idx").using("gin", table.specifications),
   ],
 );
 
@@ -50,4 +60,5 @@ export const productRelations = relations(products, ({ one, many }) => ({
   }),
   images: many(media),
   listings: many(listingProducts),
+  variants: many(productVariants),
 }));

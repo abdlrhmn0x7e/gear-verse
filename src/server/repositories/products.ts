@@ -8,7 +8,7 @@ type UpdateProduct = Partial<NewProduct>;
 
 export const _productsRepository = {
   queries: {
-    findAll() {
+    findAll: async () => {
       return db
         .select({
           id: products.id,
@@ -19,7 +19,7 @@ export const _productsRepository = {
         .from(products);
     },
 
-    getPage: ({
+    getPage: async ({
       cursor,
       pageSize,
       filters,
@@ -57,6 +57,21 @@ export const _productsRepository = {
                 columns: {
                   id: true,
                   url: true,
+                },
+              },
+            },
+          },
+
+          category: {
+            columns: {
+              name: true,
+              icon: true,
+            },
+            with: {
+              parent: {
+                columns: {
+                  name: true,
+                  icon: true,
                 },
               },
             },
@@ -126,7 +141,7 @@ export const _productsRepository = {
   },
 
   mutations: {
-    create: (product: NewProduct) => {
+    create: async (product: NewProduct) => {
       return db
         .insert(products)
         .values(product)
@@ -134,7 +149,7 @@ export const _productsRepository = {
         .then(([result]) => result);
     },
 
-    update: (id: number, product: UpdateProduct) => {
+    update: async (id: number, product: UpdateProduct) => {
       return db
         .update(products)
         .set(product)
@@ -143,7 +158,7 @@ export const _productsRepository = {
         .then(([result]) => result);
     },
 
-    delete: (id: number) => {
+    delete: async (id: number) => {
       return db.transaction(async (tx) => {
         // delete all listings products
         await tx

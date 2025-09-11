@@ -9,6 +9,12 @@ export const productSchema = z.object({
   categoryId: z.number("Category is required").min(1, "Category is required"),
   brandId: z.number("Brand is required").min(1, "Brand is required"),
 
+  specifications: z.record(
+    z.string(),
+    z.string(),
+    "Specifications are required",
+  ),
+
   createdAt: z.coerce.date("Created at must be a date"),
   updatedAt: z.coerce.date("Updated at must be a date"),
 });

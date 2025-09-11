@@ -36,7 +36,7 @@ export function Editor({
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       <motion.div
         className="bg-card flex min-h-[28rem] max-w-full flex-col gap-1 overflow-hidden rounded-lg border"
         layoutId="editor-container"

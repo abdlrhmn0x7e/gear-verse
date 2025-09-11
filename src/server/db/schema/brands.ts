@@ -15,6 +15,10 @@ export const brands = pgTable(
       .references(() => media.id),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [index("brands_logo_media_id_idx").on(table.logoMediaId)],
 );

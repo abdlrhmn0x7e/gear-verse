@@ -9,9 +9,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { brands } from "./brands";
+import { productVariants } from "./product-variants";
 
 export const mediaOwnerTypeEnum = pgEnum("owner_type", [
   "PRODUCT",
+  "PRODUCT_VARIANT",
   "CATEGORY",
   "BRAND",
   "USER",
@@ -33,6 +35,10 @@ export const media = pgTable(
     url: text("url").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [index("media_owner_id_idx").on(table.ownerId)],
 );
@@ -45,5 +51,9 @@ export const mediaRelations = relations(media, ({ one }) => ({
   brands: one(brands, {
     fields: [media.ownerId],
     references: [brands.id],
+  }),
+  productVariants: one(productVariants, {
+    fields: [media.ownerId],
+    references: [productVariants.id],
   }),
 }));

@@ -63,7 +63,7 @@ export function ListingsTable() {
       </CardHeader>
 
       <CardContent className="px-2">
-        <div className="bg-background overflow-hidden rounded-md border">
+        <div className="bg-background overflow-hidden rounded-lg border">
           <Table>
             <ListingsTableHeader />
             <TableBody>

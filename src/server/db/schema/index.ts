@@ -5,3 +5,4 @@ export * from "./categories";
 export * from "./brands";
 export * from "./media";
 export * from "./listing-products";
+export * from "./product-variants";

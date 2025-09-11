@@ -2,6 +2,7 @@ import z from "zod";
 
 export const mediaOwnerTypeEnum = z.enum([
   "PRODUCT",
+  "PRODUCT_VARIANT",
   "CATEGORY",
   "BRAND",
   "USER",

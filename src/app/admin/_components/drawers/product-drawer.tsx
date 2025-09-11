@@ -44,7 +44,6 @@ import { useProductSearchParams } from "~/app/admin/_hooks/use-product-search-pa
 
 // API & Types
 import { api, type RouterOutputs } from "~/trpc/react";
-import type { JSONContent } from "@tiptap/react";
 
 // Icons
 import {
@@ -244,9 +243,7 @@ function ProductDrawerContent() {
               <DrawerDialogTrigger asChild>
                 <Card className="ring-primary cursor-pointer transition-all hover:opacity-80 hover:ring-2">
                   <CardContent className="relative h-[400px] overflow-hidden">
-                    <ProductDescription
-                      description={product.description as JSONContent}
-                    />
+                    <ProductDescription description={product.description} />
 
                     <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t" />
                   </CardContent>
@@ -269,9 +266,7 @@ function ProductDrawerContent() {
                 </DrawerDialogHeader>
 
                 <div className="scroll-shadow max-h-[calc(100svh-24rem)] overflow-y-auto px-4 pb-32 sm:max-h-[calc(100vh-10rem)]">
-                  <ProductDescription
-                    description={product.description as JSONContent}
-                  />
+                  <ProductDescription description={product.description} />
                 </div>
               </DrawerDialogContent>
             </DrawerDialog>

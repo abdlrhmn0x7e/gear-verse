@@ -45,6 +45,7 @@ export function FileDropzone({
         return;
       }
 
+      console.log(acceptedFiles);
       onChange([...files, ...acceptedFiles]);
       setFiles((prev) => [...prev, ...acceptedFiles]);
     },
@@ -212,7 +213,7 @@ function FileItemPreview({
         variant="destructiveGhost"
         type="button"
         size="icon"
-        className="relative z-10"
+        className="-10 relative"
         onClick={handleRemoveFilePreview}
         disabled={deletingMedia}
       >

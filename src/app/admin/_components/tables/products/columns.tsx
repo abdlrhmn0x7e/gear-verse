@@ -1,13 +1,14 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { format } from "date-fns";
 
 import type { RouterOutputs } from "~/trpc/react";
+import { iconsMap } from "~/lib/icons-map";
 
 export const productColumns: ColumnDef<
   RouterOutputs["products"]["getPage"]["data"][number]
@@ -28,13 +29,10 @@ export const productColumns: ColumnDef<
   {
     accessorKey: "title",
     cell: ({ row }) => {
-      return <p className="font-medium">{row.original.title}</p>;
-    },
-  },
-  {
-    accessorKey: "brand",
-    header: "Brand",
-    cell: ({ row }) => {
+      const ParentIcon = row.original.category.parent
+        ? iconsMap.get(row.original.category.parent.icon)
+        : null;
+      const CategoryIcon = iconsMap.get(row.original.category.icon);
       return (
         <div className="flex items-center gap-3">
           <div className="size-8 overflow-hidden rounded-sm border">
@@ -46,7 +44,24 @@ export const productColumns: ColumnDef<
               className="size-full object-cover"
             />
           </div>
-          <p className="font-medium">{row.original.brand.name}</p>
+          <div className="text-muted-foreground text-sm">
+            <p className="font-medium">{row.original.title}</p>
+            <div className="flex items-center gap-1">
+              {row.original.category.parent && (
+                <>
+                  {ParentIcon ? <ParentIcon className="size-4" /> : null}
+                  <p className="text-muted-foreground text-sm">
+                    {row.original.category.parent.name}
+                  </p>
+                  <ChevronRightIcon className="size-4" />
+                </>
+              )}
+              {CategoryIcon ? <CategoryIcon className="size-4" /> : null}
+              <p className="text-muted-foreground text-sm">
+                {row.original.category.name}
+              </p>
+            </div>
+          </div>
         </div>
       );
     },

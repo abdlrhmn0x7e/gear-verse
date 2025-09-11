@@ -5,6 +5,7 @@ import { s3Router } from "./routers/s3";
 import { mediaRouter } from "./routers/media";
 import { brandsRouter } from "./routers/brands";
 import { listingRouter } from "./routers/listing";
+import { productVariantsRouter } from "./routers/product-variants";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ import { listingRouter } from "./routers/listing";
  */
 export const appRouter = createTRPCRouter({
   products: productsRouter,
+  productVariants: productVariantsRouter,
   listing: listingRouter,
   brands: brandsRouter,
   categories: categoriesRouter,
