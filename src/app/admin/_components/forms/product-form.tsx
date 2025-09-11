@@ -19,7 +19,6 @@ import { CategoryCombobox } from "../inputs/category-combobox";
 import { FileDropzone } from "../inputs/file-dropzone";
 import { BrandsCombobox } from "../inputs/brands-combobox";
 import { useMemo } from "react";
-import type { MediaOwnerType } from "~/lib/schemas/media";
 import {
   Table,
   TableBody,
@@ -36,6 +35,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { Collapsable } from "~/components/collapsable";
+import type { MediaAsset } from "~/lib/schemas/media";
 
 const productFormSchema = productSchema
   .omit({ id: true, specifications: true, createdAt: true, updatedAt: true })
@@ -50,6 +50,7 @@ const productFormSchema = productSchema
 
       variants: z.array(
         z.object({
+          id: z.number().nonnegative().optional(),
           name: z.string(),
           thumbnail: z.array(imageSchema).optional(),
           images: z.array(imageSchema).optional(),
@@ -63,9 +64,14 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 export function ProductForm({
   onSubmit,
   defaultValues,
+  oldVariantsAssets,
 }: {
   onSubmit: (data: ProductFormValues) => void;
   defaultValues?: Partial<ProductFormValues>;
+  oldVariantsAssets?: Partial<{
+    thumbnail: MediaAsset;
+    images: MediaAsset[];
+  }>[];
 }) {
   const schema = useMemo(() => {
     return productFormSchema.superRefine((data, ctx) => {
@@ -151,8 +157,6 @@ export function ProductForm({
     form.setValue(`specifications.${index}`, currentSpecs!);
     appendSpecification(restSpecs);
   }
-  console.log("[form errors]", form.formState.errors);
-  console.log("[form values]", form.getValues());
 
   return (
     <Form {...form}>
@@ -236,6 +240,7 @@ export function ProductForm({
                           <FormControl>
                             <Input
                               placeholder="Variant Name"
+                              className="w-sm"
                               onClick={(e) => e.stopPropagation()}
                               {...field}
                             />
@@ -266,6 +271,11 @@ export function ProductForm({
                           <FileDropzone
                             onChange={field.onChange}
                             maxFiles={1}
+                            initialFiles={
+                              oldVariantsAssets?.[index]?.thumbnail
+                                ? [oldVariantsAssets[index].thumbnail]
+                                : undefined
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -280,7 +290,12 @@ export function ProductForm({
                       <FormItem>
                         <FormLabel>Images</FormLabel>
                         <FormControl>
-                          <FileDropzone onChange={field.onChange} />
+                          <FileDropzone
+                            onChange={field.onChange}
+                            initialFiles={
+                              oldVariantsAssets?.[index]?.images ?? undefined
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -296,7 +311,11 @@ export function ProductForm({
             type="button"
             className="w-full"
             onClick={() =>
-              appendVariant({ name: "", thumbnail: undefined, images: [] })
+              appendVariant({
+                name: "",
+                thumbnail: undefined,
+                images: [],
+              })
             }
           >
             <PlusIcon className="size-4" />

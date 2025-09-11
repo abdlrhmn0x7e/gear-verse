@@ -186,7 +186,7 @@ export function ProductsCommand({
               <div className="flex items-center gap-2">
                 <div className="relative size-6 overflow-hidden rounded-sm border">
                   <Image
-                    src={product.brand.logoUrl ?? ""}
+                    src={product.brand.logo.url}
                     alt={product.title}
                     className="size-full object-cover"
                     width={32}

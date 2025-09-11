@@ -149,7 +149,11 @@ export function AddProduct() {
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {isLoading ? <Spinner /> : <CheckIcon size={16} />}
+                  {isLoading ? (
+                    <Spinner />
+                  ) : (
+                    <CheckIcon className="size-6 text-green-500" />
+                  )}
                   <div>
                     <p className="flex-1 font-medium">{submitOutput}</p>
                     <p className="text-muted-foreground text-sm">

@@ -11,7 +11,6 @@ import {
 import { brands } from "./brands";
 import { categories } from "./categories";
 import { listingProducts } from "./listing-products";
-import { media } from "./media";
 import { productVariants } from "./product-variants";
 
 export const products = pgTable(
@@ -58,7 +57,6 @@ export const productRelations = relations(products, ({ one, many }) => ({
     fields: [products.brandId],
     references: [brands.id],
   }),
-  images: many(media),
   listings: many(listingProducts),
   variants: many(productVariants),
 }));

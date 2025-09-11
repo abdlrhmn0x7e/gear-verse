@@ -96,11 +96,6 @@ function ListingDrawerContent() {
     if (listing?.thumbnail) {
       photos.push(listing.thumbnail);
     }
-    if (listing?.products) {
-      listing.products.forEach((product) => {
-        photos.push(...product.images);
-      });
-    }
 
     return photos;
   }, [listing]);

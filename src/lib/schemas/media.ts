@@ -24,5 +24,6 @@ export const mediaSchema = z.object({
   createdAt: z.coerce.date("Created at must be a date"),
 });
 export type Media = z.infer<typeof mediaSchema>;
+export type MediaAsset = Omit<Media, "status" | "ownerId" | "createdAt">;
 export type NewMediaDto = Omit<Media, "id" | "createdAt" | "url">;
 export type UpdateMediaDto = Partial<Omit<Media, "id" | "createdAt" | "url">>;

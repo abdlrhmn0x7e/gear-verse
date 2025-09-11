@@ -2,7 +2,7 @@ import { PackageIcon, TriangleAlertIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import Header from "~/components/header";
 import { EditProduct } from "./_components/edit-product";
-import { api } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
 
 export default async function EditProductPage({
   params,
@@ -14,6 +14,10 @@ export default async function EditProductPage({
     return notFound();
   }
 
+  void api.categories.findAll.prefetch();
+  void api.brands.getPage.prefetchInfinite({
+    pageSize: 10,
+  });
   const product = await api.products.findById({ id: parseInt(id) });
   if (!product) {
     return notFound();
@@ -36,7 +40,9 @@ export default async function EditProductPage({
         Icon={PackageIcon}
       />
 
-      <EditProduct product={product} />
+      <HydrateClient>
+        <EditProduct product={product} />
+      </HydrateClient>
     </section>
   );
 }

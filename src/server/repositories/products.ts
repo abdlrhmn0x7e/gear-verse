@@ -1,6 +1,6 @@
-import { eq, gt, ilike, and, inArray } from "drizzle-orm";
+import { eq, gt, ilike, and, inArray, notInArray } from "drizzle-orm";
 import { db } from "../db";
-import { media, products } from "../db/schema";
+import { media, products, productVariants } from "../db/schema";
 import { listingProducts } from "../db/schema/listing-products";
 
 type NewProduct = typeof products.$inferInsert;
@@ -87,6 +87,10 @@ export const _productsRepository = {
         where: eq(products.id, id),
         with: {
           brand: {
+            columns: {
+              id: true,
+              name: true,
+            },
             with: {
               logo: {
                 columns: {
@@ -96,10 +100,39 @@ export const _productsRepository = {
               },
             },
           },
-          images: {
+          variants: {
             columns: {
               id: true,
-              url: true,
+              name: true,
+            },
+            with: {
+              thumbnail: {
+                columns: {
+                  id: true,
+                  url: true,
+                  ownerType: true,
+                },
+              },
+              images: {
+                where: and(
+                  eq(media.ownerType, "PRODUCT_VARIANT"),
+                  notInArray(
+                    media.id,
+                    db
+                      .select({ id: media.id })
+                      .from(productVariants)
+                      .leftJoin(
+                        media,
+                        eq(media.id, productVariants.thumbnailMediaId),
+                      ),
+                  ),
+                ),
+                columns: {
+                  id: true,
+                  url: true,
+                  ownerType: true,
+                },
+              },
             },
           },
           listings: {
@@ -133,8 +166,6 @@ export const _productsRepository = {
 
       return {
         ...product,
-        brand: product.brand,
-        images: product.images,
         listings: product.listings.map((listing) => listing.listing),
       };
     },

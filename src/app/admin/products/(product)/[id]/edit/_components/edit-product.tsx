@@ -1,7 +1,6 @@
 "use client";
 
-import type { JSONContent } from "@tiptap/react";
-import { SaveIcon } from "lucide-react";
+import { CheckIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +11,7 @@ import {
 } from "~/app/admin/_components/forms/product-form";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
+import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -27,17 +27,111 @@ export function EditProduct({
 
   const { mutateAsync: updateProduct, isPending: updatingProduct } =
     api.products.update.useMutation();
-  const { mutateAsync: uploadFiles, isPending: uploadingFiles } =
+  const {
+    mutateAsync: updateProductVariants,
+    isPending: updatingProductVariants,
+  } = api.productVariants.bulkUpdate.useMutation();
+  const {
+    mutateAsync: createProductVariant,
+    isPending: creatingProductVariant,
+  } = api.productVariants.create.useMutation();
+  const { mutateAsync: uploadThumbnail, isPending: uploadingThumbnail } =
+    useUploadFileMutation();
+  const { mutateAsync: uploadImages, isPending: uploadingImages } =
     useUploadFilesMutation();
 
-  const isLoading = updatingProduct || uploadingFiles;
+  const isLoading =
+    updatingProduct ||
+    updatingProductVariants ||
+    creatingProductVariant ||
+    uploadingImages ||
+    uploadingThumbnail;
 
   const onSubmit = async (data: ProductFormValues) => {
+    const { variants, ...productData } = data;
+    setSubmitOutput("Updating product variants...");
+
+    const newVariants = variants.filter((variant) => !variant.id);
+    const updatedVariants = product.variants
+      .filter((variant) => variants.some((v) => v.id === variant.id))
+      .map((variant) => ({
+        id: variant.id,
+        name: variant.name,
+        productId: product.id,
+      }));
+
+    // Create new variants
+    if (newVariants.length > 0) {
+      const { error: newVariantsError } = await tryCatch(
+        Promise.all(
+          newVariants.map(async (variant) => {
+            const { thumbnail, images, ...variantData } = variant;
+            if (
+              !thumbnail ||
+              !images ||
+              thumbnail.length === 0 ||
+              images.length === 0
+            ) {
+              throw new Error("Variant Thumbnail and Images are required");
+            }
+
+            const thumbnailMedia = await uploadThumbnail({
+              file: thumbnail[0]!,
+            });
+
+            const createdVariant = await createProductVariant({
+              ...variantData,
+              thumbnailMediaId: thumbnailMedia.mediaId,
+              productId: product.id,
+            });
+
+            await uploadImages({
+              files: images,
+              ownerId: createdVariant.id,
+              ownerType: "PRODUCT_VARIANT",
+            });
+
+            return createdVariant;
+          }),
+        ),
+      );
+
+      if (newVariantsError) {
+        setSubmitOutput(null);
+        toast.error("Failed to create product variants. Please try again.");
+        return;
+      }
+    }
+
+    // Update existing variants
+    if (updatedVariants.length > 0) {
+      const { error: updatedVariantsError } = await tryCatch(
+        updateProductVariants(updatedVariants),
+      );
+
+      if (updatedVariantsError) {
+        setSubmitOutput(null);
+        toast.error("Failed to update product variants. Please try again.");
+        return;
+      }
+    }
+
     setSubmitOutput("Updating product...");
     const { error: productError } = await tryCatch(
       updateProduct({
         id: product.id,
-        data,
+        data: {
+          ...productData,
+          specifications: productData.specifications.reduce(
+            (acc, { name, value }) => {
+              return {
+                ...acc,
+                [name]: value,
+              };
+            },
+            {},
+          ),
+        },
       }),
     );
 
@@ -47,25 +141,8 @@ export function EditProduct({
       return;
     }
 
-    if (data.images) {
-      const { error: imagesError } = await tryCatch(
-        uploadFiles({
-          files: data.images,
-          ownerType: "PRODUCT",
-          ownerId: product.id,
-        }),
-      );
-
-      if (imagesError) {
-        setSubmitOutput(null);
-        toast.error("Failed to upload images. Please try again.");
-        return;
-      }
-    }
-
-    router.push(`/admin/products/${product.id}`);
-    setSubmitOutput(null);
-    toast.success("Product updated successfully");
+    setSubmitOutput("Product has been updated successfully");
+    router.push(`/admin/products?productId=${product.id}`);
   };
 
   return (
@@ -74,15 +151,28 @@ export function EditProduct({
         onSubmit={onSubmit}
         defaultValues={{
           title: product.title,
-          description: product.description as JSONContent,
+          description: product.description,
           categoryId: product.categoryId,
-          brandId: product.brand.id!,
+          brandId: product.brand.id,
+          variants: product.variants.map((variant) => ({
+            id: variant.id,
+            name: variant.name,
+          })),
+          specifications: Object.entries(product.specifications).map(
+            ([name, value]) => ({
+              name,
+              value,
+            }),
+          ),
         }}
-        oldImages={product.media}
+        oldVariantsAssets={product.variants.map((variant) => ({
+          thumbnail: variant.thumbnail ?? undefined,
+          images: variant.images,
+        }))}
       />
 
       <motion.div
-        className="fixed right-2 bottom-2 sm:right-10 sm:bottom-10"
+        className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"
         layoutRoot
       >
         <motion.div className="flex flex-col gap-1" layout>
@@ -122,7 +212,11 @@ export function EditProduct({
                 layout
               >
                 <div className="flex items-center gap-3">
-                  <Spinner />
+                  {isLoading ? (
+                    <Spinner />
+                  ) : (
+                    <CheckIcon className="size-6 text-green-500" />
+                  )}
                   <div>
                     <p className="flex-1 font-medium">{submitOutput}</p>
                     <p className="text-muted-foreground text-sm">

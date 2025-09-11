@@ -201,7 +201,11 @@ function ProductDrawerContent() {
               headingLevel={4}
               className="flex-row text-left"
             />
-            <VerseCarousel photos={product.images} />
+            <VerseCarousel
+              photos={product.variants
+                .filter((variant) => variant.thumbnail)
+                .map((variant) => variant.thumbnail!)}
+            />
           </div>
 
           <Separator />

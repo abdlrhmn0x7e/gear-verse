@@ -124,12 +124,6 @@ export const _listingsRepository = {
                   title: true,
                 },
                 with: {
-                  images: {
-                    columns: {
-                      id: true,
-                      url: true,
-                    },
-                  },
                   brand: {
                     columns: {
                       id: true,

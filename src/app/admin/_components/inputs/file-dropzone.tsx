@@ -11,7 +11,7 @@ import { useDropzone, type DropzoneOptions } from "react-dropzone";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import type { MediaOwnerType } from "~/lib/schemas/media";
+import type { MediaAsset, MediaOwnerType } from "~/lib/schemas/media";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
@@ -22,7 +22,7 @@ interface FileDropZoneProps {
   isLoading?: boolean;
   showFiles?: boolean;
   className?: string;
-  initialFiles?: { id: number; url: string; ownerType: MediaOwnerType }[];
+  initialFiles?: MediaAsset[];
 }
 
 export function FileDropzone({
@@ -170,6 +170,7 @@ function FileItemPreview({
           toast.success("Media deleted successfully");
           switch (file.ownerType) {
             case "PRODUCT":
+            case "PRODUCT_VARIANT":
               void utils.products.findById.invalidate();
               break;
             case "BRAND":
@@ -213,7 +214,7 @@ function FileItemPreview({
         variant="destructiveGhost"
         type="button"
         size="icon"
-        className="-10 relative"
+        className="relative z-10"
         onClick={handleRemoveFilePreview}
         disabled={deletingMedia}
       >

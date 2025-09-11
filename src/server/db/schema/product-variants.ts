@@ -12,9 +12,9 @@ export const productVariants = pgTable(
 
     name: text("name").notNull(),
 
-    thumbnailMediaId: bigint("thumbnail_media_id", { mode: "number" })
-      .notNull()
-      .references(() => media.id),
+    thumbnailMediaId: bigint("thumbnail_media_id", {
+      mode: "number",
+    }).references(() => media.id),
     productId: bigint("product_id", { mode: "number" })
       .notNull()
       .references(() => products.id),
@@ -41,7 +41,8 @@ export const productVariantsRelations = relations(
     thumbnail: one(media, {
       fields: [productVariants.thumbnailMediaId],
       references: [media.id],
+      relationName: "product_variants_thumbnail",
     }),
-    images: many(media),
+    images: many(media, { relationName: "product_variants_images" }),
   }),
 );

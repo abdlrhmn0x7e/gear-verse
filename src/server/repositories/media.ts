@@ -5,6 +5,7 @@ import {
   media,
   type mediaOwnerTypeEnum,
   mediaStatusEnum,
+  productVariants,
 } from "../db/schema";
 
 type NewMediaDto = typeof media.$inferInsert;
@@ -80,12 +81,19 @@ export const _mediaRepository = {
       id: number,
       ownerType: (typeof mediaOwnerTypeEnum.enumValues)[number],
     ) {
-      if (ownerType === "LISTING") {
-        return db
-          .update(listings)
-          .set({ thumbnailMediaId: null })
-          .where(eq(listings.thumbnailMediaId, id))
-          .returning({ id: media.id });
+      switch (ownerType) {
+        case "LISTING":
+          return db
+            .update(listings)
+            .set({ thumbnailMediaId: null })
+            .where(eq(listings.thumbnailMediaId, id))
+            .returning({ id: media.id });
+        case "PRODUCT_VARIANT":
+          return db
+            .update(productVariants)
+            .set({ thumbnailMediaId: null })
+            .where(eq(productVariants.thumbnailMediaId, id))
+            .returning({ id: media.id });
       }
 
       return db
