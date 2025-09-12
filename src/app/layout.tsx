@@ -30,7 +30,6 @@ export const metadata: Metadata = {
 
 const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
 });
 const tanNimbus = localFont({
   src: "./tan-nimbus.woff2",
@@ -43,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${tanNimbus.variable}`}
+      className={`${tanNimbus.variable} ${geist.className}`}
       suppressHydrationWarning
     >
       <body>
