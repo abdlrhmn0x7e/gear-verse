@@ -6,7 +6,6 @@ export const mediaOwnerTypeEnum = z.enum([
   "CATEGORY",
   "BRAND",
   "USER",
-  "LISTING",
 ]);
 export type MediaOwnerType = z.infer<typeof mediaOwnerTypeEnum>;
 

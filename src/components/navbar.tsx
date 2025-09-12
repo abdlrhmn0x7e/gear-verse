@@ -80,9 +80,9 @@ const NAV_ITEMS = [
     icon: HomeIcon,
   },
   {
-    title: "Listings",
+    title: "Products",
     link: {
-      href: "/listings",
+      href: "/products",
     },
     icon: IconShoppingBag,
   },
@@ -164,7 +164,7 @@ export function Navbar() {
         </nav>
 
         <AnimatePresence>
-          {productsMenuOpen && <ListingsMenu open={productsMenuOpen} />}
+          {productsMenuOpen && <ProductsMenu open={productsMenuOpen} />}
         </AnimatePresence>
       </motion.div>
     </header>
@@ -202,7 +202,7 @@ const SOCIAL_LINKS = [
   },
 ];
 
-function ListingsMenu({ open }: { open: boolean }) {
+function ProductsMenu({ open }: { open: boolean }) {
   return (
     <motion.div
       variants={productsMenuVariants}
@@ -217,23 +217,23 @@ function ListingsMenu({ open }: { open: boolean }) {
     >
       <div className="col-span-3 space-y-3">
         <Link
-          href="/listings"
+          href="/products"
           className="hover:bg-accent/20 hover:border-border block w-full rounded-lg border border-transparent px-2 py-1 transition-all"
         >
           <Header
-            title="Recent Listings"
-            description="View our recent listings"
+            title="Recent Products"
+            description="View our recent products"
             Icon={IconShoppingBagPlus}
             headingLevel={4}
           />
         </Link>
 
-        <ListingsMenuContent />
+        <ProductsMenuContent />
 
         <Button variant="ghost" size="lg" asChild>
-          <Link href="/listings">
+          <Link href="/products">
             <ArrowRightCircleIcon />
-            View All Listings
+            View All Products
           </Link>
         </Button>
       </div>
@@ -258,28 +258,28 @@ function ListingsMenu({ open }: { open: boolean }) {
   );
 }
 
-function ListingsMenuContent() {
-  const { data: listings, isPending: listingsPending } =
-    api.listing.getPage.useQuery({
+function ProductsMenuContent() {
+  const { data: products, isPending: productsPending } =
+    api.products.getPage.useQuery({
       pageSize: 6,
     });
 
-  if (listingsPending) {
+  if (productsPending) {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
-          <ListingCardSkeleton key={index} />
+          <ProductCardSkeleton key={index} />
         ))}
       </div>
     );
   }
 
-  if (!listings || listings.data.length === 0) {
+  if (!products || products.data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16">
         <IconShoppingBagX size={64} />
         <div className="text-center">
-          <p className="text-lg font-medium">No listings found</p>
+          <p className="text-lg font-medium">No products found</p>
           <p className="text-muted-foreground text-sm">
             Stay tuned for more rarities coming soon...
           </p>
@@ -290,29 +290,29 @@ function ListingsMenuContent() {
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      {listings.data.map((listing, idx) => (
-        <ListingCard key={`listing-${listing.id}-${idx}`} listing={listing} />
+      {products.data.map((product, idx) => (
+        <ProductCard key={`product-${product.id}-${idx}`} products={product} />
       ))}
     </div>
   );
 }
 
-function ListingCard({
-  listing,
+function ProductCard({
+  products,
 }: {
-  listing: RouterOutputs["listing"]["getPage"]["data"][number];
+  products: RouterOutputs["products"]["getPage"]["data"][number];
 }) {
   return (
-    <Link href={`/listings/${listing.slug}`}>
+    <Link href={`/products/${products.slug}`}>
       <div className="group bg-card space-y-3 rounded-lg border p-1">
-        {listing.thumbnail?.url ? (
+        {products.thumbnail?.url ? (
           <AspectRatio
             ratio={16 / 9}
             className="w-full overflow-hidden rounded-lg border"
           >
             <Image
-              src={listing.thumbnail.url}
-              alt={listing.title}
+              src={products.thumbnail.url}
+              alt={products.name}
               width={512}
               height={512}
               className="size-full object-cover transition-all group-hover:scale-105"
@@ -328,9 +328,9 @@ function ListingCard({
         )}
 
         <div className="px-2 pb-3">
-          <h4 className="font-medium">{listing.title}</h4>
+          <h4 className="font-medium">{products.name}</h4>
           <p className="text-muted-foreground line-clamp-3 text-sm">
-            {listing.summary}
+            {products.summary}
           </p>
         </div>
       </div>
@@ -338,7 +338,7 @@ function ListingCard({
   );
 }
 
-function ListingCardSkeleton() {
+function ProductCardSkeleton() {
   return (
     <div className="bg-card space-y-3 overflow-hidden rounded-lg border p-1">
       <AspectRatio

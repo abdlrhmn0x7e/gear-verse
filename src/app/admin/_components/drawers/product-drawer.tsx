@@ -5,7 +5,6 @@ import { useRef } from "react";
 import { format } from "date-fns";
 
 // Next.js
-import Image from "next/image";
 import Link from "next/link";
 
 // UI Components
@@ -43,14 +42,13 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useProductSearchParams } from "~/app/admin/_hooks/use-product-search-params";
 
 // API & Types
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 
 // Icons
 import {
   AlertTriangleIcon,
   EyeIcon,
   FileTextIcon,
-  ImageOffIcon,
   ImagesIcon,
   InfoIcon,
   PencilIcon,
@@ -166,7 +164,7 @@ function ProductDrawerContent() {
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
             <ShoppingBagIcon className="mt-1.5 size-6 shrink-0" />
             <div>
-              <DrawerTitle>{product.title}</DrawerTitle>
+              <DrawerTitle>{product.name}</DrawerTitle>
               <DrawerDescription className="hidden sm:block">
                 Created At {format(product.createdAt, "dd MMM, yyyy HH:mm a")}
               </DrawerDescription>
@@ -212,30 +210,6 @@ function ProductDrawerContent() {
 
           <div className="space-y-6">
             <Header
-              title="Related Listings"
-              description="View the listings that contain this product"
-              Icon={ShoppingBagIcon}
-              headingLevel={4}
-              className="flex-row text-left"
-            />
-            <div className="space-y-2">
-              {product.listings.length === 0 ? (
-                <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-sm">
-                  <IconShoppingBagX className="size-12" />
-                  <span>No listings found</span>
-                </div>
-              ) : (
-                product.listings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
-                ))
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-6">
-            <Header
               title="Description"
               description="View the description of the product"
               Icon={FileTextIcon}
@@ -264,7 +238,7 @@ function ProductDrawerContent() {
                 <DrawerDialogHeader>
                   <DrawerDialogTitle className="flex items-center gap-2">
                     <FileTextIcon className="size-6" />
-                    <span>{product.title} Description</span>
+                    <span>{product.name} Description</span>
                   </DrawerDialogTitle>
                   <DrawerDialogDescription></DrawerDialogDescription>
                 </DrawerDialogHeader>
@@ -278,57 +252,6 @@ function ProductDrawerContent() {
         </div>
       </div>
     </>
-  );
-}
-
-function ListingCard({
-  listing,
-}: {
-  listing: RouterOutputs["products"]["findById"]["listings"][number];
-}) {
-  return (
-    <div className="bg-card flex items-center gap-3 rounded-lg border p-1">
-      {listing.thumbnail ? (
-        <div className="size-12 shrink-0 overflow-hidden rounded-md border">
-          <Image
-            src={listing.thumbnail.url}
-            alt={listing.title}
-            width={48}
-            height={48}
-            className="size-full object-cover"
-          />
-        </div>
-      ) : (
-        <div className="bg-muted flex size-12 shrink-0 items-center justify-center rounded-md border">
-          <ImageOffIcon />
-        </div>
-      )}
-      <div className="flex-1 rounded-md">
-        <Link
-          href={`/admin/listings?listingId=${listing.id}`}
-          className="group flex cursor-pointer flex-col"
-        >
-          <p className="group-hover:text-primary transition-colors">
-            {listing.title}
-          </p>
-          <p className="group-hover:text-primary text-muted-foreground line-clamp-1 text-sm font-medium transition-colors">
-            {listing.summary}
-          </p>
-        </Link>
-      </div>
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/admin/listings?listingId=${listing.id}&type=edit`}>
-            <PencilIcon />
-          </Link>
-        </Button>
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/admin/listings?listingId=${listing.id}`}>
-            <EyeIcon />
-          </Link>
-        </Button>
-      </div>
-    </div>
   );
 }
 
@@ -364,18 +287,6 @@ function ProductDrawerSkeleton() {
           <Separator />
 
           <div className="space-y-6">
-            {/* Related Listings Section */}
-            <HeaderSkeleton Icon={ShoppingBagIcon} />
-            <div className="space-y-2">
-              {Array.from({ length: 2 }).map((_, index) => (
-                <ListingCardSkeleton key={index} />
-              ))}
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-6">
             {/* Description Section */}
             <HeaderSkeleton Icon={FileTextIcon} />
             <Card className="ring-primary cursor-pointer transition-all hover:opacity-80 hover:ring-2">
@@ -398,21 +309,5 @@ function ProductDrawerSkeleton() {
         </div>
       </div>
     </>
-  );
-}
-
-function ListingCardSkeleton() {
-  return (
-    <div className="bg-card flex items-center gap-3 rounded-lg border p-1">
-      <Skeleton className="size-12 shrink-0 rounded-md" />
-      <div className="flex-1 space-y-1">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-4 w-48" />
-      </div>
-      <div className="flex items-center gap-1">
-        <Skeleton className="size-10" />
-        <Skeleton className="size-10" />
-      </div>
-    </div>
   );
 }

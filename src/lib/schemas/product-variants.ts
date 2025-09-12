@@ -4,6 +4,12 @@ export const productVariantSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
   name: z.string("Name is required").min(1, "Name is required"),
+  stock: z.coerce
+    .number("Stock is required")
+    .nonnegative("Stock must be positive"),
+  price: z.coerce
+    .number("Price is required")
+    .nonnegative("Price must be positive"),
 
   productId: z
     .number("Product ID must be a number")

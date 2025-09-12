@@ -16,7 +16,6 @@ import {
   HomeIcon,
   PackageIcon,
   SearchIcon,
-  ShoppingBagIcon,
   SparklesIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -34,11 +33,6 @@ const DASHBOARD_ITEMS = [
     title: "Products",
     url: "/admin/products",
     icon: PackageIcon,
-  },
-  {
-    title: "Listings",
-    url: "/admin/listings",
-    icon: ShoppingBagIcon,
   },
   {
     title: "Orders",

@@ -42,7 +42,7 @@ export function ProductsTable() {
     {
       pageSize: 10,
       filters: {
-        title: debouncedFilters.title ?? undefined,
+        name: debouncedFilters.name ?? undefined,
         brands: params.brands ?? undefined,
       },
     },

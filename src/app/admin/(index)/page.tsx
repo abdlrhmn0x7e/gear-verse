@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { auth } from "~/server/auth";
 import Header from "../../../components/header";
 import {
+  CircleIcon,
   HomeIcon,
   PlusIcon,
   ShoppingBagIcon,
@@ -61,10 +62,10 @@ export default async function AdminPage() {
           />
 
           <QuickAction
-            title="New Listing"
-            description="Publish a new listing to your store."
-            href="/admin/listings?type=create"
-            Icon={ShoppingBagIcon}
+            title="Blank"
+            description="Blablabla"
+            href="/admin/blank"
+            Icon={CircleIcon}
           />
         </div>
       </div>

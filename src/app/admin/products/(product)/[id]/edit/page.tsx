@@ -35,7 +35,7 @@ export default async function EditProductPage({
       </div>
 
       <Header
-        title={`Edit ${product.title}`}
+        title={`Edit ${product.name}`}
         description="Let's get this product looking good alright?"
         Icon={PackageIcon}
       />

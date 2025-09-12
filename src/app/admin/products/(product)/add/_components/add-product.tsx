@@ -38,11 +38,28 @@ export function AddProduct() {
     isUploadingThumbnail;
 
   async function onSubmit(data: ProductFormValues) {
-    const { variants, ...productData } = data;
+    const { variants, thumbnail, ...productData } = data;
+    if (!thumbnail?.[0]) {
+      setSubmitOutput(null);
+      toast.error("Thumbnail is required. Please try again.");
+      return;
+    }
+
+    setSubmitOutput("Uploading thumbnail...");
+    const { data: thumbnailMedia, error: thumbnailMediaError } = await tryCatch(
+      uploadThumbnail({ file: thumbnail[0] }),
+    );
+    if (thumbnailMediaError || !thumbnailMedia) {
+      setSubmitOutput(null);
+      toast.error("Failed to upload thumbnail. Please try again.");
+      return;
+    }
+
     setSubmitOutput("Creating product...");
     const { data: product, error: productError } = await tryCatch(
       createProduct({
         ...productData,
+        thumbnailMediaId: thumbnailMedia.mediaId,
         specifications: productData.specifications.reduce(
           (acc, { name, value }) => {
             return {

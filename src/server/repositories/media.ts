@@ -1,7 +1,6 @@
 import { desc, eq, and, gt } from "drizzle-orm";
 import { db } from "../db";
 import {
-  listings,
   media,
   type mediaOwnerTypeEnum,
   mediaStatusEnum,
@@ -82,12 +81,6 @@ export const _mediaRepository = {
       ownerType: (typeof mediaOwnerTypeEnum.enumValues)[number],
     ) {
       switch (ownerType) {
-        case "LISTING":
-          return db
-            .update(listings)
-            .set({ thumbnailMediaId: null })
-            .where(eq(listings.thumbnailMediaId, id))
-            .returning({ id: media.id });
         case "PRODUCT_VARIANT":
           return db
             .update(productVariants)

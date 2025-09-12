@@ -9,7 +9,7 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   void api.categories.findAll.prefetch();
-  void api.listing.getPage.prefetch({ pageSize: 6 });
+  void api.products.getPage.prefetch({ pageSize: 6 });
 
   return (
     <div>

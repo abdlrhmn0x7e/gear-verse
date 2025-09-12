@@ -52,16 +52,16 @@ export function ProductsFilter() {
 
     void setFilters(
       (prev) => {
-        if (prev.title === value) {
+        if (prev.name === value) {
           return {
             ...prev,
-            title: undefined,
+            name: undefined,
           };
         }
 
         return {
           ...prev,
-          title: value,
+          name: value,
         };
       },
       { limitUrlUpdates: debounce(500) },
@@ -103,7 +103,7 @@ export function ProductsFilter() {
     <div className="flex items-center gap-2">
       <SearchInput
         className="h-full max-w-sm"
-        value={filters.title ?? ""}
+        value={filters.name ?? ""}
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

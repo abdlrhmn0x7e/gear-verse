@@ -5,6 +5,7 @@ import { DB } from "~/server/repositories";
 import { paginate } from "../helpers/pagination";
 import { adminProcedure, createTRPCRouter } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { generateSlug } from "~/lib/utils/slugs";
 
 export const productsRouter = createTRPCRouter({
   /**
@@ -19,7 +20,7 @@ export const productsRouter = createTRPCRouter({
       paginationSchema.extend({
         filters: z
           .object({
-            title: z.string(),
+            name: z.string(),
             brands: z.array(z.number()),
           })
           .partial()
@@ -48,20 +49,33 @@ export const productsRouter = createTRPCRouter({
    * Mutations
    */
   create: adminProcedure
-    .input(productSchema.omit({ id: true, createdAt: true, updatedAt: true }))
+    .input(
+      productSchema.omit({
+        id: true,
+        slug: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+      }),
+    )
     .mutation(({ input }) => {
-      return DB.products.mutations.create(input);
+      return DB.products.mutations.create({
+        ...input,
+        slug: generateSlug(input.name),
+      });
     }),
 
   update: adminProcedure
     .input(
       z.object({
         id: z.number(),
-        data: productSchema.omit({
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-        }),
+        data: productSchema
+          .omit({
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+          })
+          .partial(),
       }),
     )
     .mutation(({ input }) => {

@@ -4,7 +4,6 @@ import { categoriesRouter } from "./routers/categories";
 import { s3Router } from "./routers/s3";
 import { mediaRouter } from "./routers/media";
 import { brandsRouter } from "./routers/brands";
-import { listingRouter } from "./routers/listing";
 import { productVariantsRouter } from "./routers/product-variants";
 
 /**
@@ -15,7 +14,6 @@ import { productVariantsRouter } from "./routers/product-variants";
 export const appRouter = createTRPCRouter({
   products: productsRouter,
   productVariants: productVariantsRouter,
-  listing: listingRouter,
   brands: brandsRouter,
   categories: categoriesRouter,
   media: mediaRouter,

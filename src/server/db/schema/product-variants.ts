@@ -1,4 +1,11 @@
-import { bigint, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigint,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { relations } from "drizzle-orm";
 import { media } from "./media";
@@ -18,6 +25,9 @@ export const productVariants = pgTable(
     productId: bigint("product_id", { mode: "number" })
       .notNull()
       .references(() => products.id),
+
+    stock: integer("stock").notNull(),
+    price: integer("price").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

@@ -48,9 +48,20 @@ export function EditProduct({
     uploadingThumbnail;
 
   const onSubmit = async (data: ProductFormValues) => {
-    const { variants, ...productData } = data;
-    setSubmitOutput("Updating product variants...");
+    const { variants, thumbnail, ...productData } = data;
+    let thumbnailMediaId: number | undefined;
+    if (thumbnail?.[0]) {
+      const { data: thumbnailMedia, error: thumbnailMediaError } =
+        await tryCatch(uploadThumbnail({ file: thumbnail[0] }));
+      if (thumbnailMediaError || !thumbnailMedia) {
+        setSubmitOutput(null);
+        toast.error("Failed to upload thumbnail. Please try again.");
+        return;
+      }
+      thumbnailMediaId = thumbnailMedia.mediaId;
+    }
 
+    setSubmitOutput("Updating product variants...");
     const newVariants = variants.filter((variant) => !variant.id);
     const updatedVariants = product.variants
       .filter((variant) => variants.some((v) => v.id === variant.id))
@@ -122,6 +133,7 @@ export function EditProduct({
         id: product.id,
         data: {
           ...productData,
+          thumbnailMediaId,
           specifications: productData.specifications.reduce(
             (acc, { name, value }) => {
               return {
@@ -150,13 +162,15 @@ export function EditProduct({
       <ProductForm
         onSubmit={onSubmit}
         defaultValues={{
-          title: product.title,
+          name: product.name,
           description: product.description,
           categoryId: product.categoryId,
           brandId: product.brand.id,
           variants: product.variants.map((variant) => ({
             id: variant.id,
             name: variant.name,
+            stock: variant.stock,
+            price: variant.price,
           })),
           specifications: Object.entries(product.specifications).map(
             ([name, value]) => ({

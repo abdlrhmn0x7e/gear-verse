@@ -27,7 +27,7 @@ export const productColumns: ColumnDef<
     },
   },
   {
-    accessorKey: "title",
+    accessorKey: "name",
     cell: ({ row }) => {
       const ParentIcon = row.original.category.parent
         ? iconsMap.get(row.original.category.parent.icon)
@@ -45,7 +45,7 @@ export const productColumns: ColumnDef<
             />
           </div>
           <div className="text-muted-foreground text-sm">
-            <p className="font-medium">{row.original.title}</p>
+            <p className="font-medium">{row.original.name}</p>
             <div className="flex items-center gap-1">
               {row.original.category.parent && (
                 <>

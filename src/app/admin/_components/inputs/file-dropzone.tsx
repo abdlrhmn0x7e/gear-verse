@@ -179,10 +179,6 @@ function FileItemPreview({
             case "USER":
               void utils.media.getPage.invalidate();
               break;
-            case "LISTING":
-              void utils.listing.getPage.invalidate();
-              void utils.listing.findById.invalidate();
-              break;
             default:
               break;
           }

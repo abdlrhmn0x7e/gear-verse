@@ -36,11 +36,22 @@ import {
 } from "lucide-react";
 import { Collapsable } from "~/components/collapsable";
 import type { MediaAsset } from "~/lib/schemas/media";
+import { Textarea } from "~/components/ui/textarea";
 
 const productFormSchema = productSchema
-  .omit({ id: true, specifications: true, createdAt: true, updatedAt: true })
+  .omit({
+    id: true,
+    slug: true,
+    published: true,
+    specifications: true,
+    thumbnailMediaId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
   .and(
     z.object({
+      thumbnail: z.array(imageSchema).optional(),
+
       specifications: z.array(
         z.object({
           name: z.string(),
@@ -51,7 +62,11 @@ const productFormSchema = productSchema
       variants: z.array(
         z.object({
           id: z.number().nonnegative().optional(),
+
           name: z.string(),
+          stock: z.coerce.number().nonnegative(),
+          price: z.coerce.number().nonnegative(),
+
           thumbnail: z.array(imageSchema).optional(),
           images: z.array(imageSchema).optional(),
         }),
@@ -60,14 +75,17 @@ const productFormSchema = productSchema
     }),
   );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
+type ProductFormInput = z.input<typeof productFormSchema>;
 
 export function ProductForm({
   onSubmit,
   defaultValues,
+  oldThumbnailAsset,
   oldVariantsAssets,
 }: {
   onSubmit: (data: ProductFormValues) => void;
-  defaultValues?: Partial<ProductFormValues>;
+  defaultValues?: Partial<ProductFormInput>;
+  oldThumbnailAsset?: MediaAsset;
   oldVariantsAssets?: Partial<{
     thumbnail: MediaAsset;
     images: MediaAsset[];
@@ -77,6 +95,14 @@ export function ProductForm({
     return productFormSchema.superRefine((data, ctx) => {
       if (defaultValues) {
         return;
+      }
+
+      if (!data.thumbnail) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["thumbnail"],
+          message: "Thumbnail is required",
+        });
       }
 
       data.variants.forEach((variant, index) => {
@@ -99,10 +125,11 @@ export function ProductForm({
     });
   }, [defaultValues]);
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm<ProductFormInput, undefined, ProductFormValues>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues ?? {
-      title: "",
+      name: "",
+      summary: "",
       description: {},
       categoryId: 0,
       brandId: 0,
@@ -167,10 +194,10 @@ export function ProductForm({
       >
         <FormField
           control={form.control}
-          name="title"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input placeholder="Hopefully a hit" {...field} />
               </FormControl>
@@ -214,6 +241,44 @@ export function ProductForm({
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="summary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Summary</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="A short summary of the product. this is shown on the product card."
+                  className="h-24"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name={`thumbnail`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Thumbnail</FormLabel>
+              <FormControl>
+                <FileDropzone
+                  onChange={field.onChange}
+                  maxFiles={1}
+                  initialFiles={
+                    oldThumbnailAsset ? [oldThumbnailAsset] : undefined
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="space-y-2">
           <FormLabel className="text-xl font-medium">Variants</FormLabel>
@@ -313,6 +378,8 @@ export function ProductForm({
             onClick={() =>
               appendVariant({
                 name: "",
+                stock: 0,
+                price: 0,
                 thumbnail: undefined,
                 images: [],
               })
