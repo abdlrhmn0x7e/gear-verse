@@ -44,7 +44,7 @@ export function BrandsCombobox({
     isError: brandsError,
     fetchNextPage,
     hasNextPage,
-  } = api.brands.getPage.useInfiniteQuery(
+  } = api.admin.brands.getPage.useInfiniteQuery(
     {
       pageSize: 10,
     },
@@ -158,7 +158,7 @@ export function BrandsCommand({
   value,
   ref,
 }: {
-  brands: RouterOutputs["brands"]["getPage"]["data"];
+  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
   value: number;
   onValueChange: (value: number) => void;
   setOpen: (open: boolean) => void;

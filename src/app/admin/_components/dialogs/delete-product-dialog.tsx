@@ -28,7 +28,7 @@ export function DeleteProductDialog({
 }) {
   const utils = api.useUtils();
   const { mutate: deleteProduct, isPending } =
-    api.products.delete.useMutation();
+    api.admin.products.delete.useMutation();
 
   function handleDelete() {
     deleteProduct(
@@ -36,7 +36,7 @@ export function DeleteProductDialog({
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void utils.products.getPage.invalidate();
+          void utils.admin.products.getPage.invalidate();
         },
       },
     );

@@ -89,7 +89,7 @@ function ProductDrawerContent() {
     data: product,
     isPending: productPending,
     isError: productError,
-  } = api.products.findById.useQuery(
+  } = api.admin.products.findById.useQuery(
     {
       id: paramsProductIdRef.current ?? 0,
     },

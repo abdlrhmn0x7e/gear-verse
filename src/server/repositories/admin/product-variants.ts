@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { db } from "../db";
-import { media, productVariants } from "../db/schema";
+import { db } from "../../db";
+import { media, productVariants } from "../../db/schema";
 
 type InsertProductVariant = typeof productVariants.$inferInsert;
 type UpdateProductVariant = Partial<InsertProductVariant>;

@@ -23,11 +23,11 @@ async function createFullProduct(
     params: UseUploadFileMutationProps,
   ) => Promise<{ url: string; mediaId: number }>,
   createProduct: (
-    params: RouterInputs["products"]["create"],
-  ) => Promise<RouterOutputs["products"]["create"]>,
+    params: RouterInputs["admin"]["products"]["create"],
+  ) => Promise<RouterOutputs["admin"]["products"]["create"]>,
   createProductVariant: (
-    params: RouterInputs["productVariants"]["create"],
-  ) => Promise<RouterOutputs["productVariants"]["create"]>,
+    params: RouterInputs["admin"]["productVariants"]["create"],
+  ) => Promise<RouterOutputs["admin"]["productVariants"]["create"]>,
   uploadImages: (params: UseUploadFilesMutationProps) => Promise<void>,
 ) {
   const { variants, thumbnail, ...productData } = data;
@@ -117,9 +117,10 @@ export function useCreateProductMutation() {
   const router = useRouter();
   const utils = api.useUtils();
   const [output, setOutput] = useState<string | null>(null);
-  const { mutateAsync: createProduct } = api.products.create.useMutation();
+  const { mutateAsync: createProduct } =
+    api.admin.products.create.useMutation();
   const { mutateAsync: createProductVariant } =
-    api.productVariants.create.useMutation();
+    api.admin.productVariants.create.useMutation();
   const { mutateAsync: uploadThumbnail } = useUploadFileMutation();
   const { mutateAsync: uploadImages } = useUploadFilesMutation();
 
@@ -141,7 +142,7 @@ export function useCreateProductMutation() {
         }
 
         router.push(`/admin/products?productId=${product.id}`);
-        void utils.products.getPage.invalidate();
+        void utils.admin.products.getPage.invalidate();
       },
     }),
   };

@@ -1,6 +1,6 @@
 import { eq, gt, ilike, and, inArray, notInArray } from "drizzle-orm";
-import { db } from "../db";
-import { media, products, productVariants } from "../db/schema";
+import { db } from "../../db";
+import { media, products, productVariants } from "../../db/schema";
 
 type NewProduct = typeof products.$inferInsert;
 type UpdateProduct = Partial<NewProduct>;
@@ -44,9 +44,7 @@ export const _productsRepository = {
         columns: {
           id: true,
           name: true,
-          slug: true,
-          summary: true,
-          createdAt: true,
+          published: true,
         },
         with: {
           brand: {
@@ -94,6 +92,18 @@ export const _productsRepository = {
     findById: async (id: number) => {
       const product = await db.query.products.findFirst({
         where: eq(products.id, id),
+        columns: {
+          id: true,
+          name: true,
+          summary: true,
+          description: true,
+          categoryId: true,
+          brandId: true,
+          specifications: true,
+          thumbnailMediaId: true,
+
+          createdAt: true,
+        },
         with: {
           brand: {
             columns: {
@@ -115,6 +125,7 @@ export const _productsRepository = {
               name: true,
               stock: true,
               price: true,
+              options: true,
             },
             with: {
               thumbnail: {

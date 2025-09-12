@@ -38,7 +38,7 @@ export function ProductsTable() {
     isFetched,
     hasNextPage,
     fetchNextPage,
-  } = api.products.getPage.useInfiniteQuery(
+  } = api.admin.products.getPage.useInfiniteQuery(
     {
       pageSize: 10,
       filters: {

@@ -26,7 +26,7 @@ export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useProductSearchParams();
   const [brands, { fetchNextPage, hasNextPage, isPending: brandsPending }] =
-    api.brands.getPage.useSuspenseInfiniteQuery(
+    api.admin.brands.getPage.useSuspenseInfiniteQuery(
       {
         pageSize: 10,
       },
@@ -171,7 +171,7 @@ function BrandsFilterList({
   loading = false,
   onRemove,
 }: {
-  brands: RouterOutputs["brands"]["getPage"]["data"];
+  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
   loading: boolean;
   onRemove: (brandId: number) => void;
 }) {

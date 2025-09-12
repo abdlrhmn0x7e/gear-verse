@@ -14,11 +14,11 @@ export default async function EditProductPage({
     return notFound();
   }
 
-  void api.categories.findAll.prefetch();
-  void api.brands.getPage.prefetchInfinite({
+  void api.admin.categories.findAll.prefetch();
+  void api.admin.brands.getPage.prefetchInfinite({
     pageSize: 10,
   });
-  const product = await api.products.findById({ id: parseInt(id) });
+  const product = await api.admin.products.findById({ id: parseInt(id) });
   if (!product) {
     return notFound();
   }

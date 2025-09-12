@@ -20,21 +20,21 @@ import { api, type RouterOutputs } from "~/trpc/react";
 export function EditProduct({
   product,
 }: {
-  product: Exclude<RouterOutputs["products"]["findById"], undefined>;
+  product: Exclude<RouterOutputs["admin"]["products"]["findById"], undefined>;
 }) {
   const router = useRouter();
   const [submitOutput, setSubmitOutput] = useState<string | null>(null);
 
   const { mutateAsync: updateProduct, isPending: updatingProduct } =
-    api.products.update.useMutation();
+    api.admin.products.update.useMutation();
   const {
     mutateAsync: updateProductVariants,
     isPending: updatingProductVariants,
-  } = api.productVariants.bulkUpdate.useMutation();
+  } = api.admin.productVariants.bulkUpdate.useMutation();
   const {
     mutateAsync: createProductVariant,
     isPending: creatingProductVariant,
-  } = api.productVariants.create.useMutation();
+  } = api.admin.productVariants.create.useMutation();
   const { mutateAsync: uploadThumbnail, isPending: uploadingThumbnail } =
     useUploadFileMutation();
   const { mutateAsync: uploadImages, isPending: uploadingImages } =
@@ -94,6 +94,7 @@ export function EditProduct({
               ...variantData,
               thumbnailMediaId: thumbnailMedia.mediaId,
               productId: product.id,
+              options: variantData.options.map((option) => option.value),
             });
 
             await uploadImages({
@@ -171,6 +172,7 @@ export function EditProduct({
             name: variant.name,
             stock: variant.stock,
             price: variant.price,
+            options: variant.options.map((option) => ({ value: option })),
           })),
           specifications: Object.entries(product.specifications).map(
             ([name, value]) => ({

@@ -50,7 +50,7 @@ export function CategoryCombobox({
 }) {
   const [open, setOpen] = React.useState(false);
   const { data: categories, isPending: categoriesPending } =
-    api.categories.findAll.useQuery();
+    api.admin.categories.findAll.useQuery();
 
   const flatCategories = React.useCallback(
     (

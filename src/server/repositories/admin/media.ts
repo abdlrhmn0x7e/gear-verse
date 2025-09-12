@@ -1,11 +1,11 @@
 import { desc, eq, and, gt } from "drizzle-orm";
-import { db } from "../db";
+import { db } from "../../db";
 import {
   media,
   type mediaOwnerTypeEnum,
   mediaStatusEnum,
   productVariants,
-} from "../db/schema";
+} from "../../db/schema";
 
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;

@@ -18,7 +18,7 @@ import { Spinner } from "~/components/spinner";
 export function AddCategoryDialog() {
   const [open, setOpen] = useState(false);
   const { mutate: createCategory, isPending: isCreatingCategory } =
-    api.categories.create.useMutation();
+    api.admin.categories.create.useMutation();
   const utils = api.useUtils();
 
   function handleSubmit(data: CategoryFormValues) {
@@ -26,7 +26,7 @@ export function AddCategoryDialog() {
     createCategory(data, {
       onSuccess: () => {
         toast.success("Category created successfully");
-        void utils.categories.findAll.invalidate();
+        void utils.admin.categories.findAll.invalidate();
         setOpen(false);
       },
     });

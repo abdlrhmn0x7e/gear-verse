@@ -14,7 +14,8 @@ export const productVariantsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const createdVariant = await DB.productVariants.mutations.create(input);
+      const createdVariant =
+        await DB.admin.productVariants.mutations.create(input);
 
       if (!createdVariant) {
         throw new TRPCError({
@@ -37,7 +38,7 @@ export const productVariantsRouter = createTRPCRouter({
       ),
     )
     .mutation(async ({ input }) => {
-      return DB.productVariants.mutations.bulkCreate(input);
+      return DB.admin.productVariants.mutations.bulkCreate(input);
     }),
 
   bulkUpdate: adminProcedure
@@ -53,6 +54,6 @@ export const productVariantsRouter = createTRPCRouter({
       ),
     )
     .mutation(async ({ input }) => {
-      return DB.productVariants.mutations.bulkUpdate(input);
+      return DB.admin.productVariants.mutations.bulkUpdate(input);
     }),
 });

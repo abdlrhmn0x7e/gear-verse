@@ -1,6 +1,6 @@
 import { gt, desc, eq } from "drizzle-orm";
-import { db } from "../db";
-import { brands, media } from "../db/schema";
+import { db } from "../../db";
+import { brands, media } from "../../db/schema";
 
 type NewBrandDto = typeof brands.$inferInsert;
 export const _brandsRepository = {

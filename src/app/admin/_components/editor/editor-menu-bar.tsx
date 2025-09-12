@@ -404,7 +404,7 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
     isError: imagesError,
     fetchNextPage,
     hasNextPage,
-  } = api.media.getPage.useInfiniteQuery(
+  } = api.admin.media.getPage.useInfiniteQuery(
     {
       pageSize: 10,
     },

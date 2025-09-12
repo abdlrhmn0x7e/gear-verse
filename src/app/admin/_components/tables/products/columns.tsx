@@ -1,17 +1,16 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { CalendarIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
-import { format } from "date-fns";
 
 import type { RouterOutputs } from "~/trpc/react";
 import { iconsMap } from "~/lib/icons-map";
 
 export const productColumns: ColumnDef<
-  RouterOutputs["products"]["getPage"]["data"][number]
+  RouterOutputs["admin"]["products"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",
@@ -62,18 +61,6 @@ export const productColumns: ColumnDef<
               </p>
             </div>
           </div>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="size-4" />
-          {format(row.original.createdAt, "dd MMM, yyyy HH:mm a")}
         </div>
       );
     },

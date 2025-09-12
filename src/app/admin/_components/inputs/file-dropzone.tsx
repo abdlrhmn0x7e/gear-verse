@@ -157,7 +157,7 @@ function FileItemPreview({
   idx: number;
 }) {
   const { mutate: deleteMedia, isPending: deletingMedia } =
-    api.media.delete.useMutation();
+    api.admin.media.delete.useMutation();
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -171,13 +171,13 @@ function FileItemPreview({
           switch (file.ownerType) {
             case "PRODUCT":
             case "PRODUCT_VARIANT":
-              void utils.products.findById.invalidate();
+              void utils.admin.products.findById.invalidate();
               break;
             case "BRAND":
-              void utils.brands.getPage.invalidate();
+              void utils.admin.brands.getPage.invalidate();
               break;
             case "USER":
-              void utils.media.getPage.invalidate();
+              void utils.admin.media.getPage.invalidate();
               break;
             default:
               break;

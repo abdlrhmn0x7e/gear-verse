@@ -19,7 +19,7 @@ import { Spinner } from "~/components/spinner";
 export function AddBrandDialog() {
   const [open, setOpen] = useState(false);
   const { mutate: createBrand, isPending: isCreatingBrand } =
-    api.brands.create.useMutation();
+    api.admin.brands.create.useMutation();
   const { mutate: uploadFile, isPending: isUploading } =
     useUploadFileMutation();
   const utils = api.useUtils();
@@ -40,7 +40,7 @@ export function AddBrandDialog() {
             {
               onSuccess: () => {
                 toast.success("Brand created successfully");
-                void utils.brands.getPage.invalidate();
+                void utils.admin.brands.getPage.invalidate();
                 setOpen(false);
               },
             },

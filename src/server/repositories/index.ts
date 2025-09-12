@@ -1,13 +1,15 @@
-import { _brandsRepository } from "./brands";
-import { _categoriesRepository } from "./categories";
-import { _mediaRepository } from "./media";
-import { _productVariantsRepository } from "./product-variants";
-import { _productsRepository } from "./products";
+import { _brandsRepository } from "./admin/brands";
+import { _categoriesRepository } from "./admin/categories";
+import { _mediaRepository } from "./admin/media";
+import { _productVariantsRepository } from "./admin/product-variants";
+import { _productsRepository } from "./admin/products";
 
 export const DB = {
-  products: _productsRepository,
-  productVariants: _productVariantsRepository,
-  brands: _brandsRepository,
-  categories: _categoriesRepository,
-  media: _mediaRepository,
+  admin: {
+    products: _productsRepository,
+    productVariants: _productVariantsRepository,
+    brands: _brandsRepository,
+    categories: _categoriesRepository,
+    media: _mediaRepository,
+  },
 };

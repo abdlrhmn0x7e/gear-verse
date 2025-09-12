@@ -2,8 +2,8 @@ import z from "zod";
 import { paginationSchema } from "~/lib/schemas/pagination";
 import { productSchema } from "~/lib/schemas/product";
 import { DB } from "~/server/repositories";
-import { paginate } from "../helpers/pagination";
-import { adminProcedure, createTRPCRouter } from "../trpc";
+import { paginate } from "../../helpers/pagination";
+import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { TRPCError } from "@trpc/server";
 import { generateSlug } from "~/lib/utils/slugs";
 
@@ -12,7 +12,7 @@ export const productsRouter = createTRPCRouter({
    * Queries
    */
   findAll: adminProcedure.query(() => {
-    return DB.products.queries.findAll();
+    return DB.admin.products.queries.findAll();
   }),
 
   getPage: adminProcedure
@@ -28,13 +28,13 @@ export const productsRouter = createTRPCRouter({
       }),
     )
     .query(({ input }) => {
-      return paginate({ input, getPage: DB.products.queries.getPage });
+      return paginate({ input, getPage: DB.admin.products.queries.getPage });
     }),
 
   findById: adminProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      const product = await DB.products.queries.findById(input.id);
+      const product = await DB.admin.products.queries.findById(input.id);
       if (!product) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -59,7 +59,7 @@ export const productsRouter = createTRPCRouter({
       }),
     )
     .mutation(({ input }) => {
-      return DB.products.mutations.create({
+      return DB.admin.products.mutations.create({
         ...input,
         slug: generateSlug(input.name),
       });
@@ -79,12 +79,12 @@ export const productsRouter = createTRPCRouter({
       }),
     )
     .mutation(({ input }) => {
-      return DB.products.mutations.update(input.id, input.data);
+      return DB.admin.products.mutations.update(input.id, input.data);
     }),
 
   delete: adminProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
-      return DB.products.mutations.delete(input.id);
+      return DB.admin.products.mutations.delete(input.id);
     }),
 });

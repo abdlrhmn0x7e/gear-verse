@@ -3,7 +3,7 @@ import {
   categoryTreeSchema,
   type Category,
 } from "~/lib/schemas/category";
-import { adminProcedure, createTRPCRouter, publicProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, publicProcedure } from "../../trpc";
 import { DB } from "~/server/repositories";
 import { z } from "zod";
 import { generateSlug } from "~/lib/utils/slugs";
@@ -13,7 +13,7 @@ export const categoriesRouter = createTRPCRouter({
    * Queries
    */
   findAll: publicProcedure.output(z.array(categoryTreeSchema)).query(() => {
-    return DB.categories.queries.findAll();
+    return DB.admin.categories.queries.findAll();
   }),
 
   /**
@@ -25,10 +25,12 @@ export const categoriesRouter = createTRPCRouter({
       let parentCategory: Category | undefined = undefined;
 
       if (input.parent_id) {
-        parentCategory = await DB.categories.queries.findById(input.parent_id);
+        parentCategory = await DB.admin.categories.queries.findById(
+          input.parent_id,
+        );
       }
 
-      return await DB.categories.mutations.create({
+      return await DB.admin.categories.mutations.create({
         ...input,
         slug: generateSlug(`${input.name} ${parentCategory?.name ?? ""}`),
       });

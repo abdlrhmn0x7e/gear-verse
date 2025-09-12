@@ -1,6 +1,6 @@
-import { db } from "../db";
+import { db } from "../../db";
 import { eq, sql } from "drizzle-orm";
-import { categories } from "../db/schema";
+import { categories } from "../../db/schema";
 import type { CategoryTree } from "~/lib/schemas/category";
 
 type NewCategory = typeof categories.$inferInsert;

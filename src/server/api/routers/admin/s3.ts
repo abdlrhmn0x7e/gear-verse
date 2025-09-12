@@ -1,5 +1,5 @@
 import { s3GetPresignedUrl } from "~/lib/s3";
-import { adminProcedure, createTRPCRouter } from "../trpc";
+import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -31,7 +31,7 @@ export const s3Router = createTRPCRouter({
 
       // Create a new media record
       const { data: media, error: mediaError } = await tryCatch(
-        DB.media.mutations.create({
+        DB.admin.media.mutations.create({
           ownerType: "USER",
           ownerId: Number(ctx.session.user.id),
           url: data.accessUrl,
@@ -95,7 +95,7 @@ export const s3Router = createTRPCRouter({
       }
 
       const { data: media, error: mediaError } = await tryCatch(
-        DB.media.mutations.createMany(
+        DB.admin.media.mutations.createMany(
           presignedUrls.map((item) => ({
             ownerType: "USER",
             ownerId: Number(ctx.session.user.id),

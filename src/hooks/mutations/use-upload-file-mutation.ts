@@ -17,11 +17,11 @@ async function uploadFile(
   file: File,
 
   getPresignedUrl: (
-    input: RouterInputs["s3"]["getPresignedUrl"],
-  ) => Promise<RouterOutputs["s3"]["getPresignedUrl"]>,
+    input: RouterInputs["admin"]["s3"]["getPresignedUrl"],
+  ) => Promise<RouterOutputs["admin"]["s3"]["getPresignedUrl"]>,
   updateMedia: (
-    input: RouterInputs["media"]["update"],
-  ) => Promise<RouterOutputs["media"]["update"]>,
+    input: RouterInputs["admin"]["media"]["update"],
+  ) => Promise<RouterOutputs["admin"]["media"]["update"]>,
 
   ownerType?: Media["ownerType"],
   ownerId?: Media["ownerId"],
@@ -74,15 +74,16 @@ export interface UseUploadFileMutationProps {
  */
 export function useUploadFileMutation() {
   const utils = api.useUtils();
-  const { mutateAsync: getPresignedUrl } = api.s3.getPresignedUrl.useMutation();
-  const { mutateAsync: updateMedia } = api.media.update.useMutation();
+  const { mutateAsync: getPresignedUrl } =
+    api.admin.s3.getPresignedUrl.useMutation();
+  const { mutateAsync: updateMedia } = api.admin.media.update.useMutation();
 
   return useMutation({
     mutationFn: ({ file, ownerType, ownerId }: UseUploadFileMutationProps) =>
       uploadFile(file, getPresignedUrl, updateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload
-      void utils.media.getPage.invalidate();
+      void utils.admin.media.getPage.invalidate();
     },
   });
 }
