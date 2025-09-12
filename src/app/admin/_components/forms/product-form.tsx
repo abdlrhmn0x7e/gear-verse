@@ -192,16 +192,18 @@ export function ProductForm({
     index: number,
   ) {
     const text = event.clipboardData.getData("text");
-    const lines = text.split("\n");
+    const lines = text.trim().split("\n");
     if (lines.length === 0) {
       return;
     }
+    console.log(lines);
 
     event.preventDefault(); // Prevent default paste behavior
 
     const specs: { name: string; value: string }[] = [];
+    const splitRegex = /:\s*/;
     for (const line of lines) {
-      const [name, value] = line.split(" ");
+      const [name, value] = line.trim().split(splitRegex);
       if (!name || !value) {
         continue;
       }
