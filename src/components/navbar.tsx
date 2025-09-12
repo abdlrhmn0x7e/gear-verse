@@ -23,6 +23,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import {
+  useEffect,
   useState,
   type ComponentProps,
   type Dispatch,
@@ -87,9 +88,17 @@ const NAV_ITEMS = [
 ] as const satisfies ReadonlyArray<NavigationLink>;
 
 export function Navbar() {
+  const utils = api.useUtils();
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
   const { data } = authClient.useSession();
+
+  // Prefetch data
+  useEffect(() => {
+    void utils.admin.categories.findAll.prefetch();
+    void utils.admin.products.getPage.prefetchInfinite({ pageSize: 6 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <header className="fixed top-5 left-1/2 z-50 container -translate-x-1/2">
