@@ -64,6 +64,7 @@ import {
 } from "./ui/dropdown-menu";
 import type { CategoryTree } from "~/lib/schemas/category";
 import { iconsMap } from "~/lib/icons-map";
+import { ImageWithFallback } from "./image-with-fallback";
 
 export interface NavigationLink {
   title: string;
@@ -270,7 +271,7 @@ const products = {
         name: "Brand 1",
         logo: {
           id: 1,
-          url: "https://via.placeholder.com/150",
+          url: null,
         },
       },
       category: {
@@ -285,7 +286,7 @@ const products = {
       },
       thumbnail: {
         id: 1,
-        url: "https://via.placeholder.com/150",
+        url: null,
       },
     },
   ],
@@ -330,27 +331,18 @@ function ProductCard({ products }: { products: Product }) {
   return (
     <Link href={`/products/${products.slug}`}>
       <div className="group bg-card space-y-3 rounded-lg border p-1">
-        {products.thumbnail?.url ? (
-          <AspectRatio
-            ratio={16 / 9}
-            className="w-full overflow-hidden rounded-lg border"
-          >
-            <Image
-              src={products.thumbnail.url}
-              alt={products.name}
-              width={512}
-              height={512}
-              className="size-full object-cover transition-all group-hover:scale-105"
-            />
-          </AspectRatio>
-        ) : (
-          <AspectRatio
-            ratio={16 / 9}
-            className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border"
-          >
-            <ImageOffIcon className="size-full object-cover" />
-          </AspectRatio>
-        )}
+        <AspectRatio
+          ratio={16 / 9}
+          className="w-full overflow-hidden rounded-lg border"
+        >
+          <ImageWithFallback
+            src={products.thumbnail?.url}
+            alt={products.name}
+            width={512}
+            height={512}
+            className="size-full border-none object-cover transition-all group-hover:scale-105"
+          />
+        </AspectRatio>
 
         <div className="px-2 pb-3">
           <h4 className="font-medium">{products.name}</h4>

@@ -15,9 +15,12 @@ export function ImageWithFallback({
   if (!src) {
     return (
       <div
-        className={cn("size-8 overflow-hidden rounded-sm border", className)}
+        className={cn(
+          "flex size-8 items-center justify-center overflow-hidden rounded-sm border",
+          className,
+        )}
       >
-        <ImageOffIcon className="size-full object-cover" />
+        <ImageOffIcon className="size-3/4 object-cover" />
       </div>
     );
   }

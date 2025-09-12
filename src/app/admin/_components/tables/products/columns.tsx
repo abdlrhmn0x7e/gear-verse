@@ -1,7 +1,14 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { CheckCircleIcon, ChevronRightIcon, XCircleIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  ChevronRightIcon,
+  CircleIcon,
+  PowerOffIcon,
+  RadioTowerIcon,
+  XCircleIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
@@ -88,7 +95,7 @@ export const productColumns: ColumnDef<
       if (row.original.published) {
         return (
           <Badge variant="success">
-            <CheckCircleIcon />
+            <RadioTowerIcon />
             WE R LIVE BABY{" "}
           </Badge>
         );
@@ -96,7 +103,7 @@ export const productColumns: ColumnDef<
 
       return (
         <Badge variant="error">
-          <XCircleIcon />
+          <PowerOffIcon />
           Get your shit together
         </Badge>
       );
