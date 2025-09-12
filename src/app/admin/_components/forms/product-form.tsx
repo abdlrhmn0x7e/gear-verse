@@ -181,7 +181,7 @@ export function ProductForm({
       name: "",
       stock: 0,
       price: 0,
-      options: [{ value: "" }],
+      options: [],
       thumbnail: [],
       images: [],
     });
@@ -192,32 +192,64 @@ export function ProductForm({
     index: number,
   ) {
     const text = event.clipboardData.getData("text");
-    const lines = text.trim().split("\n");
+    const lines = text.trim().split(/\r?\n/);
     if (lines.length === 0) {
       return;
     }
-    console.log(lines);
 
     event.preventDefault(); // Prevent default paste behavior
 
     const specs: { name: string; value: string }[] = [];
-    const splitRegex = /:\s*/;
-    for (const line of lines) {
-      const [name, value] = line.trim().split(splitRegex);
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line) {
+        continue;
+      }
+
+      let name = "";
+      let value = "";
+
+      // Prefer colon-delimited if present (e.g., "Key: Value")
+      const colonIndex = line.indexOf(":");
+      if (colonIndex !== -1) {
+        name = line.slice(0, colonIndex).trim();
+        value = line.slice(colonIndex + 1).trim();
+      } else {
+        // Otherwise split on two-or-more spaces or tabs between columns
+        const separatorRegex = /^(.*?)(?:\s{2,}|\t+)(.+)$/;
+        const execResult = separatorRegex.exec(line);
+        if (execResult) {
+          const rawName = execResult[1] ?? "";
+          const rawValue = execResult[2] ?? "";
+          name = rawName.trim();
+          value = rawValue.trim();
+        } else {
+          continue;
+        }
+      }
+
+      // Strip trailing "— confirm" / "- confirm" notes
+      value = value.replace(/\s*[—–-]\s*confirm\b.*$/i, "").trim();
       if (!name || !value) {
         continue;
       }
 
-      specs.push({ name: name.trim(), value: value.trim() });
+      specs.push({ name, value });
     }
 
     if (specs.length === 0) {
       return;
     }
 
-    const [currentSpecs, ...restSpecs] = specs;
-    form.setValue(`specifications.${index}`, currentSpecs!);
-    appendSpecification(restSpecs);
+    const currentSpec = specs[0];
+    const restSpecs = specs.slice(1);
+    if (!currentSpec) {
+      return;
+    }
+    form.setValue(`specifications.${index}`, currentSpec);
+    if (restSpecs.length > 0) {
+      appendSpecification(restSpecs);
+    }
   }
 
   return (
@@ -234,7 +266,7 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Hopefully a hit" {...field} />
+                <Input placeholder="Hopefully a hit" autoFocus {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

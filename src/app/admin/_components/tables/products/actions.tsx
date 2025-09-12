@@ -27,7 +27,7 @@ export function ProductsTableActions({
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
         <DropdownMenuGroup className="space-y-1">
           <Button variant="ghost" className="w-full justify-start" asChild>

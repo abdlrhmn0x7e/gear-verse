@@ -2,161 +2,30 @@
 
 import { CheckIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
 import {
   ProductForm,
   type ProductFormValues,
 } from "~/app/admin/_components/forms/product-form";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
-import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { useEditProductMutation } from "~/hooks/mutations/use-edit-product-mutation";
 import { cn } from "~/lib/utils";
-import { tryCatch } from "~/lib/utils/try-catch";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { type RouterOutputs } from "~/trpc/react";
 
 export function EditProduct({
   product,
 }: {
-  product: Exclude<RouterOutputs["admin"]["products"]["findById"], undefined>;
+  product: RouterOutputs["admin"]["products"]["findById"];
 }) {
-  const router = useRouter();
-  const [submitOutput, setSubmitOutput] = useState<string | null>(null);
-
-  const { mutateAsync: updateProduct, isPending: updatingProduct } =
-    api.admin.products.update.useMutation();
   const {
-    mutateAsync: updateProductVariants,
-    isPending: updatingProductVariants,
-  } = api.admin.productVariants.bulkUpdate.useMutation();
-  const {
-    mutateAsync: createProductVariant,
-    isPending: creatingProductVariant,
-  } = api.admin.productVariants.create.useMutation();
-  const { mutateAsync: uploadThumbnail, isPending: uploadingThumbnail } =
-    useUploadFileMutation();
-  const { mutateAsync: uploadImages, isPending: uploadingImages } =
-    useUploadFilesMutation();
+    output: submitOutput,
+    mutate: editProduct,
+    isPending: editingProduct,
+  } = useEditProductMutation(product);
 
-  const isLoading =
-    updatingProduct ||
-    updatingProductVariants ||
-    creatingProductVariant ||
-    uploadingImages ||
-    uploadingThumbnail;
-
-  const onSubmit = async (data: ProductFormValues) => {
-    const { variants, thumbnail, ...productData } = data;
-    let thumbnailMediaId: number | undefined;
-    if (thumbnail?.[0]) {
-      const { data: thumbnailMedia, error: thumbnailMediaError } =
-        await tryCatch(uploadThumbnail({ file: thumbnail[0] }));
-      if (thumbnailMediaError || !thumbnailMedia) {
-        setSubmitOutput(null);
-        toast.error("Failed to upload thumbnail. Please try again.");
-        return;
-      }
-      thumbnailMediaId = thumbnailMedia.mediaId;
-    }
-
-    setSubmitOutput("Updating product variants...");
-    const newVariants = variants.filter((variant) => !variant.id);
-    const updatedVariants = product.variants
-      .filter((variant) => variants.some((v) => v.id === variant.id))
-      .map((variant) => ({
-        id: variant.id,
-        name: variant.name,
-        productId: product.id,
-      }));
-
-    // Create new variants
-    if (newVariants.length > 0) {
-      const { error: newVariantsError } = await tryCatch(
-        Promise.all(
-          newVariants.map(async (variant) => {
-            const { thumbnail, images, ...variantData } = variant;
-            if (
-              !thumbnail ||
-              !images ||
-              thumbnail.length === 0 ||
-              images.length === 0
-            ) {
-              throw new Error("Variant Thumbnail and Images are required");
-            }
-
-            const thumbnailMedia = await uploadThumbnail({
-              file: thumbnail[0]!,
-            });
-
-            const createdVariant = await createProductVariant({
-              ...variantData,
-              thumbnailMediaId: thumbnailMedia.mediaId,
-              productId: product.id,
-              options: variantData.options.map((option) => option.value),
-            });
-
-            await uploadImages({
-              files: images,
-              ownerId: createdVariant.id,
-              ownerType: "PRODUCT_VARIANT",
-            });
-
-            return createdVariant;
-          }),
-        ),
-      );
-
-      if (newVariantsError) {
-        setSubmitOutput(null);
-        toast.error("Failed to create product variants. Please try again.");
-        return;
-      }
-    }
-
-    // Update existing variants
-    if (updatedVariants.length > 0) {
-      const { error: updatedVariantsError } = await tryCatch(
-        updateProductVariants(updatedVariants),
-      );
-
-      if (updatedVariantsError) {
-        setSubmitOutput(null);
-        toast.error("Failed to update product variants. Please try again.");
-        return;
-      }
-    }
-
-    setSubmitOutput("Updating product...");
-    const { error: productError } = await tryCatch(
-      updateProduct({
-        id: product.id,
-        data: {
-          ...productData,
-          thumbnailMediaId,
-          specifications: productData.specifications.reduce(
-            (acc, { name, value }) => {
-              return {
-                ...acc,
-                [name]: value,
-              };
-            },
-            {},
-          ),
-        },
-      }),
-    );
-
-    if (productError) {
-      setSubmitOutput(null);
-      toast.error("Failed to update product. Please try again.");
-      return;
-    }
-
-    setSubmitOutput("Product has been updated successfully");
-    router.push(`/admin/products?productId=${product.id}`);
-  };
+  function onSubmit(data: ProductFormValues) {
+    editProduct(data);
+  }
 
   return (
     <div>
@@ -164,6 +33,7 @@ export function EditProduct({
         onSubmit={onSubmit}
         defaultValues={{
           name: product.name,
+          summary: product.summary,
           description: product.description,
           categoryId: product.categoryId,
           brandId: product.brand.id,
@@ -181,6 +51,7 @@ export function EditProduct({
             }),
           ),
         }}
+        oldThumbnailAsset={product.thumbnail ?? undefined}
         oldVariantsAssets={product.variants.map((variant) => ({
           thumbnail: variant.thumbnail ?? undefined,
           images: variant.images,
@@ -207,7 +78,11 @@ export function EditProduct({
                 </p>
               </div>
 
-              <Button type="submit" form="product-form" disabled={isLoading}>
+              <Button
+                type="submit"
+                form="product-form"
+                disabled={editingProduct}
+              >
                 <SaveIcon size={16} />
                 Save Product
               </Button>
@@ -228,7 +103,7 @@ export function EditProduct({
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {isLoading ? (
+                  {editingProduct ? (
                     <Spinner />
                   ) : (
                     <CheckIcon className="size-6 text-green-500" />

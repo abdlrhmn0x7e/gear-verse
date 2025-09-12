@@ -136,7 +136,6 @@ export function useVerseEditor({
     onUpdate: ({ editor }) => {
       onUpdate?.(editor.getJSON());
     },
-    autofocus: true,
     extensions,
 
     editorProps: {

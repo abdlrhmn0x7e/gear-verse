@@ -105,6 +105,14 @@ export const _productsRepository = {
           createdAt: true,
         },
         with: {
+          thumbnail: {
+            columns: {
+              id: true,
+              url: true,
+              ownerType: true,
+            },
+          },
+
           brand: {
             columns: {
               id: true,
@@ -119,6 +127,7 @@ export const _productsRepository = {
               },
             },
           },
+
           variants: {
             columns: {
               id: true,

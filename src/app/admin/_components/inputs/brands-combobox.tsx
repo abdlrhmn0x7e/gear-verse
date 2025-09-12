@@ -24,6 +24,7 @@ import { Spinner } from "~/components/spinner";
 import { AddBrandDialog } from "../dialogs/add-brand-dialog";
 import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
+import { ImageWithFallback } from "~/components/image-with-fallback";
 
 export function BrandsCombobox({
   value,
@@ -113,6 +114,24 @@ export function BrandsCombobox({
     );
   }
 
+  function renderValue(value: number) {
+    const brand = brandsData.find((brand) => brand.id === value);
+
+    return (
+      <div className="flex items-center gap-2">
+        <ImageWithFallback
+          src={brand?.logoUrl ?? ""}
+          alt={brand?.name ?? ""}
+          className="size-6 overflow-hidden rounded-sm border"
+          width={24}
+          height={24}
+        />
+
+        <span>{brand?.name}</span>
+      </div>
+    );
+  }
+
   const brandsData = brands.pages.flatMap((page) => page.data);
 
   return (
@@ -126,7 +145,7 @@ export function BrandsCombobox({
           disabled={disabled}
         >
           {value ? (
-            brandsData.find((brand) => brand.id === value)?.name
+            renderValue(value)
           ) : (
             <div className="flex items-center gap-2">
               <TargetIcon className="text-muted-foreground size-4" />
