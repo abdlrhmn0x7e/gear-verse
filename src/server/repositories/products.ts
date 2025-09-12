@@ -154,18 +154,36 @@ export const _productsRepository = {
   },
 
   mutations: {
-    create: async (product: NewProduct) => {
-      return db
-        .insert(products)
-        .values(product)
-        .returning({ id: products.id })
-        .then(([result]) => result);
+    create: async (value: NewProduct) => {
+      return db.transaction(async (tx) => {
+        const product = await tx
+          .insert(products)
+          .values(value)
+          .returning({
+            id: products.id,
+            thumbnailMediaId: products.thumbnailMediaId,
+          })
+          .then(([product]) => product);
+
+        if (!product) {
+          return;
+        }
+
+        if (product.thumbnailMediaId) {
+          await tx
+            .update(media)
+            .set({ ownerType: "PRODUCT", ownerId: product.id })
+            .where(eq(media.id, product.thumbnailMediaId));
+        }
+
+        return product;
+      });
     },
 
-    update: async (id: number, product: UpdateProduct) => {
+    update: async (id: number, value: UpdateProduct) => {
       return db
         .update(products)
-        .set(product)
+        .set(value)
         .where(eq(products.id, id))
         .returning({ id: products.id })
         .then(([result]) => result);

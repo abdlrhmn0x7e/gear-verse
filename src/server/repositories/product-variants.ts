@@ -12,7 +12,10 @@ export const _productVariantsRepository = {
         const productVariant = await tx
           .insert(productVariants)
           .values(input)
-          .returning({ id: productVariants.id })
+          .returning({
+            id: productVariants.id,
+            thumbnailMediaId: productVariants.thumbnailMediaId,
+          })
           .then(([productVariant]) => productVariant);
 
         if (!productVariant) {
@@ -22,14 +25,14 @@ export const _productVariantsRepository = {
         /**
          * Take ownership of the thumbnail
          */
-        if (input.thumbnailMediaId) {
+        if (productVariant.thumbnailMediaId) {
           await tx
             .update(media)
             .set({
               ownerType: "PRODUCT_VARIANT",
               ownerId: productVariant.id,
             })
-            .where(eq(media.id, input.thumbnailMediaId));
+            .where(eq(media.id, productVariant.thumbnailMediaId));
         }
         return productVariant;
       });
