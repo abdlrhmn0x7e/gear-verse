@@ -44,6 +44,7 @@ export function ProductsTable() {
       filters: {
         name: debouncedFilters.name ?? undefined,
         brands: params.brands ?? undefined,
+        categories: params.categories ?? undefined,
       },
     },
     {

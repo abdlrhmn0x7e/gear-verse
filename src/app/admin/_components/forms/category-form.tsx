@@ -92,7 +92,7 @@ export function CategoryForm({
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input

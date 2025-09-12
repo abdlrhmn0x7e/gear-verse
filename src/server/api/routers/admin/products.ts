@@ -22,6 +22,7 @@ export const productsRouter = createTRPCRouter({
           .object({
             name: z.string(),
             brands: z.array(z.number()),
+            categories: z.array(z.number()),
           })
           .partial()
           .optional(),

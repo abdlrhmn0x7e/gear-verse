@@ -40,9 +40,39 @@ export const _productsRepository = {
         whereClause.push(inArray(products.brandId, filters.brands));
       }
       if (filters?.categories) {
-        const childrenCategoriesIdsQuery = sql`
+        const categoriesIds = new Set<number>([...filters.categories]);
+        await Promise.all(
+          filters.categories.map((categoryId) => {
+            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+            WITH RECURSIVE all_children_categories AS (
+              SELECT id 
+              FROM categories
+              WHERE parent_id = ${categoryId}
 
-        `;
+              UNION ALL
+
+              SELECT categories.id
+              FROM categories
+              INNER JOIN all_children_categories
+                ON all_children_categories.id = categories.parent_id
+            )
+
+            SELECT id FROM all_children_categories
+          `;
+
+            return db
+              .execute<{ id: number }>(childrenCategoriesIdsQuery)
+              .then((result) =>
+                result.forEach((row) => {
+                  categoriesIds.add(row.id);
+                }),
+              );
+          }),
+        );
+
+        whereClause.push(
+          inArray(products.categoryId, Array.from(categoriesIds)),
+        );
       }
 
       return db.query.products.findMany({
