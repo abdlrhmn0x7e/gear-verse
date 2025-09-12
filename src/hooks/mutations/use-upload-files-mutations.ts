@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import cuid from "cuid";
-import type { Media, UpdateMediaDto } from "~/lib/schemas/media";
+import type { Media } from "~/lib/schemas/media";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { api } from "~/trpc/react";
+import { api, type RouterInputs, type RouterOutputs } from "~/trpc/react";
 
 /**
  * Uploads multiple files to S3 using presigned URLs and updates their media status.
@@ -16,19 +16,11 @@ async function uploadFiles(
   files: File[],
 
   getPresignedUrls: (
-    params: { fileId: string; type: string; size: number }[],
-  ) => Promise<
-    {
-      url: string;
-      key: string;
-      fileId: string;
-      accessUrl: string;
-      mediaId: number;
-    }[]
-  >,
+    input: RouterInputs["s3"]["getPresignedUrls"],
+  ) => Promise<RouterOutputs["s3"]["getPresignedUrls"]>,
   bulkUpdateMedia: (
-    media: (UpdateMediaDto & { id: number })[],
-  ) => Promise<({ id: number } | undefined)[]>,
+    media: RouterInputs["media"]["updateMany"],
+  ) => Promise<RouterOutputs["media"]["updateMany"]>,
 
   ownerType?: Media["ownerType"],
   ownerId?: Media["ownerId"],
@@ -116,6 +108,12 @@ async function uploadFiles(
   }
 }
 
+export interface UseUploadFilesMutationProps {
+  files: File[];
+  ownerType?: Media["ownerType"];
+  ownerId?: Media["ownerId"];
+}
+
 /**
  * React Query mutation hook for uploading multiple files.
  *
@@ -132,15 +130,7 @@ export function useUploadFilesMutation() {
   const { mutateAsync: bulkUpdateMedia } = api.media.updateMany.useMutation();
 
   return useMutation({
-    mutationFn: ({
-      files,
-      ownerType,
-      ownerId,
-    }: {
-      files: File[];
-      ownerType?: Media["ownerType"];
-      ownerId?: Media["ownerId"];
-    }) =>
+    mutationFn: ({ files, ownerType, ownerId }: UseUploadFilesMutationProps) =>
       uploadFiles(files, getPresignedUrls, bulkUpdateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload

@@ -1,6 +1,6 @@
 "use client";
 
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import {
@@ -33,10 +33,14 @@ import {
   PlusIcon,
   SettingsIcon,
   TrashIcon,
+  XIcon,
 } from "lucide-react";
 import { Collapsable } from "~/components/collapsable";
 import type { MediaAsset } from "~/lib/schemas/media";
 import { Textarea } from "~/components/ui/textarea";
+import { productVariantSchema } from "~/lib/schemas/product-variants";
+import { Badge } from "~/components/ui/badge";
+import { cn } from "~/lib/utils";
 
 const productFormSchema = productSchema
   .omit({
@@ -52,26 +56,44 @@ const productFormSchema = productSchema
     z.object({
       thumbnail: z.array(imageSchema).optional(),
 
-      specifications: z.array(
-        z.object({
-          name: z.string(),
-          value: z.string(),
-        }),
-      ),
+      specifications: z
+        .array(
+          z.object({
+            name: z.string("Name must be text").min(1, "Name is required"),
+            value: z.string("Value must be text").min(1, "Value is required"),
+          }),
+        )
+        .min(1, "Specifications are required"),
 
-      variants: z.array(
-        z.object({
-          id: z.number().nonnegative().optional(),
-
-          name: z.string(),
-          stock: z.coerce.number().nonnegative(),
-          price: z.coerce.number().nonnegative(),
-
-          thumbnail: z.array(imageSchema).optional(),
-          images: z.array(imageSchema).optional(),
-        }),
-        "Variants are required",
-      ),
+      variants: z
+        .array(
+          productVariantSchema
+            .omit({
+              id: true,
+              options: true,
+              thumbnailMediaId: true,
+              productId: true,
+              createdAt: true,
+              updatedAt: true,
+            })
+            .extend({
+              id: z
+                .number("ID must be a number")
+                .nonnegative("ID must be positive")
+                .optional(),
+              options: z.array(
+                z.object({
+                  value: z
+                    .string("Option value is required")
+                    .min(1, "Option value is required"),
+                }),
+              ),
+              thumbnail: z.array(imageSchema).optional(),
+              images: z.array(imageSchema).optional(),
+            }),
+          "Variants are required",
+        )
+        .min(1, "Variants are required"),
     }),
   );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -153,6 +175,17 @@ export function ProductForm({
     control: form.control,
     name: "variants",
   });
+
+  function handleVariantAppend() {
+    appendVariant({
+      name: "",
+      stock: 0,
+      price: 0,
+      options: [{ value: "" }],
+      thumbnail: [],
+      images: [],
+    });
+  }
 
   function handleSpecsPaste(
     event: React.ClipboardEvent<HTMLInputElement>,
@@ -280,201 +313,167 @@ export function ProductForm({
           )}
         />
 
-        <div className="space-y-2">
-          <FormLabel className="text-xl font-medium">Variants</FormLabel>
-
-          {variants.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed py-6">
-              <PackageOpenIcon className="size-8" />
-              <p className="text-muted-foreground text-sm">No variants added</p>
-            </div>
-          )}
-
-          {variants.map((variant, index) => {
-            return (
-              <Collapsable
-                key={variant.id}
-                defaultOpen={index === 0}
-                title={
-                  <div className="flex flex-1 items-center justify-between gap-2 pr-4">
-                    <FormField
-                      control={form.control}
-                      name={`variants.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Variant Name"
-                              className="w-sm"
-                              onClick={(e) => e.stopPropagation()}
-                              {...field}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button
-                      variant="destructiveGhost"
-                      size="icon"
-                      onClick={() => removeVariant(index)}
-                    >
-                      <TrashIcon className="size-4" />
-                    </Button>
-                  </div>
-                }
-                className="space-y-4"
-              >
-                <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.thumbnail`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Thumbnail</FormLabel>
-                        <FormControl>
-                          <FileDropzone
-                            onChange={field.onChange}
-                            maxFiles={1}
-                            initialFiles={
-                              oldVariantsAssets?.[index]?.thumbnail
-                                ? [oldVariantsAssets[index].thumbnail]
-                                : undefined
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.images`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Images</FormLabel>
-                        <FormControl>
-                          <FileDropzone
-                            onChange={field.onChange}
-                            initialFiles={
-                              oldVariantsAssets?.[index]?.images ?? undefined
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        <FormField
+          control={form.control}
+          name="variants"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-xl font-medium">Variants</FormLabel>
+              {variants.length === 0 ? (
+                <div
+                  role="button"
+                  onClick={handleVariantAppend}
+                  className={cn(
+                    "hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-4 py-6",
+                    form.formState.errors.variants &&
+                      "border-destructive text-destructive",
+                  )}
+                >
+                  <PackageOpenIcon className="size-8" />
+                  <p>No variants added</p>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="pointer-events-none w-full max-w-sm"
+                  >
+                    <PlusIcon className="size-4" />
+                    Add Variant
+                  </Button>
                 </div>
-              </Collapsable>
-            );
-          })}
-
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full"
-            onClick={() =>
-              appendVariant({
-                name: "",
-                stock: 0,
-                price: 0,
-                thumbnail: undefined,
-                images: [],
-              })
-            }
-          >
-            <PlusIcon className="size-4" />
-            Add Variant
-          </Button>
-        </div>
-
-        <div className="space-y-2">
-          <FormLabel className="text-xl font-medium">Specifications</FormLabel>
-          <div className="overflow-hidden rounded-lg border">
-            <Table className="table-fixed">
-              <TableHeader>
-                <TableRow className="sticky top-0 pb-1">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {specifications.map((field, index) => (
-                  <TableRow key={field.id} className="hover:bg-transparent">
-                    <TableCell className="ring-primary transition-all has-focus-within:inset-ring-2">
-                      <FormField
+              ) : (
+                <>
+                  {variants.map((variant, index) => (
+                    <FormControl key={variant.id}>
+                      <ProductVariantField
                         control={form.control}
-                        name={`specifications.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                onPaste={(e) => handleSpecsPaste(e, index)}
-                                className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent"
-                                {...field}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
+                        variantIndex={index}
+                        remove={() => removeVariant(index)}
+                        oldVariantAssets={oldVariantsAssets?.[index] ?? {}}
                       />
-                    </TableCell>
-                    <TableCell className="ring-primary transition-all has-focus-within:inset-ring-2">
-                      <FormField
-                        control={form.control}
-                        name={`specifications.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent"
-                                {...field}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell className="w-12">
-                      <Button
-                        variant="destructiveGhost"
-                        size="icon"
-                        onClick={() => removeSpecification(index)}
-                      >
-                        <TrashIcon className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                    </FormControl>
+                  ))}
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full"
+                    onClick={handleVariantAppend}
+                  >
+                    <PlusIcon className="size-4" />
+                    Add Variant
+                  </Button>
+                </>
+              )}
 
-                {specifications.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center">
-                      <div className="flex flex-col items-center justify-center gap-2 py-6">
-                        <SettingsIcon className="size-8" />
-                        <p className="text-muted-foreground text-sm">
-                          No specifications added
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-            <Button
-              variant="outline"
-              type="button"
-              className="w-full rounded-t-none border-r-0 border-b-0 border-l-0"
-              onClick={() => appendSpecification({ name: "", value: "" })}
-            >
-              <PlusIcon className="size-4" />
-              Add Specification
-            </Button>
-          </div>
-        </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="specifications"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-xl font-medium">
+                Specifications
+              </FormLabel>
+              <FormControl>
+                <div
+                  className={cn(
+                    "overflow-hidden rounded-lg border",
+                    form.formState.errors.specifications &&
+                      "border-destructive text-destructive",
+                  )}
+                >
+                  <Table className="table-fixed">
+                    <TableHeader>
+                      <TableRow className="sticky top-0 pb-1">
+                        <TableHead>Name</TableHead>
+                        <TableHead>Value</TableHead>
+                        <TableHead className="w-12"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                      {specifications.map((field, index) => (
+                        <TableRow
+                          key={field.id}
+                          className="hover:bg-transparent"
+                        >
+                          <TableCell className="ring-primary transition-all has-focus-within:inset-ring-2">
+                            <FormField
+                              control={form.control}
+                              name={`specifications.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      onPaste={(e) =>
+                                        handleSpecsPaste(e, index)
+                                      }
+                                      className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell className="ring-primary transition-all has-focus-within:inset-ring-2">
+                            <FormField
+                              control={form.control}
+                              name={`specifications.${index}.value`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell className="w-12">
+                            <Button
+                              variant="destructiveGhost"
+                              size="icon"
+                              onClick={() => removeSpecification(index)}
+                            >
+                              <TrashIcon className="size-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+
+                      {specifications.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center">
+                            <div className="flex flex-col items-center justify-center gap-2 py-6">
+                              <SettingsIcon className="size-8" />
+                              <p className="text-sm">No specifications added</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full rounded-t-none border-r-0 border-b-0 border-l-0"
+                    onClick={() => appendSpecification({ name: "", value: "" })}
+                  >
+                    <PlusIcon className="size-4" />
+                    Add Specification
+                  </Button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -494,5 +493,171 @@ export function ProductForm({
         />
       </form>
     </Form>
+  );
+}
+
+function ProductVariantField({
+  control,
+  variantIndex,
+  remove,
+  oldVariantAssets,
+}: {
+  control: Control<ProductFormInput>;
+  variantIndex: number;
+  remove: () => void;
+  oldVariantAssets: Partial<{
+    thumbnail: MediaAsset;
+    images: MediaAsset[];
+  }>;
+}) {
+  const {
+    fields: options,
+    append: appendOption,
+    remove: removeOption,
+  } = useFieldArray({
+    control,
+    name: `variants.${variantIndex}.options`,
+  });
+
+  return (
+    <Collapsable
+      defaultOpen={variantIndex === 0}
+      title={
+        <div className="flex flex-1 items-center justify-between gap-2 pr-4">
+          <FormField
+            control={control}
+            name={`variants.${variantIndex}.name`}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    placeholder="Variant Name"
+                    className="w-sm"
+                    onClick={(e) => e.stopPropagation()}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button variant="destructiveGhost" size="icon" onClick={remove}>
+            <TrashIcon className="size-4" />
+          </Button>
+        </div>
+      }
+      className="space-y-4"
+    >
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+        <FormField
+          control={control}
+          name={`variants.${variantIndex}.thumbnail`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Thumbnail</FormLabel>
+              <FormControl>
+                <FileDropzone
+                  onChange={field.onChange}
+                  maxFiles={1}
+                  initialFiles={
+                    oldVariantAssets?.thumbnail
+                      ? [oldVariantAssets.thumbnail]
+                      : undefined
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name={`variants.${variantIndex}.images`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <FileDropzone
+                  onChange={field.onChange}
+                  initialFiles={oldVariantAssets?.images ?? undefined}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <FormField
+        control={control}
+        name={`variants.${variantIndex}.options`}
+        render={() => (
+          <FormItem>
+            <div className="mb-2 flex items-center justify-between">
+              <FormLabel>Options</FormLabel>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendOption({ value: "" })}
+              >
+                <PlusIcon className="size-4" />
+                Add Option
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {options.length === 0 ? (
+                <div className="flex w-full flex-col items-center justify-center gap-2 py-6">
+                  <SettingsIcon className="size-8" />
+                  <p className="text-muted-foreground text-sm">
+                    No options added
+                  </p>
+                </div>
+              ) : (
+                options.map((option, index) => (
+                  <FormField
+                    key={option.id}
+                    control={control}
+                    name={`variants.${variantIndex}.options.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem className="w-fit">
+                        <Badge
+                          variant="outline"
+                          className="ring-primary h-9 gap-0 has-focus-within:ring-2"
+                        >
+                          <FormControl>
+                            <Input
+                              placeholder="Cool ahh option"
+                              className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent"
+                              style={{
+                                width: `${Math.max((field.value?.length || 0) + 2, 18)}ch`,
+                              }}
+                              {...field}
+                            />
+                          </FormControl>
+
+                          <button
+                            type="button"
+                            className="hover:text-destructive/50 cursor-pointer transition-colors"
+                            onClick={() => removeOption(index)}
+                          >
+                            <XIcon className="size-4" />
+                          </button>
+                        </Badge>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))
+              )}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </Collapsable>
   );
 }

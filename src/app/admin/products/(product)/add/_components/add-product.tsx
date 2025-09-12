@@ -7,118 +7,18 @@ import {
 } from "~/app/admin/_components/forms/product-form";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
-import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
-import { tryCatch } from "~/lib/utils/try-catch";
-import { toast } from "sonner";
-import { useState } from "react";
 import { Spinner } from "~/components/spinner";
-import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
-import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
+import { useCreateProductMutation } from "~/hooks/mutations/use-create-product-mutation";
 
 export function AddProduct() {
-  const [submitOutput, setSubmitOutput] = useState<string | null>(null);
-  const router = useRouter();
-  const { mutateAsync: createProduct, isPending: isCreatingProduct } =
-    api.products.create.useMutation();
   const {
-    mutateAsync: createProductVariant,
-    isPending: isCreatingProductVariant,
-  } = api.productVariants.create.useMutation();
-  const { mutateAsync: uploadThumbnail, isPending: isUploadingThumbnail } =
-    useUploadFileMutation();
-  const { mutateAsync: uploadImages, isPending: isUploadingImages } =
-    useUploadFilesMutation();
-
-  const isLoading =
-    isCreatingProduct ||
-    isUploadingImages ||
-    isCreatingProductVariant ||
-    isUploadingThumbnail;
-
-  async function onSubmit(data: ProductFormValues) {
-    const { variants, thumbnail, ...productData } = data;
-    if (!thumbnail?.[0]) {
-      setSubmitOutput(null);
-      toast.error("Thumbnail is required. Please try again.");
-      return;
-    }
-
-    setSubmitOutput("Uploading thumbnail...");
-    const { data: thumbnailMedia, error: thumbnailMediaError } = await tryCatch(
-      uploadThumbnail({ file: thumbnail[0] }),
-    );
-    if (thumbnailMediaError || !thumbnailMedia) {
-      setSubmitOutput(null);
-      toast.error("Failed to upload thumbnail. Please try again.");
-      return;
-    }
-
-    setSubmitOutput("Creating product...");
-    const { data: product, error: productError } = await tryCatch(
-      createProduct({
-        ...productData,
-        thumbnailMediaId: thumbnailMedia.mediaId,
-        specifications: productData.specifications.reduce(
-          (acc, { name, value }) => {
-            return {
-              ...acc,
-              [name]: value,
-            };
-          },
-          {},
-        ),
-      }),
-    );
-    if (productError || !product) {
-      setSubmitOutput(null);
-      toast.error("Failed to create product. Please try again.");
-      return;
-    }
-
-    // Upload & Create Variants
-    setSubmitOutput("Creating product variants...");
-    const { error: variantsError } = await tryCatch(
-      Promise.all(
-        variants.map(async (variant) => {
-          const { thumbnail, images, ...variantData } = variant;
-          if (
-            !thumbnail ||
-            !images ||
-            thumbnail.length === 0 ||
-            images.length === 0
-          ) {
-            throw new Error("Variant Thumbnail and Images are required");
-          }
-
-          const thumbnailMedia = await uploadThumbnail({ file: thumbnail[0]! });
-
-          const createdVariant = await createProductVariant({
-            ...variantData,
-            thumbnailMediaId: thumbnailMedia.mediaId,
-            productId: product.id,
-          });
-
-          await uploadImages({
-            files: images,
-            ownerId: createdVariant.id,
-            ownerType: "PRODUCT_VARIANT",
-          });
-
-          return createdVariant;
-        }),
-      ),
-    );
-
-    if (variantsError) {
-      setSubmitOutput(null);
-      toast.error("Failed to create product variants. Please try again.");
-      return;
-    }
-
-    setSubmitOutput("Product has been created successfully");
-    router.push(`/admin/products?productId=${product.id}`);
+    output: submitOutput,
+    mutate: createProduct,
+    isPending: isCreatingProduct,
+  } = useCreateProductMutation();
+  function onSubmit(data: ProductFormValues) {
+    createProduct(data);
   }
 
   return (
@@ -133,7 +33,7 @@ export function AddProduct() {
           <motion.div
             className={cn(
               "bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm",
-              submitOutput && "scale-95 opacity-50",
+              isCreatingProduct && "scale-95 opacity-50",
             )}
             layout
           >
@@ -145,7 +45,11 @@ export function AddProduct() {
                 </p>
               </div>
 
-              <Button type="submit" form="product-form" disabled={isLoading}>
+              <Button
+                type="submit"
+                form="product-form"
+                disabled={isCreatingProduct}
+              >
                 <SaveIcon size={16} />
                 Save Product
               </Button>
@@ -166,7 +70,7 @@ export function AddProduct() {
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {isLoading ? (
+                  {isCreatingProduct ? (
                     <Spinner />
                   ) : (
                     <CheckIcon className="size-6 text-green-500" />

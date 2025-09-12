@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import type { Media, UpdateMediaDto } from "~/lib/schemas/media";
+import cuid from "cuid";
+import type { Media } from "~/lib/schemas/media";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { api } from "~/trpc/react";
+import { api, type RouterInputs, type RouterOutputs } from "~/trpc/react";
 
 /**
  * Uploads a single file to S3 using a presigned URL and updates its media status.
@@ -14,27 +15,20 @@ import { api } from "~/trpc/react";
  */
 async function uploadFile(
   file: File,
-  getPresignedUrl: (params: {
-    fileId: string;
-    type: string;
-    size: number;
-  }) => Promise<{
-    url: string;
-    key: string;
-    accessUrl: string;
-    mediaId: number;
-  }>,
-  updateMedia: (params: {
-    id: number;
-    data: UpdateMediaDto;
-  }) => Promise<{ id: number } | undefined>,
+
+  getPresignedUrl: (
+    input: RouterInputs["s3"]["getPresignedUrl"],
+  ) => Promise<RouterOutputs["s3"]["getPresignedUrl"]>,
+  updateMedia: (
+    input: RouterInputs["media"]["update"],
+  ) => Promise<RouterOutputs["media"]["update"]>,
 
   ownerType?: Media["ownerType"],
   ownerId?: Media["ownerId"],
 ) {
   // Request a presigned URL for the file
   const { data, error } = await tryCatch(
-    getPresignedUrl({ fileId: file.name, type: file.type, size: file.size }),
+    getPresignedUrl({ fileId: cuid(), type: file.type, size: file.size }),
   );
   if (error) {
     throw new Error("Failed to get presigned url");
@@ -63,6 +57,12 @@ async function uploadFile(
   return { url: data.accessUrl, mediaId: data.mediaId };
 }
 
+export interface UseUploadFileMutationProps {
+  file: File;
+  ownerType?: Media["ownerType"];
+  ownerId?: Media["ownerId"];
+}
+
 /**
  * React Query mutation hook for uploading a single file.
  *
@@ -78,15 +78,8 @@ export function useUploadFileMutation() {
   const { mutateAsync: updateMedia } = api.media.update.useMutation();
 
   return useMutation({
-    mutationFn: ({
-      file,
-      ownerType,
-      ownerId,
-    }: {
-      file: File;
-      ownerType?: Media["ownerType"];
-      ownerId?: Media["ownerId"];
-    }) => uploadFile(file, getPresignedUrl, updateMedia, ownerType, ownerId),
+    mutationFn: ({ file, ownerType, ownerId }: UseUploadFileMutationProps) =>
+      uploadFile(file, getPresignedUrl, updateMedia, ownerType, ownerId),
     onSuccess: () => {
       // Invalidate the media page cache after successful upload
       void utils.media.getPage.invalidate();

@@ -10,6 +10,7 @@ export const productVariantSchema = z.object({
   price: z.coerce
     .number("Price is required")
     .nonnegative("Price must be positive"),
+  options: z.array(z.string("Options must be an array of strings")).default([]),
 
   productId: z
     .number("Product ID must be a number")

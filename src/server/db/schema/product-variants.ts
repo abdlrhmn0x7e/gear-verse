@@ -2,6 +2,7 @@ import {
   bigint,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -28,6 +29,7 @@ export const productVariants = pgTable(
 
     stock: integer("stock").notNull(),
     price: integer("price").notNull(),
+    options: jsonb("options").$type<Array<string>>().notNull().default([]),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
