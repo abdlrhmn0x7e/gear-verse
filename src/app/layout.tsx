@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { env } from "~/env";
 
 export const metadata: Metadata = {
   title: "Gear Verse",
@@ -33,7 +34,7 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 const tanNimbus = localFont({
-  src: "../../public/fonts/tan-nimbus.woff2",
+  src: `${env.NEXT_PUBLIC_APP_URL}/fonts/tan-nimbus.woff2`,
   variable: "--font-serif",
 });
 
