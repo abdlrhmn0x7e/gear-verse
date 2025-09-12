@@ -50,8 +50,8 @@ export function VerseCarousel({
                   src={photo.url}
                   alt={`Product Image ${index + 1}`}
                   isPriority={index === currentSlide}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  fill
+                  width={1024}
+                  height={1024}
                 />
               </AspectRatio>
             </CarouselItem>
@@ -74,7 +74,7 @@ export function VerseCarousel({
             <button
               key={index}
               className={cn(
-                "hover:border-primary h-16 w-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 border-transparent transition-colors",
+                "hover:border-primary h-16 w-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all",
                 currentSlide === index && "border-primary",
               )}
               onClick={() => {
@@ -86,6 +86,8 @@ export function VerseCarousel({
                   src={photo.url}
                   alt={`Product Thumbnail ${index + 1}`}
                   isPriority={false}
+                  width={256}
+                  height={256}
                 />
               </div>
             </button>

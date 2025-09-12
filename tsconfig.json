@@ -24,6 +24,8 @@
     "plugins": [{ "name": "next" }],
     "incremental": true,
 
+    "noErrorTruncation": true,
+
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {

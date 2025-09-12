@@ -1,7 +1,7 @@
 "use client";
 
 // React & Core
-import { useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 
 // Next.js
@@ -55,6 +55,9 @@ import {
   ShoppingBagIcon,
 } from "lucide-react";
 import { IconShoppingBagX } from "@tabler/icons-react";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { VariantButton } from "~/components/variant-button";
+import { cn } from "~/lib/utils";
 
 export function ProductDrawer() {
   const isMobile = useIsMobile();
@@ -82,6 +85,7 @@ export function ProductDrawer() {
 }
 
 function ProductDrawerContent() {
+  const isMobile = useIsMobile();
   const [params, setParams] = useProductSearchParams();
 
   const paramsProductIdRef = useRef<number>(params.productId);
@@ -97,6 +101,20 @@ function ProductDrawerContent() {
       enabled: !!paramsProductIdRef.current,
     },
   );
+
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    null,
+  );
+  const selectedVariant = useMemo(() => {
+    return product?.variants.find(
+      (variant) => variant.id === selectedVariantId,
+    );
+  }, [product, selectedVariantId]);
+
+  // on product change, set the selected variant to the first variant
+  useEffect(() => {
+    setSelectedVariantId(product?.variants[0]?.id ?? null);
+  }, [product]);
 
   if (productPending) {
     return <ProductDrawerSkeleton />;
@@ -162,7 +180,13 @@ function ProductDrawerContent() {
       <DrawerHeader>
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-            <ShoppingBagIcon className="mt-1.5 size-6 shrink-0" />
+            <ImageWithFallback
+              src={product.brand?.logo?.url}
+              alt={product.brand?.name}
+              className="size-12 rounded-md"
+              width={128}
+              height={128}
+            />
             <div>
               <DrawerTitle>{product.name}</DrawerTitle>
               <DrawerDescription className="hidden sm:block">
@@ -175,7 +199,7 @@ function ProductDrawerContent() {
             <Button variant="outline" asChild>
               <Link href={`/admin/products/${product.id}/edit`}>
                 <PencilIcon />
-                Edit Product
+                {isMobile && "Edit product"}
               </Link>
             </Button>
 
@@ -184,6 +208,7 @@ function ProductDrawerContent() {
               onDeleteSuccess={() => {
                 void setParams((prev) => ({ ...prev, productId: null }));
               }}
+              showText={isMobile}
             />
           </div>
         </div>
@@ -193,17 +218,47 @@ function ProductDrawerContent() {
         <div className="space-y-6 p-4 pb-32">
           <div className="space-y-6">
             <Header
-              title="Photos"
+              title="Summary"
               description="View the photos of the product"
               Icon={ImagesIcon}
               headingLevel={4}
               className="flex-row text-left"
             />
-            <VerseCarousel
-              photos={product.variants
-                .filter((variant) => variant.thumbnail)
-                .map((variant) => variant.thumbnail!)}
+
+            <ImageWithFallback
+              src={product.thumbnail?.url}
+              alt={product.name}
+              className="size-full"
+              width={512}
+              height={512}
             />
+
+            <p className="text-muted-foreground">{product.summary}</p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-6">
+            <Header
+              title="Variants"
+              description="View the photos of the product"
+              Icon={ImagesIcon}
+              headingLevel={4}
+              className="flex-row text-left"
+            />
+            <div className="flex flex-wrap gap-2">
+              {product.variants.map((variant) => (
+                <VariantButton
+                  key={variant.id}
+                  variant={variant}
+                  onClick={() => setSelectedVariantId(variant.id)}
+                  className={cn(
+                    selectedVariantId === variant.id && "ring-primary ring-2",
+                  )}
+                />
+              ))}
+            </div>
+            <VerseCarousel photos={selectedVariant?.images ?? []} />
           </div>
 
           <Separator />

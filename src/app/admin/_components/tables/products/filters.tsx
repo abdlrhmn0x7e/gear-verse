@@ -1,6 +1,6 @@
 "use client";
 
-import { ListFilterIcon, XIcon } from "lucide-react";
+import { ListFilterIcon, TagIcon, TargetIcon, XIcon } from "lucide-react";
 import { SearchInput } from "../../inputs/search-input";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 import {
@@ -9,6 +9,9 @@ import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
@@ -118,22 +121,48 @@ export function ProductsFilter() {
 
           <DropdownMenuContent
             align="end"
-            className="w-sm p-0"
+            className="w-sm"
             sideOffset={16}
             alignOffset={-12}
           >
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="px-3 py-2">
-                Filter by Brands
-              </DropdownMenuLabel>
-              <BrandsCommand
-                brands={brands.pages.flatMap((page) => page.data)}
-                value={0}
-                onValueChange={handleBrandsChange}
-                setOpen={setIsOpen}
-                hasNextPage={hasNextPage}
-                ref={brandsSpinnerRef}
-              />
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <TargetIcon className="mr-2 size-4" />
+                  Brands
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent
+                    sideOffset={8}
+                    alignOffset={-36}
+                    className="p-0"
+                  >
+                    <BrandsCommand
+                      brands={brands.pages.flatMap((page) => page.data)}
+                      value={0}
+                      onValueChange={handleBrandsChange}
+                      setOpen={setIsOpen}
+                      hasNextPage={hasNextPage}
+                      ref={brandsSpinnerRef}
+                    />
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <TagIcon className="mr-2 size-4" />
+                  Categories
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent
+                    sideOffset={8}
+                    alignOffset={-36}
+                    className="p-0"
+                  ></DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </DropdownMenuGroup>
             <DropdownMenuPortal>hello</DropdownMenuPortal>
           </DropdownMenuContent>
