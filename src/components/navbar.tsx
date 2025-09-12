@@ -8,7 +8,6 @@ import {
   ChevronUpIcon,
   DoorOpenIcon,
   HomeIcon,
-  ImageOffIcon,
   ListTreeIcon,
   Menu,
   ShieldUserIcon,
@@ -38,7 +37,6 @@ import { ProfileDropdown } from "./profile-dropdown";
 import { AnimatePresence, motion } from "motion/react";
 import Header from "~/components/header";
 import { api } from "~/trpc/react";
-import Image from "next/image";
 import {
   IconBrandDiscord,
   IconBrandFacebook,
@@ -51,7 +49,6 @@ import {
   type IconProps,
 } from "@tabler/icons-react";
 import { AspectRatio } from "./ui/aspect-ratio";
-import { Skeleton } from "./ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,

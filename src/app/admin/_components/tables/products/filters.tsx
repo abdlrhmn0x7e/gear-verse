@@ -28,7 +28,6 @@ import { useInView } from "react-intersection-observer";
 import { motion } from "motion/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
-import Image from "next/image";
 import { debounce } from "nuqs";
 import { CategoriesCommand } from "../../inputs/category-combobox";
 import { ImageWithFallback } from "~/components/image-with-fallback";

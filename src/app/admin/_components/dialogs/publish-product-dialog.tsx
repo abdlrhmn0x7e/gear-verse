@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircleIcon, TrashIcon, XCircleIcon } from "lucide-react";
+import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
