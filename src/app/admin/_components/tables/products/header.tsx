@@ -6,7 +6,9 @@ export function ProductsTableHeader() {
       <TableRow className="sticky top-0 pb-1">
         <TableHead className="w-[200px]">Product No.</TableHead>
         <TableHead>Product</TableHead>
-        <TableHead>Created At</TableHead>
+        <TableHead>Brand</TableHead>
+        <TableHead>Published</TableHead>
+        <TableHead className="w-[100px]">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

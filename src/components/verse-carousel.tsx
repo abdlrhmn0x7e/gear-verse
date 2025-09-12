@@ -9,10 +9,10 @@ import {
   CarouselPrevious,
 } from "~/components/ui/carousel";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
+import { SuspendableImage } from "./suspendable-image";
 
 export function VerseCarousel({
   className,
@@ -50,6 +50,8 @@ export function VerseCarousel({
                   src={photo.url}
                   alt={`Product Image ${index + 1}`}
                   isPriority={index === currentSlide}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  fill
                 />
               </AspectRatio>
             </CarouselItem>
@@ -91,60 +93,6 @@ export function VerseCarousel({
         </div>
       )}
     </div>
-  );
-}
-
-function SuspendableImage({
-  src,
-  alt,
-  isPriority = false,
-}: {
-  src: string;
-  alt: string;
-  isPriority?: boolean;
-}) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  // Reset states when src changes
-  useEffect(() => {
-    setIsLoading(true);
-    setHasError(false);
-  }, [src]);
-
-  if (hasError) {
-    return (
-      <div className="bg-muted flex h-full w-full items-center justify-center rounded-lg">
-        <div className="text-muted-foreground text-center">
-          <div className="text-sm">Failed to load image</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {isLoading && <Skeleton className="h-full w-full" />}
-
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={isPriority}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className={cn(
-          "rounded-lg object-cover transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
-        )}
-        onLoad={() => {
-          setIsLoading(false);
-        }}
-        onError={() => {
-          setIsLoading(false);
-          setHasError(true);
-        }}
-      />
-    </>
   );
 }
 

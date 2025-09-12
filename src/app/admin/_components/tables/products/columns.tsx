@@ -1,13 +1,15 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ChevronRightIcon } from "lucide-react";
-import Image from "next/image";
+import { CheckCircleIcon, ChevronRightIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
 import type { RouterOutputs } from "~/trpc/react";
 import { iconsMap } from "~/lib/icons-map";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { ProductsTableActions } from "./actions";
+import { Badge } from "~/components/ui/badge";
 
 export const productColumns: ColumnDef<
   RouterOutputs["admin"]["products"]["getPage"]["data"][number]
@@ -34,15 +36,13 @@ export const productColumns: ColumnDef<
       const CategoryIcon = iconsMap.get(row.original.category.icon);
       return (
         <div className="flex items-center gap-3">
-          <div className="size-8 overflow-hidden rounded-sm border">
-            <Image
-              src={row.original.brand.logo.url ?? ""}
-              alt={row.original.brand.name ?? "Brand Logo"}
-              width={40}
-              height={40}
-              className="size-full object-cover"
-            />
-          </div>
+          <ImageWithFallback
+            src={row.original.thumbnail?.url}
+            alt={row.original.name ?? "Product Thumbnail"}
+            width={40}
+            height={40}
+          />
+
           <div className="text-muted-foreground text-sm">
             <p className="font-medium">{row.original.name}</p>
             <div className="flex items-center gap-1">
@@ -62,6 +62,54 @@ export const productColumns: ColumnDef<
             </div>
           </div>
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "brand",
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-2">
+          <ImageWithFallback
+            src={row.original.brand.logo?.url}
+            alt={row.original.brand.name ?? "Brand Logo"}
+            width={24}
+            height={24}
+            className="size-5 rounded-sm"
+          />
+          <span className="text-sm">{row.original.brand.name}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "published",
+    cell: ({ row }) => {
+      if (row.original.published) {
+        return (
+          <Badge variant="success">
+            <CheckCircleIcon />
+            WE R LIVE BABY{" "}
+          </Badge>
+        );
+      }
+
+      return (
+        <Badge variant="error">
+          <XCircleIcon />
+          Get your shit together
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "actions",
+    cell: ({ row }) => {
+      return (
+        <ProductsTableActions
+          id={row.original.id}
+          published={row.original.published}
+        />
       );
     },
   },

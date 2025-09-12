@@ -1,6 +1,6 @@
 "use client";
 
-import { TrashIcon } from "lucide-react";
+import { CheckCircleIcon, TrashIcon, XCircleIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,31 +15,33 @@ import {
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
-export function DeleteProductDialog({
+export function PublishProductDialog({
   id,
   showText = true,
-  variant = "destructive",
+  published,
+  variant = "ghost",
   size = "default",
   className,
-  onDeleteSuccess,
+  onPublishSuccess,
 }: {
   id: number;
+  published: boolean;
   showText?: boolean;
-  variant?: "destructive" | "destructiveGhost";
+  variant?: "destructive" | "destructiveGhost" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
-  onDeleteSuccess?: () => void;
+  onPublishSuccess?: () => void;
 }) {
   const utils = api.useUtils();
-  const { mutate: deleteProduct, isPending } =
-    api.admin.products.delete.useMutation();
+  const { mutate: updateProduct, isPending } =
+    api.admin.products.update.useMutation();
 
-  function handleDelete() {
-    deleteProduct(
-      { id },
+  function handlePublish() {
+    updateProduct(
+      { id, data: { published: !published } },
       {
         onSuccess: () => {
-          onDeleteSuccess?.();
+          onPublishSuccess?.();
           void utils.admin.products.getPage.invalidate();
         },
       },
@@ -50,21 +52,22 @@ export function DeleteProductDialog({
     <AlertDialog>
       <AlertDialogTrigger asChild disabled={isPending}>
         <Button variant={variant} size={size} className={className}>
-          <TrashIcon />
-          {showText && "Delete product"}
+          {!published ? <CheckCircleIcon /> : <XCircleIcon />}
+          {showText && (published ? "Unpublish product" : "Publish product")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            product and remove its data from our servers.
+            {published
+              ? "Are you sure you want to unpublish this product? (It will be removed from the website)"
+              : "Are you sure you want to publish this product? (It will be added to the website)"}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
+          <AlertDialogAction disabled={isPending} onClick={handlePublish}>
             Continue
           </AlertDialogAction>
         </AlertDialogFooter>
