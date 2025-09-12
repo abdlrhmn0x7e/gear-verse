@@ -9,6 +9,7 @@ import {
 const productSearchParams = {
   name: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
+  categories: parseAsArrayOf(parseAsInteger),
   productId: parseAsInteger,
 };
 

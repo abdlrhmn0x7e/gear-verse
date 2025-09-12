@@ -52,7 +52,7 @@ export function AddBrandDialog() {
   return (
     <DrawerDialog open={open} onOpenChange={setOpen}>
       <DrawerDialogTrigger asChild>
-        <Button variant="ghost" className="rounded-t-none">
+        <Button variant="ghost" className="w-full rounded-t-none">
           <PlusCircleIcon />
           Add Brand
         </Button>

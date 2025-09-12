@@ -1,4 +1,4 @@
-import { eq, gt, ilike, and, inArray, notInArray } from "drizzle-orm";
+import { eq, gt, ilike, and, inArray, notInArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { media, products, productVariants } from "../../db/schema";
 
@@ -29,6 +29,7 @@ export const _productsRepository = {
       filters?: {
         name?: string | null;
         brands?: number[] | null;
+        categories?: number[] | null;
       };
     }) => {
       const whereClause = [gt(products.id, cursor ?? 0)];
@@ -37,6 +38,11 @@ export const _productsRepository = {
       }
       if (filters?.brands) {
         whereClause.push(inArray(products.brandId, filters.brands));
+      }
+      if (filters?.categories) {
+        const childrenCategoriesIdsQuery = sql`
+
+        `;
       }
 
       return db.query.products.findMany({

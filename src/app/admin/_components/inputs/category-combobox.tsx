@@ -40,6 +40,7 @@ import { Spinner } from "~/components/spinner";
 import { Separator } from "~/components/ui/separator";
 import { AddCategoryDialog } from "../dialogs/add-category-dialog";
 import { iconsMap } from "~/lib/icons-map";
+import { useFlatCategories } from "~/hooks/use-flat-categories";
 
 export function CategoryCombobox({
   value,
@@ -52,38 +53,7 @@ export function CategoryCombobox({
   const { data: categories, isPending: categoriesPending } =
     api.admin.categories.findAll.useQuery();
 
-  const flatCategories = React.useCallback(
-    (
-      categories: CategoryTree[],
-      parentPath: { icon: CategoryIconEnum; name: string }[] = [],
-      flat: Array<
-        Category & { path: { icon: CategoryIconEnum; name: string }[] }
-      > = [],
-    ) => {
-      for (const category of categories) {
-        const { children, ...item } = category;
-        const currentItem = {
-          icon: item.icon,
-          name: item.name,
-        };
-        flat.push({
-          ...item,
-          path: [...parentPath, currentItem],
-        });
-
-        if (children) {
-          flatCategories(children, [...parentPath, currentItem], flat);
-        }
-      }
-
-      return flat;
-    },
-    [],
-  );
-  const flattenedCategories = React.useMemo(
-    () => flatCategories(categories ?? []),
-    [categories, flatCategories],
-  );
+  const flattenedCategories = useFlatCategories(categories ?? []);
 
   if (categoriesPending) {
     return (
@@ -175,29 +145,50 @@ export function CategoryCombobox({
       </PopoverTrigger>
 
       <PopoverContent className="p-0">
-        <Command className="mb-4">
-          <CommandInput placeholder="Search category..." className="h-9" />
-          <CommandList>
-            <CommandEmpty>No category found.</CommandEmpty>
-            <CommandGroup>
-              {categories.map((category) => (
-                <CategoryComboboxItem
-                  key={category.id}
-                  category={category}
-                  setValue={setValue}
-                  setParentComboboxOpen={setOpen}
-                  selectedValue={value ?? null}
-                />
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        <CategoriesCommand
+          categories={categories}
+          setValue={(value) => setValue(value ?? null)}
+          setOpen={setOpen}
+          value={value ?? null}
+        />
 
         <Separator />
 
         <AddCategoryDialog />
       </PopoverContent>
     </Popover>
+  );
+}
+
+export function CategoriesCommand({
+  categories,
+  setValue,
+  setOpen,
+  value,
+}: {
+  categories: CategoryTree[];
+  setValue: (value: number) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  value: number | null;
+}) {
+  return (
+    <Command className="mb-4">
+      <CommandInput placeholder="Search category..." className="h-9" />
+      <CommandList>
+        <CommandEmpty>No category found.</CommandEmpty>
+        <CommandGroup>
+          {categories.map((category) => (
+            <CategoryComboboxItem
+              key={category.id}
+              category={category}
+              setValue={setValue}
+              setParentComboboxOpen={setOpen}
+              selectedValue={value ?? null}
+            />
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
   );
 }
 
@@ -209,7 +200,7 @@ const CategoryComboboxItem = ({
   ...props
 }: {
   category: CategoryTree;
-  setValue: React.Dispatch<React.SetStateAction<number | null>>;
+  setValue: (value: number) => void;
   selectedValue: number | null;
   setParentComboboxOpen: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof CommandItem>) => {
@@ -217,7 +208,7 @@ const CategoryComboboxItem = ({
   const Icon = iconsMap.get(category.icon);
 
   function onItemSelect(categoryId: number) {
-    setValue(categoryId === selectedValue ? null : categoryId);
+    setValue(categoryId);
     setParentComboboxOpen(false);
   }
 

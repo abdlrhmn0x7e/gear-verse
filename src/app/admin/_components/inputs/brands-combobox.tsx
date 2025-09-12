@@ -164,6 +164,10 @@ export function BrandsCombobox({
           value={value}
           ref={ref}
         />
+
+        <Separator />
+
+        <AddBrandDialog />
       </PopoverContent>
     </Popover>
   );
@@ -231,10 +235,6 @@ export function BrandsCommand({
           </div>
         )}
       </CommandList>
-
-      <Separator />
-
-      <AddBrandDialog />
     </Command>
   );
 }

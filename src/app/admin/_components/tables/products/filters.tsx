@@ -1,6 +1,12 @@
 "use client";
 
-import { ListFilterIcon, TagIcon, TargetIcon, XIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  ListFilterIcon,
+  TagIcon,
+  TargetIcon,
+  XIcon,
+} from "lucide-react";
 import { SearchInput } from "../../inputs/search-input";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 import {
@@ -24,10 +30,16 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
 import { debounce } from "nuqs";
+import { CategoriesCommand } from "../../inputs/category-combobox";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { iconsMap } from "~/lib/icons-map";
+import { useFlatCategories } from "~/hooks/use-flat-categories";
 
 export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useProductSearchParams();
+  const { data: categories, isPending: categoriesPending } =
+    api.admin.categories.findAll.useQuery();
   const [brands, { fetchNextPage, hasNextPage, isPending: brandsPending }] =
     api.admin.brands.getPage.useSuspenseInfiniteQuery(
       {
@@ -88,16 +100,42 @@ export function ProductsFilter() {
     );
   }
 
-  function handleBrandsRemove(brandId: number) {
+  function handleCategoriesChange(value: number) {
+    void setFilters(
+      (prev) => {
+        if (prev.categories?.includes(value)) {
+          const filteredCategories = prev.categories.filter(
+            (category) => category !== value,
+          );
+          return {
+            ...prev,
+            categories:
+              filteredCategories.length > 0 ? filteredCategories : null,
+          };
+        }
+
+        return { ...prev, categories: [...(prev.categories ?? []), value] };
+      },
+      { limitUrlUpdates: debounce(500) },
+    );
+  }
+
+  function handleFilterRemove({
+    key,
+    value,
+  }: {
+    key: FilterKey;
+    value: number;
+  }) {
     void setFilters((prev) => {
-      const filteredBrands = prev.brands?.filter((brand) => brand !== brandId);
-      if (filteredBrands?.length === 0) {
-        return { ...prev, brands: null };
+      const prevValue = prev[key]?.filter((brand) => brand !== value);
+      if (prevValue?.length === 0) {
+        return { ...prev, [key]: null };
       }
 
       return {
         ...prev,
-        brands: filteredBrands,
+        [key]: prevValue,
       };
     });
   }
@@ -128,7 +166,7 @@ export function ProductsFilter() {
             <DropdownMenuGroup>
               <DropdownMenuLabel>Filter by</DropdownMenuLabel>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger disabled={brandsPending}>
                   <TargetIcon className="mr-2 size-4" />
                   Brands
                 </DropdownMenuSubTrigger>
@@ -151,7 +189,7 @@ export function ProductsFilter() {
               </DropdownMenuSub>
 
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger disabled={categoriesPending}>
                   <TagIcon className="mr-2 size-4" />
                   Categories
                 </DropdownMenuSubTrigger>
@@ -160,7 +198,14 @@ export function ProductsFilter() {
                     sideOffset={8}
                     alignOffset={-36}
                     className="p-0"
-                  ></DropdownMenuSubContent>
+                  >
+                    <CategoriesCommand
+                      categories={categories ?? []}
+                      setValue={handleCategoriesChange}
+                      setOpen={setIsOpen}
+                      value={0}
+                    />
+                  </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             </DropdownMenuGroup>
@@ -169,10 +214,21 @@ export function ProductsFilter() {
         </DropdownMenu>
       </SearchInput>
 
-      <BrandsFilterList
+      <FilterList
         brands={filteredBrands}
+        categories={categories ?? []}
+        filters={[
+          {
+            key: "brands",
+            value: filters.brands ?? [],
+          },
+          {
+            key: "categories",
+            value: filters.categories ?? [],
+          },
+        ]}
         loading={brandsPending}
-        onRemove={handleBrandsRemove}
+        onRemove={handleFilterRemove}
       />
     </div>
   );
@@ -195,15 +251,78 @@ const listVariant = {
   },
 };
 
-function BrandsFilterList({
+type FilterKey = "brands" | "categories";
+type FilterValue = Record<FilterKey, number[]>;
+type FilterValueProp = {
+  key: FilterKey;
+  value: FilterValue[FilterKey];
+};
+
+interface FilterListProps {
+  filters: FilterValueProp[];
+  loading: boolean;
+  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
+  categories: RouterOutputs["admin"]["categories"]["findAll"];
+  onRemove: ({ key, value }: { key: FilterKey; value: number }) => void;
+}
+
+function FilterList({
   brands,
+  categories,
+  filters,
   loading = false,
   onRemove,
-}: {
-  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
-  loading: boolean;
-  onRemove: (brandId: number) => void;
-}) {
+}: FilterListProps) {
+  const flattenedCategories = useFlatCategories(categories ?? []);
+
+  function renderFilter({ key, value }: { key: FilterKey; value: number }) {
+    switch (key) {
+      case "brands":
+        const brand = brands.find((brand) => brand.id === value);
+        return (
+          <div className="flex items-center gap-2">
+            <div className="size-6 overflow-hidden rounded-sm border">
+              <ImageWithFallback
+                src={brand?.logoUrl}
+                alt={brand?.name ?? `Brand name ${value}`}
+                width={20}
+                height={20}
+                className="size-full object-cover"
+              />
+            </div>
+
+            <p>{brand?.name ?? `Brand name ${value}`}</p>
+          </div>
+        );
+
+      case "categories":
+        const category = flattenedCategories.find(
+          (category) => category.id === value,
+        );
+
+        return (
+          <div className="flex items-center justify-start">
+            {category?.path.map((p, idx) => {
+              const Icon = iconsMap.get(p.icon);
+
+              return (
+                <div
+                  key={`${p.name}-${idx}`}
+                  className="flex items-center justify-start"
+                >
+                  {Icon && <Icon className="mr-1 size-4" />}
+                  <span>{p.name}</span>
+                  {idx != category?.path.length - 1 && (
+                    <ChevronRightIcon className="opacity-50" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+    }
+  }
+
   return (
     <motion.ul
       variants={listVariant}
@@ -221,31 +340,21 @@ function BrandsFilterList({
           </motion.li>
         </div>
       ) : (
-        brands.map((brand) => (
-          <motion.li key={`brands-${brand.id}`} variants={itemVariant}>
-            <Button
-              variant="outline"
-              className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
-              onClick={() => onRemove(brand.id)}
-            >
-              <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
+        filters.map(({ key, value }) =>
+          value.map((value) => (
+            <motion.li key={`${key}-${value}`} variants={itemVariant}>
+              <Button
+                variant="outline"
+                className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
+                onClick={() => onRemove({ key, value })}
+              >
+                <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
 
-              <div className="flex items-center gap-2">
-                <div className="size-6 overflow-hidden rounded-sm border">
-                  <Image
-                    src={brand.logoUrl ?? ""}
-                    alt={brand.name}
-                    width={20}
-                    height={20}
-                    className="size-full object-cover"
-                  />
-                </div>
-
-                <p>{brand.name}</p>
-              </div>
-            </Button>
-          </motion.li>
-        ))
+                {renderFilter({ key, value })}
+              </Button>
+            </motion.li>
+          )),
+        )
       )}
     </motion.ul>
   );
