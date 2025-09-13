@@ -7,10 +7,20 @@ import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { inter } from "~/fonts";
+import { env } from "~/env";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: "Gear Verse",
-  description: "Gear Verse",
+  description:
+    "Hard-to-find gaming peripherals and accessories from international brands — hand-imported, customs cleared, and delivered to your door.",
+  openGraph: {
+    images: [
+      {
+        url: "/images/gear-light.png",
+      },
+    ],
+  },
   icons: {
     icon: [
       {
