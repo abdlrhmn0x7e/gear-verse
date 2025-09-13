@@ -10,9 +10,9 @@ import {
   type UseUploadFileMutationProps,
 } from "./use-upload-file-mutation";
 import {
-  useUploadFilesMutation,
-  type UseUploadFilesMutationProps,
-} from "./use-upload-files-mutations";
+  useCreateProductVariantMutation,
+  type UseCreateProductVariantMutationProps,
+} from "./use-create-product-variant-mutation";
 
 async function createFullProduct(
   data: ProductFormValues,
@@ -26,9 +26,8 @@ async function createFullProduct(
     params: RouterInputs["admin"]["products"]["create"],
   ) => Promise<RouterOutputs["admin"]["products"]["create"]>,
   createProductVariant: (
-    params: RouterInputs["admin"]["productVariants"]["create"],
+    params: UseCreateProductVariantMutationProps,
   ) => Promise<RouterOutputs["admin"]["productVariants"]["create"]>,
-  uploadImages: (params: UseUploadFilesMutationProps) => Promise<void>,
 ) {
   const { variants, thumbnail, ...productData } = data;
   if (!thumbnail?.[0]) {
@@ -73,33 +72,11 @@ async function createFullProduct(
   setSubmitOutput("Creating product variants...");
   const { error: variantsError } = await tryCatch(
     Promise.all(
-      variants.map(async (variant) => {
-        const { thumbnail, images, ...variantData } = variant;
-        if (
-          !thumbnail ||
-          !images ||
-          thumbnail.length === 0 ||
-          images.length === 0
-        ) {
-          throw new Error("Variant Thumbnail and Images are required");
-        }
-
-        const thumbnailMedia = await uploadThumbnail({ file: thumbnail[0]! });
-
-        const createdVariant = await createProductVariant({
-          ...variantData,
-          thumbnailMediaId: thumbnailMedia.mediaId,
+      variants.map((variant) => {
+        return createProductVariant({
+          variant,
           productId: product.id,
-          options: variantData.options.map((option) => option.value),
         });
-
-        await uploadImages({
-          files: images,
-          ownerId: createdVariant.id,
-          ownerType: "PRODUCT_VARIANT",
-        });
-
-        return createdVariant;
       }),
     ),
   );
@@ -120,9 +97,8 @@ export function useCreateProductMutation() {
   const { mutateAsync: createProduct } =
     api.admin.products.create.useMutation();
   const { mutateAsync: createProductVariant } =
-    api.admin.productVariants.create.useMutation();
+    useCreateProductVariantMutation();
   const { mutateAsync: uploadThumbnail } = useUploadFileMutation();
-  const { mutateAsync: uploadImages } = useUploadFilesMutation();
 
   return {
     output,
@@ -134,7 +110,6 @@ export function useCreateProductMutation() {
           uploadThumbnail,
           createProduct,
           createProductVariant,
-          uploadImages,
         ),
       onSuccess: (product) => {
         if (!product) {

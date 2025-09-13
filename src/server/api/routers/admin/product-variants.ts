@@ -38,7 +38,17 @@ export const productVariantsRouter = createTRPCRouter({
       ),
     )
     .mutation(async ({ input }) => {
-      return DB.admin.productVariants.mutations.bulkCreate(input);
+      const createdVariants =
+        await DB.admin.productVariants.mutations.bulkCreate(input);
+
+      if (!createdVariants) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create product variants",
+        });
+      }
+
+      return createdVariants;
     }),
 
   bulkUpdate: adminProcedure

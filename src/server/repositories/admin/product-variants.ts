@@ -25,13 +25,18 @@ export const _adminProductVariantsRepository = {
          * Take ownership of the thumbnail
          */
         if (productVariant.thumbnailMediaId) {
-          await tx
+          const [updatedMedia] = await tx
             .update(media)
             .set({
               ownerType: "PRODUCT_VARIANT",
               ownerId: productVariant.id,
             })
-            .where(eq(media.id, productVariant.thumbnailMediaId));
+            .where(eq(media.id, productVariant.thumbnailMediaId))
+            .returning({ id: media.id });
+
+          if (!updatedMedia) {
+            throw new Error("Failed to update media");
+          }
         }
 
         return productVariant;
@@ -57,10 +62,15 @@ export const _adminProductVariantsRepository = {
             continue;
           }
 
-          await tx
+          const [updatedMedia] = await tx
             .update(media)
             .set({ ownerId: v.id, ownerType: "PRODUCT_VARIANT" })
-            .where(eq(media.id, v.thumbnailMediaId));
+            .where(eq(media.id, v.thumbnailMediaId))
+            .returning({ id: media.id });
+
+          if (!updatedMedia) {
+            throw new Error("Failed to update media");
+          }
         }
 
         return productVariants;

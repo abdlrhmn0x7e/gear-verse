@@ -22,8 +22,8 @@ export const productSchema = z.object({
     .number("Thumbnail media ID is required")
     .min(1, "Thumbnail media ID is required"),
 
-  createdAt: z.coerce.date("Created at must be a date"),
-  updatedAt: z.coerce.date("Updated at must be a date"),
+  createdAt: z.coerce.date<Date>("Created at must be a date"),
+  updatedAt: z.coerce.date<Date>("Updated at must be a date"),
 });
 
 export type Product = z.infer<typeof productSchema>;

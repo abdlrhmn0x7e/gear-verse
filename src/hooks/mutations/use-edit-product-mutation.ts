@@ -5,14 +5,14 @@ import {
   useUploadFileMutation,
   type UseUploadFileMutationProps,
 } from "./use-upload-file-mutation";
-import {
-  useUploadFilesMutation,
-  type UseUploadFilesMutationProps,
-} from "./use-upload-files-mutations";
 import { useMutation } from "@tanstack/react-query";
 import type { ProductFormValues } from "~/app/admin/_components/forms/product-form";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { toast } from "sonner";
+import {
+  useCreateProductVariantMutation,
+  type UseCreateProductVariantMutationProps,
+} from "./use-create-product-variant-mutation";
 
 async function editProduct(
   data: ProductFormValues,
@@ -27,12 +27,11 @@ async function editProduct(
     params: RouterInputs["admin"]["products"]["update"],
   ) => Promise<RouterOutputs["admin"]["products"]["update"]>,
   createProductVariant: (
-    params: RouterInputs["admin"]["productVariants"]["create"],
+    params: UseCreateProductVariantMutationProps,
   ) => Promise<RouterOutputs["admin"]["productVariants"]["create"]>,
   updateProductVariants: (
     params: RouterInputs["admin"]["productVariants"]["bulkUpdate"],
   ) => Promise<RouterOutputs["admin"]["productVariants"]["bulkUpdate"]>,
-  uploadImages: (params: UseUploadFilesMutationProps) => Promise<void>,
 ) {
   const { variants, thumbnail, ...productData } = data;
   let thumbnailMediaId: number | undefined;
@@ -53,12 +52,12 @@ async function editProduct(
   const updatedVariants = product.variants
     .filter((variant) => variants.some((v) => v.id === variant.id))
     .map((variant) => ({
-      id: variant.id,
-      name: variant.name,
-      price: variant.price,
-      stock: variant.stock,
-      options: variant.options,
+      ...variant,
       productId: product.id,
+
+      // we don't want the images and thumbnail
+      images: undefined,
+      thumbnail: undefined,
     }));
 
   // Create new variants
@@ -66,38 +65,11 @@ async function editProduct(
     setSubmitOutput("Creating the new product variants...");
     const { error: newVariantsError } = await tryCatch(
       Promise.all(
-        newVariants.map(async (variant) => {
-          const { thumbnail, images, ...variantData } = variant;
-          if (
-            !thumbnail ||
-            !images ||
-            thumbnail.length === 0 ||
-            images.length === 0
-          ) {
-            toast.error("Variant Thumbnail and Images are required");
-            return Promise.reject(
-              new Error("Variant Thumbnail and Images are required"),
-            );
-          }
-
-          const thumbnailMedia = await uploadThumbnail({
-            file: thumbnail[0]!,
-          });
-
-          const createdVariant = await createProductVariant({
-            ...variantData,
-            thumbnailMediaId: thumbnailMedia.mediaId,
+        newVariants.map((variant) => {
+          return createProductVariant({
+            variant,
             productId: product.id,
-            options: variantData.options.map((option) => option.value),
           });
-
-          await uploadImages({
-            files: images,
-            ownerId: createdVariant.id,
-            ownerType: "PRODUCT_VARIANT",
-          });
-
-          return createdVariant;
         }),
       ),
     );
@@ -158,9 +130,8 @@ export function useEditProductMutation(
   const [output, setOutput] = useState<string | null>(null);
 
   const { mutateAsync: createProductVariant } =
-    api.admin.productVariants.create.useMutation();
+    useCreateProductVariantMutation();
   const { mutateAsync: uploadThumbnail } = useUploadFileMutation();
-  const { mutateAsync: uploadImages } = useUploadFilesMutation();
   const { mutateAsync: updateProductVariants } =
     api.admin.productVariants.bulkUpdate.useMutation();
   const { mutateAsync: updateProduct } =
@@ -178,7 +149,6 @@ export function useEditProductMutation(
           updateProduct,
           createProductVariant,
           updateProductVariants,
-          uploadImages,
         ),
       onSuccess: () => {
         setOutput("Product has been updated successfully");

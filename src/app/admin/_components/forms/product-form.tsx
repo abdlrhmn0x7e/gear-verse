@@ -13,7 +13,6 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { imageSchema } from "~/lib/schemas/image";
-import { productSchema } from "~/lib/schemas/product";
 import { Editor } from "../editor";
 import { CategoryCombobox } from "../inputs/category-combobox";
 import { FileDropzone } from "../inputs/file-dropzone";
@@ -38,9 +37,10 @@ import {
 import { Collapsable } from "~/components/collapsable";
 import type { MediaAsset } from "~/lib/schemas/media";
 import { Textarea } from "~/components/ui/textarea";
-import { productVariantSchema } from "~/lib/schemas/product-variants";
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
+import { productSchema } from "~/lib/schemas/product";
+import { productVariantSchema } from "~/lib/schemas/product-variants";
 
 const productFormSchema = productSchema
   .omit({
@@ -97,7 +97,7 @@ const productFormSchema = productSchema
     }),
   );
 export type ProductFormValues = z.infer<typeof productFormSchema>;
-type ProductFormInput = z.input<typeof productFormSchema>;
+export type ProductFormInput = z.input<typeof productFormSchema>;
 
 export function ProductForm({
   onSubmit,
@@ -106,7 +106,7 @@ export function ProductForm({
   oldVariantsAssets,
 }: {
   onSubmit: (data: ProductFormValues) => void;
-  defaultValues?: Partial<ProductFormInput>;
+  defaultValues?: Partial<ProductFormValues>;
   oldThumbnailAsset?: MediaAsset;
   oldVariantsAssets?: Partial<{
     thumbnail: MediaAsset;
@@ -584,6 +584,42 @@ function ProductVariantField({
       className="space-y-4"
     >
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+        <FormField
+          control={control}
+          name={`variants.${variantIndex}.price`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Price</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="0.00$ for the bois?"
+                  type="number"
+                  min={0}
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name={`variants.${variantIndex}.stock`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Stock</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="How many in stock?"
+                  type="number"
+                  min={0}
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={control}
           name={`variants.${variantIndex}.thumbnail`}
