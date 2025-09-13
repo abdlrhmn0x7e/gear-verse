@@ -71,7 +71,7 @@ async function uploadFiles(
         }
 
         // Upload the file to S3 using the presigned URL
-        const { error: fileUploadResponseError } = await tryCatch(
+        const { data: res, error: fileUploadResponseError } = await tryCatch(
           fetch(fileUploadData.url, {
             method: "PUT",
             body: file,
@@ -80,8 +80,8 @@ async function uploadFiles(
             },
           }),
         );
-        if (fileUploadResponseError) {
-          return Promise.reject(fileUploadResponseError);
+        if (fileUploadResponseError || !res.ok) {
+          return Promise.reject(new Error("Failed to upload file"));
         }
 
         return Promise.resolve();

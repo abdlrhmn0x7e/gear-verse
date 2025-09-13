@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { media, productVariants } from "../../db/schema";
 
@@ -53,7 +53,7 @@ export const _adminProductVariantsRepository = {
             thumbnailMediaId: productVariants.thumbnailMediaId,
           });
 
-        if (!productVariants) {
+        if (!newProductVariants) {
           throw new Error("Failed to create product variants");
         }
 
@@ -73,22 +73,48 @@ export const _adminProductVariantsRepository = {
           }
         }
 
-        return productVariants;
+        return newProductVariants;
       });
     },
 
-    update: async (id: number, input: UpdateProductVariant) => {
-      const productVariant = await db
-        .update(productVariants)
-        .set(input)
-        .where(eq(productVariants.id, id))
-        .returning({ id: productVariants.id });
+    update: async (
+      id: number,
+      oldThumbnailMediaId: number | null,
+      input: UpdateProductVariant,
+    ) => {
+      return db.transaction(async (tx) => {
+        const [productVariant] = await tx
+          .update(productVariants)
+          .set(input)
+          .where(eq(productVariants.id, id))
+          .returning({
+            id: productVariants.id,
+            thumbnailMediaId: productVariants.thumbnailMediaId,
+          });
 
-      if (!productVariant) {
-        return;
-      }
+        if (!productVariant) {
+          return;
+        }
 
-      return productVariant;
+        const newThumbnailMediaId = productVariant.thumbnailMediaId;
+        if (
+          oldThumbnailMediaId &&
+          oldThumbnailMediaId !== productVariant.thumbnailMediaId
+        ) {
+          // Delete the old thumbnail
+          await tx.delete(media).where(eq(media.id, oldThumbnailMediaId));
+        }
+
+        if (newThumbnailMediaId) {
+          // Take ownership of the new thumbnail
+          await tx
+            .update(media)
+            .set({ ownerId: productVariant.id, ownerType: "PRODUCT_VARIANT" })
+            .where(eq(media.id, newThumbnailMediaId));
+        }
+
+        return productVariant;
+      });
     },
 
     bulkUpdate: async (variants: (UpdateProductVariant & { id: number })[]) => {
@@ -129,18 +155,20 @@ export const _adminProductVariantsRepository = {
           .map((v) => v.id)
           .filter((id) => !incomingIds.has(id));
 
-        // Delete old variants
-        await tx
-          .delete(productVariants)
-          .where(inArray(productVariants.id, toDelete));
-        await tx
-          .delete(media)
-          .where(
-            and(
-              inArray(media.ownerId, toDelete),
-              eq(media.ownerType, "PRODUCT_VARIANT"),
-            ),
-          ); // delete all media associated with the variants
+        // Delete old variants and their media if any
+        if (toDelete.length > 0) {
+          await tx
+            .delete(productVariants)
+            .where(inArray(productVariants.id, toDelete));
+          await tx
+            .delete(media)
+            .where(
+              and(
+                inArray(media.ownerId, toDelete),
+                eq(media.ownerType, "PRODUCT_VARIANT"),
+              ),
+            );
+        }
 
         // Update existing variants
         for (const v of toUpdate) {
@@ -154,16 +182,20 @@ export const _adminProductVariantsRepository = {
     },
 
     delete: async (id: number) => {
-      const productVariant = await db
-        .delete(productVariants)
-        .where(eq(productVariants.id, id))
-        .returning({ id: productVariants.id });
+      return db.transaction(async (tx) => {
+        await tx
+          .delete(media)
+          .where(
+            and(eq(media.ownerType, "PRODUCT_VARIANT"), eq(media.ownerId, id)),
+          );
 
-      if (!productVariant) {
-        return;
-      }
+        const [deleted] = await tx
+          .delete(productVariants)
+          .where(eq(productVariants.id, id))
+          .returning({ id: productVariants.id });
 
-      return productVariant;
+        return deleted;
+      });
     },
   },
 };

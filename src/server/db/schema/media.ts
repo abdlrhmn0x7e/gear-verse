@@ -43,16 +43,23 @@ export const media = pgTable(
 );
 
 export const mediaRelations = relations(media, ({ one }) => ({
-  brands: one(brands),
-  productsThumbnail: one(products),
-  productVariantsThumbnail: one(productVariants, {
-    fields: [media.id],
-    references: [productVariants.thumbnailMediaId],
-    relationName: "product_variants_thumbnail",
+  brand: one(brands),
+
+  productThumbnail: one(products, {
+    fields: [media.ownerId],
+    references: [products.id],
+    relationName: "products_thumbnail",
   }),
-  productVariantsImages: one(productVariants, {
+
+  productVariantThumbnail: one(productVariants, {
     fields: [media.ownerId],
     references: [productVariants.id],
-    relationName: "product_variants_images",
+    relationName: "product_variant_thumbnail",
+  }),
+
+  productVariantImages: one(productVariants, {
+    fields: [media.ownerId],
+    references: [productVariants.id],
+    relationName: "product_variant_images",
   }),
 }));

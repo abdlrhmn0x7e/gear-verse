@@ -105,10 +105,12 @@ export const mediaRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
+      console.log("deleting media input", input);
       const media = await DB.admin.media.mutations.delete(
         input.id,
         input.ownerType,
       );
+      console.log("deleted media", media);
       if (!media) {
         throw new TRPCError({
           code: "NOT_FOUND",

@@ -1,14 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import {
-  CheckCircleIcon,
-  ChevronRightIcon,
-  CircleIcon,
-  PowerOffIcon,
-  RadioTowerIcon,
-  XCircleIcon,
-} from "lucide-react";
+import { ChevronRightIcon, PowerOffIcon, RadioTowerIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 

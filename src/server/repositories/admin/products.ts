@@ -1,4 +1,13 @@
-import { eq, gt, ilike, and, inArray, notInArray, sql } from "drizzle-orm";
+import {
+  eq,
+  gt,
+  ilike,
+  and,
+  inArray,
+  notInArray,
+  sql,
+  isNotNull,
+} from "drizzle-orm";
 import { db } from "../../db";
 import { media, products, productVariants } from "../../db/schema";
 
@@ -136,7 +145,6 @@ export const _adminProductsRepository = {
           categoryId: true,
           brandId: true,
           specifications: true,
-          thumbnailMediaId: true,
 
           createdAt: true,
         },
@@ -165,12 +173,14 @@ export const _adminProductsRepository = {
           },
 
           variants: {
+            orderBy: productVariants.createdAt,
             columns: {
               id: true,
               name: true,
               stock: true,
               price: true,
               options: true,
+              thumbnailMediaId: true,
             },
             with: {
               thumbnail: {
@@ -186,12 +196,9 @@ export const _adminProductsRepository = {
                   notInArray(
                     media.id,
                     db
-                      .select({ id: media.id })
+                      .select({ id: productVariants.thumbnailMediaId })
                       .from(productVariants)
-                      .leftJoin(
-                        media,
-                        eq(media.id, productVariants.thumbnailMediaId),
-                      ),
+                      .where(isNotNull(productVariants.thumbnailMediaId)),
                   ),
                 ),
                 columns: {
@@ -247,12 +254,30 @@ export const _adminProductsRepository = {
 
     delete: async (id: number) => {
       return db.transaction(async (tx) => {
-        // delete all product variants
-        await tx
-          .delete(productVariants)
-          .where(eq(productVariants.productId, id));
+        const variantIds = await tx
+          .select({ id: productVariants.id })
+          .from(productVariants)
+          .where(eq(productVariants.productId, id))
+          .then((result) => result.map((row) => row.id));
 
-        // delete all media
+        if (variantIds.length > 0) {
+          // delete all product variants
+          await tx
+            .delete(productVariants)
+            .where(eq(productVariants.productId, id));
+
+          // delete all media associated with the variants
+          await tx
+            .delete(media)
+            .where(
+              and(
+                inArray(media.ownerId, variantIds),
+                eq(media.ownerType, "PRODUCT_VARIANT"),
+              ),
+            );
+        }
+
+        // delete product thumbnail
         await tx
           .delete(media)
           .where(and(eq(media.ownerId, id), eq(media.ownerType, "PRODUCT")));

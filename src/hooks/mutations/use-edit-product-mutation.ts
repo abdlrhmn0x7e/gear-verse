@@ -13,6 +13,10 @@ import {
   useCreateProductVariantMutation,
   type UseCreateProductVariantMutationProps,
 } from "./use-create-product-variant-mutation";
+import {
+  type MutationVariant,
+  useUpdateProductVariantMutation,
+} from "./use-update-product-variant-mutation";
 
 async function editProduct(
   data: ProductFormValues,
@@ -30,15 +34,19 @@ async function editProduct(
     params: UseCreateProductVariantMutationProps,
   ) => Promise<RouterOutputs["admin"]["productVariants"]["create"]>,
   updateProductVariants: (
-    params: RouterInputs["admin"]["productVariants"]["bulkUpdate"],
-  ) => Promise<RouterOutputs["admin"]["productVariants"]["bulkUpdate"]>,
+    params: MutationVariant,
+  ) => Promise<RouterOutputs["admin"]["productVariants"]["update"]>,
 ) {
   const { variants, thumbnail, ...productData } = data;
   let thumbnailMediaId: number | undefined;
   // this is a client side file that was added by the user
   if (thumbnail?.[0]) {
     const { data: thumbnailMedia, error: thumbnailMediaError } = await tryCatch(
-      uploadThumbnail({ file: thumbnail[0] }),
+      uploadThumbnail({
+        file: thumbnail[0],
+        ownerId: product.id,
+        ownerType: "PRODUCT",
+      }),
     );
     if (thumbnailMediaError || !thumbnailMedia) {
       setSubmitOutput(null);
@@ -49,15 +57,13 @@ async function editProduct(
   }
 
   const newVariants = variants.filter((variant) => !variant.id);
-  const updatedVariants = product.variants
-    .filter((variant) => variants.some((v) => v.id === variant.id))
+  const updatedVariants = variants
+    .filter((variant) => variant.id)
     .map((variant) => ({
       ...variant,
-      productId: product.id,
-
-      // we don't want the images and thumbnail
-      images: undefined,
-      thumbnail: undefined,
+      options: variant.options.map((option) => option.value),
+      oldThumbnailMediaId: product.variants.find((v) => v.id === variant.id)
+        ?.thumbnail?.id,
     }));
 
   // Create new variants
@@ -84,8 +90,17 @@ async function editProduct(
   // Update existing variants
   if (updatedVariants.length > 0) {
     setSubmitOutput("Updating the existing product variants...");
+
     const { error: updatedVariantsError } = await tryCatch(
-      updateProductVariants(updatedVariants),
+      Promise.all(
+        updatedVariants.map((variant) => {
+          return updateProductVariants({
+            ...variant,
+            id: variant.id!,
+            oldThumbnailMediaId: variant.oldThumbnailMediaId ?? null,
+          });
+        }),
+      ),
     );
 
     if (updatedVariantsError) {
@@ -133,7 +148,7 @@ export function useEditProductMutation(
     useCreateProductVariantMutation();
   const { mutateAsync: uploadThumbnail } = useUploadFileMutation();
   const { mutateAsync: updateProductVariants } =
-    api.admin.productVariants.bulkUpdate.useMutation();
+    useUpdateProductVariantMutation();
   const { mutateAsync: updateProduct } =
     api.admin.products.update.useMutation();
 

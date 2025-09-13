@@ -45,7 +45,6 @@ export function FileDropzone({
         return;
       }
 
-      console.log(acceptedFiles);
       onChange([...files, ...acceptedFiles]);
       setFiles((prev) => [...prev, ...acceptedFiles]);
     },

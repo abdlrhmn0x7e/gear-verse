@@ -50,11 +50,13 @@ export const productVariantsRelations = relations(
       fields: [productVariants.productId],
       references: [products.id],
     }),
+
     thumbnail: one(media, {
       fields: [productVariants.thumbnailMediaId],
       references: [media.id],
-      relationName: "product_variants_thumbnail",
+      relationName: "product_variant_thumbnail",
     }),
-    images: many(media, { relationName: "product_variants_images" }),
+
+    images: many(media, { relationName: "product_variant_images" }),
   }),
 );

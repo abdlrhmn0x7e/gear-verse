@@ -27,6 +27,30 @@ export const productVariantsRouter = createTRPCRouter({
       return createdVariant;
     }),
 
+  update: adminProcedure
+    .input(
+      productVariantSchema
+        .omit({
+          createdAt: true,
+          updatedAt: true,
+        })
+        .partial()
+        .and(
+          z.object({
+            id: z.number(),
+            oldThumbnailMediaId: z.number().nullable(),
+          }),
+        ),
+    )
+    .mutation(async ({ input }) => {
+      const { id, oldThumbnailMediaId, ...rest } = input;
+      return DB.admin.productVariants.mutations.update(
+        id,
+        oldThumbnailMediaId,
+        rest,
+      );
+    }),
+
   bulkCreate: adminProcedure
     .input(
       z.array(

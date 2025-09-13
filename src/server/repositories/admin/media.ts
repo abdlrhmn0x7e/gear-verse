@@ -3,7 +3,6 @@ import { db } from "../../db";
 import {
   media,
   type mediaOwnerTypeEnum,
-  mediaStatusEnum,
   productVariants,
 } from "../../db/schema";
 
@@ -22,12 +21,7 @@ export const _adminMediaRepository = {
       return db
         .select({ id: media.id, url: media.url })
         .from(media)
-        .where(
-          and(
-            gt(media.id, cursor ?? 0),
-            eq(media.status, mediaStatusEnum.enumValues[1]),
-          ),
-        )
+        .where(and(gt(media.id, cursor ?? 0), eq(media.status, "READY")))
         .limit(pageSize + 1)
         .orderBy(desc(media.id));
     },
@@ -76,23 +70,26 @@ export const _adminMediaRepository = {
       });
     },
 
-    delete(
+    delete: async (
       id: number,
       ownerType: (typeof mediaOwnerTypeEnum.enumValues)[number],
-    ) {
-      switch (ownerType) {
-        case "PRODUCT_VARIANT":
-          return db
-            .update(productVariants)
-            .set({ thumbnailMediaId: null })
-            .where(eq(productVariants.thumbnailMediaId, id))
-            .returning({ id: media.id });
-      }
+    ) => {
+      return db.transaction(async (tx) => {
+        switch (ownerType) {
+          case "PRODUCT_VARIANT":
+            await tx
+              .update(productVariants)
+              .set({ thumbnailMediaId: null })
+              .where(eq(productVariants.thumbnailMediaId, id));
+            break;
+        }
+        console.log("deleting media", "id: ", id, "ownerType: ", ownerType);
 
-      return db
-        .delete(media)
-        .where(eq(media.id, id))
-        .returning({ id: media.id });
+        return tx
+          .delete(media)
+          .where(and(eq(media.id, id), eq(media.ownerType, ownerType)))
+          .returning({ id: media.id });
+      });
     },
   },
 };
