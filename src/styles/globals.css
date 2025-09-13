@@ -201,6 +201,31 @@
   }
 }
 
+@utility fade-top {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
+}
+@utility fade-bottom {
+  mask-image: linear-gradient(to top, transparent 0%, black 35%);
+}
+@utility fade-top-lg {
+  mask-image: linear-gradient(to bottom, transparent 15%, black 100%);
+}
+@utility fade-bottom-lg {
+  mask-image: linear-gradient(to top, transparent 15%, black 100%);
+}
+@utility fade-left {
+  mask-image: linear-gradient(to right, transparent 0%, black 35%);
+}
+@utility fade-right {
+  mask-image: linear-gradient(to left, transparent 0%, black 35%);
+}
+@utility fade-left-lg {
+  mask-image: linear-gradient(to right, transparent 15%, black 100%);
+}
+@utility fade-right-lg {
+  mask-image: linear-gradient(to left, transparent 15%, black 100%);
+}
+
 html {
   @apply scroll-smooth;
 }

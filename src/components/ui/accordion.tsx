@@ -19,7 +19,7 @@ function AccordionItem({
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("border-b last:border-b-0", className)}
+      className={cn("bg-card mb-4 rounded-lg border px-4 last:mb-0", className)}
       {...props}
     />
   );
@@ -40,7 +40,7 @@ function AccordionTrigger({
         )}
         {...props}
       >
-        {children}
+        <span className="text-lg font-medium">{children}</span>
         <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>

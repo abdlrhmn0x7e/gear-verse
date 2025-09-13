@@ -1,3 +1,5 @@
+import { CTA } from "./_components/cta";
+import { FAQ } from "./_components/faq";
 import { Hero } from "./_components/hero";
 import { ProblemSolutions } from "./_components/problem-solutions";
 import { RecentProducts } from "./_components/recent-products";
@@ -10,6 +12,8 @@ export default function Home() {
       <RecentProducts />
       <ProblemSolutions />
       <ShopByBrand />
+      <FAQ />
+      <CTA />
     </>
   );
 }
