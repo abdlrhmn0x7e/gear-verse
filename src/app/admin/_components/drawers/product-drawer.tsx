@@ -196,7 +196,7 @@ function ProductDrawerContent() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
+            <Button variant="ghost" asChild>
               <Link href={`/admin/products/${product.id}/edit`}>
                 <PencilIcon />
                 {isMobile && "Edit product"}
@@ -208,6 +208,7 @@ function ProductDrawerContent() {
               onDeleteSuccess={() => {
                 void setParams((prev) => ({ ...prev, productId: null }));
               }}
+              variant="destructiveGhost"
               showText={isMobile}
             />
           </div>

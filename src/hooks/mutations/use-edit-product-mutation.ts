@@ -49,7 +49,6 @@ async function editProduct(
     thumbnailMediaId = thumbnailMedia.mediaId;
   }
 
-  setSubmitOutput("Updating product variants...");
   const newVariants = variants.filter((variant) => !variant.id);
   const updatedVariants = product.variants
     .filter((variant) => variants.some((v) => v.id === variant.id))
@@ -64,6 +63,7 @@ async function editProduct(
 
   // Create new variants
   if (newVariants.length > 0) {
+    setSubmitOutput("Creating the new product variants...");
     const { error: newVariantsError } = await tryCatch(
       Promise.all(
         newVariants.map(async (variant) => {
@@ -74,7 +74,10 @@ async function editProduct(
             thumbnail.length === 0 ||
             images.length === 0
           ) {
-            throw new Error("Variant Thumbnail and Images are required");
+            toast.error("Variant Thumbnail and Images are required");
+            return Promise.reject(
+              new Error("Variant Thumbnail and Images are required"),
+            );
           }
 
           const thumbnailMedia = await uploadThumbnail({
@@ -108,6 +111,7 @@ async function editProduct(
 
   // Update existing variants
   if (updatedVariants.length > 0) {
+    setSubmitOutput("Updating the existing product variants...");
     const { error: updatedVariantsError } = await tryCatch(
       updateProductVariants(updatedVariants),
     );
@@ -153,14 +157,14 @@ export function useEditProductMutation(
   const utils = api.useUtils();
   const [output, setOutput] = useState<string | null>(null);
 
-  const { mutateAsync: updateProduct } =
-    api.admin.products.update.useMutation();
-  const { mutateAsync: updateProductVariants } =
-    api.admin.productVariants.bulkUpdate.useMutation();
   const { mutateAsync: createProductVariant } =
     api.admin.productVariants.create.useMutation();
   const { mutateAsync: uploadThumbnail } = useUploadFileMutation();
   const { mutateAsync: uploadImages } = useUploadFilesMutation();
+  const { mutateAsync: updateProductVariants } =
+    api.admin.productVariants.bulkUpdate.useMutation();
+  const { mutateAsync: updateProduct } =
+    api.admin.products.update.useMutation();
 
   return {
     output,

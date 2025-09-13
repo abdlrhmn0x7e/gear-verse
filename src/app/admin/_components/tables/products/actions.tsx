@@ -29,7 +29,7 @@ export function ProductsTableActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
-        <DropdownMenuGroup className="space-y-1">
+        <DropdownMenuGroup className="max-w-3xs space-y-1">
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href={`/admin/products/${id}/edit`}>
               <PencilIcon className="text-muted-foreground" />
@@ -37,22 +37,18 @@ export function ProductsTableActions({
             </Link>
           </Button>
 
-          <DropdownMenuItem asChild>
-            <PublishProductDialog
-              id={id}
-              published={published}
-              className="[&_svg]:text-muted-foreground w-full justify-start px-0"
-              variant={published ? "destructiveGhost" : "ghost"}
-            />
-          </DropdownMenuItem>
+          <PublishProductDialog
+            id={id}
+            published={published}
+            className="w-full justify-start px-0"
+            variant={published ? "destructiveGhost" : "ghost"}
+          />
 
-          <DropdownMenuItem asChild>
-            <DeleteProductDialog
-              className="[&_svg]:text-muted-foreground w-full justify-start px-0"
-              variant="destructiveGhost"
-              id={id}
-            />
-          </DropdownMenuItem>
+          <DeleteProductDialog
+            className="w-full justify-start px-0"
+            variant="destructiveGhost"
+            id={id}
+          />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

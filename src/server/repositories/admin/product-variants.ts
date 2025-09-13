@@ -1,22 +1,21 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { media, productVariants } from "../../db/schema";
 
 type InsertProductVariant = typeof productVariants.$inferInsert;
 type UpdateProductVariant = Partial<InsertProductVariant>;
 
-export const _productVariantsRepository = {
+export const _adminProductVariantsRepository = {
   mutations: {
-    create: async (input: InsertProductVariant) => {
+    create: (input: InsertProductVariant) => {
       return db.transaction(async (tx) => {
-        const productVariant = await tx
+        const [productVariant] = await tx
           .insert(productVariants)
           .values(input)
           .returning({
             id: productVariants.id,
             thumbnailMediaId: productVariants.thumbnailMediaId,
-          })
-          .then(([productVariant]) => productVariant);
+          });
 
         if (!productVariant) {
           return;
@@ -34,6 +33,7 @@ export const _productVariantsRepository = {
             })
             .where(eq(media.id, productVariant.thumbnailMediaId));
         }
+
         return productVariant;
       });
     },

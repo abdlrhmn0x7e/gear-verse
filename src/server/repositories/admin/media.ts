@@ -10,7 +10,7 @@ import {
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
 
-export const _mediaRepository = {
+export const _adminMediaRepository = {
   queries: {
     getPage: ({
       cursor,

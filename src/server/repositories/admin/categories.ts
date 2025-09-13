@@ -5,7 +5,7 @@ import type { CategoryTree } from "~/lib/schemas/category";
 
 type NewCategory = typeof categories.$inferInsert;
 
-export const _categoriesRepository = {
+export const _adminCategoriesRepository = {
   queries: {
     async findAll() {
       const query = sql<{ tree: string }[]>`

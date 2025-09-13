@@ -5,7 +5,7 @@ import { media, products, productVariants } from "../../db/schema";
 type NewProduct = typeof products.$inferInsert;
 type UpdateProduct = Partial<NewProduct>;
 
-export const _productsRepository = {
+export const _adminProductsRepository = {
   queries: {
     findAll: async () => {
       return db

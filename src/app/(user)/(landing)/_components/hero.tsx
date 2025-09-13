@@ -1,22 +1,29 @@
-import { Sparkle, Sparkles } from "lucide-react";
+import { PackageIcon, Sparkle, Sparkles } from "lucide-react";
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Orbit } from "~/components/orbit";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 
 export function Hero() {
   return (
     <section className="relative">
       <MaxWidthWrapper className="flex h-screen flex-col items-center justify-center">
-        <div className="flex w-full flex-1 flex-col items-center justify-center gap-12 pb-12">
+        <div className="flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 pb-12">
           <div className="flex w-full flex-col items-center gap-6">
             <Badge>
               <Sparkles />
               Rare Gaming Gear, Delivered to Egypt
             </Badge>
 
-            <div className="flex flex-col items-center gap-1">
-              <Heading>Gear Verse</Heading>
+            <div className="flex flex-col items-center gap-3 text-center">
+              <Heading className="text-accent-foreground relative text-pretty">
+                Level up your gaming setup with rare gaming gear that isn&apos;t
+                available in Egypt.
+                <span className="absolute bottom-10 size-6 rotate-16 sm:bottom-12 md:bottom-16 lg:-right-2 lg:bottom-20">
+                  🇪🇬
+                </span>
+              </Heading>
               <p className="text-muted-foreground max-w-xl text-center text-xl">
                 Hard-to-find gaming peripherals and accessories from
                 international brands — hand-imported, customs cleared, and
@@ -25,17 +32,16 @@ export function Hero() {
             </div>
           </div>
 
-          {/* <div className="bg-card flex w-full flex-1 flex-col gap-3 rounded-lg border p-4 text-center">
-            <Heading level={2} font="sans">
-              Featured Products
-            </Heading>
-
-            <div className="grid flex-1 grid-cols-3 gap-4">
-              <div className="from-primary/5 h-full rounded-lg border bg-gradient-to-bl to-transparent p-4" />
-              <div className="from-primary/5 rounded-lg border bg-gradient-to-bl to-transparent p-4" />
-              <div className="from-primary/5 rounded-lg border bg-gradient-to-bl to-transparent p-4" />
-            </div>
-          </div> */}
+          <div className="flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
+            <Button className="w-full sm:flex-1" size="lg">
+              <PackageIcon />
+              Browse Available Gear
+            </Button>
+            <Button className="w-full sm:flex-1" variant="outline" size="lg">
+              <Sparkles />
+              Request Custom Gear
+            </Button>
+          </div>
         </div>
 
         <div className="absolute inset-0 -z-10 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_70%,transparent)]">
