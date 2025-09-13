@@ -260,13 +260,11 @@ export const _adminProductsRepository = {
           .where(eq(productVariants.productId, id))
           .then((result) => result.map((row) => row.id));
 
-        if (variantIds.length > 0) {
-          // delete all product variants
-          await tx
-            .delete(productVariants)
-            .where(eq(productVariants.productId, id));
+        // Delete product first - CASCADE will handle thumbnail nullification
+        await tx.delete(products).where(eq(products.id, id));
 
-          // delete all media associated with the variants
+        // Variants are deleted via ON DELETE CASCADE; remove variant-owned media (images, etc.)
+        if (variantIds.length > 0) {
           await tx
             .delete(media)
             .where(
@@ -277,13 +275,10 @@ export const _adminProductsRepository = {
             );
         }
 
-        // delete product thumbnail
+        // Delete product's owned media (thumbnail will be handled by CASCADE)
         await tx
           .delete(media)
           .where(and(eq(media.ownerId, id), eq(media.ownerType, "PRODUCT")));
-
-        // delete product
-        await tx.delete(products).where(eq(products.id, id));
       });
     },
   },

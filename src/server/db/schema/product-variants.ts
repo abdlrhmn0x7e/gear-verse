@@ -22,10 +22,10 @@ export const productVariants = pgTable(
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
-    }).references(() => media.id),
+    }).references(() => media.id, { onDelete: "set null" }),
     productId: bigint("product_id", { mode: "number" })
       .notNull()
-      .references(() => products.id),
+      .references(() => products.id, { onDelete: "cascade" }),
 
     stock: integer("stock").notNull(),
     price: integer("price").notNull(),

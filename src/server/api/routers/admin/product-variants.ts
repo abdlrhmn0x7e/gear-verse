@@ -27,6 +27,12 @@ export const productVariantsRouter = createTRPCRouter({
       return createdVariant;
     }),
 
+  bulkDelete: adminProcedure
+    .input(z.array(z.number()))
+    .mutation(async ({ input }) => {
+      return DB.admin.productVariants.mutations.bulkDelete(input);
+    }),
+
   update: adminProcedure
     .input(
       productVariantSchema

@@ -29,7 +29,7 @@ export const products = pgTable(
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
-    }).references(() => media.id),
+    }).references(() => media.id, { onDelete: "set null" }),
 
     categoryId: bigint("category_id", { mode: "number" })
       .notNull()

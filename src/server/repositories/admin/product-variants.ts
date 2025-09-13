@@ -97,16 +97,17 @@ export const _adminProductVariantsRepository = {
         }
 
         const newThumbnailMediaId = productVariant.thumbnailMediaId;
+
+        // Delete the old thumbnail if it changed (CASCADE will handle nullifying the FK)
         if (
           oldThumbnailMediaId &&
-          oldThumbnailMediaId !== productVariant.thumbnailMediaId
+          oldThumbnailMediaId !== newThumbnailMediaId
         ) {
-          // Delete the old thumbnail
           await tx.delete(media).where(eq(media.id, oldThumbnailMediaId));
         }
 
+        // Take ownership of the new thumbnail
         if (newThumbnailMediaId) {
-          // Take ownership of the new thumbnail
           await tx
             .update(media)
             .set({ ownerId: productVariant.id, ownerType: "PRODUCT_VARIANT" })
@@ -183,15 +184,39 @@ export const _adminProductVariantsRepository = {
 
     delete: async (id: number) => {
       return db.transaction(async (tx) => {
+        // Delete all media owned by this variant (images, etc.) - CASCADE will handle thumbnail nullification
         await tx
           .delete(media)
           .where(
             and(eq(media.ownerType, "PRODUCT_VARIANT"), eq(media.ownerId, id)),
           );
 
+        // Delete the variant first
         const [deleted] = await tx
           .delete(productVariants)
           .where(eq(productVariants.id, id))
+          .returning({ id: productVariants.id });
+
+        return deleted;
+      });
+    },
+
+    bulkDelete: async (ids: number[]) => {
+      return db.transaction(async (tx) => {
+        // Delete all media owned by these variants (images, etc.) - CASCADE will handle thumbnail nullification
+        await tx
+          .delete(media)
+          .where(
+            and(
+              eq(media.ownerType, "PRODUCT_VARIANT"),
+              inArray(media.ownerId, ids),
+            ),
+          );
+
+        // Delete variants first
+        const deleted = await tx
+          .delete(productVariants)
+          .where(inArray(productVariants.id, ids))
           .returning({ id: productVariants.id });
 
         return deleted;

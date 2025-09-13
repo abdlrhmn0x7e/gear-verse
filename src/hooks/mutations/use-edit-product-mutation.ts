@@ -36,6 +36,9 @@ async function editProduct(
   updateProductVariants: (
     params: MutationVariant,
   ) => Promise<RouterOutputs["admin"]["productVariants"]["update"]>,
+  bulkDeleteProductVariants: (
+    params: RouterInputs["admin"]["productVariants"]["bulkDelete"],
+  ) => Promise<RouterOutputs["admin"]["productVariants"]["bulkDelete"]>,
 ) {
   const { variants, thumbnail, ...productData } = data;
   let thumbnailMediaId: number | undefined;
@@ -57,14 +60,6 @@ async function editProduct(
   }
 
   const newVariants = variants.filter((variant) => !variant.id);
-  const updatedVariants = variants
-    .filter((variant) => variant.id)
-    .map((variant) => ({
-      ...variant,
-      options: variant.options.map((option) => option.value),
-      oldThumbnailMediaId: product.variants.find((v) => v.id === variant.id)
-        ?.thumbnail?.id,
-    }));
 
   // Create new variants
   if (newVariants.length > 0) {
@@ -87,6 +82,31 @@ async function editProduct(
     }
   }
 
+  const oldRemainingVariants = variants.filter((variant) => variant.id);
+  const deletedVariants = product.variants.filter(
+    (variant) => !oldRemainingVariants.some((v) => v.id === variant.id),
+  );
+  if (deletedVariants.length > 0) {
+    setSubmitOutput("Deleting the deleted product variants...");
+    const { error: deletedVariantsError } = await tryCatch(
+      bulkDeleteProductVariants(deletedVariants.map((variant) => variant.id)),
+    );
+
+    if (deletedVariantsError) {
+      setSubmitOutput(null);
+      toast.error("Failed to delete product variants. Please try again.");
+      return;
+    }
+  }
+
+  const updatedVariants = variants
+    .filter((variant) => variant.id)
+    .map((variant) => ({
+      ...variant,
+      options: variant.options.map((option) => option.value),
+      oldThumbnailMediaId: product.variants.find((v) => v.id === variant.id)
+        ?.thumbnail?.id,
+    }));
   // Update existing variants
   if (updatedVariants.length > 0) {
     setSubmitOutput("Updating the existing product variants...");
@@ -151,6 +171,8 @@ export function useEditProductMutation(
     useUpdateProductVariantMutation();
   const { mutateAsync: updateProduct } =
     api.admin.products.update.useMutation();
+  const { mutateAsync: bulkDeleteProductVariants } =
+    api.admin.productVariants.bulkDelete.useMutation();
 
   return {
     output,
@@ -164,6 +186,7 @@ export function useEditProductMutation(
           updateProduct,
           createProductVariant,
           updateProductVariants,
+          bulkDeleteProductVariants,
         ),
       onSuccess: () => {
         setOutput("Product has been updated successfully");

@@ -1,10 +1,6 @@
 import { desc, eq, and, gt } from "drizzle-orm";
 import { db } from "../../db";
-import {
-  media,
-  type mediaOwnerTypeEnum,
-  productVariants,
-} from "../../db/schema";
+import { media, type mediaOwnerTypeEnum } from "../../db/schema";
 
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
@@ -75,16 +71,6 @@ export const _adminMediaRepository = {
       ownerType: (typeof mediaOwnerTypeEnum.enumValues)[number],
     ) => {
       return db.transaction(async (tx) => {
-        switch (ownerType) {
-          case "PRODUCT_VARIANT":
-            await tx
-              .update(productVariants)
-              .set({ thumbnailMediaId: null })
-              .where(eq(productVariants.thumbnailMediaId, id));
-            break;
-        }
-        console.log("deleting media", "id: ", id, "ownerType: ", ownerType);
-
         return tx
           .delete(media)
           .where(and(eq(media.id, id), eq(media.ownerType, ownerType)))

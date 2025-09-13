@@ -108,10 +108,13 @@ export function ProductForm({
   onSubmit: (data: ProductFormValues) => void;
   defaultValues?: Partial<ProductFormValues>;
   oldThumbnailAsset?: MediaAsset;
-  oldVariantsAssets?: Partial<{
-    thumbnail: MediaAsset;
-    images: MediaAsset[];
-  }>[];
+  oldVariantsAssets?: Record<
+    string,
+    Partial<{
+      thumbnail: MediaAsset;
+      images: MediaAsset[];
+    }>
+  >;
 }) {
   const schema = useMemo(() => {
     return productFormSchema.superRefine((data, ctx) => {
@@ -174,6 +177,7 @@ export function ProductForm({
   } = useFieldArray({
     control: form.control,
     name: "variants",
+    keyName: "fieldId",
   });
 
   function handleVariantAppend() {
@@ -377,12 +381,17 @@ export function ProductForm({
               ) : (
                 <>
                   {variants.map((variant, index) => (
-                    <FormControl key={variant.id}>
+                    <FormControl key={variant.fieldId}>
                       <ProductVariantField
                         control={form.control}
                         variantIndex={index}
                         remove={() => removeVariant(index)}
-                        oldVariantAssets={oldVariantsAssets?.[index] ?? {}}
+                        oldVariantAssets={
+                          variant.id
+                            ? (oldVariantsAssets?.[`variant-${variant.id}`] ??
+                              {})
+                            : {}
+                        }
                       />
                     </FormControl>
                   ))}

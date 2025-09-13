@@ -52,10 +52,16 @@ export function EditProduct({
           ),
         }}
         oldThumbnailAsset={product.thumbnail ?? undefined}
-        oldVariantsAssets={product.variants.map((variant) => ({
-          thumbnail: variant.thumbnail ?? undefined,
-          images: variant.images,
-        }))}
+        oldVariantsAssets={product.variants.reduce(
+          (acc, variant) => ({
+            ...acc,
+            [`variant-${variant.id}`]: {
+              thumbnail: variant.thumbnail ?? undefined,
+              images: variant.images,
+            },
+          }),
+          {},
+        )}
       />
 
       <motion.div
