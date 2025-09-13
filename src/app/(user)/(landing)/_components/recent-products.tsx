@@ -2,6 +2,7 @@ import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { api, HydrateClient } from "~/trpc/server";
 import { ProductsCarousel } from "./products-carousel";
+import Glow from "~/components/ui/glow";
 
 export function RecentProducts() {
   void api.user.products.getPage.prefetchInfinite({
@@ -23,6 +24,7 @@ export function RecentProducts() {
           <ProductsCarousel />
         </HydrateClient>
       </MaxWidthWrapper>
+      <Glow variant="center" />
     </section>
   );
 }

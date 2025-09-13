@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "~/lib/utils/index";
 
 const glowVariants = cva(
-  "absolute -z-50 pointer-events-none w-full h-[512px]",
+  "absolute overflow-x-clip -z-50 pointer-events-none w-full h-[512px]",
   {
     variants: {
       variant: {

@@ -13,7 +13,6 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "~/components/ui/carousel";
-import Glow from "~/components/ui/glow";
 import { Progress } from "~/components/ui/progress";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
@@ -24,7 +23,6 @@ export function ProductsCarousel() {
     pageSize: 10,
   });
 
-  const isMobile = useIsMobile();
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -45,12 +43,8 @@ export function ProductsCarousel() {
   }
 
   return (
-    <div className="relative">
-      <Carousel
-        opts={{ watchDrag: isMobile }}
-        setApi={setCarouselApi}
-        className="w-full"
-      >
+    <div className="relative w-full">
+      <Carousel setApi={setCarouselApi} className="w-full">
         <CarouselContent>
           {[...data.data, ...data.data, ...data.data, ...data.data].map(
             (product, index) => (
@@ -68,8 +62,6 @@ export function ProductsCarousel() {
         <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
       </Carousel>
       <Progress value={progress} className="mt-6 ml-auto w-24" />
-
-      <Glow variant="below" />
     </div>
   );
 }
