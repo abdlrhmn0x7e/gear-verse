@@ -4,7 +4,7 @@ import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 
-export async function CTA() {
+export function CTA() {
   return (
     <section className="py-24">
       <MaxWidthWrapper>

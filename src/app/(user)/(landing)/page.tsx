@@ -5,6 +5,9 @@ import { ProblemSolutions } from "./_components/problem-solutions";
 import { RecentProducts } from "./_components/recent-products";
 import { ShopByBrand } from "./_components/shop-by-brand";
 
+// FIX: the hydrate client is not working unless the page is dynamic
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>

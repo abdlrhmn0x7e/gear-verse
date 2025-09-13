@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { useMemo } from "react";
 import {
   BanknoteIcon,
   MailOpenIcon,
@@ -16,37 +15,34 @@ import {
 import Glow from "~/components/ui/glow";
 
 export function ProblemSolutions() {
-  const solutions = useMemo(
-    () => [
-      {
-        title: "Send us a Request",
-        description:
-          "Send us a request for the product you want, and we'll get it for you.",
-        Icon: MailOpenIcon,
-      },
-      {
-        title: "Our Team Will Be in Touch",
-        description:
-          "Our team will be in touch with you to discuss the details and get the product for you.",
-        Icon: MessageCircleIcon,
-      },
-      {
-        title: "We handle the logistics",
-        description: `Once the order is confirmed, our team sources your 
+  const solutions = [
+    {
+      title: "Send us a Request",
+      description:
+        "Send us a request for the product you want, and we'll get it for you.",
+      Icon: MailOpenIcon,
+    },
+    {
+      title: "Our Team Will Be in Touch",
+      description:
+        "Our team will be in touch with you to discuss the details and get the product for you.",
+      Icon: MessageCircleIcon,
+    },
+    {
+      title: "We handle the logistics",
+      description: `Once the order is confirmed, our team sources your 
                     gear from trusted suppliers and manages all customs 
                     paperwork, import duties, and shipping logistics. 
                     No stress, no surprise fees.`,
-        Icon: BanknoteIcon,
-      },
-      {
-        title: "Last but not least, we'll deliver the product to you",
-        description:
-          "You'll get the product delivered to your doorstep. No stress, no surprise fees.",
-        Icon: TruckIcon,
-      },
-    ],
-    [],
-  );
+      Icon: BanknoteIcon,
+    },
+    {
+      title: "Last but not least, we'll deliver the product to you",
+      description:
+        "You'll get the product delivered to your doorstep. No stress, no surprise fees.",
+      Icon: TruckIcon,
+    },
+  ];
 
   return (
     <section className="relative py-24">
