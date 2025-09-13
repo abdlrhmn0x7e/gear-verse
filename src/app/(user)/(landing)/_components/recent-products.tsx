@@ -1,16 +1,16 @@
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { api } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
+import { ProductsCarousel } from "./products-carousel";
 
-export async function RecentProducts() {
-  const products = await api.user.products.getPage({
+export function RecentProducts() {
+  void api.user.products.getPage.prefetchInfinite({
     pageSize: 10,
   });
-  console.log(products);
 
   return (
-    <section className="bg-accent py-24">
-      <MaxWidthWrapper>
+    <section className="relative py-24">
+      <MaxWidthWrapper className="space-y-12">
         <div>
           <Heading level={1}>Our Latest Rare Gear Collection</Heading>
           <p className="text-muted-foreground text-lg">
@@ -19,6 +19,9 @@ export async function RecentProducts() {
             }
           </p>
         </div>
+        <HydrateClient>
+          <ProductsCarousel />
+        </HydrateClient>
       </MaxWidthWrapper>
     </section>
   );

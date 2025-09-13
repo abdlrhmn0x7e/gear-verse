@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
-import { media, products, productVariants } from "~/server/db/schema";
+import { brands, media, products, productVariants } from "~/server/db/schema";
 
 export const _userProductsRepository = {
   queries: {
@@ -16,6 +17,7 @@ export const _userProductsRepository = {
         eq(products.published, true),
       ];
 
+      const brandsMedia = alias(media, "brands_media");
       const cheapestVariant = db
         .select({ price: productVariants.price })
         .from(productVariants)
@@ -32,10 +34,17 @@ export const _userProductsRepository = {
           price: cheapestVariant.price,
           summary: products.summary,
           thumbnail: media.url,
+          brand: {
+            id: brands.id,
+            name: brands.name,
+            logo: brandsMedia.url,
+          },
         })
         .from(products)
         .where(and(...whereClause))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(brands, eq(products.brandId, brands.id))
+        .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoinLateral(cheapestVariant, sql`true`)
         .limit(pageSize + 1)
         .orderBy(desc(products.id));
