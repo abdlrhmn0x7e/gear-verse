@@ -6,6 +6,7 @@ import {
   index,
   jsonb,
   pgTable,
+  uniqueIndex,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
@@ -53,6 +54,7 @@ export const products = pgTable(
     index("products_brand_id_idx").on(table.brandId),
     index("products_category_id_idx").on(table.categoryId),
     index("products_specifications_idx").using("gin", table.specifications),
+    uniqueIndex("products_slug_idx").on(table.slug),
   ],
 );
 

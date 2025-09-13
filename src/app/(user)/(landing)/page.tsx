@@ -1,6 +1,7 @@
 import { Hero } from "./_components/hero";
 import { ProblemSolutions } from "./_components/problem-solutions";
 import { RecentProducts } from "./_components/recent-products";
+import { ShopByBrand } from "./_components/shop-by-brand";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Hero />
       <RecentProducts />
       <ProblemSolutions />
+      <ShopByBrand />
     </>
   );
 }

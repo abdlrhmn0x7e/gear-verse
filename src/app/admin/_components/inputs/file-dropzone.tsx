@@ -202,7 +202,9 @@ function FileItemPreview({
           />
         </div>
 
-        <p className="text-foreground text-sm font-medium">{`Product Image ${idx + 1}`}</p>
+        <p className="text-foreground line-clamp-1 text-sm font-medium">
+          {`Product Image ${idx + 1}`}
+        </p>
       </div>
 
       <Button
@@ -244,7 +246,9 @@ function FileItem({
         </div>
 
         <div>
-          <p className="text-foreground text-sm font-medium">{file.name}</p>
+          <p className="text-foreground line-clamp-1 text-sm font-medium">
+            {file.name}
+          </p>
           <p className="text-muted-foreground text-sm">
             {file.size / 1024 > 1024
               ? Math.round(file.size / 1024 / 1024) + " MB"

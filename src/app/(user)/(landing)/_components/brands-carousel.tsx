@@ -6,6 +6,7 @@ import React from "react";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { Skeleton } from "~/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -15,16 +16,10 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import { Progress } from "~/components/ui/progress";
-import { Separator } from "~/components/ui/separator";
-import { Skeleton } from "~/components/ui/skeleton";
-import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
 
-export function ProductsCarousel() {
-  const { data, isPending } = api.user.products.getPage.useQuery({
-    pageSize: 10,
-  });
-
+export function BrandsCarousel() {
+  const { data: brands, isPending } = api.user.brands.findAll.useQuery();
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -45,29 +40,12 @@ export function ProductsCarousel() {
       <div className="relative w-full">
         <Carousel className="w-full">
           <CarouselContent>
-            {Array.from({ length: 4 }).map((_, index) => (
-              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/4">
-                <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
-                  <AspectRatio ratio={1} className="overflow-hidden">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/6">
+                <div className="group bg-card flex h-full flex-col overflow-hidden rounded-lg border">
+                  <AspectRatio ratio={1} className="overflow-hidden p-8">
                     <Skeleton className="size-full rounded-none border-none" />
                   </AspectRatio>
-
-                  <Separator />
-
-                  <div className="bg-muted flex-1 space-y-4 p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="size-6 rounded-full" />
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-
-                    <div>
-                      <Skeleton className="h-5 w-48" />
-                      <Skeleton className="mt-2 h-4 w-64" />
-                    </div>
-                  </div>
                 </div>
               </CarouselItem>
             ))}
@@ -81,13 +59,13 @@ export function ProductsCarousel() {
     );
   }
 
-  if (!data || data.data.length === 0) {
+  if (!brands || brands.length === 0) {
     return (
       <div className="relative w-full">
         <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-lg">
           <PackageOpenIcon className="size-12" />
           <div className="space-y-2 text-center">
-            <Heading level={2}>No products found</Heading>
+            <Heading level={2}>No brands found</Heading>
             <div className="text-muted-foreground">
               <p>We are cooking something delicious for you.</p>
               <p>Check back later.</p>
@@ -102,12 +80,12 @@ export function ProductsCarousel() {
     <div className="relative w-full">
       <Carousel setApi={setCarouselApi} className="w-full">
         <CarouselContent>
-          {data.data.map((product, index) => (
+          {brands.map((brand, index) => (
             <CarouselItem
-              key={`${product.id}-${index}`}
-              className="sm:basis-1/2 lg:basis-1/4"
+              key={`${brand.id}-${index}`}
+              className="sm:basis-1/2 lg:basis-1/6"
             >
-              <ProductCard product={product} />
+              <BrandCard brand={brand} />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -120,51 +98,23 @@ export function ProductsCarousel() {
   );
 }
 
-function ProductCard({
-  product,
+function BrandCard({
+  brand,
 }: {
-  product: RouterOutputs["user"]["products"]["getPage"]["data"][number];
+  brand: RouterOutputs["user"]["brands"]["findAll"][number];
 }) {
   return (
-    <Link href={`/products/${product.slug}`}>
-      <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
-        <AspectRatio ratio={1} className="overflow-hidden">
+    <Link href={`/brands/${brand.slug}`}>
+      <div className="group bg-card flex h-full flex-col overflow-hidden rounded-lg border">
+        <AspectRatio ratio={1} className="overflow-hidden p-8">
           <ImageWithFallback
-            src={product.thumbnail}
-            alt={product.name}
+            src={brand.logo}
+            alt={brand.name}
             className="size-full rounded-none border-none transition-transform duration-300 group-hover:scale-105"
             width={512}
             height={512}
           />
         </AspectRatio>
-
-        <Separator />
-
-        <div className="bg-muted flex-1 space-y-4 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ImageWithFallback
-                src={product.brand.logo}
-                alt={product.brand.name ?? ""}
-                className="size-6 rounded-full"
-                width={48}
-                height={48}
-              />
-              <span className="text-sm font-medium">{product.brand.name}</span>
-            </div>
-
-            <p className="text-muted-foreground text-sm">
-              From {formatCurrency(product.price ?? 0)}
-            </p>
-          </div>
-
-          <div>
-            <Heading level={4}>{product.name}</Heading>
-            <p className="text-muted-foreground line-clamp-4 text-sm">
-              {product.summary}
-            </p>
-          </div>
-        </div>
       </div>
     </Link>
   );

@@ -3,6 +3,7 @@ import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { brandSchema } from "~/lib/schemas/brand";
 import { paginationSchema } from "~/lib/schemas/pagination";
 import { paginate } from "../../helpers/pagination";
+import { generateSlug } from "~/lib/utils/slugs";
 
 export const brandsRouter = createTRPCRouter({
   /**
@@ -16,8 +17,18 @@ export const brandsRouter = createTRPCRouter({
    * Mutations
    */
   create: adminProcedure
-    .input(brandSchema.omit({ id: true, createdAt: true, updatedAt: true }))
+    .input(
+      brandSchema.omit({
+        id: true,
+        slug: true,
+        createdAt: true,
+        updatedAt: true,
+      }),
+    )
     .mutation(({ input }) => {
-      return DB.admin.brands.mutations.create(input);
+      return DB.admin.brands.mutations.create({
+        ...input,
+        slug: generateSlug(input.name),
+      });
     }),
 });

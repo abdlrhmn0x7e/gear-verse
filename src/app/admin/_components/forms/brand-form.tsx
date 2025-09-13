@@ -18,6 +18,7 @@ import { FileDropzone } from "../inputs/file-dropzone";
 const brandFormSchema = brandSchema
   .omit({
     id: true,
+    slug: true,
     createdAt: true,
     updatedAt: true,
     logoMediaId: true,

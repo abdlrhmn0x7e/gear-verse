@@ -51,7 +51,7 @@ export function ProblemSolutions() {
   return (
     <section className="relative py-24">
       <MaxWidthWrapper className="flex flex-col gap-6 xl:flex-row">
-        <div className="flex-1">
+        <div className="flex-1 text-center xl:text-left">
           <Heading level={1}>Tired of the limited options?</Heading>
           <p className="text-muted-foreground text-lg">
             Every serious gamer in Egypt knows the struggle. You see the perfect
@@ -82,7 +82,7 @@ export function ProblemSolutions() {
 
               <Glow
                 variant="bottom"
-                className="h-12 w-full opacity-0 transition-opacity group-hover:opacity-50"
+                className="h-12 w-full opacity-0 transition-opacity duration-500 group-hover:opacity-80"
               />
             </Card>
           ))}
