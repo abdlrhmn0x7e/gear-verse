@@ -46,7 +46,7 @@ export function ProductsCarousel() {
         <Carousel className="w-full">
           <CarouselContent>
             {Array.from({ length: 4 }).map((_, index) => (
-              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/4">
+              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-2/10">
                 <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
                   <AspectRatio ratio={1} className="overflow-hidden">
                     <Skeleton className="size-full rounded-none border-none" />
@@ -105,7 +105,7 @@ export function ProductsCarousel() {
           {data.data.map((product, index) => (
             <CarouselItem
               key={`${product.id}-${index}`}
-              className="sm:basis-1/2 lg:basis-1/4"
+              className="basis-4/5 sm:basis-2/5 xl:basis-3/12"
             >
               <ProductCard product={product} />
             </CarouselItem>
@@ -140,8 +140,8 @@ function ProductCard({
 
         <Separator />
 
-        <div className="bg-muted flex-1 space-y-4 p-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-muted flex-1 space-y-4 p-4 text-center sm:text-left">
+          <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <ImageWithFallback
                 src={product.brand.logo}
@@ -160,9 +160,6 @@ function ProductCard({
 
           <div>
             <Heading level={4}>{product.name}</Heading>
-            <p className="text-muted-foreground line-clamp-4 text-sm">
-              {product.summary}
-            </p>
           </div>
         </div>
       </div>

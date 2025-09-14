@@ -30,7 +30,7 @@ const links = [
 
 export function Footer() {
   return (
-    <footer className="bg-muted py-16">
+    <footer className="bg-muted pt-16 pb-24 md:py-16">
       <div className="mx-auto max-w-5xl px-6">
         <Link href="/" aria-label="go home" className="mx-auto block size-fit">
           <Logo />

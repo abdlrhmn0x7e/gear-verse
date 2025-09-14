@@ -9,8 +9,8 @@ export function ShopByBrand() {
       <MaxWidthWrapper className="space-y-8">
         <Heading level={1}>Shop By Brand</Heading>
         <BrandsCarousel />
-        <Glow variant="bottom" />
       </MaxWidthWrapper>
+      <Glow variant="below" />
     </section>
   );
 }

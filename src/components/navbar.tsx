@@ -9,19 +9,9 @@ import {
   DoorOpenIcon,
   HomeIcon,
   ListTreeIcon,
-  Menu,
   ShieldUserIcon,
   type LucideIcon,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
 import {
   useEffect,
   useState,
@@ -55,6 +45,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -63,6 +54,7 @@ import {
 import type { CategoryTree } from "~/lib/schemas/category";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "./image-with-fallback";
+import { cn } from "~/lib/utils";
 
 export interface NavigationLink {
   title: string;
@@ -101,80 +93,83 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-5 left-1/2 z-50 container -translate-x-1/2">
-      <motion.div
-        className="bg-card/40 space-y-3 border px-8 py-2 backdrop-blur"
-        style={{ height: "auto", borderRadius: "3rem" }}
-        transition={{
-          duration: 0.3,
-        }}
-        onMouseLeave={() => setProductsMenuOpen(false)}
-      >
-        <nav className="flex items-center justify-between">
-          <div className="flex flex-1 items-center gap-8">
-            <Link href="/">
-              <Logo />
-            </Link>
+    <>
+      <header className="fixed top-0 left-0 z-50 w-full md:top-5 md:left-1/2 md:container md:-translate-x-1/2">
+        <motion.div
+          className="bg-card/75 dark:bg-card/90 space-y-3 rounded-none border-b px-8 py-4 backdrop-blur md:rounded-[3rem] md:border"
+          style={{ height: "auto" }}
+          transition={{
+            duration: 0.3,
+          }}
+          onMouseLeave={() => setProductsMenuOpen(false)}
+        >
+          <nav className="flex items-center justify-between">
+            <div className="flex flex-1 items-center gap-8">
+              <Link href="/">
+                <Logo />
+              </Link>
 
-            {/* Nav Items */}
-            <div className="hidden w-full items-center gap-2 lg:flex">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setProductsMenuOpen((open) => !open);
-                  setCategoriesMenuOpen(false);
-                }}
-              >
-                {productsMenuOpen ? (
-                  <IconShoppingBagMinus />
-                ) : (
-                  <IconShoppingBagPlus />
-                )}
-                <span>Explore Our Store</span>
-              </Button>
+              {/* Nav Items */}
+              <div className="hidden w-full items-center gap-2 md:flex">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => {
+                    setProductsMenuOpen((open) => !open);
+                    setCategoriesMenuOpen(false);
+                  }}
+                >
+                  {productsMenuOpen ? (
+                    <IconShoppingBagMinus />
+                  ) : (
+                    <IconShoppingBagPlus />
+                  )}
+                  <span>Explore Our Store</span>
+                </Button>
 
-              <CategoriesMenu
-                open={categoriesMenuOpen}
-                setOpen={(open) => {
-                  setProductsMenuOpen(false);
-                  setCategoriesMenuOpen(open);
-                }}
-              />
+                <CategoriesMenu
+                  open={categoriesMenuOpen}
+                  setOpen={(open) => {
+                    setProductsMenuOpen(false);
+                    setCategoriesMenuOpen(open);
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="hidden items-center justify-end gap-2 md:flex">
-            {data ? (
-              <>
-                {data.user.role === "admin" && (
-                  <Button variant="ghost" asChild>
-                    <Link href="/admin">
-                      <ShieldUserIcon />
-                      Admin
-                    </Link>
-                  </Button>
-                )}
+            <div className="flex items-center justify-end gap-2">
+              {data ? (
+                <>
+                  {data.user.role === "admin" && (
+                    <Button variant="ghost" asChild>
+                      <Link href="/admin">
+                        <ShieldUserIcon />
+                        Admin
+                      </Link>
+                    </Button>
+                  )}
 
-                <ProfileDropdown />
-              </>
-            ) : (
-              <Button asChild>
-                <Link href="/auth">
-                  <DoorOpenIcon />
-                  Login
-                </Link>
-              </Button>
-            )}
-          </div>
+                  <ProfileDropdown />
+                </>
+              ) : (
+                <Button asChild>
+                  <Link href="/auth">
+                    <DoorOpenIcon />
+                    Login
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </nav>
 
-          <MobileMenu />
-        </nav>
+          <AnimatePresence>
+            {productsMenuOpen && <ProductsMenu open={productsMenuOpen} />}
+          </AnimatePresence>
+        </motion.div>
+      </header>
 
-        <AnimatePresence>
-          {productsMenuOpen && <ProductsMenu open={productsMenuOpen} />}
-        </AnimatePresence>
-      </motion.div>
-    </header>
+      <MobileMenu />
+    </>
   );
 }
 
@@ -393,7 +388,7 @@ function CategoriesMenu({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
+          <Button variant="ghost" size="lg">
             <ChevronDownIcon />
             Categories
           </Button>
@@ -405,12 +400,12 @@ function CategoriesMenu({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" size="lg">
           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
           Categories
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
+      <DropdownMenuContent align="start">
         <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
           <ListTreeIcon className="size-4" />
           Our Verse Categories
@@ -425,11 +420,12 @@ function CategoriesMenu({
 
 function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
   const Icon = iconsMap.get(category.icon);
+
   if (!category.children || category.children.length === 0) {
     return (
-      <DropdownMenuItem asChild key={category.slug}>
+      <DropdownMenuItem asChild key={category.slug} className="h-10 min-w-3xs">
         <Link href={`/categories/${category.slug}`}>
-          {Icon && <Icon />}
+          {Icon && <Icon className="size-6" />}
           {category.name}
         </Link>
       </DropdownMenuItem>
@@ -439,13 +435,17 @@ function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
   return (
     <DropdownMenuSub>
       <Link href={`/categories/${category.slug}`}>
-        <DropdownMenuSubTrigger key={category.slug}>
-          {Icon && <Icon className="text-muted-foreground mr-2 size-4" />}
+        <DropdownMenuSubTrigger key={category.slug} className="h-10 min-w-3xs">
+          {Icon && <Icon className="text-muted-foreground mr-2 size-6" />}
           {category.name}
         </DropdownMenuSubTrigger>
       </Link>
 
       <DropdownMenuSubContent>
+        <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
+          {category.name}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {category.children?.map((child) => (
           <CategoryDropdownMenuContent key={child.slug} category={child} />
         ))}
@@ -458,35 +458,29 @@ function MobileMenu() {
   const pathname = usePathname();
 
   return (
-    <Sheet>
-      <SheetTrigger className="lg:hidden" asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Menu />
-        </Button>
-      </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle className="text-2xl font-bold">Navigation</SheetTitle>
-          <SheetDescription></SheetDescription>
-        </SheetHeader>
-        <div className="flex flex-col gap-2 px-2">
+    <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
+      <nav className="bg-card/80 border-t p-2 backdrop-blur">
+        <ul className="grid grid-cols-2">
           {NAV_ITEMS.map((item) => (
-            <Button
-              key={item.title}
-              variant={pathname === item.link.href ? "default" : "ghost"}
-              size="lg"
-              className="justify-start"
-              asChild
-            >
-              <Link {...item.link}>
-                <item.icon />
-                {item.title}
-              </Link>
-            </Button>
+            <li key={item.title} className="flex items-center justify-center">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "flex-col items-center gap-0 py-8",
+                  pathname === item.link.href && "text-primary-foreground",
+                )}
+                size="lg"
+                asChild
+              >
+                <Link href={item.link.href} key={item.title}>
+                  <item.icon className="size-6" />
+                  {item.title}
+                </Link>
+              </Button>
+            </li>
           ))}
-        </div>
-        <SheetFooter></SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </ul>
+      </nav>
+    </div>
   );
 }

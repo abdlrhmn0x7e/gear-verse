@@ -1,4 +1,12 @@
-import { PackageIcon, Sparkle, Sparkles } from "lucide-react";
+import { IconKeyboard, IconMouse2 } from "@tabler/icons-react";
+import {
+  Gamepad2Icon,
+  HeadphonesIcon,
+  PackageIcon,
+  Sparkle,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Orbit } from "~/components/orbit";
@@ -33,9 +41,11 @@ export function Hero() {
           </div>
 
           <div className="flex w-full max-w-md flex-col justify-center gap-3 sm:flex-row">
-            <Button className="w-full sm:flex-1" size="lg">
-              <PackageIcon />
-              Browse Available Gear
+            <Button className="w-full sm:flex-1" size="lg" asChild>
+              <Link href="/products">
+                <PackageIcon />
+                Browse Available Gear
+              </Link>
             </Button>
             <Button className="w-full sm:flex-1" variant="outline" size="lg">
               <Sparkles />
@@ -83,7 +93,7 @@ export function Hero() {
             shouldOrbit
             shouldSpin
           >
-            <Sparkles className="fill-primary text-primary size-10 opacity-20" />
+            <HeadphonesIcon className="text-primary size-10 opacity-20" />
           </Orbit>
 
           <Orbit
@@ -104,7 +114,7 @@ export function Hero() {
             shouldOrbit
             shouldSpin
           >
-            <Sparkle className="fill-primary text-primary size-8" />
+            <IconMouse2 className="text-primary size-8" />
           </Orbit>
 
           <Orbit size={660} rotation={-5} shouldOrbit orbitDuration={42}>
@@ -124,6 +134,18 @@ export function Hero() {
           <Orbit size={740} rotation={85} shouldOrbit orbitDuration={46}>
             <div className="bg-primary size-3 rounded-full opacity-20" />
           </Orbit>
+
+          <Orbit
+            size={840}
+            rotation={128}
+            orbitDuration={48}
+            spinDuration={8}
+            shouldOrbit
+            shouldSpin
+          >
+            <IconKeyboard className="text-primary size-28" />
+          </Orbit>
+
           <Orbit
             size={840}
             rotation={-72}
@@ -132,7 +154,7 @@ export function Hero() {
             shouldOrbit
             shouldSpin
           >
-            <Sparkle className="fill-primary text-primary size-28" />
+            <Gamepad2Icon className="text-primary size-28" />
           </Orbit>
         </div>
       </MaxWidthWrapper>
