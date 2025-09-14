@@ -42,7 +42,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
-      <body>
+      <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"

@@ -12,6 +12,10 @@ const headingVariants = cva("scroll-m-20 tracking-tight text-balance", {
       5: "text-base md:text-lg font-semibold",
       6: "text-sm md:text-base font-semibold",
     },
+    font: {
+      default: tanNimbus.className,
+      sans: "font-sans",
+    },
   },
 });
 
@@ -19,13 +23,17 @@ export function Heading({
   children,
   className,
   level = 1,
+  font = "sans",
 }: {
   children: React.ReactNode;
   className?: string;
   level?: Level;
+  font?: "default" | "sans";
 }) {
   const Tag = `h${level}` as const;
   return (
-    <Tag className={headingVariants({ level, className })}>{children}</Tag>
+    <Tag className={headingVariants({ level, className, font })}>
+      {children}
+    </Tag>
   );
 }

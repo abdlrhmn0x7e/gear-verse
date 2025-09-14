@@ -78,7 +78,7 @@ export function ProblemSolutions() {
 
               <Glow
                 variant="bottom"
-                className="h-12 w-full opacity-0 transition-opacity duration-500 group-hover:opacity-80"
+                className="h-12 w-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               />
             </Card>
           ))}
