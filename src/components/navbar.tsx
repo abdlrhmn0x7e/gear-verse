@@ -27,7 +27,7 @@ import { authClient } from "~/lib/auth-client";
 import { ProfileDropdown } from "./profile-dropdown";
 import { AnimatePresence, motion } from "motion/react";
 import Header from "~/components/header";
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import {
   IconBrandDiscord,
   IconBrandFacebook,
@@ -55,6 +55,7 @@ import type { CategoryTree } from "~/lib/schemas/category";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "./image-with-fallback";
 import { cn } from "~/lib/utils";
+import { Skeleton } from "./ui/skeleton";
 
 export interface NavigationLink {
   title: string;
@@ -259,51 +260,21 @@ function ProductsMenu({ open }: { open: boolean }) {
     </motion.div>
   );
 }
-const products = {
-  data: [
-    {
-      id: 1,
-      name: "Product 1",
-      slug: "product-1",
-      summary: "Product 1 summary",
-      createdAt: new Date(),
-      brand: {
-        id: 1,
-        name: "Brand 1",
-        logo: {
-          id: 1,
-          url: null,
-        },
-      },
-      category: {
-        id: 1,
-        name: "Category 1",
-        icon: "KEYBOARDS" as const,
-        parent: {
-          id: 1,
-          name: "Parent Category 1",
-          icon: "KEYBOARDS" as const,
-        },
-      },
-      thumbnail: {
-        id: 1,
-        url: null,
-      },
-    },
-  ],
-};
-type Product = (typeof products.data)[number];
 
 function ProductsMenuContent() {
-  // if (productsPending) {
-  //   return (
-  //     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-  //       {Array.from({ length: 6 }).map((_, index) => (
-  //         <ProductCardSkeleton key={index} />
-  //       ))}
-  //     </div>
-  //   );
-  // }
+  const { data: products, isPending: productsPending } =
+    api.user.products.getPage.useQuery({
+      pageSize: 6,
+    });
+  if (productsPending) {
+    return (
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
 
   if (!products || products.data.length === 0) {
     return (
@@ -328,7 +299,11 @@ function ProductsMenuContent() {
   );
 }
 
-function ProductCard({ products }: { products: Product }) {
+function ProductCard({
+  products,
+}: {
+  products: RouterOutputs["user"]["products"]["getPage"]["data"][number];
+}) {
   return (
     <Link href={`/products/${products.slug}`}>
       <div className="group bg-card space-y-3 rounded-lg border p-1">
@@ -337,7 +312,7 @@ function ProductCard({ products }: { products: Product }) {
           className="w-full overflow-hidden rounded-lg border"
         >
           <ImageWithFallback
-            src={products.thumbnail?.url}
+            src={products.thumbnail}
             alt={products.name}
             width={512}
             height={512}
@@ -356,23 +331,23 @@ function ProductCard({ products }: { products: Product }) {
   );
 }
 
-// function ProductCardSkeleton() {
-//   return (
-//     <div className="bg-card space-y-3 overflow-hidden rounded-lg border p-1">
-//       <AspectRatio
-//         ratio={16 / 9}
-//         className="w-full overflow-hidden rounded-lg border"
-//       >
-//         <Skeleton className="size-full rounded-md" />
-//       </AspectRatio>
+function ProductCardSkeleton() {
+  return (
+    <div className="bg-card space-y-3 overflow-hidden rounded-lg border p-1">
+      <AspectRatio
+        ratio={16 / 9}
+        className="w-full overflow-hidden rounded-lg border"
+      >
+        <Skeleton className="size-full rounded-md" />
+      </AspectRatio>
 
-//       <div className="space-y-1 px-2 pb-3">
-//         <Skeleton className="h-4 w-16" />
-//         <Skeleton className="h-2 w-24" />
-//       </div>
-//     </div>
-//   );
-// }
+      <div className="space-y-1 px-2 pb-3">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-2 w-24" />
+      </div>
+    </div>
+  );
+}
 
 function CategoriesMenu({
   open,
