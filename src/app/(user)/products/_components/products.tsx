@@ -16,6 +16,7 @@ import {
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
 import { ProductList } from "./product-list";
+import { Suspense } from "react";
 
 export function Products({ className }: { className?: string }) {
   void api.user.products.getPage.prefetchInfinite({
@@ -26,7 +27,7 @@ export function Products({ className }: { className?: string }) {
     <section id="products" className={cn("mt-2 space-y-8", className)}>
       <div className="flex items-center justify-between">
         <Heading level={3} font="default">
-          All products
+          All Products
         </Heading>
 
         <Select defaultValue="default">
@@ -64,7 +65,9 @@ export function Products({ className }: { className?: string }) {
         </Select>
       </div>
 
-      <ProductList />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProductList />
+      </Suspense>
     </section>
   );
 }

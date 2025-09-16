@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import { brands, media, products, productVariants } from "~/server/db/schema";
@@ -8,14 +8,53 @@ export const _userProductsRepository = {
     getPage: async ({
       cursor,
       pageSize,
+      filters,
     }: {
       cursor: number | undefined;
       pageSize: number;
+      filters?: Partial<{
+        categories: number[];
+      }>;
     }) => {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
       ];
+      if (filters?.categories) {
+        const categoriesIds = new Set<number>([...filters.categories]);
+        await Promise.all(
+          filters.categories.map((categoryId) => {
+            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+            WITH RECURSIVE all_children_categories AS (
+              SELECT id 
+              FROM categories
+              WHERE parent_id = ${categoryId}
+
+              UNION ALL
+
+              SELECT categories.id
+              FROM categories
+              INNER JOIN all_children_categories
+                ON all_children_categories.id = categories.parent_id
+            )
+
+            SELECT id FROM all_children_categories
+          `;
+
+            return db
+              .execute<{ id: number }>(childrenCategoriesIdsQuery)
+              .then((result) =>
+                result.forEach((row) => {
+                  categoriesIds.add(row.id);
+                }),
+              );
+          }),
+        );
+
+        whereClause.push(
+          inArray(products.categoryId, Array.from(categoriesIds)),
+        );
+      }
 
       const brandsMedia = alias(media, "brands_media");
       const variantsMedia = alias(media, "variants_media");
@@ -44,6 +83,18 @@ export const _userProductsRepository = {
         )
         .as("product_variants_json");
 
+      const inStock = db
+        .select({
+          value: sql`
+            bool_or(product_variants.stock > 0)
+          `.as("in_stock"),
+        })
+        .from(productVariants)
+        .where(eq(productVariants.productId, products.id))
+        .groupBy(productVariants.productId)
+        .limit(1)
+        .as("in_stock");
+
       return db
         .select({
           id: products.id,
@@ -58,6 +109,7 @@ export const _userProductsRepository = {
             logo: brandsMedia.url,
           },
           variants: productVariantsJson.variants,
+          inStock: inStock.value,
         })
         .from(products)
         .where(and(...whereClause))
@@ -65,6 +117,7 @@ export const _userProductsRepository = {
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoinLateral(cheapestVariant, sql`true`)
+        .leftJoinLateral(inStock, sql`true`)
         .leftJoinLateral(productVariantsJson, sql`true`)
         .limit(pageSize + 1)
         .orderBy(desc(products.id));

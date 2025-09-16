@@ -3,8 +3,11 @@
 import { IconShoppingCartPlus } from "@tabler/icons-react";
 import { SparklesIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Spinner } from "~/components/spinner";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -13,22 +16,37 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 export function ProductList() {
-  const [data] = api.user.products.getPage.useSuspenseInfiniteQuery(
-    {
-      pageSize: 9,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  );
+  const [data, { hasNextPage, fetchNextPage }] =
+    api.user.products.getPage.useSuspenseInfiniteQuery(
+      {
+        pageSize: 9,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    );
   const products = data.pages.flatMap((page) => page.data);
 
+  const { ref, inView } = useInView();
+  useEffect(() => {
+    if (inView) {
+      void fetchNextPage();
+    }
+  }, [inView, fetchNextPage]);
+
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+      {hasNextPage && (
+        <div className="flex items-center justify-center p-4" ref={ref}>
+          <Spinner />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -52,7 +70,7 @@ function ProductCard({
 
         <Separator />
 
-        <div className="bg-muted flex flex-1 flex-col gap-4 p-4 text-center sm:text-left">
+        <div className="bg-card flex flex-1 flex-col gap-4 p-4 text-center sm:text-left">
           <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <ImageWithFallback
