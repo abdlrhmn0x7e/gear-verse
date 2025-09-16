@@ -21,7 +21,7 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 export function ProductsCarousel() {
-  const { data, isPending } = api.user.products.getPage.useQuery({
+  const [data] = api.user.products.getPage.useSuspenseQuery({
     pageSize: 10,
   });
 
@@ -39,47 +39,6 @@ export function ProductsCarousel() {
       setCurrent(carouselApi.selectedScrollSnap() + 1);
     });
   }, [carouselApi]);
-
-  if (isPending) {
-    return (
-      <div className="relative w-full">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {Array.from({ length: 4 }).map((_, index) => (
-              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-2/10">
-                <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
-                  <AspectRatio ratio={1} className="overflow-hidden">
-                    <Skeleton className="size-full rounded-none border-none" />
-                  </AspectRatio>
-
-                  <Separator />
-
-                  <div className="bg-muted flex-1 space-y-4 p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="size-6 rounded-full" />
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-
-                    <div>
-                      <Skeleton className="h-5 w-48" />
-                      <Skeleton className="mt-2 h-4 w-64" />
-                    </div>
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-
-          <CarouselPrevious className="top-[calc(100%+1rem)] left-0 size-10 translate-y-0" />
-          <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
-        </Carousel>
-        <Skeleton className="mt-6 ml-auto h-4 w-36" />
-      </div>
-    );
-  }
 
   if (!data || data.data.length === 0) {
     return (
@@ -116,6 +75,50 @@ export function ProductsCarousel() {
         <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
       </Carousel>
       <Progress value={progress} className="mt-6 ml-auto w-24" />
+    </div>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="relative w-full">
+      <Carousel className="w-full">
+        <CarouselContent>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <CarouselItem
+              key={index}
+              className="basis-4/5 sm:basis-2/5 xl:basis-3/12"
+            >
+              <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
+                <AspectRatio ratio={1} className="overflow-hidden">
+                  <Skeleton className="size-full rounded-none border-none" />
+                </AspectRatio>
+
+                <Separator />
+
+                <div className="bg-muted flex-1 space-y-4 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="size-6 rounded-full" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+
+                  <div>
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="mt-2 h-4 w-64" />
+                  </div>
+                </div>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        <CarouselPrevious className="top-[calc(100%+1rem)] left-0 size-10 translate-y-0" />
+        <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
+      </Carousel>
+      <Skeleton className="mt-6 ml-auto h-4 w-36" />
     </div>
   );
 }

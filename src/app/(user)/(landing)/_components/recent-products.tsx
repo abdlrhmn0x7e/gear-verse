@@ -1,14 +1,15 @@
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { api } from "~/trpc/server";
-import { ProductsCarousel } from "./products-carousel";
+import { ProductCardSkeleton, ProductsCarousel } from "./products-carousel";
 import Glow from "~/components/ui/glow";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { PackageIcon } from "lucide-react";
+import { Suspense } from "react";
 
 export function RecentProducts() {
-  void api.user.products.getPage.prefetchInfinite({
+  void api.user.products.getPage.prefetch({
     pageSize: 10,
   });
 
@@ -32,7 +33,11 @@ export function RecentProducts() {
             </Link>
           </Button>
         </div>
-        <ProductsCarousel />
+
+        <Suspense fallback={<ProductCardSkeleton />}>
+          <ProductsCarousel />
+        </Suspense>
+
         <Button asChild className="flex h-12 w-full md:hidden" size="lg">
           <Link href="/products">
             <PackageIcon />

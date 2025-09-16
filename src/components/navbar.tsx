@@ -89,7 +89,7 @@ export function Navbar() {
   // Prefetch data
   useEffect(() => {
     void utils.user.categories.findAll.prefetch();
-    void utils.user.products.getPage.prefetchInfinite({ pageSize: 6 });
+    void utils.user.products.getPage.prefetch({ pageSize: 6 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
