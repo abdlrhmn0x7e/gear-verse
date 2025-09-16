@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 
 export function Filters({ className }: { className?: string }) {
   return (
-    <aside id="filters" className={cn("sticky top-32", className)}>
+    <aside id="filters" className={cn("sticky top-32 h-fit", className)}>
       <Card>
         <CardContent className="flex flex-col gap-8 divide-y [&>*:not(:last-child)]:pb-8">
           <div className="flex flex-col gap-4">

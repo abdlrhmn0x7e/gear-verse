@@ -38,7 +38,7 @@ export function SuspendableImage({
 
   return (
     <>
-      {isLoading && <Skeleton className="size-full" />}
+      {isLoading && <Skeleton className="size-full rounded-none" />}
 
       <Image
         src={src}

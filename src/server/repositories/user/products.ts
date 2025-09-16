@@ -18,6 +18,7 @@ export const _userProductsRepository = {
       ];
 
       const brandsMedia = alias(media, "brands_media");
+      const variantsMedia = alias(media, "variants_media");
       const cheapestVariant = db
         .select({ price: productVariants.price })
         .from(productVariants)
@@ -25,6 +26,23 @@ export const _userProductsRepository = {
         .orderBy(asc(productVariants.price))
         .limit(1)
         .as("cheapest_variant");
+
+      const productVariantsJson = db
+        .select({
+          variants: sql<{ name: string; thumbnail: string }[]>`
+            json_agg(json_build_object(
+              'name', product_variants.name,
+              'thumbnail', variants_media.url
+            ))
+          `.as("variants"),
+        })
+        .from(productVariants)
+        .where(eq(productVariants.productId, products.id))
+        .leftJoin(
+          variantsMedia,
+          eq(productVariants.thumbnailMediaId, variantsMedia.id),
+        )
+        .as("product_variants_json");
 
       return db
         .select({
@@ -39,6 +57,7 @@ export const _userProductsRepository = {
             name: brands.name,
             logo: brandsMedia.url,
           },
+          variants: productVariantsJson.variants,
         })
         .from(products)
         .where(and(...whereClause))
@@ -46,6 +65,7 @@ export const _userProductsRepository = {
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoinLateral(cheapestVariant, sql`true`)
+        .leftJoinLateral(productVariantsJson, sql`true`)
         .limit(pageSize + 1)
         .orderBy(desc(products.id));
     },

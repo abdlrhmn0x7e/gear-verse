@@ -23,7 +23,7 @@ export function Products({ className }: { className?: string }) {
   });
 
   return (
-    <section id="products" className={cn("mt-2", className)}>
+    <section id="products" className={cn("mt-2 space-y-8", className)}>
       <div className="flex items-center justify-between">
         <Heading level={3} font="default">
           All products
