@@ -308,3 +308,123 @@ input:-webkit-autofill:active {
   /* Revert background color */
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Magnifying Glass Scanning Animations */
+@keyframes scan-orbit {
+  0% {
+    transform: rotate(0deg) translateX(var(--scan-radius)) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(var(--scan-radius)) rotate(-360deg);
+  }
+}
+
+@keyframes scan-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(var(--color-primary), 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(var(--color-primary), 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes magnifying-glass-focus {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+/* Tailwind Utility Classes for Scanning Animation */
+@utility scan-orbit-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+@utility scan-radius-sm {
+  --scan-radius: 120px;
+}
+
+@utility scan-radius-md {
+  --scan-radius: 180px;
+}
+
+@utility scan-radius-lg {
+  --scan-radius: 240px;
+}
+
+@utility scan-radius-xl {
+  --scan-radius: 300px;
+}
+
+@utility scan-speed-slow {
+  animation-duration: 10s;
+}
+
+@utility scan-speed-normal {
+  animation-duration: 6s;
+}
+
+@utility scan-speed-fast {
+  animation-duration: 4s;
+}
+
+@utility animate-scan-orbit {
+  animation: scan-orbit linear infinite;
+}
+
+@utility animate-scan-pulse {
+  animation: scan-pulse 2s ease-in-out infinite;
+}
+
+@utility animate-gamepad-zoom {
+  animation: gamepad-zoom-in 0.3s ease-out;
+}
+
+@utility animate-magnifying-focus {
+  animation: magnifying-glass-focus 0.3s ease-out forwards;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0) scale(1) rotate(-8deg);
+  }
+  50% {
+    transform: translateY(-18px) scale(1.08) rotate(8deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(-8deg);
+  }
+}
+
+@utility animate-float {
+  animation-name: float;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.9) translateY(0);
+    filter: drop-shadow(0 0 4px var(--color-primary));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) translateY(-2px);
+    filter: drop-shadow(0 0 10px var(--color-primary));
+  }
+}
+
+@utility animate-twinkle {
+  animation: twinkle 2.4s ease-in-out infinite;
+}

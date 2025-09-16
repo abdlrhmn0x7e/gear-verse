@@ -1,6 +1,7 @@
 import { Navbar } from "~/components/navbar";
 
 import { Footer } from "~/components/footer";
+import { HydrateClient } from "~/trpc/server";
 
 export default function UserLayout({
   children,
@@ -8,10 +9,10 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <HydrateClient>
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
-    </>
+    </HydrateClient>
   );
 }

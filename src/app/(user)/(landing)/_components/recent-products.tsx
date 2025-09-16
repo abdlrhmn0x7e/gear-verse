@@ -1,6 +1,6 @@
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { api, HydrateClient } from "~/trpc/server";
+import { api } from "~/trpc/server";
 import { ProductsCarousel } from "./products-carousel";
 import Glow from "~/components/ui/glow";
 import { Button } from "~/components/ui/button";
@@ -32,9 +32,7 @@ export function RecentProducts() {
             </Link>
           </Button>
         </div>
-        <HydrateClient>
-          <ProductsCarousel />
-        </HydrateClient>
+        <ProductsCarousel />
         <Button asChild className="flex h-12 w-full md:hidden" size="lg">
           <Link href="/products">
             <PackageIcon />
