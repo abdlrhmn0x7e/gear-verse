@@ -14,8 +14,14 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { api } from "~/trpc/server";
+import { ProductList } from "./product-list";
 
 export function Products({ className }: { className?: string }) {
+  void api.user.products.getPage.prefetchInfinite({
+    pageSize: 9,
+  });
+
   return (
     <section id="products" className={cn("mt-2", className)}>
       <div className="flex items-center justify-between">
@@ -57,6 +63,8 @@ export function Products({ className }: { className?: string }) {
           </SelectContent>
         </Select>
       </div>
+
+      <ProductList />
     </section>
   );
 }

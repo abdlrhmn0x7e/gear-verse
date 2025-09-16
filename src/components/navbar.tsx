@@ -56,6 +56,7 @@ import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "./image-with-fallback";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
+import type { User } from "better-auth";
 
 export interface NavigationLink {
   title: string;
@@ -80,18 +81,13 @@ const NAV_ITEMS = [
   },
 ] as const satisfies ReadonlyArray<NavigationLink>;
 
-export function Navbar() {
-  const utils = api.useUtils();
+export function Navbar({
+  user,
+}: {
+  user: (User & { role?: string | null | undefined }) | null;
+}) {
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
-  const { data } = authClient.useSession();
-
-  // Prefetch data
-  useEffect(() => {
-    void utils.user.categories.findAll.prefetch();
-    void utils.user.products.getPage.prefetch({ pageSize: 6 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
@@ -139,9 +135,9 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center justify-end gap-2">
-              {data ? (
+              {user ? (
                 <>
-                  {data.user.role === "admin" && (
+                  {user.role === "admin" && (
                     <Button variant="ghost" asChild>
                       <Link href="/admin">
                         <ShieldUserIcon />
@@ -150,7 +146,7 @@ export function Navbar() {
                     </Button>
                   )}
 
-                  <ProfileDropdown />
+                  <ProfileDropdown user={user} />
                 </>
               ) : (
                 <Button asChild>
@@ -374,7 +370,7 @@ function CategoriesMenu({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild disabled>
         <Button variant="ghost" size="lg">
           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
           Categories

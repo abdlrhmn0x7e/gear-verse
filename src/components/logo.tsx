@@ -3,9 +3,13 @@ import { cn } from "~/lib/utils";
 
 export function Logo({
   className,
+  width = 100,
+  height = 100,
   transparent = true,
 }: {
   className?: string;
+  width?: number;
+  height?: number;
   transparent?: boolean;
 }) {
   if (transparent) {
@@ -14,16 +18,16 @@ export function Logo({
         <Image
           src="/images/gear-dark-transparent.png"
           alt="Gear Verse"
-          width={256}
-          height={256}
+          width={width}
+          height={height}
           className="hidden size-full object-cover object-center dark:block"
         />
 
         <Image
           src="/images/gear-light-transparent.png"
           alt="Gear Verse"
-          width={256}
-          height={256}
+          width={width}
+          height={height}
           className="block size-full object-cover object-center dark:hidden"
         />
       </div>
@@ -35,16 +39,16 @@ export function Logo({
       <Image
         src="/images/gear-dark.png"
         alt="Gear Verse"
-        width={256}
-        height={256}
+        width={width}
+        height={height}
         className="hidden size-full scale-150 object-cover object-center dark:block"
       />
 
       <Image
         src="/images/gear-light.png"
         alt="Gear Verse"
-        width={256}
-        height={256}
+        width={width}
+        height={height}
         className="block size-full scale-150 object-cover object-center dark:hidden"
       />
     </div>

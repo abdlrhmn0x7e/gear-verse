@@ -23,12 +23,16 @@ import { cn } from "~/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { authClient } from "~/lib/auth-client";
 import { useTheme } from "next-themes";
+import type { User } from "better-auth";
 
-export function ProfileDropdown({ className }: { className?: string }) {
-  const { data } = authClient.useSession();
+export function ProfileDropdown({
+  className,
+  user,
+}: {
+  className?: string;
+  user: User;
+}) {
   const { setTheme, theme } = useTheme();
-
-  if (!data) return null;
 
   return (
     <DropdownMenu>
@@ -36,11 +40,8 @@ export function ProfileDropdown({ className }: { className?: string }) {
         className={cn("cursor-pointer rounded-full", className)}
       >
         <Avatar>
-          <AvatarImage
-            src={data.user.image ?? undefined}
-            alt={data.user.name}
-          />
-          <AvatarFallback>{data.user.name?.charAt(0)}</AvatarFallback>
+          <AvatarImage src={user.image ?? undefined} alt={user.name} />
+          <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -51,16 +52,13 @@ export function ProfileDropdown({ className }: { className?: string }) {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar>
-              <AvatarImage
-                src={data.user.image ?? undefined}
-                alt={data.user.name}
-              />
-              <AvatarFallback>{data.user.name?.charAt(0)}</AvatarFallback>
+              <AvatarImage src={user.image ?? undefined} alt={user.name} />
+              <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{data.user.name}</span>
+              <span className="truncate font-medium">{user.name}</span>
               <span className="text-muted-foreground truncate text-xs">
-                {data.user.email}
+                {user.email}
               </span>
             </div>
           </div>
