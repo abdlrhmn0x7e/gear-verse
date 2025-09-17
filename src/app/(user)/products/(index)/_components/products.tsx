@@ -1,7 +1,7 @@
 import { Heading } from "~/components/heading";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
-import { ProductList } from "./product-list";
+import { ProductList, ProductListSkeleton } from "./product-list";
 import { Suspense } from "react";
 import type { SearchParams } from "nuqs/server";
 import { loadAllProductSearchParams } from "./hooks";
@@ -37,7 +37,7 @@ export async function Products({
         <ProductsSort />
       </div>
 
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<ProductListSkeleton />}>
         <ProductList />
       </Suspense>
     </section>

@@ -56,6 +56,15 @@ function CategoryFilter() {
     filters: { root: true },
   });
 
+  function handleClearAll() {
+    void setFilters((prev) => {
+      return {
+        ...prev,
+        categories: null,
+      };
+    });
+  }
+
   function handleCategoryChange(value: number) {
     void setFilters((prev) => {
       if (prev.categories?.includes(value)) {
@@ -76,7 +85,12 @@ function CategoryFilter() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <Heading level={2}>Categories</Heading>
-        <Button variant="ghost" size="lg">
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={handleClearAll}
+          disabled={!filters.categories?.length}
+        >
           <XIcon />
           Clear all
         </Button>
@@ -127,11 +141,22 @@ function BrandFilter() {
     });
   }
 
+  function handleClearAll() {
+    void setFilters((prev) => {
+      return { ...prev, brands: null };
+    });
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <Heading level={2}>Brands</Heading>
-        <Button variant="ghost" size="lg">
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={handleClearAll}
+          disabled={!filters.brands?.length}
+        >
           <XIcon />
           Clear all
         </Button>

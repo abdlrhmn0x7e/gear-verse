@@ -12,6 +12,7 @@ import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { Skeleton } from "~/components/ui/skeleton";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useAllProductSearchParams } from "./hooks";
@@ -99,7 +100,7 @@ function ProductCard({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Heading level={5} className="line-clamp-2 h-[3.25rem]">
+            <Heading level={5} className="line-clamp-1">
               {product.name}
             </Heading>
             <div className="flex items-center gap-2">
@@ -132,5 +133,50 @@ function ProductCard({
         </div>
       </div>
     </Link>
+  );
+}
+
+export function ProductListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="group flex h-full flex-col overflow-hidden rounded-lg border"
+        >
+          <AspectRatio ratio={1} className="overflow-hidden">
+            <Skeleton className="size-full rounded-none border-none" />
+          </AspectRatio>
+
+          <Separator />
+
+          <div className="bg-muted flex flex-1 flex-col gap-4 p-4 text-center sm:text-left">
+            <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-4 w-20" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-5 w-48" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-4 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Array.from({ length: 4 }).map((_, badgeIdx) => (
+                  <Skeleton key={badgeIdx} className="h-6 w-20 rounded-full" />
+                ))}
+              </div>
+            </div>
+            <div className="flex h-full items-end">
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
