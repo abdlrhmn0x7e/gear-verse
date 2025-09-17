@@ -9,7 +9,7 @@ export default function ProductsPage() {
       <Hero />
       <MaxWidthWrapper className="relative grid grid-cols-1 gap-8 py-16 lg:grid-cols-12">
         <Filters className="lg:col-span-4 xl:col-span-3" />
-        <Products className="lg:col-span-4 xl:col-span-9" />
+        <Products className="lg:col-span-8 xl:col-span-9" />
       </MaxWidthWrapper>
     </>
   );

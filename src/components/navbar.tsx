@@ -438,7 +438,8 @@ function MobileMenu() {
                 variant="ghost"
                 className={cn(
                   "flex-col items-center gap-0 py-8",
-                  pathname === item.link.href && "text-primary-foreground",
+                  pathname === item.link.href &&
+                    "text-primary dark:text-accent-foreground",
                 )}
                 size="lg"
                 asChild

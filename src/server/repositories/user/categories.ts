@@ -1,10 +1,30 @@
-import { sql } from "drizzle-orm";
+import { isNull, sql } from "drizzle-orm";
 import type { CategoryTree } from "~/lib/schemas/category";
 import { db } from "~/server/db";
+import { categories } from "~/server/db/schema";
 
 export const _userCategoriesRepository = {
   queries: {
-    async findAll() {
+    async findAll({
+      filters,
+    }: {
+      filters?: Partial<{
+        root: boolean;
+      }>;
+    } = {}) {
+      if (filters?.root) {
+        return db
+          .select({
+            id: categories.id,
+            name: categories.name,
+            icon: categories.icon,
+            slug: categories.slug,
+            created_at: categories.created_at,
+          })
+          .from(categories)
+          .where(isNull(categories.parent_id));
+      }
+
       const query = sql<{ tree: string }[]>`
         WITH RECURSIVE all_categories AS (
           SELECT categories.*, 0 AS level

@@ -17,7 +17,7 @@ export function Hero() {
                 accessories—level up your setup with something extraordinary.
               </p>
             </div>
-            <Logo className="h-24" width={256} height={256} />
+            <Logo className="h-16 md:h-24" width={256} height={256} />
           </div>
 
           <div

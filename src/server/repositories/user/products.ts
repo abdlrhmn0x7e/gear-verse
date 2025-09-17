@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import { brands, media, products, productVariants } from "~/server/db/schema";
@@ -9,53 +9,20 @@ export const _userProductsRepository = {
       cursor,
       pageSize,
       filters,
+      sortBy,
     }: {
       cursor: number | undefined;
       pageSize: number;
       filters?: Partial<{
         categories: number[];
+        brands: number[];
+        price: {
+          min: number;
+          max: number;
+        };
       }>;
+      sortBy?: "newest" | "oldest" | "price-asc" | "price-desc";
     }) => {
-      const whereClause = [
-        gt(products.id, cursor ?? 0),
-        eq(products.published, true),
-      ];
-      if (filters?.categories) {
-        const categoriesIds = new Set<number>([...filters.categories]);
-        await Promise.all(
-          filters.categories.map((categoryId) => {
-            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
-            WITH RECURSIVE all_children_categories AS (
-              SELECT id 
-              FROM categories
-              WHERE parent_id = ${categoryId}
-
-              UNION ALL
-
-              SELECT categories.id
-              FROM categories
-              INNER JOIN all_children_categories
-                ON all_children_categories.id = categories.parent_id
-            )
-
-            SELECT id FROM all_children_categories
-          `;
-
-            return db
-              .execute<{ id: number }>(childrenCategoriesIdsQuery)
-              .then((result) =>
-                result.forEach((row) => {
-                  categoriesIds.add(row.id);
-                }),
-              );
-          }),
-        );
-
-        whereClause.push(
-          inArray(products.categoryId, Array.from(categoriesIds)),
-        );
-      }
-
       const brandsMedia = alias(media, "brands_media");
       const variantsMedia = alias(media, "variants_media");
       const cheapestVariant = db
@@ -95,6 +62,70 @@ export const _userProductsRepository = {
         .limit(1)
         .as("in_stock");
 
+      const whereClause = [
+        gt(products.id, cursor ?? 0),
+        eq(products.published, true),
+      ];
+      if (filters?.categories) {
+        const categoriesIds = new Set<number>([...filters.categories]);
+        await Promise.all(
+          filters.categories.map((categoryId) => {
+            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+            WITH RECURSIVE all_children_categories AS (
+              SELECT id 
+              FROM categories
+              WHERE parent_id = ${categoryId}
+
+              UNION ALL
+
+              SELECT categories.id
+              FROM categories
+              INNER JOIN all_children_categories
+                ON all_children_categories.id = categories.parent_id
+            )
+
+            SELECT id FROM all_children_categories
+          `;
+
+            return db
+              .execute<{ id: number }>(childrenCategoriesIdsQuery)
+              .then((result) =>
+                result.forEach((row) => {
+                  categoriesIds.add(row.id);
+                }),
+              );
+          }),
+        );
+
+        whereClause.push(
+          inArray(products.categoryId, Array.from(categoriesIds)),
+        );
+      }
+      if (filters?.brands) {
+        whereClause.push(inArray(products.brandId, filters.brands));
+      }
+      if (filters?.price) {
+        whereClause.push(
+          between(cheapestVariant.price, filters.price.min, filters.price.max),
+        );
+      }
+
+      let sortByClause = desc(products.id);
+      switch (sortBy) {
+        case "newest":
+          sortByClause = desc(products.createdAt);
+          break;
+        case "oldest":
+          sortByClause = asc(products.createdAt);
+          break;
+        case "price-asc":
+          sortByClause = asc(cheapestVariant.price);
+          break;
+        case "price-desc":
+          sortByClause = desc(cheapestVariant.price);
+          break;
+      }
+
       return db
         .select({
           id: products.id,
@@ -120,7 +151,7 @@ export const _userProductsRepository = {
         .leftJoinLateral(inStock, sql`true`)
         .leftJoinLateral(productVariantsJson, sql`true`)
         .limit(pageSize + 1)
-        .orderBy(desc(products.id));
+        .orderBy(sortByClause);
     },
   },
 };

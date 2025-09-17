@@ -1,26 +1,30 @@
-import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  SkullIcon,
-  SparklesIcon,
-} from "lucide-react";
 import { Heading } from "~/components/heading";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
 import { ProductList } from "./product-list";
 import { Suspense } from "react";
+import type { SearchParams } from "nuqs/server";
+import { loadAllProductSearchParams } from "./hooks";
+import { ProductsSort } from "./products-sort";
 
-export function Products({ className }: { className?: string }) {
+export async function Products({
+  className,
+  searchParams,
+}: {
+  className?: string;
+  searchParams: Promise<SearchParams>;
+}) {
+  const filters = await loadAllProductSearchParams(searchParams);
   void api.user.products.getPage.prefetchInfinite({
     pageSize: 9,
+    filters: {
+      brands: filters.brands ?? undefined,
+      categories: filters.categories ?? undefined,
+      price: {
+        min: filters.minPrice ?? 0,
+        max: filters.maxPrice ?? 9999,
+      },
+    },
   });
 
   return (
@@ -30,39 +34,7 @@ export function Products({ className }: { className?: string }) {
           All Products
         </Heading>
 
-        <Select defaultValue="default">
-          <SelectTrigger className="w-full max-w-3xs">
-            <SelectValue
-              placeholder={
-                <>
-                  <ArrowUpDownIcon /> Sort by...
-                </>
-              }
-            />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="default">
-              <ArrowUpDownIcon />
-              Default
-            </SelectItem>
-            <SelectItem value="newest">
-              <SparklesIcon />
-              Newest
-            </SelectItem>
-            <SelectItem value="oldest">
-              <SkullIcon />
-              Oldest
-            </SelectItem>
-            <SelectItem value="price-asc">
-              <ArrowUpIcon />
-              Price: Low to High
-            </SelectItem>
-            <SelectItem value="price-desc">
-              <ArrowDownIcon />
-              Price: High to Low
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <ProductsSort />
       </div>
 
       <Suspense fallback={<div>Loading...</div>}>

@@ -7,19 +7,32 @@ import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
-import { Spinner } from "~/components/spinner";
+import { LoadMore } from "~/components/load-more";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { useAllProductSearchParams } from "./hooks";
+import { useDebounce } from "~/hooks/use-debounce";
 
 export function ProductList() {
+  const [filters] = useAllProductSearchParams();
+  const debouncedFilters = useDebounce(filters);
   const [data, { hasNextPage, fetchNextPage }] =
     api.user.products.getPage.useSuspenseInfiniteQuery(
       {
-        pageSize: 9,
+        pageSize: 6,
+        filters: {
+          brands: debouncedFilters.brands ?? undefined,
+          categories: debouncedFilters.categories ?? undefined,
+          price: {
+            min: debouncedFilters.minPrice ?? 0,
+            max: debouncedFilters.maxPrice ?? 9999,
+          },
+        },
+        sortBy: debouncedFilters.sortBy ?? undefined,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -41,11 +54,8 @@ export function ProductList() {
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
-      {hasNextPage && (
-        <div className="flex items-center justify-center p-4" ref={ref}>
-          <Spinner />
-        </div>
-      )}
+
+      <LoadMore hasNextPage={hasNextPage} ref={ref} />
     </>
   );
 }
