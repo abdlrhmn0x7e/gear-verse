@@ -93,7 +93,7 @@ export function Navbar({
     <>
       <header className="fixed top-0 left-0 z-50 w-full md:top-5 md:left-1/2 md:container md:-translate-x-1/2">
         <motion.div
-          className="bg-card/60 dark:bg-card/80 space-y-3 rounded-none border-b px-8 py-4 backdrop-blur md:rounded-[3rem] md:border"
+          className="bg-card/90 dark:bg-card/80 space-y-3 rounded-none border-b px-8 py-4 backdrop-blur md:rounded-[3rem] md:border"
           style={{ height: "auto" }}
           transition={{
             duration: 0.3,
@@ -430,7 +430,7 @@ function MobileMenu() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-      <nav className="bg-card/80 border-t p-2 backdrop-blur">
+      <nav className="bg-card/95 border-t p-2 backdrop-blur">
         <ul className="grid grid-cols-2">
           {NAV_ITEMS.map((item) => (
             <li key={item.title} className="flex items-center justify-center">

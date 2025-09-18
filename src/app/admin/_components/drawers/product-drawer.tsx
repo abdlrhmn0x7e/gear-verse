@@ -30,7 +30,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 // Custom Components
 import Header, { HeaderSkeleton } from "~/components/header";
-import { ProductDescription } from "../product-description";
+import { ProductDescription } from "../../../../components/product-description";
 import { DeleteProductDialog } from "../dialogs/delete-product-dialog";
 import {
   VerseCarousel,

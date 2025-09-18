@@ -3,7 +3,6 @@ import { ImageWithFallback } from "./image-with-fallback";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface Variant {
-  id: number;
   name: string;
   stock: number;
   price: number;

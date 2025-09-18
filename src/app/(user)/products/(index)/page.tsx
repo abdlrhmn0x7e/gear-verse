@@ -11,8 +11,7 @@ export default function ProductsPage({
 }) {
   return (
     <>
-      <Hero />
-      <MaxWidthWrapper className="relative grid grid-cols-1 gap-8 py-16 lg:grid-cols-12">
+      <MaxWidthWrapper className="relative grid grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
         <Filters className="lg:col-span-4 xl:col-span-3" />
         <Products
           className="lg:col-span-8 xl:col-span-9"

@@ -18,6 +18,7 @@ import { Logo } from "~/components/logo";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { IconCoin, IconMouse, IconSparkles } from "@tabler/icons-react";
+import { OpenPackage } from "~/components/open-package";
 
 export function ProblemSolutions() {
   const solutions = [
@@ -279,7 +280,7 @@ function CustomsIllustration() {
 function DeliveryIllustration() {
   return (
     <div className="relative flex h-full items-end justify-center">
-      <PackageOpenIcon className="relative z-10 size-64 stroke-[0.6px] opacity-80" />
+      <OpenPackage className="relative z-10 -mb-4 size-64" />
 
       <div
         className="absolute top-8 left-1/2 -translate-x-1/2 rotate-180 opacity-50 blur-3xl"
@@ -296,15 +297,15 @@ function DeliveryIllustration() {
       <div className="pointer-events-none absolute top-0 left-1/2 z-20 -translate-x-1/2 select-none">
         <div className="relative h-[14rem] w-[22rem]">
           <Gamepad2Icon
-            className="text-accent-foreground animate-float absolute top-[38%] left-[12%] size-12 md:size-16"
+            className="text-accent-foreground animate-float absolute top-[38%] left-[26%] size-12 md:size-16 lg:top-[42%] lg:left-[20%]"
             style={{ animationDuration: "6s", animationDelay: "0.1s" }}
           />
           <KeyboardIcon
-            className="text-accent-foreground animate-float absolute top-[42%] left-[70%] size-12 md:size-16"
+            className="text-accent-foreground animate-float absolute top-[36%] left-[62%] size-12 md:size-16 lg:left-[66%]"
             style={{ animationDuration: "7.2s", animationDelay: "0.3s" }}
           />
           <IconMouse
-            className="text-accent-foreground animate-float absolute top-[18%] left-[42%] size-12 md:size-16"
+            className="text-accent-foreground animate-float absolute top-[18%] left-[46%] size-12 md:size-16 lg:left-[40%]"
             style={{ animationDuration: "5.4s", animationDelay: "0.2s" }}
           />
 

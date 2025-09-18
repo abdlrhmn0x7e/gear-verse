@@ -153,5 +153,55 @@ export const _userProductsRepository = {
         .limit(pageSize + 1)
         .orderBy(sortByClause);
     },
+
+    findBySlug: async (slug: string) => {
+      return db.query.products.findFirst({
+        where: and(eq(products.slug, slug), eq(products.published, true)),
+        columns: {
+          name: true,
+          summary: true,
+          specifications: true,
+          description: true,
+        },
+        with: {
+          brand: {
+            columns: {
+              name: true,
+            },
+            with: {
+              logo: {
+                columns: {
+                  url: true,
+                },
+              },
+            },
+          },
+          variants: {
+            columns: {
+              name: true,
+              stock: true,
+              price: true,
+              options: true,
+            },
+            with: {
+              thumbnail: {
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
+
+              images: {
+                where: eq(media.ownerType, "PRODUCT_VARIANT"),
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    },
   },
 };
