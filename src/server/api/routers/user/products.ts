@@ -5,7 +5,7 @@ import { paginationSchema } from "~/lib/schemas/pagination";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
-export const productsRouter = createTRPCRouter({
+export const userProductsRouter = createTRPCRouter({
   getPage: publicProcedure
     .input(
       paginationSchema.extend({

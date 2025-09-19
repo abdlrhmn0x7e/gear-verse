@@ -1,10 +1,12 @@
 import { createTRPCRouter } from "../../trpc";
-import { productsRouter } from "./products";
-import { brandsRouter } from "./brands";
-import { categoriesRouter } from "./categories";
+import { userProductsRouter } from "./products";
+import { userBrandsRouter } from "./brands";
+import { userCategoriesRouter } from "./categories";
+import { userCartsRouter } from "./carts";
 
 export const userRouter = createTRPCRouter({
-  products: productsRouter,
-  brands: brandsRouter,
-  categories: categoriesRouter,
+  products: userProductsRouter,
+  brands: userBrandsRouter,
+  categories: userCategoriesRouter,
+  carts: userCartsRouter,
 });

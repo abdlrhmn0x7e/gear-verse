@@ -215,6 +215,7 @@ export const _userProductsRepository = {
           },
           variants: {
             columns: {
+              id: true,
               name: true,
               stock: true,
               price: true,

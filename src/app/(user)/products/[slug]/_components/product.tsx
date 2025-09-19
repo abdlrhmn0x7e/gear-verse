@@ -21,8 +21,9 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { IconBasketDollar, IconShoppingCartPlus } from "@tabler/icons-react";
+import { IconBasketDollar } from "@tabler/icons-react";
 import { XIcon, CheckCircleIcon, StarIcon } from "lucide-react";
+import { AddToCartButton } from "./add-to-cart-button";
 
 export function Product({
   product,
@@ -119,15 +120,13 @@ export function Product({
           </div>
 
           <div className="flex flex-col gap-2 lg:flex-row">
-            <Button
+            <AddToCartButton
               className="w-full lg:flex-1"
               size="lg"
               variant="outline"
               disabled={!selectedVariantInStock}
-            >
-              <IconShoppingCartPlus />
-              Add to Cart
-            </Button>
+              productVariantId={selectedVariant.id}
+            />
             <Button
               className="w-full lg:flex-1"
               size="lg"

@@ -9,11 +9,12 @@ import {
   DoorOpenIcon,
   HomeIcon,
   ListTreeIcon,
+  MinusIcon,
+  PlusIcon,
   ShieldUserIcon,
   type LucideIcon,
 } from "lucide-react";
 import {
-  useEffect,
   useState,
   type ComponentProps,
   type Dispatch,
@@ -23,7 +24,6 @@ import {
 } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { authClient } from "~/lib/auth-client";
 import { ProfileDropdown } from "./profile-dropdown";
 import { AnimatePresence, motion } from "motion/react";
 import Header from "~/components/header";
@@ -36,6 +36,9 @@ import {
   IconShoppingBagMinus,
   IconShoppingBagPlus,
   IconShoppingBagX,
+  IconShoppingCart,
+  IconShoppingCartCheck,
+  IconShoppingCartX,
   type Icon,
   type IconProps,
 } from "@tabler/icons-react";
@@ -57,6 +60,17 @@ import { ImageWithFallback } from "./image-with-fallback";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import type { User } from "better-auth";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
+import { useIsMobile } from "~/hooks/use-mobile";
+import { formatCurrency } from "~/lib/utils/format-currency";
 
 export interface NavigationLink {
   title: string;
@@ -145,7 +159,7 @@ export function Navbar({
                       </Link>
                     </Button>
                   )}
-
+                  <Cart className="hidden md:flex" />
                   <ProfileDropdown user={user} />
                 </>
               ) : (
@@ -431,13 +445,13 @@ function MobileMenu() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
       <nav className="bg-card/95 border-t p-2 backdrop-blur">
-        <ul className="grid grid-cols-2">
+        <ul className="grid grid-cols-3">
           {NAV_ITEMS.map((item) => (
             <li key={item.title} className="flex items-center justify-center">
               <Button
                 variant="ghost"
                 className={cn(
-                  "flex-col items-center gap-0 py-8",
+                  "min-w-24 flex-col items-center gap-0 py-8",
                   pathname === item.link.href &&
                     "text-primary dark:text-accent-foreground",
                 )}
@@ -451,8 +465,140 @@ function MobileMenu() {
               </Button>
             </li>
           ))}
+
+          <li className="flex items-center justify-center">
+            <Cart className="min-w-24 flex-col items-center gap-0 py-8 [&_svg]:mb-1 [&>svg]:size-6" />
+          </li>
         </ul>
       </nav>
     </div>
+  );
+}
+
+function Cart({ className }: { className?: string }) {
+  const { data: cart, isPending: isPendingCart } =
+    api.user.carts.find.useQuery();
+  const utils = api.useUtils();
+  const { mutate: removeItem, isPending: removingItem } =
+    api.user.carts.removeItem.useMutation({
+      onSuccess: () => void utils.user.carts.find.invalidate(),
+    });
+  const { mutate: addItem, isPending: addingItem } =
+    api.user.carts.addItem.useMutation({
+      onSuccess: () => void utils.user.carts.find.invalidate(),
+    });
+  const isMobile = useIsMobile();
+
+  if (isPendingCart || !cart) {
+    return (
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button
+            variant="ghost"
+            disabled
+            className={cn("relative", className)}
+          >
+            <IconShoppingCart className="size-6 md:size-4" />
+            Cart
+          </Button>
+        </DrawerTrigger>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Drawer direction={isMobile ? "bottom" : "right"}>
+      <DrawerTrigger asChild>
+        <Button variant="ghost" className={cn("relative", className)}>
+          {cart.items.length > 0 && (
+            <div className="bg-primary absolute -top-1 right-0 flex size-4 items-center justify-center rounded-full">
+              <span className="text-primary-foreground text-xs">
+                {cart.items.length}
+              </span>
+            </div>
+          )}
+          <IconShoppingCart className="size-6 md:size-4" />
+          Cart
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent className="sm:h-auto">
+        <DrawerHeader>
+          <DrawerTitle className="text-2xl font-bold">
+            Shopping Cart
+          </DrawerTitle>
+          <DrawerDescription></DrawerDescription>
+        </DrawerHeader>
+
+        <div className="space-y-3 divide-y px-4 [&>div]:pb-4">
+          {cart.items.map((item, idx) => (
+            <div key={`cart-item-${idx}`} className="flex items-center gap-3">
+              <ImageWithFallback
+                src={item.productVariant?.thumbnail?.url}
+                alt={item.productVariant?.name ?? `Product ${idx + 1}`}
+                className="size-24 shrink-0 rounded-md"
+                width={256}
+                height={256}
+              />
+              <div className="flex-1 space-y-1">
+                <p className="text-left text-sm font-medium">
+                  {item.productVariant?.product.name} -{" "}
+                  {item.productVariant?.name}
+                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-muted-foreground text-sm">Total Amount</p>
+                  <p className="text-sm">
+                    {formatCurrency(
+                      (item.productVariant?.price ?? 0) * item.quantity,
+                    )}
+                  </p>
+                </div>
+                <div
+                  className={cn(
+                    "flex w-full items-center gap-6 rounded-lg border p-1",
+                    removingItem ||
+                      (addingItem && "pointer-events-none opacity-50"),
+                  )}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="flex-1 md:size-6"
+                    onClick={() =>
+                      removeItem({
+                        productVariantId: item.productVariant?.id ?? 0,
+                      })
+                    }
+                    disabled={removingItem}
+                  >
+                    <MinusIcon className="size-4" />
+                  </Button>
+                  <p className="shrink-0 text-xs">{item.quantity}</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="flex-1 md:size-6"
+                    onClick={() =>
+                      addItem({
+                        productVariantId: item.productVariant?.id ?? 0,
+                      })
+                    }
+                    disabled={addingItem}
+                  >
+                    <PlusIcon className="size-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <DrawerFooter>
+          <Button variant="default" className="w-full" size="lg">
+            <IconShoppingCartCheck className="size-4" />
+            Proceed to Checkout
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

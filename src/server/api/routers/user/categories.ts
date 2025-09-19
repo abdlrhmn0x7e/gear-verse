@@ -2,7 +2,7 @@ import { DB } from "~/server/repositories";
 import { createTRPCRouter, publicProcedure } from "../../trpc";
 import z from "zod";
 
-export const categoriesRouter = createTRPCRouter({
+export const userCategoriesRouter = createTRPCRouter({
   findAll: publicProcedure
     .input(
       z
