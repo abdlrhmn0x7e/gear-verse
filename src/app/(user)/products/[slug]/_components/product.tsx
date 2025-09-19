@@ -126,6 +126,7 @@ export function Product({
               variant="outline"
               disabled={!selectedVariantInStock}
               productVariantId={selectedVariant.id}
+              stock={selectedVariant.stock}
             />
             <Button
               className="w-full lg:flex-1"

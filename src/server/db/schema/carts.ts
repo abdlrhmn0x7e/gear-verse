@@ -43,10 +43,14 @@ export const cartItems = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
 
-    cartId: bigint("cart_id", { mode: "number" }).references(() => carts.id),
+    cartId: bigint("cart_id", { mode: "number" })
+      .notNull()
+      .references(() => carts.id),
     productVariantId: bigint("product_variant_id", {
       mode: "number",
-    }).references(() => productVariants.id),
+    })
+      .notNull()
+      .references(() => productVariants.id),
     quantity: integer("quantity").notNull().default(1),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),

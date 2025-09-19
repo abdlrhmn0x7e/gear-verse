@@ -1,6 +1,11 @@
 "use client";
 
-import { IconShoppingCartPlus, IconShoppingCartX } from "@tabler/icons-react";
+import {
+  IconShoppingCart,
+  IconShoppingCartPlus,
+  IconShoppingCartX,
+} from "@tabler/icons-react";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -8,19 +13,25 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
 export function AddToCartButton({
   productVariantId,
+  stock,
   disabled,
   ...props
-}: React.ComponentProps<typeof Button> & { productVariantId: number }) {
+}: React.ComponentProps<typeof Button> & {
+  productVariantId: number;
+  stock: number;
+}) {
   const { mutate: addToCart, isPending: addingToCart } =
     api.user.carts.addItem.useMutation();
   const { mutate: removeFromCart, isPending: removingFromCart } =
     api.user.carts.removeItem.useMutation();
   const { data: cart } = api.user.carts.find.useQuery();
+  const [, setParams] = useCartSearchParams();
   const utils = api.useUtils();
   const currentCartItem = useMemo(
     () =>
@@ -37,7 +48,8 @@ export function AddToCartButton({
     );
   }
 
-  function handleRemoveFromCart() {
+  function handleRemoveFromCart(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
     removeFromCart(
       { productVariantId },
       {
@@ -46,7 +58,8 @@ export function AddToCartButton({
     );
   }
 
-  function handleIncreaseQuantity() {
+  function handleIncreaseQuantity(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
     addToCart(
       { productVariantId },
       {
@@ -59,10 +72,12 @@ export function AddToCartButton({
     return (
       <div
         className={cn(
-          "has-[>p:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>p:hover]:cursor-not-allowed",
+          "has-[>div:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>div:hover]:cursor-pointer",
           removingFromCart ||
             (addingToCart && "pointer-events-none opacity-50"),
         )}
+        role="button"
+        onClick={() => void setParams({ cart: true })}
       >
         <Tooltip>
           <TooltipTrigger asChild>
@@ -72,25 +87,33 @@ export function AddToCartButton({
               disabled={removingFromCart}
               className="w-full flex-1"
             >
-              <IconShoppingCartX />
+              <MinusIcon />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Remove from Cart</TooltipContent>
+          <TooltipContent>Decrease quantity</TooltipContent>
         </Tooltip>
 
-        <p className="text-sm font-medium">
-          {currentCartItem.quantity} in cart
-        </p>
+        <div className="flex items-center gap-2">
+          <IconShoppingCart className="size-4" />
+
+          <p className="text-sm font-medium">
+            {currentCartItem.quantity} in cart
+          </p>
+        </div>
 
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               onClick={handleIncreaseQuantity}
-              disabled={removingFromCart}
+              disabled={
+                removingFromCart ||
+                stock === 0 ||
+                stock <= currentCartItem.quantity
+              }
               className="w-full flex-1"
             >
-              <IconShoppingCartPlus />
+              <PlusIcon />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Increase quantity</TooltipContent>

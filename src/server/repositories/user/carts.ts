@@ -18,7 +18,7 @@ export const _userCartsRepository = {
 
     find: async (userId: number) => {
       return db.query.carts.findFirst({
-        columns: {},
+        columns: { id: true },
         where: eq(carts.userId, userId),
         with: {
           items: {
@@ -31,6 +31,7 @@ export const _userCartsRepository = {
                   id: true,
                   name: true,
                   price: true,
+                  stock: true,
                 },
                 with: {
                   thumbnail: {

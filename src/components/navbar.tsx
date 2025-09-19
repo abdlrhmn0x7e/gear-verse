@@ -66,10 +66,10 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "./ui/drawer";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 
 export interface NavigationLink {
   title: string;
@@ -101,6 +101,10 @@ export function Navbar({
 }) {
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
+
+  const { data: cart, isPending: isPendingCart } =
+    api.user.carts.find.useQuery();
+  const [, setParams] = useCartSearchParams();
 
   return (
     <>
@@ -158,7 +162,14 @@ export function Navbar({
                       </Link>
                     </Button>
                   )}
-                  <Cart className="hidden md:flex" />
+                  <Button
+                    variant="ghost"
+                    onClick={() => setParams({ cart: true })}
+                    disabled={isPendingCart}
+                  >
+                    <IconShoppingCart />
+                    Cart
+                  </Button>
                   <ProfileDropdown user={user} />
                 </>
               ) : (
@@ -178,6 +189,7 @@ export function Navbar({
         </motion.div>
       </header>
 
+      {cart && <CartDrawer cart={cart} />}
       <MobileMenu />
     </>
   );
@@ -440,6 +452,7 @@ function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
 
 function MobileMenu() {
   const pathname = usePathname();
+  const [params, setParams] = useCartSearchParams();
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
@@ -466,7 +479,18 @@ function MobileMenu() {
           ))}
 
           <li className="flex items-center justify-center">
-            <Cart className="min-w-24 flex-col items-center gap-0 py-8 [&_svg]:mb-1 [&>svg]:size-6" />
+            <Button
+              variant="ghost"
+              className={cn(
+                "min-w-24 flex-col items-center gap-0 py-8",
+                params.cart && "text-primary dark:text-accent-foreground",
+              )}
+              size="lg"
+              onClick={() => setParams({ cart: params.cart ? null : true })}
+            >
+              <IconShoppingCart />
+              Cart
+            </Button>
           </li>
         </ul>
       </nav>
@@ -474,9 +498,11 @@ function MobileMenu() {
   );
 }
 
-function Cart({ className }: { className?: string }) {
-  const { data: cart, isPending: isPendingCart } =
-    api.user.carts.find.useQuery();
+function CartDrawer({
+  cart,
+}: {
+  cart: RouterOutputs["user"]["carts"]["find"];
+}) {
   const utils = api.useUtils();
   const { mutate: removeItem, isPending: removingItem } =
     api.user.carts.removeItem.useMutation({
@@ -486,40 +512,19 @@ function Cart({ className }: { className?: string }) {
     api.user.carts.addItem.useMutation({
       onSuccess: () => void utils.user.carts.find.invalidate(),
     });
+  const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();
 
-  if (isPendingCart || !cart) {
-    return (
-      <Drawer>
-        <DrawerTrigger asChild>
-          <Button
-            variant="ghost"
-            disabled
-            className={cn("relative", className)}
-          >
-            <IconShoppingCart className="size-6 md:size-4" />
-            Cart
-          </Button>
-        </DrawerTrigger>
-      </Drawer>
-    );
+  function handleOpenChange(open: boolean) {
+    void setParams({ cart: open ? open : null });
   }
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="ghost" className={cn("relative", className)}>
-          {cart.items.length > 0 && (
-            <div className="bg-primary absolute -top-1 right-0 flex size-4 items-center justify-center rounded-full">
-              <span className="text-primary-foreground text-xs">
-                {cart.items.length}
-              </span>
-            </div>
-          )}
-          <IconShoppingCart className="size-6 md:size-4" />
-          Cart
-        </Button>
-      </DrawerTrigger>
+    <Drawer
+      direction={isMobile ? "bottom" : "right"}
+      open={params.cart ?? false}
+      onOpenChange={handleOpenChange}
+    >
       <DrawerContent className="sm:h-auto">
         <DrawerHeader>
           <DrawerTitle className="text-2xl font-bold">
@@ -529,72 +534,94 @@ function Cart({ className }: { className?: string }) {
         </DrawerHeader>
 
         <div className="space-y-3 divide-y px-4 [&>div]:pb-4">
-          {cart.items.map((item, idx) => (
-            <div key={`cart-item-${idx}`} className="flex items-center gap-3">
-              <ImageWithFallback
-                src={item.productVariant?.thumbnail?.url}
-                alt={item.productVariant?.name ?? `Product ${idx + 1}`}
-                className="size-24 shrink-0 rounded-md"
-                width={256}
-                height={256}
-              />
-              <div className="flex-1 space-y-1">
-                <p className="text-left text-sm font-medium">
-                  {item.productVariant?.product.name} -{" "}
-                  {item.productVariant?.name}
-                </p>
-                <div className="flex items-center justify-between">
-                  <p className="text-muted-foreground text-sm">Total Amount</p>
-                  <p className="text-sm">
-                    {formatCurrency(
-                      (item.productVariant?.price ?? 0) * item.quantity,
-                    )}
+          {cart.items.length > 0 ? (
+            cart.items.map((item, idx) => (
+              <div key={`cart-item-${idx}`} className="flex items-center gap-3">
+                <ImageWithFallback
+                  src={item.productVariant?.thumbnail?.url}
+                  alt={item.productVariant?.name ?? `Product ${idx + 1}`}
+                  className="size-24 shrink-0 rounded-md"
+                  width={256}
+                  height={256}
+                />
+                <div className="flex-1 space-y-1">
+                  <p className="text-left text-sm font-medium">
+                    {item.productVariant?.product.name} -{" "}
+                    {item.productVariant?.name}
                   </p>
-                </div>
-                <div
-                  className={cn(
-                    "flex w-full items-center gap-6 rounded-lg border p-1",
-                    removingItem ||
-                      (addingItem && "pointer-events-none opacity-50"),
-                  )}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="flex-1 md:size-6"
-                    onClick={() =>
-                      removeItem({
-                        productVariantId: item.productVariant?.id ?? 0,
-                      })
-                    }
-                    disabled={removingItem}
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground text-sm">
+                      Total Amount
+                    </p>
+                    <p className="text-sm">
+                      {formatCurrency(
+                        (item.productVariant?.price ?? 0) * item.quantity,
+                      )}
+                    </p>
+                  </div>
+                  <div
+                    className={cn(
+                      "flex w-full items-center gap-6 rounded-lg border p-1",
+                      removingItem ||
+                        (addingItem && "pointer-events-none opacity-50"),
+                    )}
                   >
-                    <MinusIcon className="size-4" />
-                  </Button>
-                  <p className="shrink-0 text-xs">{item.quantity}</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="flex-1 md:size-6"
-                    onClick={() =>
-                      addItem({
-                        productVariantId: item.productVariant?.id ?? 0,
-                      })
-                    }
-                    disabled={addingItem}
-                  >
-                    <PlusIcon className="size-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="flex-1 md:size-6"
+                      onClick={() =>
+                        removeItem({
+                          productVariantId: item.productVariant?.id ?? 0,
+                        })
+                      }
+                      disabled={removingItem}
+                    >
+                      <MinusIcon className="size-4" />
+                    </Button>
+                    <p className="shrink-0 text-xs">{item.quantity}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="flex-1 md:size-6"
+                      onClick={() =>
+                        addItem({
+                          productVariantId: item.productVariant?.id ?? 0,
+                        })
+                      }
+                      disabled={
+                        addingItem ||
+                        item.productVariant?.stock === 0 ||
+                        (item.productVariant?.stock ?? 0) <= item.quantity
+                      }
+                    >
+                      <PlusIcon className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <IconShoppingBagX size={64} />
+              <p className="text-muted-foreground text-sm">
+                Your cart is empty
+              </p>
             </div>
-          ))}
+          )}
         </div>
 
         <DrawerFooter>
-          <Button variant="default" className="w-full" size="lg">
-            <IconShoppingCartCheck className="size-4" />
-            Proceed to Checkout
+          <Button variant="default" className="w-full" size="lg" asChild>
+            <Link
+              href="/checkout"
+              className={cn(
+                cart.items.length <= 0 && "pointer-events-none opacity-50",
+              )}
+            >
+              <IconShoppingCartCheck className="size-4" />
+              Proceed to Checkout
+            </Link>
           </Button>
         </DrawerFooter>
       </DrawerContent>

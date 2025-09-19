@@ -84,6 +84,7 @@
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
+    "libphonenumber-js": "^1.12.17",
     "lucide-react": "^0.542.0",
     "motion": "^12.23.12",
     "next": "^15.2.3",

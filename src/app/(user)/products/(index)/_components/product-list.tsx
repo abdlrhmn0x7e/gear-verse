@@ -1,7 +1,6 @@
 "use client";
 
-import { IconShoppingCartPlus } from "@tabler/icons-react";
-import { SparklesIcon } from "lucide-react";
+import { EyeIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
@@ -125,9 +124,9 @@ function ProductCard({
             </div>
           </div>
           <div className="flex h-full items-end">
-            <Button className="w-full" onClick={(e) => e.stopPropagation()}>
-              <IconShoppingCartPlus />
-              Add to Cart
+            <Button className="w-full">
+              <EyeIcon />
+              View Details
             </Button>
           </div>
         </div>
