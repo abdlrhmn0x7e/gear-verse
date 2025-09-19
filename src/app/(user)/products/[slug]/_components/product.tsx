@@ -55,8 +55,8 @@ export function Product({
           />
         </div>
 
-        <div className="space-y-8 text-center lg:text-left">
-          <div className="space-y-4">
+        <div className="space-y-8">
+          <div className="space-y-4 text-center lg:text-left">
             <div className="flex flex-col items-center justify-between gap-4 lg:flex-row lg:items-start">
               <Heading level={2}>{product.name}</Heading>
               <Badge variant="outline" className="pr-px">
@@ -77,12 +77,12 @@ export function Product({
                 </div>
               </Badge>
             </div>
-            <p className="text-muted-foreground text-pretty">
+            <p className="text-muted-foreground text-pretty lg:text-lg">
               {product.summary}
             </p>
           </div>
           <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
-            <p className="text-primary dark:text-primary-foreground text-3xl font-bold">
+            <p className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
               {formatCurrency(selectedVariant.price)}
             </p>
             <div className="flex flex-wrap items-center gap-2">

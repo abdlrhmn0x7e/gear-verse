@@ -1,7 +1,14 @@
 import { and, asc, between, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
-import { brands, media, products, productVariants } from "~/server/db/schema";
+import {
+  brands,
+  media,
+  products,
+  productVariants,
+  users,
+} from "~/server/db/schema";
+import { reviews } from "~/server/db/schema/reviews";
 
 export const _userProductsRepository = {
   queries: {
@@ -49,6 +56,34 @@ export const _userProductsRepository = {
           eq(productVariants.thumbnailMediaId, variantsMedia.id),
         )
         .as("product_variants_json");
+
+      const productReviewsJson = db
+        .select({
+          reviews: sql<
+            {
+              rating: number;
+              comment: string;
+              createdAt: Date;
+              user: { name: string; image: string };
+            }[]
+          >`
+            json_agg(
+              json_build_object(
+                'rating', reviews.rating,
+                'comment', reviews.comment,
+                'createdAt', reviews.created_at,
+                'user', json_build_object(
+                  'name', users.name,
+                  'image', users.image
+                )
+              )
+            )
+          `.as("reviews"),
+        })
+        .from(reviews)
+        .where(eq(reviews.productId, products.id))
+        .leftJoin(users, eq(reviews.userId, users.id))
+        .as("product_reviews_json");
 
       const inStock = db
         .select({
@@ -139,6 +174,7 @@ export const _userProductsRepository = {
             name: brands.name,
             logo: brandsMedia.url,
           },
+          reviews: productReviewsJson.reviews,
           variants: productVariantsJson.variants,
           inStock: inStock.value,
         })
@@ -150,6 +186,7 @@ export const _userProductsRepository = {
         .leftJoinLateral(cheapestVariant, sql`true`)
         .leftJoinLateral(inStock, sql`true`)
         .leftJoinLateral(productVariantsJson, sql`true`)
+        .leftJoinLateral(productReviewsJson, sql`true`)
         .limit(pageSize + 1)
         .orderBy(sortByClause);
     },

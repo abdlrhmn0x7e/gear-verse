@@ -8,8 +8,8 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable(
-  "user",
+export const users = pgTable(
+  "users",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
@@ -30,8 +30,8 @@ export const user = pgTable(
   (table) => [uniqueIndex("user_email_unique_idx").on(table.email)],
 );
 
-export const session = pgTable(
-  "session",
+export const sessions = pgTable(
+  "sessions",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
@@ -44,7 +44,7 @@ export const session = pgTable(
     userAgent: text("user_agent"),
     userId: bigint("user_id", { mode: "number" })
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => users.id, { onDelete: "cascade" }),
   },
   (table) => [
     index("session_user_id_unique_idx").on(table.userId),
@@ -52,8 +52,8 @@ export const session = pgTable(
   ],
 );
 
-export const account = pgTable(
-  "account",
+export const accounts = pgTable(
+  "accounts",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
@@ -62,7 +62,7 @@ export const account = pgTable(
     providerId: text("provider_id").notNull(),
     userId: bigint("user_id", { mode: "number" })
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => users.id, { onDelete: "cascade" }),
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
@@ -76,8 +76,8 @@ export const account = pgTable(
   (table) => [uniqueIndex("account_user_id_unique_idx").on(table.userId)],
 );
 
-export const verification = pgTable(
-  "verification",
+export const verifications = pgTable(
+  "verifications",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
