@@ -1,4 +1,3 @@
-import { Hero } from "./_components/hero";
 import { Products } from "./_components/products";
 import { Filters } from "./_components/filters";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";

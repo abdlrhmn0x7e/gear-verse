@@ -38,7 +38,6 @@ import {
   IconShoppingBagX,
   IconShoppingCart,
   IconShoppingCartCheck,
-  IconShoppingCartX,
   type Icon,
   type IconProps,
 } from "@tabler/icons-react";
@@ -373,7 +372,7 @@ function CategoriesMenu({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="lg">
+          <Button variant="ghost" size="lg" disabled>
             <ChevronDownIcon />
             Categories
           </Button>

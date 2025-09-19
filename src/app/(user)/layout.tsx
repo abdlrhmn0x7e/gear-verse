@@ -16,6 +16,9 @@ export default async function UserLayout({
   void api.user.products.getPage.prefetch({
     pageSize: 10,
   });
+  void api.user.products.getPage.prefetch({
+    pageSize: 6,
+  });
 
   return (
     <HydrateClient>

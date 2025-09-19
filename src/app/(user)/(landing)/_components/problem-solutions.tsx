@@ -10,7 +10,6 @@ import {
   ChevronLeftIcon,
   Gamepad2Icon,
   KeyboardIcon,
-  PackageOpenIcon,
   VideoIcon,
 } from "lucide-react";
 import { Earth } from "~/components/earth";

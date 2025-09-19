@@ -3,8 +3,8 @@ import { cn } from "~/lib/utils";
 
 export function Logo({
   className,
-  width = 100,
-  height = 100,
+  width = 138,
+  height = 72,
   transparent = true,
 }: {
   className?: string;
