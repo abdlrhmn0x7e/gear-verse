@@ -1,4 +1,3 @@
-import { DB } from "~/server/repositories";
 import { createTRPCRouter, publicProcedure } from "../../trpc";
 import z from "zod";
 
@@ -15,8 +14,8 @@ export const userCategoriesRouter = createTRPCRouter({
         })
         .optional(),
     )
-    .query(({ input }) => {
-      return DB.user.categories.queries.findAll({
+    .query(({ ctx, input }) => {
+      return ctx.db.user.categories.queries.findAll({
         filters: input?.filters,
       });
     }),

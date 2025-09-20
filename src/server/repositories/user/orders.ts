@@ -1,6 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
-import { cartItems, orderItems, orders } from "~/server/db/schema";
+import {
+  cartItems,
+  orderItems,
+  orders,
+  productVariants,
+} from "~/server/db/schema";
 
 type NewOrder = typeof orders.$inferInsert;
 type NewOrderItem = typeof orderItems.$inferInsert;
@@ -33,6 +38,14 @@ export const _userOrdersRepository = {
 
         // clear the cart
         await tx.delete(cartItems).where(eq(cartItems.cartId, cartId));
+
+        // update the product variants stock
+        for (const item of items) {
+          await tx
+            .update(productVariants)
+            .set({ stock: sql`${productVariants.stock} - ${item.quantity}` })
+            .where(eq(productVariants.id, item.productVariantId));
+        }
 
         return order;
       });

@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
 export const userOrdersRouter = createTRPCRouter({
-  findById: protectedProcedure.query(() => {
+  findById: protectedProcedure.query(({ ctx }) => {
     return null;
   }),
 });

@@ -60,7 +60,7 @@ export function Product({
           <div className="space-y-4 text-center lg:text-left">
             <div className="flex flex-col items-center justify-between gap-4 lg:flex-row lg:items-start">
               <Heading level={2}>{product.name}</Heading>
-              <Badge variant="outline" className="pr-px">
+              <Badge variant="outline" className="pr-1">
                 <ImageWithFallback
                   src={product.brand.logo?.url}
                   alt={product.brand.name}

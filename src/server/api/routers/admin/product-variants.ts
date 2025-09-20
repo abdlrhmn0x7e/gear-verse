@@ -1,5 +1,4 @@
 import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
-import { DB } from "~/server/repositories";
 import { productVariantSchema } from "~/lib/schemas/product-variants";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -13,9 +12,9 @@ export const productVariantsRouter = createTRPCRouter({
         updatedAt: true,
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const createdVariant =
-        await DB.admin.productVariants.mutations.create(input);
+        await ctx.db.admin.productVariants.mutations.create(input);
 
       if (!createdVariant) {
         throw new TRPCError({
@@ -29,8 +28,8 @@ export const productVariantsRouter = createTRPCRouter({
 
   bulkDelete: adminProcedure
     .input(z.array(z.number()))
-    .mutation(async ({ input }) => {
-      return DB.admin.productVariants.mutations.bulkDelete(input);
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.admin.productVariants.mutations.bulkDelete(input);
     }),
 
   update: adminProcedure
@@ -48,9 +47,9 @@ export const productVariantsRouter = createTRPCRouter({
           }),
         ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, oldThumbnailMediaId, ...rest } = input;
-      return DB.admin.productVariants.mutations.update(
+      return ctx.db.admin.productVariants.mutations.update(
         id,
         oldThumbnailMediaId,
         rest,
@@ -67,9 +66,9 @@ export const productVariantsRouter = createTRPCRouter({
         }),
       ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const createdVariants =
-        await DB.admin.productVariants.mutations.bulkCreate(input);
+        await ctx.db.admin.productVariants.mutations.bulkCreate(input);
 
       if (!createdVariants) {
         throw new TRPCError({
@@ -93,7 +92,7 @@ export const productVariantsRouter = createTRPCRouter({
           .and(z.object({ id: z.number() })),
       ),
     )
-    .mutation(async ({ input }) => {
-      return DB.admin.productVariants.mutations.bulkUpdate(input);
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.admin.productVariants.mutations.bulkUpdate(input);
     }),
 });

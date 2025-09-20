@@ -1,11 +1,12 @@
-import { DB } from "~/server/repositories";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const userCartsRouter = createTRPCRouter({
   find: protectedProcedure.query(async ({ ctx }) => {
-    const cart = await DB.user.carts.queries.find(Number(ctx.session.user.id));
+    const cart = await ctx.db.user.carts.queries.find(
+      Number(ctx.session.user.id),
+    );
     if (!cart) {
       throw new TRPCError({
         code: "NOT_FOUND",
@@ -23,10 +24,10 @@ export const userCartsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      let cart = await DB.user.carts.queries.findCartId(
+      let cart = await ctx.db.user.carts.queries.findCartId(
         Number(ctx.session.user.id),
       );
-      cart ??= await DB.user.carts.mutations.create({
+      cart ??= await ctx.db.user.carts.mutations.create({
         userId: Number(ctx.session.user.id),
       }); // Create cart if it doesn't exist
 
@@ -37,7 +38,7 @@ export const userCartsRouter = createTRPCRouter({
         });
       }
 
-      return DB.user.carts.mutations.addItem({
+      return ctx.db.user.carts.mutations.addItem({
         cartId: cart.id,
         productVariantId: input.productVariantId,
       });
@@ -50,7 +51,7 @@ export const userCartsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const cart = await DB.user.carts.queries.findCartId(
+      const cart = await ctx.db.user.carts.queries.findCartId(
         Number(ctx.session.user.id),
       );
       if (!cart) {
@@ -60,7 +61,7 @@ export const userCartsRouter = createTRPCRouter({
         });
       }
 
-      return DB.user.carts.mutations.removeItem(
+      return ctx.db.user.carts.mutations.removeItem(
         cart.id,
         input.productVariantId,
       );

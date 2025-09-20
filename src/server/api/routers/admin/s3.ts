@@ -3,7 +3,6 @@ import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
-import { DB } from "~/server/repositories";
 
 export const s3Router = createTRPCRouter({
   /**
@@ -17,7 +16,7 @@ export const s3Router = createTRPCRouter({
         size: z.number(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ ctx, input }) => {
       const { data, error } = await tryCatch(
         s3GetPresignedUrl(input.type, input.size, input.fileId),
       );
@@ -31,7 +30,7 @@ export const s3Router = createTRPCRouter({
 
       // Create a new media record
       const { data: media, error: mediaError } = await tryCatch(
-        DB.admin.media.mutations.create({
+        ctx.db.admin.media.mutations.create({
           ownerType: "USER",
           ownerId: Number(ctx.session.user.id),
           url: data.accessUrl,
@@ -68,7 +67,7 @@ export const s3Router = createTRPCRouter({
         }),
       ),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ ctx, input }) => {
       const returnedData = new Map<
         string,
         {
@@ -95,7 +94,7 @@ export const s3Router = createTRPCRouter({
       }
 
       const { data: media, error: mediaError } = await tryCatch(
-        DB.admin.media.mutations.createMany(
+        ctx.db.admin.media.mutations.createMany(
           presignedUrls.map((item) => ({
             ownerType: "USER",
             ownerId: Number(ctx.session.user.id),

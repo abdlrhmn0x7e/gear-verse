@@ -1,4 +1,3 @@
-import { DB } from "~/server/repositories";
 import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { brandSchema } from "~/lib/schemas/brand";
 import { paginationSchema } from "~/lib/schemas/pagination";
@@ -9,8 +8,8 @@ export const brandsRouter = createTRPCRouter({
   /**
    * Queries
    */
-  getPage: adminProcedure.input(paginationSchema).query(({ input }) => {
-    return paginate({ input, getPage: DB.admin.brands.queries.getPage });
+  getPage: adminProcedure.input(paginationSchema).query(({ ctx, input }) => {
+    return paginate({ input, getPage: ctx.db.admin.brands.queries.getPage });
   }),
 
   /**
@@ -25,8 +24,8 @@ export const brandsRouter = createTRPCRouter({
         updatedAt: true,
       }),
     )
-    .mutation(({ input }) => {
-      return DB.admin.brands.mutations.create({
+    .mutation(({ ctx, input }) => {
+      return ctx.db.admin.brands.mutations.create({
         ...input,
         slug: generateSlug(input.name),
       });

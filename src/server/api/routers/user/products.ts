@@ -1,4 +1,3 @@
-import { DB } from "~/server/repositories";
 import { createTRPCRouter, publicProcedure } from "../../trpc";
 import { paginate } from "../../helpers/pagination";
 import { paginationSchema } from "~/lib/schemas/pagination";
@@ -25,13 +24,13 @@ export const userProductsRouter = createTRPCRouter({
           .optional(),
       }),
     )
-    .query(({ input }) => {
-      return paginate({ input, getPage: DB.user.products.queries.getPage });
+    .query(({ ctx, input }) => {
+      return paginate({ input, getPage: ctx.db.user.products.queries.getPage });
     }),
   findBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
-    .query(async ({ input }) => {
-      const product = await DB.user.products.queries.findBySlug(input.slug);
+    .query(async ({ ctx, input }) => {
+      const product = await ctx.db.user.products.queries.findBySlug(input.slug);
       if (!product) {
         throw new TRPCError({
           code: "NOT_FOUND",

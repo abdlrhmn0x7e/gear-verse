@@ -1,6 +1,5 @@
 import { mediaOwnerTypeEnum, mediaSchema } from "~/lib/schemas/media";
 import { adminProcedure, createTRPCRouter } from "../../trpc";
-import { DB } from "~/server/repositories";
 import z from "zod";
 import { s3GetPublicUrl } from "~/lib/s3";
 import { paginate } from "../../helpers/pagination";
@@ -12,8 +11,8 @@ export const mediaRouter = createTRPCRouter({
   /**
    * Queries
    */
-  getPage: adminProcedure.input(paginationSchema).query(({ input }) => {
-    return paginate({ input, getPage: DB.admin.media.queries.getPage });
+  getPage: adminProcedure.input(paginationSchema).query(({ ctx, input }) => {
+    return paginate({ input, getPage: ctx.db.admin.media.queries.getPage });
   }),
 
   /**
@@ -25,8 +24,8 @@ export const mediaRouter = createTRPCRouter({
         key: z.string(),
       }),
     )
-    .mutation(({ input }) => {
-      return DB.admin.media.mutations.create({
+    .mutation(({ ctx, input }) => {
+      return ctx.db.admin.media.mutations.create({
         ...input,
         url: s3GetPublicUrl(input.key),
       });
@@ -41,9 +40,9 @@ export const mediaRouter = createTRPCRouter({
           .partial(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { data: media, error: mediaError } = await tryCatch(
-        DB.admin.media.mutations.update(input.id, input.data),
+        ctx.db.admin.media.mutations.update(input.id, input.data),
       );
       if (mediaError) {
         console.error("[MEDIA UPDATE] Error updating media", mediaError);
@@ -73,9 +72,9 @@ export const mediaRouter = createTRPCRouter({
           .extend({ id: z.number() }),
       ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { data: media, error: mediaError } = await tryCatch(
-        DB.admin.media.mutations.updateMany(input),
+        ctx.db.admin.media.mutations.updateMany(input),
       );
       if (mediaError) {
         console.error("[MEDIA UPDATE MANY] Error updating media", mediaError);
@@ -104,9 +103,9 @@ export const mediaRouter = createTRPCRouter({
         ownerType: mediaOwnerTypeEnum,
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       console.log("deleting media input", input);
-      const media = await DB.admin.media.mutations.delete(
+      const media = await ctx.db.admin.media.mutations.delete(
         input.id,
         input.ownerType,
       );

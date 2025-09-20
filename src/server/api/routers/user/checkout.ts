@@ -1,4 +1,3 @@
-import { DB } from "~/server/repositories";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -20,7 +19,7 @@ export const userCheckoutRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       // validate cart
-      const cart = await DB.user.carts.queries.find(
+      const cart = await ctx.db.user.carts.queries.find(
         Number(ctx.session.user.id),
       );
       if (!cart) {
@@ -37,9 +36,10 @@ export const userCheckoutRouter = createTRPCRouter({
         });
       }
 
-      const itemsStock = await DB.user.productVariants.queries.getItemsStock(
-        cart.items.map((item) => item.productVariant.id),
-      );
+      const itemsStock =
+        await ctx.db.user.productVariants.queries.getItemsStock(
+          cart.items.map((item) => item.productVariant.id),
+        );
 
       const quantityMap = new Map<number, number>();
       for (const item of cart.items) {
@@ -56,7 +56,7 @@ export const userCheckoutRouter = createTRPCRouter({
       }
 
       // create an address
-      const address = await DB.user.addresses.mutations.create({
+      const address = await ctx.db.user.addresses.mutations.create({
         userId: Number(ctx.session.user.id),
         ...input.address,
       });
@@ -68,7 +68,7 @@ export const userCheckoutRouter = createTRPCRouter({
       }
 
       // create an order, order items and clear the cart
-      const order = await DB.user.orders.mutations.create(
+      const order = await ctx.db.user.orders.mutations.create(
         {
           userId: Number(ctx.session.user.id),
           phoneNumber: input.phoneNumber,
