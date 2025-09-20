@@ -11,6 +11,19 @@ type NewOrder = typeof orders.$inferInsert;
 type NewOrderItem = typeof orderItems.$inferInsert;
 
 export const _userOrdersRepository = {
+  queries: {
+    findById: async (id: number) => {
+      return db
+        .select({
+          createdAt: orders.createdAt,
+          status: orders.status,
+        })
+        .from(orders)
+        .where(eq(orders.id, id))
+        .limit(1)
+        .then((res) => res[0]);
+    },
+  },
   mutations: {
     create: async (
       input: NewOrder,

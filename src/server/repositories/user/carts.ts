@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { cartItems, carts } from "~/server/db/schema";
+import { cartItems, carts, productVariants } from "~/server/db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
 
 type NewCart = typeof carts.$inferInsert;
@@ -64,15 +64,38 @@ export const _userCartsRepository = {
     },
 
     addItem: async (item: NewCartItem) => {
-      return db
-        .insert(cartItems)
-        .values(item)
-        .onConflictDoUpdate({
-          target: [cartItems.cartId, cartItems.productVariantId],
-          set: {
-            quantity: sql`${cartItems.quantity} + 1`,
-          },
-        });
+      return db.transaction(async (tx) => {
+        const [variant] = await tx
+          .select({ stock: productVariants.stock })
+          .from(productVariants)
+          .where(eq(productVariants.id, item.productVariantId))
+          .limit(1);
+
+        if (!variant) {
+          throw new Error("Product variant not found");
+        }
+
+        if (variant.stock <= 0) {
+          throw new Error("Product variant out of stock");
+        }
+
+        const [updated] = await tx
+          .insert(cartItems)
+          .values(item)
+          .onConflictDoUpdate({
+            target: [cartItems.cartId, cartItems.productVariantId],
+            set: {
+              quantity: sql`${cartItems.quantity} + 1`,
+            },
+          })
+          .returning({ id: cartItems.id, quantity: cartItems.quantity });
+
+        if (variant.stock < (updated?.quantity ?? 1)) {
+          throw new Error("Product variant out of stock");
+        }
+
+        return updated;
+      });
     },
 
     removeItem: async (cartId: number, productVariantId: number) => {

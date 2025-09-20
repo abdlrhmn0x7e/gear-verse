@@ -20,8 +20,7 @@ import type { RouterOutputs } from "~/trpc/react";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
-import { IconBasketDollar } from "@tabler/icons-react";
+import { BuyNowButton } from "./buy-now-button";
 import { XIcon, CheckCircleIcon, StarIcon } from "lucide-react";
 import { AddToCartButton } from "./add-to-cart-button";
 
@@ -128,14 +127,11 @@ export function Product({
               productVariantId={selectedVariant.id}
               stock={selectedVariant.stock}
             />
-            <Button
-              className="w-full lg:flex-1"
-              size="lg"
+
+            <BuyNowButton
+              productVariantId={selectedVariant.id}
               disabled={!selectedVariantInStock}
-            >
-              <IconBasketDollar />
-              Buy Now
-            </Button>
+            />
           </div>
 
           <Separator />

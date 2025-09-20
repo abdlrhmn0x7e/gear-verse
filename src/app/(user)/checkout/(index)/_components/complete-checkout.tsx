@@ -20,11 +20,11 @@ export function CompleteCheckout({
   const router = useRouter();
   const { mutate: completeCheckout, isPending: completingCheckout } =
     api.user.checkout.complete.useMutation({
-      onSuccess: () => {
+      onSuccess: (response) => {
         void utils.user.carts.invalidate();
         void utils.user.products.invalidate();
 
-        router.push("/checkout/success");
+        router.push(`/checkout/success?orderId=${response.id}`);
       },
       onError: () => {
         toast.error("Failed to complete checkout");
