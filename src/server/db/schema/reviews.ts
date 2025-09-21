@@ -1,10 +1,10 @@
 import {
   bigint,
-  index,
   integer,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { users } from "./users";
@@ -33,7 +33,9 @@ export const reviews = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index("reviews_product_id_idx").on(table.productId),
-    index("reviews_user_id_idx").on(table.userId),
+    uniqueIndex("reviews_product_id_user_id_unique").on(
+      table.productId,
+      table.userId,
+    ),
   ],
 );

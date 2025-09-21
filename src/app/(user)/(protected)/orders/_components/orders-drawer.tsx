@@ -11,7 +11,7 @@ import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { PaymentMethod } from "./payment-method";
+import { PaymentMethod } from "../../_components/payment-method";
 import { Separator } from "~/components/ui/separator";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import Header from "~/components/header";

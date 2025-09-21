@@ -195,6 +195,7 @@ export const _userProductsRepository = {
       return db.query.products.findFirst({
         where: and(eq(products.slug, slug), eq(products.published, true)),
         columns: {
+          id: true,
           name: true,
           summary: true,
           specifications: true,

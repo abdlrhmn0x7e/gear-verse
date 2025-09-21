@@ -7,7 +7,7 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { CalendarIcon, EyeIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "~/components/ui/button";
-import { PaymentMethod } from "../payment-method";
+import { PaymentMethod } from "../../../_components/payment-method";
 
 export const ordersColumns: ColumnDef<
   RouterOutputs["user"]["orders"]["findAll"][number]

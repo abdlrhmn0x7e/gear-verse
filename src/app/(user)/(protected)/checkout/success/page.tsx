@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { api } from "~/trpc/server";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { Separator } from "~/components/ui/separator";
-import { PaymentMethod } from "../../orders/_components/payment-method";
+import { PaymentMethod } from "../../_components/payment-method";
 
 export default async function SuccessPage({
   searchParams,

@@ -5,6 +5,7 @@ import { _userCartsRepository } from "./carts";
 import { _userProductVariantsRepository } from "./product-variants";
 import { _userOrdersRepository } from "./orders";
 import { _userAddressesRepository } from "./addresses";
+import { _userReviewsRepository } from "./reviews";
 
 export const _userRepositories = {
   products: _userProductsRepository,
@@ -14,4 +15,5 @@ export const _userRepositories = {
   productVariants: _userProductVariantsRepository,
   orders: _userOrdersRepository,
   addresses: _userAddressesRepository,
+  reviews: _userReviewsRepository,
 };

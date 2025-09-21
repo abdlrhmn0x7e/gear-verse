@@ -1,18 +1,58 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
+import { orderItems, orders } from "~/server/db/schema/orders";
+import { productVariants } from "~/server/db/schema/product-variants";
 import { reviews } from "~/server/db/schema/reviews";
+import { users } from "~/server/db/schema/users";
 
 type NewReview = typeof reviews.$inferInsert;
 
-export const _reviewsRepository = {
+export const _userReviewsRepository = {
   queries: {
     findAll: async (productId: number) => {
-      return db.select().from(reviews).where(eq(reviews.productId, productId));
+      const isVerifiedPurchaserSubQuery = db
+        .select({
+          userId: orders.userId,
+          verifiedPurchaser: sql<boolean>`
+            bool_or(product_variants.id IS NOT NULL)
+          `.as("verified_purchaser"),
+        })
+        .from(orders)
+        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .leftJoin(
+          productVariants,
+          and(
+            eq(orderItems.productVariantId, productVariants.id),
+            eq(productVariants.productId, productId),
+          ),
+        )
+        .where(eq(orders.userId, reviews.userId))
+        .groupBy(orders.userId)
+        .as("is_verified_purchaser");
+
+      return db
+        .select({
+          rating: reviews.rating,
+          comment: reviews.comment,
+          createdAt: reviews.createdAt,
+          user: {
+            name: users.name,
+            image: users.image,
+            verifiedPurchaser: isVerifiedPurchaserSubQuery.verifiedPurchaser,
+          },
+        })
+        .from(reviews)
+        .leftJoin(users, eq(reviews.userId, users.id))
+        .leftJoinLateral(
+          isVerifiedPurchaserSubQuery,
+          eq(reviews.userId, isVerifiedPurchaserSubQuery.userId),
+        )
+        .where(eq(reviews.productId, productId));
     },
   },
   mutations: {
     create: async (review: NewReview) => {
-      return db.insert(reviews).values(review).returning();
+      return db.insert(reviews).values(review).onConflictDoNothing();
     },
   },
 };
