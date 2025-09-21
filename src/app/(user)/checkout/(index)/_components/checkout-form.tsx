@@ -24,6 +24,7 @@ import {
 } from "~/components/ui/select";
 import { addressGovernoratesEnum } from "~/lib/schemas/address";
 import { phoneNumberSchema } from "~/lib/schemas/phone-number";
+import { cn } from "~/lib/utils";
 import { humanizeString } from "~/lib/utils/humanize-string";
 
 const checkoutFormSchema = z.object({
@@ -39,16 +40,20 @@ const checkoutFormSchema = z.object({
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
 export function CheckoutForm({
+  defaultValues,
   onSubmit,
+  disabled,
 }: {
   onSubmit: (data: CheckoutFormValues) => void;
+  defaultValues?: Partial<CheckoutFormValues>;
+  disabled?: boolean;
 }) {
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       paymentMethod: "COD",
       phoneNumber: "",
-      address: {
+      address: defaultValues?.address ?? {
         address: "",
         city: "",
         governorate: "CAIRO",
@@ -69,7 +74,10 @@ export function CheckoutForm({
       <form
         id="checkout-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className={cn(
+          "space-y-4",
+          disabled && "pointer-events-none opacity-50 transition-opacity",
+        )}
       >
         <FormField
           control={form.control}

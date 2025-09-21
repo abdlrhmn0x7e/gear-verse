@@ -80,7 +80,7 @@ export function ProblemSolutions() {
                     <solution.Illustration />
                   </div>
 
-                  <div className="relative z-50 shrink-0">
+                  <div className="relative z-12 shrink-0">
                     <Heading level={2}>{solution.title}</Heading>
                     <p>{solution.description}</p>
                   </div>

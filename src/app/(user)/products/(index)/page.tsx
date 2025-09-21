@@ -1,16 +1,18 @@
-import { Products } from "./_components/products";
-import { Filters } from "./_components/filters";
-import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import type { SearchParams } from "nuqs/server";
-import { api } from "~/trpc/server";
-import { FiltersSkeleton } from "./_components/filters-skeleton";
 import { Suspense } from "react";
+import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { api } from "~/trpc/server";
+import { Filters } from "./_components/filters";
+import { FiltersSkeleton } from "./_components/filters-skeleton";
+import { Products } from "./_components/products";
+import { loadAllProductSearchParams } from "./_components/hooks";
 
 export default function ProductsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  void loadAllProductSearchParams(searchParams);
   void api.user.categories.findAll.prefetch();
   void api.user.brands.findAll.prefetch();
 

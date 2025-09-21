@@ -1,14 +1,18 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, protectedProcedure } from "../../trpc";
 
-export const addressesRouter = createTRPCRouter({
-  getAddress: publicProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      return ctx.db.user.addresses.queries.find(input.id);
-    }),
+export const userAddressesRouter = createTRPCRouter({
+  find: protectedProcedure.query(async ({ ctx }) => {
+    const address = await ctx.db.user.addresses.queries.find(
+      Number(ctx.session.user.id),
+    );
+    if (!address) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Address not found",
+      });
+    }
+
+    return address;
+  }),
 });

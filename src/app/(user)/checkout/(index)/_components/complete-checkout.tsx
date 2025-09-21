@@ -17,6 +17,9 @@ export function CompleteCheckout({
   className?: string;
 }) {
   const utils = api.useUtils();
+  const { data: address, isPending: addressPending } =
+    api.user.addresses.find.useQuery();
+  console.log(address);
   const router = useRouter();
   const { mutate: completeCheckout, isPending: completingCheckout } =
     api.user.checkout.complete.useMutation({
@@ -37,7 +40,11 @@ export function CompleteCheckout({
 
   return (
     <div className={cn("flex flex-col justify-between gap-4", className)}>
-      <CheckoutForm onSubmit={onSubmit} />
+      <CheckoutForm
+        onSubmit={onSubmit}
+        defaultValues={{ address }}
+        disabled={addressPending}
+      />
       <Button
         className="w-full lg:w-auto"
         size="lg"

@@ -5,8 +5,10 @@ import {
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
+  PackageOpenIcon,
   SunIcon,
 } from "lucide-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,7 +90,12 @@ export function ProfileDropdown({
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-
+        <DropdownMenuItem asChild>
+          <Link href="/orders">
+            <PackageOpenIcon />
+            Orders
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => void authClient.signOut()}>
           <LogOutIcon />
           Logout

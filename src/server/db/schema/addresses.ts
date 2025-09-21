@@ -1,4 +1,11 @@
-import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigint,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { relations } from "drizzle-orm";
 import { orders } from "./orders";
@@ -33,22 +40,28 @@ export const addressGovernoratesEnum = pgEnum("address_governorates", [
   "SUEZ",
 ]);
 
-export const addresses = pgTable("addresses", {
-  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
-  userId: bigint("user_id", { mode: "number" })
-    .notNull()
-    .references(() => users.id),
+export const addresses = pgTable(
+  "addresses",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+    userId: bigint("user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.id),
 
-  address: text("address").notNull(),
-  city: text("city").notNull(),
-  governorate: addressGovernoratesEnum("governorate").notNull(),
+    address: text("address").notNull(),
+    city: text("city").notNull(),
+    governorate: addressGovernoratesEnum("governorate").notNull(),
 
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [uniqueIndex("idx_addresses_user_id").on(table.userId)],
+);
 
 export const addressRelations = relations(addresses, ({ one, many }) => ({
   user: one(users, {

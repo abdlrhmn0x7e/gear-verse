@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  IconShoppingCart,
-  IconShoppingCartPlus,
-  IconShoppingCartX,
-} from "@tabler/icons-react";
+import { IconShoppingCart, IconShoppingCartPlus } from "@tabler/icons-react";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "~/components/ui/button";

@@ -14,7 +14,7 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  void loadProductSearchParams(await searchParams);
+  void loadProductSearchParams(searchParams);
   void api.admin.products.getPage.prefetchInfinite({
     pageSize: 10,
   });

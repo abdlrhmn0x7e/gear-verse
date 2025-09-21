@@ -16,6 +16,13 @@ export const userCartsRouter = createTRPCRouter({
         Number(ctx.session.user.id),
       );
 
+      if (!cart) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create cart",
+        });
+      }
+
       return cart;
     }
 

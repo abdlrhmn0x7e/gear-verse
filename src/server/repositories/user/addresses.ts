@@ -7,7 +7,16 @@ type NewAddress = typeof addresses.$inferInsert;
 export const _userAddressesRepository = {
   queries: {
     find: async (userId: number) => {
-      return db.select().from(addresses).where(eq(addresses.userId, userId));
+      return db
+        .select({
+          address: addresses.address,
+          city: addresses.city,
+          governorate: addresses.governorate,
+        })
+        .from(addresses)
+        .where(eq(addresses.userId, userId))
+        .limit(1)
+        .then((res) => res[0]);
     },
   },
 
@@ -17,6 +26,10 @@ export const _userAddressesRepository = {
         .insert(addresses)
         .values(input)
         .returning({ id: addresses.id })
+        .onConflictDoUpdate({
+          target: [addresses.userId],
+          set: input,
+        })
         .then((res) => res[0]);
     },
   },

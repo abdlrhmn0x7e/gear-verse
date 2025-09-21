@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import {
   cartItems,
@@ -12,16 +12,60 @@ type NewOrderItem = typeof orderItems.$inferInsert;
 
 export const _userOrdersRepository = {
   queries: {
-    findById: async (id: number) => {
+    findAll: async (userId: number) => {
       return db
         .select({
-          createdAt: orders.createdAt,
+          id: orders.id,
+          paymentMethod: orders.paymentMethod,
           status: orders.status,
+          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${productVariants.price})`,
+          createdAt: orders.createdAt,
         })
         .from(orders)
-        .where(eq(orders.id, id))
-        .limit(1)
-        .then((res) => res[0]);
+        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .leftJoin(
+          productVariants,
+          eq(orderItems.productVariantId, productVariants.id),
+        )
+        .where(eq(orders.userId, userId))
+        .groupBy(orders.id);
+    },
+    findById: async (id: number, userId: number) => {
+      return db.query.orders.findFirst({
+        where: and(eq(orders.id, id), eq(orders.userId, userId)),
+        columns: {
+          id: true,
+          paymentMethod: true,
+        },
+        with: {
+          items: {
+            columns: {
+              quantity: true,
+            },
+            with: {
+              productVariant: {
+                columns: {
+                  name: true,
+                  price: true,
+                },
+                with: {
+                  product: {
+                    columns: {
+                      name: true,
+                      summary: true,
+                    },
+                  },
+                  thumbnail: {
+                    columns: {
+                      url: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
     },
   },
   mutations: {
