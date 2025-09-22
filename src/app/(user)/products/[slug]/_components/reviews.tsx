@@ -1,27 +1,19 @@
 import { api } from "~/trpc/server";
 import { AddReview } from "./add-review";
 import { Heading } from "~/components/heading";
-import { CheckCircleIcon, MessageCircleOffIcon, StarIcon } from "lucide-react";
+import { CheckCircleIcon, MessageCircleOffIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <StarIcon
-          key={star}
-          className={`size-4 ${
-            star <= rating ? "fill-current text-yellow-400" : "text-gray-300"
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
+import { StarRating } from "./star-rating";
+import { auth } from "~/server/auth";
+import { headers } from "next/headers";
+import { EditReview } from "./edit-reviews";
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await api.user.reviews.findAll({ productId });
+  const data = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   return (
     <div className="space-y-4">
@@ -42,23 +34,30 @@ export async function Reviews({ productId }: { productId: number }) {
                 <AvatarFallback>{review.user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
 
-              <div className="space-y-1">
-                <div className="">
-                  <p className="space-x-1 font-medium">
-                    <span>{review.user?.name} </span>
-                    {review.user?.verifiedPurchaser && (
-                      <Badge variant="success">
-                        <CheckCircleIcon />
-                        Verified Purchaser
-                      </Badge>
-                    )}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    <StarRating rating={review.rating} />{" "}
-                    <span className="text-muted-foreground text-sm">
-                      ({review.rating} stars)
-                    </span>
+              <div className="w-full space-y-1">
+                <div className="flex w-full items-center justify-between gap-2">
+                  <div>
+                    <p className="space-x-1 font-medium">
+                      <span>{review.user?.name} </span>
+                      {review.user?.verifiedPurchaser && (
+                        <Badge variant="success">
+                          <CheckCircleIcon />
+                          Verified Purchaser
+                        </Badge>
+                      )}
+                    </p>
+
+                    <div className="flex items-center gap-1">
+                      <StarRating rating={review.rating} />{" "}
+                      <span className="text-muted-foreground text-sm">
+                        ({review.rating} stars)
+                      </span>
+                    </div>
                   </div>
+
+                  {review.user?.id === Number(data?.user.id) && (
+                    <EditReview review={review} productId={productId} />
+                  )}
                 </div>
 
                 <p className="text-muted-foreground">{review.comment}</p>

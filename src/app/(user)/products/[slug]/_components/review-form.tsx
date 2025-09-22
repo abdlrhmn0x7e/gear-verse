@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { StarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -27,12 +26,16 @@ export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
 
 export function ReviewForm({
   onSubmit,
+  defaultValues,
+  id,
 }: {
   onSubmit: (data: ReviewFormValues) => void;
+  defaultValues?: ReviewFormValues;
+  id?: number;
 }) {
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       rating: 5,
       comment: "",
     },
@@ -57,7 +60,7 @@ export function ReviewForm({
   return (
     <Form {...form}>
       <form
-        id="review-form"
+        id={id ? `review-form-${id}` : "review-form"}
         onSubmit={(e) => {
           e.preventDefault();
           void form.handleSubmit(onSubmit)();
@@ -114,28 +117,40 @@ function RatingInput({
     return rating >= starIndex ? "text-yellow-400" : "text-gray-300";
   };
 
+  const handleMouseEnter = (starIndex: number) => {
+    setHoveredRating(starIndex);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredRating(null);
+  };
+
+  const handleClick = (starIndex: number) => {
+    onChange(starIndex);
+  };
+
   return (
-    <div className="flex items-center">
-      <RadioGroup
-        value={value.toString()}
-        onValueChange={(val) => onChange(parseInt(val))}
-        className="flex items-center gap-0"
-      >
+    <div className="pointer-events-auto flex items-center">
+      <div className="flex items-center gap-0" onMouseLeave={handleMouseLeave}>
         {[1, 2, 3, 4, 5].map((star) => (
           <div
             key={star}
             className="relative px-1"
-            onMouseEnter={() => setHoveredRating(star)}
-            onMouseLeave={() => setHoveredRating(null)}
+            onMouseEnter={() => handleMouseEnter(star)}
           >
-            <RadioGroupItem
+            <input
+              type="radio"
               value={star.toString()}
+              checked={value === star}
+              onChange={(e) => onChange(parseInt(e.target.value))}
               className="sr-only"
               id={`star-${star}`}
+              name="rating"
             />
             <label
               htmlFor={`star-${star}`}
-              className="flex cursor-pointer items-center justify-center"
+              className="flex cursor-pointer items-center justify-center rounded-sm p-1 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:outline-none"
+              onClick={() => handleClick(star)}
             >
               <StarIcon
                 className={`size-5 transition-all duration-100 ${getStarColor(star)} ${
@@ -154,7 +169,7 @@ function RatingInput({
             </label>
           </div>
         ))}
-      </RadioGroup>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "../../trpc";
+import { TRPCError } from "@trpc/server";
 
 export const userReviewsRouter = createTRPCRouter({
   findAll: publicProcedure
@@ -29,5 +30,31 @@ export const userReviewsRouter = createTRPCRouter({
         userId: Number(ctx.session.user.id),
         ...input,
       });
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        rating: z.number(),
+        comment: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...rest } = input;
+      const review = await ctx.db.user.reviews.mutations.update(
+        id,
+        Number(ctx.session.user.id),
+        rest,
+      );
+
+      if (!review) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Failed to update review",
+        });
+      }
+
+      return review;
     }),
 });

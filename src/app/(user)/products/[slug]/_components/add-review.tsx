@@ -6,9 +6,11 @@ import { SendIcon } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
+import { useRouter } from "next/navigation";
 
 export function AddReview({ productId }: { productId: number }) {
   const utils = api.useUtils();
+  const router = useRouter();
   const { mutate: createReview, isPending: isCreatingReview } =
     api.user.reviews.create.useMutation();
 
@@ -17,6 +19,7 @@ export function AddReview({ productId }: { productId: number }) {
       { productId, ...data },
       {
         onSuccess: () => {
+          router.refresh();
           void utils.user.reviews.findAll.invalidate({ productId });
           toast.success("Review created successfully");
         },

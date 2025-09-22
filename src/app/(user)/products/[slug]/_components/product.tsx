@@ -11,8 +11,10 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
 import { BuyNowButton } from "./buy-now-button";
-import { XIcon, CheckCircleIcon, StarIcon } from "lucide-react";
+import { XIcon, CheckCircleIcon } from "lucide-react";
 import { AddToCartButton } from "./add-to-cart-button";
+import { api } from "~/trpc/react";
+import { StarRating } from "./star-rating";
 
 export function Product({
   children,
@@ -23,6 +25,10 @@ export function Product({
   const [selectedVariant, setSelectedVariant] = useState<
     RouterOutputs["user"]["products"]["findBySlug"]["variants"][number]
   >(product.variants[0]!);
+  const { data: reviews } = api.user.reviews.findAll.useQuery({
+    productId: product.id,
+  });
+
   const selectedVariantInStock = useMemo(
     () => selectedVariant.stock > 0,
     [selectedVariant],
@@ -81,13 +87,13 @@ export function Product({
                 {formatCurrency(selectedVariant.price)}
               </p>
               <div className="flex flex-wrap items-center gap-2">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <StarIcon
-                    key={index}
-                    className="size-4 fill-amber-400 stroke-amber-400"
-                  />
-                ))}
-                (2 reviews)
+                <StarRating
+                  rating={
+                    (reviews?.reduce((acc, review) => acc + review.rating, 0) ??
+                      0) / (reviews?.length ?? 0)
+                  }
+                />
+                ({reviews?.length ?? 0} reviews)
               </div>
             </div>
 

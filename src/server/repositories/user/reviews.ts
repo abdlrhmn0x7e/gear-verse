@@ -6,6 +6,7 @@ import { reviews } from "~/server/db/schema/reviews";
 import { users } from "~/server/db/schema/users";
 
 type NewReview = typeof reviews.$inferInsert;
+type UpdateReview = Partial<NewReview>;
 
 export const _userReviewsRepository = {
   queries: {
@@ -32,10 +33,12 @@ export const _userReviewsRepository = {
 
       return db
         .select({
+          id: reviews.id,
           rating: reviews.rating,
           comment: reviews.comment,
           createdAt: reviews.createdAt,
           user: {
+            id: users.id,
             name: users.name,
             image: users.image,
             verifiedPurchaser: isVerifiedPurchaserSubQuery.verifiedPurchaser,
@@ -53,6 +56,13 @@ export const _userReviewsRepository = {
   mutations: {
     create: async (review: NewReview) => {
       return db.insert(reviews).values(review).onConflictDoNothing();
+    },
+
+    update: async (id: number, userId: number, review: UpdateReview) => {
+      return db
+        .update(reviews)
+        .set(review)
+        .where(and(eq(reviews.userId, userId), eq(reviews.id, id)));
     },
   },
 };
