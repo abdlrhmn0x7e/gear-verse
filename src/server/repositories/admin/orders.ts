@@ -75,6 +75,12 @@ export const _adminOrdersRepository = {
         createdAt: true,
       },
       with: {
+        user: {
+          columns: {
+            name: true,
+            image: true,
+          },
+        },
         address: {
           columns: {
             city: true,

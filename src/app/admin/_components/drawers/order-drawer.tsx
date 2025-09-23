@@ -18,6 +18,8 @@ import { Heading } from "~/components/heading";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { EditIcon, TrashIcon } from "lucide-react";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -87,10 +89,34 @@ function OrderDrawerContent() {
   return (
     <>
       <DrawerHeader>
-        <DrawerTitle>Order Details</DrawerTitle>
-        <DrawerDescription></DrawerDescription>
+        <div className="flex items-center justify-between">
+          <DrawerTitle>Order Details</DrawerTitle>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon">
+              <EditIcon className="size-4" />
+            </Button>
+
+            <Button variant="destructiveGhost" size="icon">
+              <TrashIcon className="size-4" />
+            </Button>
+          </div>
+        </div>
+        <DrawerDescription className="mt-2">
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage
+                src={data?.user.image ?? undefined}
+                alt={data?.user.name}
+              />
+              <AvatarFallback>
+                {data?.user.name?.charAt(0) ?? "MOM"}
+              </AvatarFallback>
+            </Avatar>
+            <p>{data?.user.name ?? "your mom"}</p>
+          </div>
+        </DrawerDescription>
       </DrawerHeader>
-      <div className="space-y-6 divide-y px-4 [&>div]:pb-6 [&>div:last-child]:pb-0">
+      <div className="max-h-full space-y-6 divide-y overflow-y-auto px-4 [&>div]:pb-6 [&>div:last-child]:pb-0">
         <div className="flex flex-col gap-4">
           {details.map((detail) => (
             <DetailRow key={detail.label} {...detail} />

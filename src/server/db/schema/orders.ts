@@ -49,6 +49,10 @@ export const orders = pgTable(
   (table) => [index("orders_user_id_idx").on(table.userId)],
 );
 export const orderRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
   address: one(addresses, {
     fields: [orders.addressId],
     references: [addresses.id],
