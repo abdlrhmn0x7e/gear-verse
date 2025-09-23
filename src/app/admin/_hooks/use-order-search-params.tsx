@@ -2,6 +2,7 @@ import { useQueryStates } from "nuqs";
 import { createLoader, parseAsInteger, parseAsStringEnum } from "nuqs/server";
 
 const orderSearchParams = {
+  search: parseAsInteger,
   orderId: parseAsInteger,
   status: parseAsStringEnum([
     "PENDING",

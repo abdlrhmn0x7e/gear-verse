@@ -2,6 +2,7 @@ import { BadgeDollarSignIcon } from "lucide-react";
 import Header from "~/components/header";
 import { api, HydrateClient } from "~/trpc/server";
 import { OrdersTable } from "../_components/tables/orders/table";
+import { OrderDrawer } from "../_components/drawers/order-drawer";
 
 export default function AdminOrdersPage() {
   void api.admin.orders.getPage.prefetchInfinite({
@@ -18,6 +19,7 @@ export default function AdminOrdersPage() {
 
       <HydrateClient>
         <OrdersTable />
+        <OrderDrawer />
       </HydrateClient>
     </section>
   );

@@ -34,7 +34,7 @@ export function OrdersFilter() {
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    void setFilters({ ...filters, orderId: value ? Number(value) : null });
+    void setFilters({ ...filters, search: value ? Number(value) : null });
   }
 
   return (
@@ -42,7 +42,7 @@ export function OrdersFilter() {
       <SearchInput
         className="size-full max-w-sm"
         placeholder="Search by order ID"
-        value={filters.orderId ?? ""}
+        value={filters.search ?? ""}
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

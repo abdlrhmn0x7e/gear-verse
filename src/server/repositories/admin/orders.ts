@@ -64,4 +64,51 @@ export const _adminOrdersRepository = {
       .orderBy(desc(orders.id))
       .limit(pageSize);
   },
+  findById: async ({ id }: { id: number }) => {
+    return db.query.orders.findFirst({
+      where: eq(orders.id, id),
+      columns: {
+        id: true,
+        paymentMethod: true,
+        status: true,
+        phoneNumber: true,
+        createdAt: true,
+      },
+      with: {
+        address: {
+          columns: {
+            city: true,
+            governorate: true,
+            address: true,
+          },
+        },
+        items: {
+          columns: {
+            quantity: true,
+          },
+          with: {
+            productVariant: {
+              columns: {
+                name: true,
+                price: true,
+              },
+              with: {
+                thumbnail: {
+                  columns: {
+                    url: true,
+                  },
+                },
+                product: {
+                  columns: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  },
 };
