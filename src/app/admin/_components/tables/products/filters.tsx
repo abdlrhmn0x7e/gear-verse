@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ChevronRightIcon,
-  ListFilterIcon,
-  TagIcon,
-  TargetIcon,
-  XIcon,
-} from "lucide-react";
+import { ListFilterIcon, TagIcon, TargetIcon } from "lucide-react";
 import { SearchInput } from "../../inputs/search-input";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 import {
@@ -23,16 +17,11 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { BrandsCommand } from "../../inputs/brands-combobox";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 import { useInView } from "react-intersection-observer";
-import { motion } from "motion/react";
-import { Skeleton } from "~/components/ui/skeleton";
-import { Button } from "~/components/ui/button";
 import { debounce } from "nuqs";
 import { CategoriesCommand } from "../../inputs/category-combobox";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import { iconsMap } from "~/lib/icons-map";
-import { useFlatCategories } from "~/hooks/use-flat-categories";
+import { FilterList, type FilterKey } from "../../filter-list";
 
 export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -124,10 +113,12 @@ export function ProductsFilter() {
     value,
   }: {
     key: FilterKey;
-    value: number;
+    value: number | string | null;
   }) {
     void setFilters((prev) => {
-      const prevValue = prev[key]?.filter((brand) => brand !== value);
+      const prevValue = prev[key as "brands" | "categories"]?.filter(
+        (item) => item !== value,
+      );
       if (prevValue?.length === 0) {
         return { ...prev, [key]: null };
       }
@@ -208,7 +199,6 @@ export function ProductsFilter() {
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             </DropdownMenuGroup>
-            <DropdownMenuPortal>hello</DropdownMenuPortal>
           </DropdownMenuContent>
         </DropdownMenu>
       </SearchInput>
@@ -230,131 +220,5 @@ export function ProductsFilter() {
         onRemove={handleFilterRemove}
       />
     </div>
-  );
-}
-
-const itemVariant = {
-  hidden: { y: 10, opacity: 0 },
-  show: { y: 0, opacity: 1 },
-};
-
-const listVariant = {
-  hidden: { y: 10, opacity: 0 },
-  show: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.05,
-      staggerChildren: 0.06,
-    },
-  },
-};
-
-type FilterKey = "brands" | "categories";
-type FilterValue = Record<FilterKey, number[]>;
-type FilterValueProp = {
-  key: FilterKey;
-  value: FilterValue[FilterKey];
-};
-
-interface FilterListProps {
-  filters: FilterValueProp[];
-  loading: boolean;
-  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
-  categories: RouterOutputs["admin"]["categories"]["findAll"];
-  onRemove: ({ key, value }: { key: FilterKey; value: number }) => void;
-}
-
-function FilterList({
-  brands,
-  categories,
-  filters,
-  loading = false,
-  onRemove,
-}: FilterListProps) {
-  const flattenedCategories = useFlatCategories(categories ?? []);
-
-  function renderFilter({ key, value }: { key: FilterKey; value: number }) {
-    switch (key) {
-      case "brands":
-        const brand = brands.find((brand) => brand.id === value);
-        return (
-          <div className="flex items-center gap-2">
-            <div className="size-6 overflow-hidden rounded-sm border">
-              <ImageWithFallback
-                src={brand?.logoUrl}
-                alt={brand?.name ?? `Brand name ${value}`}
-                width={20}
-                height={20}
-                className="size-full object-cover"
-              />
-            </div>
-
-            <p>{brand?.name ?? `Brand name ${value}`}</p>
-          </div>
-        );
-
-      case "categories":
-        const category = flattenedCategories.find(
-          (category) => category.id === value,
-        );
-
-        return (
-          <div className="flex items-center justify-start">
-            {category?.path.map((p, idx) => {
-              const Icon = iconsMap.get(p.icon);
-
-              return (
-                <div
-                  key={`${p.name}-${idx}`}
-                  className="flex items-center justify-start"
-                >
-                  {Icon && <Icon className="mr-1 size-4" />}
-                  <span>{p.name}</span>
-                  {idx != category?.path.length - 1 && (
-                    <ChevronRightIcon className="opacity-50" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        );
-    }
-  }
-
-  return (
-    <motion.ul
-      variants={listVariant}
-      initial="hidden"
-      animate="show"
-      className="flex space-x-2"
-    >
-      {loading ? (
-        <div className="flex items-center gap-2">
-          <motion.li key="1" variants={itemVariant}>
-            <Skeleton className="h-8 w-[100px]" />
-          </motion.li>
-          <motion.li key="2" variants={itemVariant}>
-            <Skeleton className="h-8 w-[100px]" />
-          </motion.li>
-        </div>
-      ) : (
-        filters.map(({ key, value }) =>
-          value.map((value) => (
-            <motion.li key={`${key}-${value}`} variants={itemVariant}>
-              <Button
-                variant="outline"
-                className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
-                onClick={() => onRemove({ key, value })}
-              >
-                <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
-
-                {renderFilter({ key, value })}
-              </Button>
-            </motion.li>
-          )),
-        )
-      )}
-    </motion.ul>
   );
 }

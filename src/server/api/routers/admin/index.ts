@@ -5,6 +5,7 @@ import { productVariantsRouter } from "./product-variants";
 import { categoriesRouter } from "./categories";
 import { mediaRouter } from "./media";
 import { s3Router } from "./s3";
+import { adminOrdersRouter } from "./orders";
 
 export const adminRouter = createTRPCRouter({
   products: productsRouter,
@@ -13,4 +14,5 @@ export const adminRouter = createTRPCRouter({
   categories: categoriesRouter,
   media: mediaRouter,
   s3: s3Router,
+  orders: adminOrdersRouter,
 });

@@ -21,34 +21,34 @@ import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
 // Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
-import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
+import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 
 // Table logic & components
 import { api } from "~/trpc/react";
-import { productColumns } from "./columns";
-import { ProductsFilter } from "./filters";
-import { ProductsTableHeader } from "./header";
-import { ProductsTableSkeleton } from "./skeleton";
+import { ordersColumns } from "./columns";
+import { OrdersTableHeader } from "./header";
+import { OrdersTableSkeleton } from "./skeleton";
+import { OrdersFilter } from "./filters";
 import { cn } from "~/lib/utils";
 
-export function ProductsTable() {
-  const [params, setParams] = useProductSearchParams();
-  const debouncedFilters = useDebounce(params);
+export function OrdersTable() {
   const utils = api.useUtils();
+  const [params, setParams] = useOrderSearchParams();
+  const debouncedFilters = useDebounce(params);
   const {
-    data: products,
+    data: orders,
     isPending,
     isFetching,
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery(
-    utils.admin.products.getPage.infiniteQueryOptions(
+    utils.admin.orders.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
-          name: debouncedFilters.name ?? undefined,
-          brands: params.brands ?? undefined,
-          categories: params.categories ?? undefined,
+          orderId: debouncedFilters.orderId ?? undefined,
+          status: debouncedFilters.status ?? undefined,
+          paymentMethod: debouncedFilters.paymentMethod ?? undefined,
         },
       },
       {
@@ -57,16 +57,17 @@ export function ProductsTable() {
       },
     ),
   );
-  const productsData = useMemo(
-    () => products?.pages.flatMap((page) => page.data) ?? [],
-    [products],
+
+  const ordersData = useMemo(
+    () => orders?.pages.flatMap((page) => page.data) ?? [],
+    [orders],
   );
 
   const { ref, inView } = useInView();
 
   const table = useReactTable({
-    data: productsData,
-    columns: productColumns,
+    data: ordersData,
+    columns: ordersColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -77,13 +78,13 @@ export function ProductsTable() {
   }, [inView, fetchNextPage]);
 
   if (isPending) {
-    return <ProductsTableSkeleton />;
+    return <OrdersTableSkeleton />;
   }
 
   return (
     <Card className="gap-2 py-2">
       <CardHeader className="px-2">
-        <ProductsFilter />
+        <OrdersFilter />
       </CardHeader>
 
       <CardContent className="px-2">
@@ -94,7 +95,7 @@ export function ProductsTable() {
           )}
         >
           <Table containerClassName="h-fit max-h-[75svh] overflow-y-auto">
-            <ProductsTableHeader />
+            <OrdersTableHeader />
 
             <TableBody>
               {table.getRowModel().rows?.length ? (
@@ -103,7 +104,7 @@ export function ProductsTable() {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     onClick={() =>
-                      setParams({ ...params, productId: row.original.id })
+                      setParams({ ...params, orderId: row.original.id })
                     }
                     className="cursor-pointer"
                   >
@@ -120,14 +121,15 @@ export function ProductsTable() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={productColumns.length}
+                    colSpan={ordersColumns.length}
                     className="text-center"
                   >
                     <div className="flex flex-col items-center justify-center gap-2 py-32">
                       <PackageOpenIcon size={64} />
-                      <p className="text-lg font-medium">No Products Found.</p>
+                      <p className="text-lg font-medium">No Orders Found.</p>
                       <p className="text-muted-foreground text-sm">
-                        What a shame get your ass to work and create some
+                        What a shame get your ass to work and generate some
+                        orders.
                       </p>
                     </div>
                   </TableCell>
