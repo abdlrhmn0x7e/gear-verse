@@ -38,7 +38,7 @@ export function Editor({
   return (
     <AnimatePresence>
       <motion.div
-        className="bg-card flex min-h-[28rem] max-w-full flex-col gap-1 overflow-hidden rounded-lg border"
+        className="bg-card flex min-h-[24rem] max-w-full flex-col gap-1 overflow-hidden rounded-lg border"
         layoutId="editor-container"
         key="editor-container-collapsed"
         initial={{ opacity: 1 }}
@@ -57,7 +57,7 @@ export function Editor({
               className="shrink-0"
             />
 
-            <ScrollArea className="h-[24rem] p-4">
+            <ScrollArea className="h-[20rem] p-4">
               <EditorContent editor={editor} className="w-full" />
             </ScrollArea>
           </>
@@ -70,7 +70,7 @@ export function Editor({
           <DialogPrimitive.Content asChild>
             <CustomDialogContent
               className={cn(
-                "bg-card fixed top-[50%] left-[50%] z-50 flex h-[95svh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-1 rounded-lg border p-6 shadow-lg sm:max-w-[80svw]",
+                "bg-card fixed top-[50%] left-[50%] z-50 flex h-[95svh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-1 rounded-lg border p-1 shadow-lg sm:max-w-[80svw]",
               )}
               layoutId="editor-container"
               key="editor-container-expanded"
@@ -94,6 +94,7 @@ export function Editor({
                     onExpand={handleExpand}
                     className="shrink-0"
                     expanded={isExpanded}
+                    disableTooltips
                   />
 
                   <ScrollArea className="flex-1 p-4">

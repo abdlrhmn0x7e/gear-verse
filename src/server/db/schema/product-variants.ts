@@ -45,7 +45,7 @@ export const productVariants = pgTable(
 
 export const productVariantsRelations = relations(
   productVariants,
-  ({ one, many }) => ({
+  ({ one }) => ({
     product: one(products, {
       fields: [productVariants.productId],
       references: [products.id],
@@ -56,7 +56,5 @@ export const productVariantsRelations = relations(
       references: [media.id],
       relationName: "product_variant_thumbnail",
     }),
-
-    images: many(media, { relationName: "product_variant_images" }),
   }),
 );

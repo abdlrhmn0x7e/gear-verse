@@ -3,7 +3,8 @@ import z from "zod";
 export const productSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
-  name: z.string("Name is required").min(1, "Name is too short"),
+  title: z.string("Title is required").min(1, "Title is too short"),
+  price: z.number("Price is required").min(1, "Price is required"),
   slug: z.string("Slug is required").min(1, "Slug is too short"),
   summary: z.string("Summary is required").min(1, "Summary is too short"),
   description: z.record(z.string(), z.unknown(), "Description is required"),
@@ -11,12 +12,6 @@ export const productSchema = z.object({
 
   categoryId: z.number("Category is required").min(1, "Category is required"),
   brandId: z.number("Brand is required").min(1, "Brand is required"),
-
-  specifications: z.record(
-    z.string(),
-    z.string(),
-    "Specifications are required",
-  ),
 
   thumbnailMediaId: z
     .number("Thumbnail media ID is required")

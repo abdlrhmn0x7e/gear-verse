@@ -14,13 +14,16 @@ export default function AdminProductsAddPage() {
         </div>
       </div>
 
-      <Header
-        title="Add Product"
-        description="Add a new product to your store"
-        Icon={PackageIcon}
-      />
+      <div className="mx-auto max-w-screen-xl space-y-6">
+        <Header
+          title="Add Product"
+          description="Add a new product to your store"
+          headingLevel={5}
+          Icon={PackageIcon}
+        />
 
-      <AddProduct />
+        <AddProduct />
+      </div>
     </section>
   );
 }

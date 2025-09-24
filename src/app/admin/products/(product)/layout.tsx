@@ -1,7 +1,3 @@
-import { ArrowLeftIcon } from "lucide-react";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
-
 export default function ProductLayout({
   children,
 }: {
@@ -9,12 +5,12 @@ export default function ProductLayout({
 }) {
   return (
     <div className="space-y-3">
-      <Button variant="ghost" asChild>
+      {/* <Button variant="ghost" asChild>
         <Link href="/admin/products">
           <ArrowLeftIcon className="size-4" />
           Back to Products
         </Link>
-      </Button>
+      </Button> */}
       {children}
     </div>
   );

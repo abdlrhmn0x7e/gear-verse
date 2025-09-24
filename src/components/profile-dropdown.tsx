@@ -26,6 +26,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { authClient } from "~/lib/auth-client";
 import { useTheme } from "next-themes";
 import type { User } from "better-auth";
+import { useRouter } from "next/navigation";
 
 export function ProfileDropdown({
   className,
@@ -35,6 +36,7 @@ export function ProfileDropdown({
   user: User;
 }) {
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
 
   return (
     <DropdownMenu>
@@ -96,7 +98,12 @@ export function ProfileDropdown({
             Orders
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => void authClient.signOut()}>
+        <DropdownMenuItem
+          onClick={async () => {
+            await authClient.signOut();
+            router.push("/");
+          }}
+        >
           <LogOutIcon />
           Logout
         </DropdownMenuItem>

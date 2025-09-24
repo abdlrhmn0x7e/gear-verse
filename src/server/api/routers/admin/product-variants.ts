@@ -2,8 +2,38 @@ import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
 import { productVariantSchema } from "~/lib/schemas/product-variants";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import { paginationSchema } from "~/lib/schemas/pagination";
+import { paginate } from "~/server/api/helpers/pagination";
 
 export const productVariantsRouter = createTRPCRouter({
+  findAll: adminProcedure.query(({ ctx }) => {
+    return ctx.db.admin.productVariants.queries.findAll();
+  }),
+
+  getPage: adminProcedure
+    .input(
+      paginationSchema.extend({
+        filters: z
+          .object({
+            search: z.string(),
+            productId: z.number(),
+          })
+          .partial()
+          .optional(),
+      }),
+    )
+    .query(({ ctx, input }) => {
+      return paginate({
+        input,
+        getPage: ({ cursor, pageSize }) =>
+          ctx.db.admin.productVariants.queries.getPage({
+            cursor,
+            pageSize,
+            filters: input.filters,
+          }),
+      });
+    }),
+
   create: adminProcedure
     .input(
       productVariantSchema.omit({

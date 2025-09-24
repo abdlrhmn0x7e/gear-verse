@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, TargetIcon, XCircleIcon } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  CircleDashedIcon,
+  XCircleIcon,
+} from "lucide-react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -21,37 +26,44 @@ import {
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
-import { AddBrandDialog } from "../dialogs/add-brand-dialog";
-import { Separator } from "~/components/ui/separator";
-import Image from "next/image";
-import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
+import { useDebounce } from "~/hooks/use-debounce";
+import { keepPreviousData } from "@tanstack/react-query";
+import { ImageWithFallback } from "~/components/image-with-fallback";
 
-export function BrandsCombobox({
+export function ProductVariantsCombobox({
   value,
   onValueChange,
   disabled,
   className,
+  isModal = false,
 }: {
   value: number;
   onValueChange: (value: number) => void;
   disabled?: boolean;
   className?: string;
+  isModal?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const { ref, inView } = useInView();
   const {
-    data: brands,
-    isPending: brandsPending,
-    isError: brandsError,
+    data: variants,
+    isPending: variantsPending,
+    isError: variantsError,
     fetchNextPage,
     hasNextPage,
-  } = api.admin.brands.getPage.useInfiniteQuery(
+  } = api.admin.productVariants.getPage.useInfiniteQuery(
     {
       pageSize: 10,
+      filters: {
+        search: debouncedSearch,
+      },
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      placeholderData: keepPreviousData,
     },
   );
 
@@ -61,7 +73,7 @@ export function BrandsCombobox({
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  if (brandsPending) {
+  if (variantsPending) {
     return (
       <Button
         variant="outline"
@@ -72,14 +84,14 @@ export function BrandsCombobox({
       >
         <div className="flex items-center justify-start gap-2">
           <Spinner size="small" />
-          Loading brands...
+          Loading variants...
         </div>
         <ChevronsUpDown className="opacity-50" />
       </Button>
     );
   }
 
-  if (brandsError) {
+  if (variantsError) {
     return (
       <Button
         variant="outline"
@@ -90,14 +102,14 @@ export function BrandsCombobox({
       >
         <div className="flex items-center justify-start gap-2">
           <XCircleIcon size="small" />
-          Error loading brands...
+          Error loading variants...
         </div>
         <ChevronsUpDown className="opacity-50" />
       </Button>
     );
   }
 
-  if (!brands.pages) {
+  if (!variants.pages) {
     return (
       <Button
         variant="outline"
@@ -108,35 +120,37 @@ export function BrandsCombobox({
       >
         <div className="flex items-center justify-start gap-2">
           <XCircleIcon size="small" />
-          No brands found...
+          No variants found...
         </div>
         <ChevronsUpDown className="opacity-50" />
       </Button>
     );
   }
+  const variantsData = variants.pages.flatMap((page) => page.data);
 
   function renderValue(value: number) {
-    const brand = brandsData.find((brand) => brand.id === value);
+    const variant = variantsData.find((variant) => variant.id === value);
+    if (!variant) {
+      return;
+    }
 
     return (
       <div className="flex items-center gap-2">
         <ImageWithFallback
-          src={brand?.logoUrl ?? ""}
-          alt={brand?.name ?? ""}
+          src={variant.thumbnail?.url ?? ""}
+          alt={variant.name}
           className="size-6 overflow-hidden rounded-sm border"
           width={24}
           height={24}
         />
 
-        <span>{brand?.name}</span>
+        <span className="max-w-48 truncate">{`${variant.product?.name ?? "Unknown Product"} - ${variant.name}`}</span>
       </div>
     );
   }
 
-  const brandsData = brands.pages.flatMap((page) => page.data);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={isModal}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -149,81 +163,89 @@ export function BrandsCombobox({
             renderValue(value)
           ) : (
             <div className="flex items-center gap-2">
-              <TargetIcon className="text-muted-foreground size-4" />
-              <span className="text-muted-foreground">Select a brand</span>
+              <CircleDashedIcon className="text-muted-foreground size-4" />
+              <span className="text-muted-foreground">Select a variant</span>
             </div>
           )}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
+
       <PopoverContent className="p-0">
-        <BrandsCommand
-          brands={brands.pages.flatMap((page) => page.data)}
+        <VariantsCommand
+          variants={variantsData}
           hasNextPage={hasNextPage}
           onValueChange={onValueChange}
           setOpen={setOpen}
           value={value}
           ref={ref}
+          search={search}
+          setSearch={setSearch}
         />
-
-        <Separator />
-
-        <AddBrandDialog />
       </PopoverContent>
     </Popover>
   );
 }
 
-export function BrandsCommand({
-  brands,
+export function VariantsCommand({
+  variants,
   hasNextPage,
   onValueChange,
   setOpen,
+  search,
+  setSearch,
   value,
   ref,
 }: {
-  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
+  variants: RouterOutputs["admin"]["productVariants"]["getPage"]["data"];
   value: number;
   onValueChange: (value: number) => void;
   setOpen: (open: boolean) => void;
   hasNextPage: boolean;
+  search: string;
+  setSearch: (search: string) => void;
   ref: (node?: Element | null) => void;
 }) {
   return (
     <Command>
-      <CommandInput placeholder="Search brands" className="h-9" />
+      <CommandInput
+        placeholder="Search variants"
+        className="h-9"
+        value={search}
+        onValueChange={setSearch}
+      />
       <CommandList>
-        <CommandEmpty>No brands found</CommandEmpty>
+        <CommandEmpty>No variants found</CommandEmpty>
         <CommandGroup>
-          {brands.map((brand) => (
+          {variants.map((variant) => (
             <CommandItem
-              key={brand.id}
-              value={brand.name}
+              key={variant.id}
+              value={variant.name}
               onSelect={() => {
-                if (brand.id === value) {
+                if (variant.id === value) {
                   onValueChange(0);
                   setOpen(false);
                   return;
                 }
 
-                onValueChange(brand.id);
+                onValueChange(variant.id);
                 setOpen(false);
               }}
             >
-              <div className="bg-muted size-6 overflow-hidden rounded-sm border">
-                <Image
-                  src={brand.logoUrl ?? ""}
-                  alt={brand.name}
-                  className="size-full object-cover"
-                  width={24}
-                  height={24}
+              <div className="flex items-center gap-2">
+                <ImageWithFallback
+                  src={variant.thumbnail?.url ?? ""}
+                  alt={variant.name}
+                  className="size-12 shrink-0 overflow-hidden border"
+                  width={48}
+                  height={48}
                 />
+                <span>{`${variant.product?.name ?? "Unknown Product"} - ${variant.name}`}</span>
               </div>
-              {brand.name}
               <Check
                 className={cn(
                   "ml-auto",
-                  value === brand.id ? "opacity-100" : "opacity-0",
+                  value === variant.id ? "opacity-100" : "opacity-0",
                 )}
               />
             </CommandItem>

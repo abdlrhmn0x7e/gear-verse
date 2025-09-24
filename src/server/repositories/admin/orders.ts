@@ -7,6 +7,9 @@ import {
   addresses,
 } from "~/server/db/schema";
 
+type InsertOrder = typeof orders.$inferInsert;
+type InsertOrderItem = typeof orderItems.$inferInsert;
+
 export const _adminOrdersRepository = {
   getPage: async ({
     pageSize,
@@ -115,6 +118,29 @@ export const _adminOrdersRepository = {
           },
         },
       },
+    });
+  },
+  create: async (
+    orderInput: InsertOrder,
+    itemsInput: Omit<InsertOrderItem, "orderId">[],
+  ) => {
+    return db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(orders)
+        .values(orderInput)
+        .returning({ id: orders.id });
+
+      if (!order) {
+        throw new Error("Failed to create order");
+      }
+
+      if (itemsInput.length > 0) {
+        await tx
+          .insert(orderItems)
+          .values(itemsInput.map((item) => ({ ...item, orderId: order.id })));
+      }
+
+      return order;
     });
   },
 };

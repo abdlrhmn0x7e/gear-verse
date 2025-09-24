@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   text,
   timestamp,
+  integer,
 } from "drizzle-orm/pg-core";
 import { brands } from "./brands";
 import { categories } from "./categories";
@@ -22,7 +23,8 @@ export const products = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
 
-    name: text("name").notNull(),
+    title: text("title").notNull(),
+    price: integer("price").notNull(),
     summary: text("summary").notNull(),
     description: jsonb("description").$type<JSONContent>().notNull(),
     published: boolean("published").notNull().default(false),
@@ -39,10 +41,6 @@ export const products = pgTable(
       .references(() => brands.id)
       .notNull(),
 
-    specifications: jsonb("specifications")
-      .$type<Record<string, string>>()
-      .notNull(),
-
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
       .notNull()
@@ -50,10 +48,9 @@ export const products = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index("products_name_idx").on(table.name),
+    index("products_title_idx").on(table.title),
     index("products_brand_id_idx").on(table.brandId),
     index("products_category_id_idx").on(table.categoryId),
-    index("products_specifications_idx").using("gin", table.specifications),
     uniqueIndex("products_slug_idx").on(table.slug),
   ],
 );
@@ -64,6 +61,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
     references: [media.id],
     relationName: "products_thumbnail",
   }),
+  media: many(media),
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id],

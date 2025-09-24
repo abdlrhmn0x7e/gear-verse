@@ -1,11 +1,78 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, gt, ilike } from "drizzle-orm";
 import { db } from "../../db";
-import { media, productVariants } from "../../db/schema";
+import { media, productVariants, products } from "../../db/schema";
+
+type ProductVariantFilters = {
+  search?: string | null;
+  productId?: number | null;
+};
 
 type InsertProductVariant = typeof productVariants.$inferInsert;
 type UpdateProductVariant = Partial<InsertProductVariant>;
 
 export const _adminProductVariantsRepository = {
+  queries: {
+    findAll: async () => {
+      return db.query.productVariants.findMany({
+        columns: {
+          id: true,
+          name: true,
+          stock: true,
+          price: true,
+        },
+        with: {
+          product: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: (variants, { asc }) => asc(variants.name),
+      });
+    },
+
+    getPage: async ({
+      cursor,
+      pageSize,
+      filters,
+    }: {
+      cursor: number | undefined;
+      pageSize: number;
+      filters?: ProductVariantFilters;
+    }) => {
+      const whereClause = [gt(productVariants.id, cursor ?? 0)];
+
+      if (filters?.search) {
+        whereClause.push(ilike(productVariants.name, `%${filters.search}%`));
+      }
+
+      if (filters?.productId) {
+        whereClause.push(eq(productVariants.productId, filters.productId));
+      }
+
+      return db
+        .select({
+          id: productVariants.id,
+          name: productVariants.name,
+          stock: productVariants.stock,
+          price: productVariants.price,
+          thumbnail: {
+            url: media.url,
+          },
+          product: {
+            id: products.id,
+            name: products.name,
+          },
+        })
+        .from(productVariants)
+        .leftJoin(products, eq(productVariants.productId, products.id))
+        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+        .where(and(...whereClause))
+        .limit(pageSize + 1)
+        .orderBy(productVariants.id);
+    },
+  },
   mutations: {
     create: (input: InsertProductVariant) => {
       return db.transaction(async (tx) => {
