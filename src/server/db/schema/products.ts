@@ -13,7 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { brands } from "./brands";
 import { categories } from "./categories";
-import { productVariants } from "./product-variants";
+import { variants } from "./variants";
 import { media } from "./media";
 
 export const products = pgTable(
@@ -61,7 +61,9 @@ export const productRelations = relations(products, ({ one, many }) => ({
     references: [media.id],
     relationName: "products_thumbnail",
   }),
-  media: many(media),
+  media: many(media, {
+    relationName: "products_media",
+  }),
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id],
@@ -70,5 +72,5 @@ export const productRelations = relations(products, ({ one, many }) => ({
     fields: [products.brandId],
     references: [brands.id],
   }),
-  variants: many(productVariants),
+  variants: many(variants),
 }));

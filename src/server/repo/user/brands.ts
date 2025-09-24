@@ -2,7 +2,7 @@ import { db } from "~/server/db";
 import { eq } from "drizzle-orm";
 import { brands, media } from "~/server/db/schema";
 
-export const _userBrandsRepository = {
+export const _userBrandsRepo = {
   findAll: () => {
     return db
       .select({

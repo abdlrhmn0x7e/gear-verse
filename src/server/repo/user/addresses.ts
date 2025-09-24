@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 type NewAddress = typeof addresses.$inferInsert;
 
-export const _userAddressesRepository = {
+export const _userAddressesRepo = {
   queries: {
     find: async (userId: number) => {
       return db

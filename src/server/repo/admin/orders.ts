@@ -1,16 +1,11 @@
 import { sql, eq, gt, desc, and } from "drizzle-orm";
 import { db } from "~/server/db";
-import {
-  orderItems,
-  productVariants,
-  orders,
-  addresses,
-} from "~/server/db/schema";
+import { orderItems, variants, orders, addresses } from "~/server/db/schema";
 
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
 
-export const _adminOrdersRepository = {
+export const _adminOrdersRepo = {
   getPage: async ({
     pageSize,
     cursor,
@@ -38,16 +33,13 @@ export const _adminOrdersRepository = {
     const totalValueSubQuery = db
       .select({
         totalValue:
-          sql<number>`SUM(${orderItems.quantity} * ${productVariants.price})`.as(
+          sql<number>`SUM(${orderItems.quantity} * ${variants.price})`.as(
             "totalValue",
           ),
       })
       .from(orders)
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .leftJoin(
-        productVariants,
-        eq(orderItems.productVariantId, productVariants.id),
-      )
+      .leftJoin(variants, eq(orderItems.productVariantId, variants.id))
       .groupBy(orders.id)
       .as("totalValueSubQuery");
 

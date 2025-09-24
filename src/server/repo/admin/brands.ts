@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { brands, media } from "../../db/schema";
 
 type NewBrandDto = typeof brands.$inferInsert;
-export const _adminBrandsRepository = {
+export const _adminBrandsRepo = {
   queries: {
     getPage: async ({
       cursor,

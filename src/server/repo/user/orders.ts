@@ -1,16 +1,11 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
-import {
-  cartItems,
-  orderItems,
-  orders,
-  productVariants,
-} from "~/server/db/schema";
+import { cartItems, orderItems, orders, variants } from "~/server/db/schema";
 
 type NewOrder = typeof orders.$inferInsert;
 type NewOrderItem = typeof orderItems.$inferInsert;
 
-export const _userOrdersRepository = {
+export const _userOrdersRepo = {
   queries: {
     findAll: async (userId: number) => {
       return db
@@ -18,15 +13,12 @@ export const _userOrdersRepository = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${productVariants.price})`,
+          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${variants.price})`,
           createdAt: orders.createdAt,
         })
         .from(orders)
         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-        .leftJoin(
-          productVariants,
-          eq(orderItems.productVariantId, productVariants.id),
-        )
+        .leftJoin(variants, eq(orderItems.productVariantId, variants.id))
         .where(eq(orders.userId, userId))
         .groupBy(orders.id);
     },
@@ -99,9 +91,9 @@ export const _userOrdersRepository = {
         // update the product variants stock
         for (const item of items) {
           await tx
-            .update(productVariants)
-            .set({ stock: sql`${productVariants.stock} - ${item.quantity}` })
-            .where(eq(productVariants.id, item.productVariantId));
+            .update(variants)
+            .set({ stock: sql`${variants.stock} - ${item.quantity}` })
+            .where(eq(variants.id, item.productVariantId));
         }
 
         return order;

@@ -1,11 +1,11 @@
 import { db } from "~/server/db";
-import { cartItems, carts, productVariants } from "~/server/db/schema";
+import { cartItems, carts, variants } from "~/server/db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
 
 type NewCart = typeof carts.$inferInsert;
 type NewCartItem = typeof cartItems.$inferInsert;
 
-export const _userCartsRepository = {
+export const _userCartsRepo = {
   queries: {
     findCartId: async (userId: number) => {
       return db
@@ -66,9 +66,9 @@ export const _userCartsRepository = {
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
         const [variant] = await tx
-          .select({ stock: productVariants.stock })
-          .from(productVariants)
-          .where(eq(productVariants.id, item.productVariantId))
+          .select({ stock: variants.stock })
+          .from(variants)
+          .where(eq(variants.id, item.productVariantId))
           .limit(1);
 
         if (!variant) {

@@ -1,16 +1,16 @@
 import { and, eq, inArray, gt, ilike } from "drizzle-orm";
 import { db } from "../../db";
-import { media, productVariants, products } from "../../db/schema";
+import { media, variants, products } from "../../db/schema";
 
 type ProductVariantFilters = {
   search?: string | null;
   productId?: number | null;
 };
 
-type InsertProductVariant = typeof productVariants.$inferInsert;
+type InsertProductVariant = typeof variants.$inferInsert;
 type UpdateProductVariant = Partial<InsertProductVariant>;
 
-export const _adminProductVariantsRepository = {
+export const _adminVariantsRepo = {
   queries: {
     findAll: async () => {
       return db.query.productVariants.findMany({
@@ -41,22 +41,22 @@ export const _adminProductVariantsRepository = {
       pageSize: number;
       filters?: ProductVariantFilters;
     }) => {
-      const whereClause = [gt(productVariants.id, cursor ?? 0)];
+      const whereClause = [gt(variants.id, cursor ?? 0)];
 
       if (filters?.search) {
-        whereClause.push(ilike(productVariants.name, `%${filters.search}%`));
+        whereClause.push(ilike(variants.name, `%${filters.search}%`));
       }
 
       if (filters?.productId) {
-        whereClause.push(eq(productVariants.productId, filters.productId));
+        whereClause.push(eq(variants.productId, filters.productId));
       }
 
       return db
         .select({
-          id: productVariants.id,
-          name: productVariants.name,
-          stock: productVariants.stock,
-          price: productVariants.price,
+          id: variants.id,
+          name: variants.name,
+          stock: variants.stock,
+          price: variants.price,
           thumbnail: {
             url: media.url,
           },
@@ -65,23 +65,23 @@ export const _adminProductVariantsRepository = {
             name: products.name,
           },
         })
-        .from(productVariants)
-        .leftJoin(products, eq(productVariants.productId, products.id))
-        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+        .from(variants)
+        .leftJoin(products, eq(variants.productId, products.id))
+        .leftJoin(media, eq(variants.thumbnailMediaId, media.id))
         .where(and(...whereClause))
         .limit(pageSize + 1)
-        .orderBy(productVariants.id);
+        .orderBy(variants.id);
     },
   },
   mutations: {
     create: (input: InsertProductVariant) => {
       return db.transaction(async (tx) => {
         const [productVariant] = await tx
-          .insert(productVariants)
+          .insert(variants)
           .values(input)
           .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
+            id: variants.id,
+            thumbnailMediaId: variants.thumbnailMediaId,
           });
 
         if (!productVariant) {
@@ -113,11 +113,11 @@ export const _adminProductVariantsRepository = {
     bulkCreate: async (input: InsertProductVariant[]) => {
       return db.transaction(async (tx) => {
         const newProductVariants = await tx
-          .insert(productVariants)
+          .insert(variants)
           .values(input)
           .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
+            id: variants.id,
+            thumbnailMediaId: variants.thumbnailMediaId,
           });
 
         if (!newProductVariants) {
@@ -151,12 +151,12 @@ export const _adminProductVariantsRepository = {
     ) => {
       return db.transaction(async (tx) => {
         const [productVariant] = await tx
-          .update(productVariants)
+          .update(variants)
           .set(input)
-          .where(eq(productVariants.id, id))
+          .where(eq(variants.id, id))
           .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
+            id: variants.id,
+            thumbnailMediaId: variants.thumbnailMediaId,
           });
 
         if (!productVariant) {
@@ -199,8 +199,8 @@ export const _adminProductVariantsRepository = {
       return db.transaction(async (tx) => {
         const existingVariants = await tx
           .select()
-          .from(productVariants)
-          .where(eq(productVariants.productId, productId));
+          .from(variants)
+          .where(eq(variants.productId, productId));
 
         const existingVariantsMap = new Map(
           existingVariants.map((v) => [v.id, v]),
@@ -225,9 +225,7 @@ export const _adminProductVariantsRepository = {
 
         // Delete old variants and their media if any
         if (toDelete.length > 0) {
-          await tx
-            .delete(productVariants)
-            .where(inArray(productVariants.id, toDelete));
+          await tx.delete(variants).where(inArray(variants.id, toDelete));
           await tx
             .delete(media)
             .where(
@@ -241,10 +239,7 @@ export const _adminProductVariantsRepository = {
         // Update existing variants
         for (const v of toUpdate) {
           const { id, ...data } = v;
-          await tx
-            .update(productVariants)
-            .set(data)
-            .where(eq(productVariants.id, id));
+          await tx.update(variants).set(data).where(eq(variants.id, id));
         }
       });
     },
@@ -260,9 +255,9 @@ export const _adminProductVariantsRepository = {
 
         // Delete the variant first
         const [deleted] = await tx
-          .delete(productVariants)
-          .where(eq(productVariants.id, id))
-          .returning({ id: productVariants.id });
+          .delete(variants)
+          .where(eq(variants.id, id))
+          .returning({ id: variants.id });
 
         return deleted;
       });
@@ -282,9 +277,9 @@ export const _adminProductVariantsRepository = {
 
         // Delete variants first
         const deleted = await tx
-          .delete(productVariants)
-          .where(inArray(productVariants.id, ids))
-          .returning({ id: productVariants.id });
+          .delete(variants)
+          .where(inArray(variants.id, ids))
+          .returning({ id: variants.id });
 
         return deleted;
       });

@@ -1,13 +1,30 @@
-import { db } from "../../db";
-import { eq, sql } from "drizzle-orm";
-import { categories } from "../../db/schema";
+import { isNull, sql } from "drizzle-orm";
 import type { CategoryTree } from "~/lib/schemas/category";
+import { db } from "~/server/db";
+import { categories } from "~/server/db/schema";
 
-type NewCategory = typeof categories.$inferInsert;
-
-export const _adminCategoriesRepository = {
+export const _userCategoriesRepo = {
   queries: {
-    async findAll() {
+    async findAll({
+      filters,
+    }: {
+      filters?: Partial<{
+        root: boolean;
+      }>;
+    } = {}) {
+      if (filters?.root) {
+        return db
+          .select({
+            id: categories.id,
+            name: categories.name,
+            icon: categories.icon,
+            slug: categories.slug,
+            created_at: categories.created_at,
+          })
+          .from(categories)
+          .where(isNull(categories.parent_id));
+      }
+
       const query = sql<{ tree: string }[]>`
         WITH RECURSIVE all_categories AS (
           SELECT categories.*, 0 AS level
@@ -65,21 +82,6 @@ export const _adminCategoriesRepository = {
       // fuck the ORM, use raw SQL
       const result = (await db.execute(query))[0]!.tree as string;
       return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
-    },
-
-    findById(id: number) {
-      return db
-        .select()
-        .from(categories)
-        .where(eq(categories.id, id))
-        .limit(1)
-        .then((result) => result[0]);
-    },
-  },
-
-  mutations: {
-    create(data: NewCategory) {
-      return db.insert(categories).values(data);
     },
   },
 };

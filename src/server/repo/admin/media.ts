@@ -5,7 +5,7 @@ import { media, type mediaOwnerTypeEnum } from "../../db/schema";
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
 
-export const _adminMediaRepository = {
+export const _adminMediaRepo = {
   queries: {
     getPage: ({
       cursor,

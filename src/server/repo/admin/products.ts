@@ -9,12 +9,12 @@ import {
   isNotNull,
 } from "drizzle-orm";
 import { db } from "../../db";
-import { media, products, productVariants } from "../../db/schema";
+import { media, products, variants } from "../../db/schema";
 
 type NewProduct = typeof products.$inferInsert;
 type UpdateProduct = Partial<NewProduct>;
 
-export const _adminProductsRepository = {
+export const _adminProductsRepo = {
   queries: {
     findAll: async () => {
       return db
@@ -173,7 +173,7 @@ export const _adminProductsRepository = {
           },
 
           variants: {
-            orderBy: productVariants.createdAt,
+            orderBy: variants.createdAt,
             columns: {
               id: true,
               name: true,
@@ -196,9 +196,9 @@ export const _adminProductsRepository = {
                   notInArray(
                     media.id,
                     db
-                      .select({ id: productVariants.thumbnailMediaId })
-                      .from(productVariants)
-                      .where(isNotNull(productVariants.thumbnailMediaId)),
+                      .select({ id: variants.thumbnailMediaId })
+                      .from(variants)
+                      .where(isNotNull(variants.thumbnailMediaId)),
                   ),
                 ),
                 columns: {
@@ -255,9 +255,9 @@ export const _adminProductsRepository = {
     delete: async (id: number) => {
       return db.transaction(async (tx) => {
         const variantIds = await tx
-          .select({ id: productVariants.id })
-          .from(productVariants)
-          .where(eq(productVariants.productId, id))
+          .select({ id: variants.id })
+          .from(variants)
+          .where(eq(variants.productId, id))
           .then((result) => result.map((row) => row.id));
 
         // Delete product first - CASCADE will handle thumbnail nullification

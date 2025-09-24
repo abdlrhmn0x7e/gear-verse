@@ -1,14 +1,14 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import { orderItems, orders } from "~/server/db/schema/orders";
-import { productVariants } from "~/server/db/schema/product-variants";
+import { variants } from "~/server/db/schema/variants";
 import { reviews } from "~/server/db/schema/reviews";
 import { users } from "~/server/db/schema/users";
 
 type NewReview = typeof reviews.$inferInsert;
 type UpdateReview = Partial<NewReview>;
 
-export const _userReviewsRepository = {
+export const _userReviewsRepo = {
   queries: {
     findAll: async (productId: number) => {
       const isVerifiedPurchaserSubQuery = db
@@ -21,10 +21,10 @@ export const _userReviewsRepository = {
         .from(orders)
         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
         .leftJoin(
-          productVariants,
+          variants,
           and(
-            eq(orderItems.productVariantId, productVariants.id),
-            eq(productVariants.productId, productId),
+            eq(orderItems.productVariantId, variants.id),
+            eq(variants.productId, productId),
           ),
         )
         .where(eq(orders.userId, reviews.userId))

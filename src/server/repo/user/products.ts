@@ -1,16 +1,10 @@
 import { and, asc, between, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
-import {
-  brands,
-  media,
-  products,
-  productVariants,
-  users,
-} from "~/server/db/schema";
+import { brands, media, products, variants, users } from "~/server/db/schema";
 import { reviews } from "~/server/db/schema/reviews";
 
-export const _userProductsRepository = {
+export const _userProductsRepo = {
   queries: {
     getPage: async ({
       cursor,
@@ -33,10 +27,10 @@ export const _userProductsRepository = {
       const brandsMedia = alias(media, "brands_media");
       const variantsMedia = alias(media, "variants_media");
       const cheapestVariant = db
-        .select({ price: productVariants.price })
-        .from(productVariants)
-        .where(eq(productVariants.productId, products.id))
-        .orderBy(asc(productVariants.price))
+        .select({ price: variants.price })
+        .from(variants)
+        .where(eq(variants.productId, products.id))
+        .orderBy(asc(variants.price))
         .limit(1)
         .as("cheapest_variant");
 
@@ -49,11 +43,11 @@ export const _userProductsRepository = {
             ))
           `.as("variants"),
         })
-        .from(productVariants)
-        .where(eq(productVariants.productId, products.id))
+        .from(variants)
+        .where(eq(variants.productId, products.id))
         .leftJoin(
           variantsMedia,
-          eq(productVariants.thumbnailMediaId, variantsMedia.id),
+          eq(variants.thumbnailMediaId, variantsMedia.id),
         )
         .as("product_variants_json");
 
@@ -91,9 +85,9 @@ export const _userProductsRepository = {
             bool_or(product_variants.stock > 0)
           `.as("in_stock"),
         })
-        .from(productVariants)
-        .where(eq(productVariants.productId, products.id))
-        .groupBy(productVariants.productId)
+        .from(variants)
+        .where(eq(variants.productId, products.id))
+        .groupBy(variants.productId)
         .limit(1)
         .as("in_stock");
 
@@ -196,9 +190,8 @@ export const _userProductsRepository = {
         where: and(eq(products.slug, slug), eq(products.published, true)),
         columns: {
           id: true,
-          name: true,
+          title: true,
           summary: true,
-          specifications: true,
           description: true,
         },
         with: {
@@ -224,14 +217,6 @@ export const _userProductsRepository = {
             },
             with: {
               thumbnail: {
-                columns: {
-                  id: true,
-                  url: true,
-                },
-              },
-
-              images: {
-                where: eq(media.ownerType, "PRODUCT_VARIANT"),
                 columns: {
                   id: true,
                   url: true,

@@ -8,7 +8,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { brands } from "./brands";
-import { productVariants } from "./product-variants";
+import { variants } from "./variants";
 import { products } from "./products";
 
 export const mediaOwnerTypeEnum = pgEnum("owner_type", [
@@ -51,15 +51,15 @@ export const mediaRelations = relations(media, ({ one }) => ({
     relationName: "products_thumbnail",
   }),
 
-  productVariantThumbnail: one(productVariants, {
+  variantThumbnail: one(variants, {
     fields: [media.ownerId],
-    references: [productVariants.id],
-    relationName: "product_variant_thumbnail",
+    references: [variants.id],
+    relationName: "variants_thumbnail",
   }),
 
-  productVariantImages: one(productVariants, {
+  productMedia: one(products, {
     fields: [media.ownerId],
-    references: [productVariants.id],
-    relationName: "product_variant_images",
+    references: [products.id],
+    relationName: "products_media",
   }),
 }));

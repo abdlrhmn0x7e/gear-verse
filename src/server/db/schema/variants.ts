@@ -11,8 +11,8 @@ import { products } from "./products";
 import { relations } from "drizzle-orm";
 import { media } from "./media";
 
-export const productVariants = pgTable(
-  "product_variants",
+export const variants = pgTable(
+  "variants",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
@@ -38,23 +38,20 @@ export const productVariants = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index("product_variants_thumbnail_media_id_idx").on(table.thumbnailMediaId),
-    index("product_variants_product_id_idx").on(table.productId),
+    index("variants_thumbnail_media_id_idx").on(table.thumbnailMediaId),
+    index("variants_product_id_idx").on(table.productId),
   ],
 );
 
-export const productVariantsRelations = relations(
-  productVariants,
-  ({ one }) => ({
-    product: one(products, {
-      fields: [productVariants.productId],
-      references: [products.id],
-    }),
-
-    thumbnail: one(media, {
-      fields: [productVariants.thumbnailMediaId],
-      references: [media.id],
-      relationName: "product_variant_thumbnail",
-    }),
+export const variantsRelations = relations(variants, ({ one }) => ({
+  product: one(products, {
+    fields: [variants.productId],
+    references: [products.id],
   }),
-);
+
+  thumbnail: one(media, {
+    fields: [variants.thumbnailMediaId],
+    references: [media.id],
+    relationName: "variants_thumbnail",
+  }),
+}));
