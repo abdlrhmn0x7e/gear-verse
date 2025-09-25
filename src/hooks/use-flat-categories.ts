@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
-import type { CategoryTree } from "~/lib/schemas/category";
-import type { CategoryIconEnum } from "~/lib/schemas/category";
-import type { Category } from "~/lib/schemas/category";
+import type { CategoryTree } from "~/lib/schemas/entities/category";
+import type { CategoryIconEnum } from "~/lib/schemas/entities/category";
+import type { Category } from "~/lib/schemas/entities/category";
 
 export function useFlatCategories(categories: CategoryTree[]) {
   const flattenCategories = useCallback(

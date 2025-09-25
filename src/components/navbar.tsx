@@ -53,7 +53,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import type { CategoryTree } from "~/lib/schemas/category";
+import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "./image-with-fallback";
 import { cn } from "~/lib/utils";
@@ -103,7 +103,7 @@ export function Navbar({
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
 
   const { data: cart, isPending: isPendingCart } =
-    api.user.carts.find.useQuery();
+    api.public.carts.find.useQuery();
   const [, setParams] = useCartSearchParams();
 
   return (
@@ -284,7 +284,7 @@ function ProductsMenu({ open }: { open: boolean }) {
 
 function ProductsMenuContent() {
   const { data: products, isPending: productsPending } =
-    api.user.products.getPage.useQuery({
+    api.public.products.getPage.useQuery({
       pageSize: 6,
     });
   if (productsPending) {
@@ -323,7 +323,7 @@ function ProductsMenuContent() {
 function ProductCard({
   products,
 }: {
-  products: RouterOutputs["user"]["products"]["getPage"]["data"][number];
+  products: RouterOutputs["public"]["products"]["getPage"]["data"][number];
 }) {
   return (
     <Link href={`/products/${products.slug}`}>
@@ -378,7 +378,7 @@ function CategoriesMenu({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { data: categories, isPending: isPendingCategories } =
-    api.user.categories.findAll.useQuery();
+    api.public.categories.findAll.useQuery();
 
   if (isPendingCategories || !categories) {
     return (
@@ -501,16 +501,16 @@ function MobileMenu() {
 function CartDrawer({
   cart,
 }: {
-  cart: RouterOutputs["user"]["carts"]["find"];
+  cart: RouterOutputs["public"]["carts"]["find"];
 }) {
   const utils = api.useUtils();
   const { mutate: removeItem, isPending: removingItem } =
-    api.user.carts.removeItem.useMutation({
-      onSuccess: () => void utils.user.carts.find.invalidate(),
+    api.public.carts.removeItem.useMutation({
+      onSuccess: () => void utils.public.carts.find.invalidate(),
     });
   const { mutate: addItem, isPending: addingItem } =
-    api.user.carts.addItem.useMutation({
-      onSuccess: () => void utils.user.carts.find.invalidate(),
+    api.public.carts.addItem.useMutation({
+      onSuccess: () => void utils.public.carts.find.invalidate(),
     });
   const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();

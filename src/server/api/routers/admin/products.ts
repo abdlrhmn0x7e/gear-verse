@@ -1,93 +1,81 @@
 import z from "zod";
-import { paginationSchema } from "~/lib/schemas/pagination";
-import { productSchema } from "~/lib/schemas/product";
-import { paginate } from "../../helpers/pagination";
+import { paginationSchema } from "~/lib/schemas/contracts/pagination";
+import { productEntitySchema } from "~/lib/schemas/entities/product";
+import { paginate } from "../../../application/helpers/pagination";
 import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { TRPCError } from "@trpc/server";
 import { generateSlug } from "~/lib/utils/slugs";
+import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/products";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { errorMap } from "../../error-map";
 
 export const productsRouter = createTRPCRouter({
   /**
    * Queries
    */
-  findAll: adminProcedure.query(({ ctx }) => {
-    return ctx.db.admin.products.queries.findAll();
-  }),
-
-  getPage: adminProcedure
-    .input(
-      paginationSchema.extend({
-        filters: z
-          .object({
-            name: z.string(),
-            brands: z.array(z.number()),
-            categories: z.array(z.number()),
-          })
-          .partial()
-          .optional(),
+  queries: {
+    getPage: adminProcedure
+      .input(productsGetPageInputSchema)
+      .query(({ ctx, input }) => {
+        return ctx.app.admin.products.queries.getPage(input);
       }),
-    )
-    .query(({ ctx, input }) => {
-      return paginate({
-        input,
-        getPage: ctx.db.admin.products.queries.getPage,
-      });
-    }),
 
-  findById: adminProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ ctx, input }) => {
-      const product = await ctx.db.admin.products.queries.findById(input.id);
-      if (!product) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Product not found",
-        });
-      }
+    findById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { data: product, error: productError } = await tryCatch(
+          ctx.app.admin.products.queries.findById(input.id),
+        );
+        if (productError) {
+          throw errorMap(productError);
+        }
 
-      return product;
-    }),
+        return product;
+      }),
+  },
 
   /**
    * Mutations
    */
-  create: adminProcedure
-    .input(
-      productSchema.omit({
-        id: true,
-        slug: true,
-        published: true,
-        createdAt: true,
-        updatedAt: true,
+  mutations: {
+    create: adminProcedure
+      .input(
+        productEntitySchema.omit({
+          id: true,
+          slug: true,
+          published: true,
+          createdAt: true,
+          updatedAt: true,
+        }),
+      )
+      .mutation(({ ctx, input }) => {
+        return ctx.db.admin.products.mutations.create({
+          ...input,
+          slug: generateSlug(input.name),
+        });
       }),
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.admin.products.mutations.create({
-        ...input,
-        slug: generateSlug(input.name),
-      });
-    }),
 
-  update: adminProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        data: productSchema
-          .omit({
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-          })
-          .partial(),
+    update: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          data: productEntitySchema
+            .omit({
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+            })
+            .partial(),
+        }),
+      )
+      .mutation(({ ctx, input }) => {
+        return ctx.db.admin.products.mutations.update(input.id, input.data);
       }),
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.admin.products.mutations.update(input.id, input.data);
-    }),
 
-  delete: adminProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.db.admin.products.mutations.delete(input.id);
-    }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(({ ctx, input }) => {
+        return ctx.db.admin.products.mutations.delete(input.id);
+      }),
+  },
 });

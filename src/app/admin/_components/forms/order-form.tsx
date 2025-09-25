@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { addressGovernoratesEnum } from "~/lib/schemas/address";
+import { addressGovernoratesEnum } from "~/lib/schemas/entities/address";
 import { phoneNumberSchema } from "~/lib/schemas/phone-number";
 import { humanizeString } from "~/lib/utils/humanize-string";
 import { cn } from "~/lib/utils";

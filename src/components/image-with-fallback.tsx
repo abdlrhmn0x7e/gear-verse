@@ -1,8 +1,9 @@
 import { ImageOffIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { SuspendableImage } from "./suspendable-image";
+import { memo } from "react";
 
-export function ImageWithFallback({
+export const Component = ({
   src,
   alt,
   className,
@@ -11,7 +12,7 @@ export function ImageWithFallback({
   src?: string | null;
   alt: string;
   className?: string;
-} & Omit<React.ComponentProps<typeof SuspendableImage>, "src" | "alt">) {
+} & Omit<React.ComponentProps<typeof SuspendableImage>, "src" | "alt">) => {
   if (!src) {
     return (
       <div
@@ -30,4 +31,6 @@ export function ImageWithFallback({
       <SuspendableImage src={src} alt={alt} {...props} />
     </div>
   );
-}
+};
+
+export const ImageWithFallback = memo(Component);

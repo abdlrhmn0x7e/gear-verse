@@ -15,8 +15,8 @@ import { UndoRedo } from "@tiptap/extensions";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { type JSONContent, useEditor } from "@tiptap/react";
 import { useMemo } from "react";
-import { useUploadFileMutation } from "./mutations/use-upload-file-mutation";
 import { toast } from "sonner";
+import { useUploadFilesMutation } from "./mutations/use-upload-files-mutations";
 
 export function useVerseEditor({
   onUpdate,
@@ -25,7 +25,7 @@ export function useVerseEditor({
   onUpdate?: (json: JSONContent) => void;
   defaultContent?: JSONContent;
 } = {}) {
-  const { mutate: uploadFile } = useUploadFileMutation();
+  const { mutate: uploadFiles } = useUploadFilesMutation();
   const extensions = useMemo(() => {
     return [
       UndoRedo,
@@ -74,62 +74,52 @@ export function useVerseEditor({
           "image/webp",
         ],
         onDrop: (currentEditor, files, pos) => {
-          files.forEach((file) => {
-            const uploadingFilesToast = toast.loading(
-              `Uploading ${file.name}...`,
-            );
-            uploadFile(
-              { file },
-              {
-                onSuccess: (data) => {
-                  toast.dismiss(uploadingFilesToast);
-                  currentEditor
-                    .chain()
-                    .insertContentAt(pos, {
-                      type: "image",
-                      attrs: {
-                        src: data.url,
-                      },
-                    })
-                    .focus()
-                    .run();
-                },
-              },
-            );
+          const uploadingFilesToast = toast.loading(
+            `Uploading ${files.map((file) => file.name).join(", ")}...`,
+          );
+          uploadFiles(files, {
+            onSuccess: (data) => {
+              toast.dismiss(uploadingFilesToast);
+              currentEditor
+                .chain()
+                .insertContentAt(pos, {
+                  type: "image",
+                  attrs: {
+                    src: data.map((item) => item.url),
+                  },
+                })
+                .focus()
+                .run();
+            },
           });
         },
         onPaste: (currentEditor, files, htmlContent) => {
-          files.forEach((file) => {
-            if (htmlContent) {
-              return false;
-            }
+          if (htmlContent) {
+            return false;
+          }
 
-            const uploadingFilesToast = toast.loading(
-              `Uploading ${file.name}...`,
-            );
-            uploadFile(
-              { file },
-              {
-                onSuccess: (data) => {
-                  toast.dismiss(uploadingFilesToast);
-                  currentEditor
-                    .chain()
-                    .insertContentAt(currentEditor.state.selection.anchor, {
-                      type: "image",
-                      attrs: {
-                        src: data.url,
-                      },
-                    })
-                    .focus()
-                    .run();
-                },
-              },
-            );
+          const uploadingFilesToast = toast.loading(
+            `Uploading ${files.map((file) => file.name).join(", ")}...`,
+          );
+          uploadFiles(files, {
+            onSuccess: (data) => {
+              toast.dismiss(uploadingFilesToast);
+              currentEditor
+                .chain()
+                .insertContentAt(currentEditor.state.selection.anchor, {
+                  type: "image",
+                  attrs: {
+                    src: data.map((item) => item.url),
+                  },
+                })
+                .focus()
+                .run();
+            },
           });
         },
       }),
     ];
-  }, [uploadFile]);
+  }, [uploadFiles]);
 
   const editor = useEditor({
     content: defaultContent,

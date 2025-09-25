@@ -1,7 +1,7 @@
 import z from "zod";
 
 import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
-import { addressGovernoratesEnum } from "~/lib/schemas/address";
+import { addressGovernoratesEnum } from "~/lib/schemas/entities/address";
 
 const addressInputSchema = z.object({
   userId: z.number().int().positive(),

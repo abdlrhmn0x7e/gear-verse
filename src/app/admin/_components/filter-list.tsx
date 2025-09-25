@@ -7,7 +7,7 @@ import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
 import type { RouterOutputs } from "~/trpc/react";
 import { OrderStatus } from "./tables/orders/order-status";
-import { PaymentMethod } from "~/app/(user)/(protected)/_components/payment-method";
+import { PaymentMethod } from "~/app/(public)/(protected)/_components/payment-method";
 
 const itemVariant = {
   hidden: { y: 10, opacity: 0 },

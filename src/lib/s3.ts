@@ -11,22 +11,32 @@ const s3 = new S3Client({
   },
 });
 
-async function s3GetPresignedUrl(type: string, size: number, fileId: string) {
-  const key = cuid();
+async function s3GetPresignedUrl({
+  fileId,
+  name,
+  mimeType,
+  size,
+}: {
+  fileId: string;
+  name: string;
+  mimeType: string;
+  size: number;
+}) {
   const command = new PutObjectCommand({
     Bucket: env.AWS_S3_BUCKET_NAME,
-    Key: key,
-    ContentType: type,
+    Key: fileId,
+    ContentType: mimeType,
     ContentLength: size,
   });
 
   return {
-    key,
     fileId,
     url: await getSignedUrl(s3, command, {
       expiresIn: 60 * 5, // 5 minutes
     }),
-    accessUrl: s3GetPublicUrl(key),
+    name,
+    mimeType,
+    accessUrl: s3GetPublicUrl(fileId),
   };
 }
 

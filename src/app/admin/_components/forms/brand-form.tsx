@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
-import { brandSchema } from "~/lib/schemas/brand";
+import { brandEntitySchema } from "~/lib/schemas/entities/brand";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { imageSchema } from "~/lib/schemas/image";
+import { imageSchema } from "~/lib/schemas/contracts/image";
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { FileDropzone } from "../inputs/file-dropzone";
 
-const brandFormSchema = brandSchema
+const brandFormSchema = brandEntitySchema
   .omit({
     id: true,
     slug: true,

@@ -13,8 +13,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { brands } from "./brands";
 import { categories } from "./categories";
-import { variants } from "./variants";
 import { media } from "./media";
+import { productsMedia } from "./products-media";
 
 export const products = pgTable(
   "products",
@@ -33,7 +33,6 @@ export const products = pgTable(
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
     }).references(() => media.id, { onDelete: "set null" }),
-
     categoryId: bigint("category_id", { mode: "number" })
       .notNull()
       .references(() => categories.id),
@@ -54,14 +53,13 @@ export const products = pgTable(
     uniqueIndex("products_slug_idx").on(table.slug),
   ],
 );
-
 export const productRelations = relations(products, ({ one, many }) => ({
   thumbnail: one(media, {
     fields: [products.thumbnailMediaId],
     references: [media.id],
     relationName: "products_thumbnail",
   }),
-  media: many(media, {
+  media: many(productsMedia, {
     relationName: "products_media",
   }),
   category: one(categories, {
@@ -72,5 +70,152 @@ export const productRelations = relations(products, ({ one, many }) => ({
     fields: [products.brandId],
     references: [brands.id],
   }),
-  variants: many(variants),
+  options: many(productOptions),
 }));
+
+export const productOptions = pgTable(
+  "product_options",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+    productId: bigint("product_id", { mode: "number" })
+      .references(() => products.id)
+      .notNull(),
+
+    name: text("name").notNull(),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex("product_options_product_id_name_idx").on(
+      table.productId,
+      table.name,
+    ),
+  ],
+);
+export const productOptionsRelations = relations(
+  productOptions,
+  ({ one, many }) => ({
+    product: one(products, {
+      fields: [productOptions.productId],
+      references: [products.id],
+    }),
+    productsMedia: many(productsMedia, {
+      relationName: "product_options_media",
+    }),
+  }),
+);
+
+export const productOptionValues = pgTable(
+  "product_option_values",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+    productOptionId: bigint("product_option_id", { mode: "number" })
+      .references(() => productOptions.id)
+      .notNull(),
+
+    value: text("value").notNull(),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex("product_option_values_product_option_id_value_idx").on(
+      table.productOptionId,
+      table.value,
+    ),
+  ],
+);
+export const productOptionValuesRelations = relations(
+  productOptionValues,
+  ({ one, many }) => ({
+    option: one(productOptions, {
+      fields: [productOptionValues.productOptionId],
+      references: [productOptions.id],
+    }),
+    variants: many(productOptionValuesVariants),
+  }),
+);
+
+export const productVariants = pgTable("product_variants", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+
+  overridePrice: integer("override_price"),
+
+  productId: bigint("product_id", { mode: "number" })
+    .references(() => products.id)
+    .notNull(),
+  thumbnailMediaId: bigint("thumbnail_media_id", { mode: "number" }).references(
+    () => media.id,
+    { onDelete: "set null" },
+  ),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+export const productVariantsRelations = relations(
+  productVariants,
+  ({ one, many }) => ({
+    product: one(products, {
+      fields: [productVariants.productId],
+      references: [products.id],
+    }),
+    thumbnail: one(media, {
+      fields: [productVariants.thumbnailMediaId],
+      references: [media.id],
+    }),
+    optionValues: many(productOptionValuesVariants),
+  }),
+);
+
+export const productOptionValuesVariants = pgTable(
+  "product_option_values_variants",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+    productOptionValueId: bigint("product_option_value_id", { mode: "number" })
+      .references(() => productOptionValues.id)
+      .notNull(),
+    productVariantId: bigint("product_variant_id", { mode: "number" })
+      .references(() => productVariants.id)
+      .notNull(),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex(
+      "product_option_values_variants_product_option_value_id_product_variant_id_idx",
+    ).on(table.productOptionValueId, table.productVariantId),
+  ],
+);
+export const productOptionValuesVariantsRelations = relations(
+  productOptionValuesVariants,
+  ({ one }) => ({
+    optionValue: one(productOptionValues, {
+      fields: [productOptionValuesVariants.productOptionValueId],
+      references: [productOptionValues.id],
+    }),
+    variant: one(productVariants, {
+      fields: [productOptionValuesVariants.productVariantId],
+      references: [productVariants.id],
+    }),
+  }),
+);

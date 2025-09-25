@@ -29,7 +29,7 @@ import type {
   Category,
   CategoryIconEnum,
   CategoryTree,
-} from "~/lib/schemas/category";
+} from "~/lib/schemas/entities/category";
 
 import {
   Collapsible,

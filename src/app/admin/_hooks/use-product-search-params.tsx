@@ -7,7 +7,7 @@ import {
 } from "nuqs/server";
 
 const productSearchParams = {
-  name: parseAsString,
+  title: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
   categories: parseAsArrayOf(parseAsInteger),
   productId: parseAsInteger,

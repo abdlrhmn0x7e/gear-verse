@@ -3,8 +3,8 @@ import {
   adminProcedure,
   protectedProcedure,
 } from "../../trpc";
-import { paginate } from "../../helpers/pagination";
-import { paginationSchema } from "~/lib/schemas/pagination";
+import { paginate } from "../../../application/helpers/pagination";
+import { paginationSchema } from "~/lib/schemas/contracts/pagination";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 

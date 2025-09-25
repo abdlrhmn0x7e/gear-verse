@@ -18,7 +18,7 @@ import {
   type IconProps,
 } from "@tabler/icons-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
-import type { CategoryIconEnum } from "./schemas/category";
+import type { CategoryIconEnum } from "./schemas/entities/category";
 
 export const iconsMap = new Map<
   CategoryIconEnum,

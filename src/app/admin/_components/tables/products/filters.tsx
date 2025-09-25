@@ -55,10 +55,10 @@ export function ProductsFilter() {
 
     void setFilters(
       (prev) => {
-        if (prev.name === value) {
+        if (prev.title === value) {
           return {
             ...prev,
-            name: undefined,
+            title: null,
           };
         }
 
@@ -134,7 +134,7 @@ export function ProductsFilter() {
     <div className="flex items-center gap-2">
       <SearchInput
         className="h-full max-w-sm"
-        value={filters.name ?? ""}
+        value={filters.title ?? ""}
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

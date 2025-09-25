@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter } from "../../trpc";
-import { brandSchema } from "~/lib/schemas/brand";
-import { paginationSchema } from "~/lib/schemas/pagination";
-import { paginate } from "../../helpers/pagination";
+import { brandEntitySchema } from "~/lib/schemas/entities/brand";
+import { paginationSchema } from "~/lib/schemas/contracts/pagination";
+import { paginate } from "../../../application/helpers/pagination";
 import { generateSlug } from "~/lib/utils/slugs";
 
 export const brandsRouter = createTRPCRouter({
@@ -17,7 +17,7 @@ export const brandsRouter = createTRPCRouter({
    */
   create: adminProcedure
     .input(
-      brandSchema.omit({
+      brandEntitySchema.omit({
         id: true,
         slug: true,
         createdAt: true,

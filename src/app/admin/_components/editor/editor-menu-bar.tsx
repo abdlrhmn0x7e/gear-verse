@@ -44,7 +44,7 @@ import {
   DrawerDialogTitle,
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
-import { useUploadFileMutation } from "~/hooks/mutations/use-upload-file-mutation";
+import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { toast } from "sonner";
 import * as React from "react";
 import { cn } from "~/lib/utils";
@@ -343,8 +343,17 @@ export function EditorMenuBar({
 
       {/* Image */}
       <ImageDrawerDialog
-        onImageUpload={(url) =>
-          editor.chain().focus().setImage({ src: url }).run()
+        onImageUpload={(urls) =>
+          editor
+            .chain()
+            .insertContent({
+              type: "image",
+              attrs: {
+                src: urls,
+              },
+            })
+            .focus()
+            .run()
         }
         disableTooltips={disableTooltips}
       />
@@ -362,30 +371,26 @@ function ImageDrawerDialog({
   onImageUpload,
   disableTooltips,
 }: {
-  onImageUpload: (url: string) => void;
+  onImageUpload: (urls: string[]) => void;
   disableTooltips?: boolean;
 }) {
   const [imageDialogOpen, setImageDialogOpen] = React.useState(false);
-  const { mutate: uploadFile, isPending: isUploading } =
-    useUploadFileMutation();
+  const { mutate: uploadFiles, isPending: isUploading } =
+    useUploadFilesMutation();
   function handleAddImage(files: File[]) {
-    const file = files[0];
-    if (!file) return;
+    if (!files.length) return;
 
-    uploadFile(
-      { file },
-      {
-        onSuccess: (data) => {
-          onImageUpload(data.url);
-          setImageDialogOpen(false);
-        },
-        onError: (error) => {
-          toast.error("Failed to upload file", {
-            description: error.message,
-          });
-        },
+    uploadFiles(files, {
+      onSuccess: (data) => {
+        onImageUpload(data.map((item) => item.url));
+        setImageDialogOpen(false);
       },
-    );
+      onError: (error) => {
+        toast.error("Failed to upload file", {
+          description: error.message,
+        });
+      },
+    });
   }
 
   return (
@@ -433,7 +438,7 @@ function ImageDrawerDialog({
           <TabsContent value="gallery">
             <ImageGallery
               addImage={(url) => {
-                onImageUpload(url);
+                onImageUpload([url]);
                 setImageDialogOpen(false);
               }}
             />
@@ -443,7 +448,6 @@ function ImageDrawerDialog({
               onChange={handleAddImage}
               isLoading={isUploading}
               className="min-h-[24rem]"
-              showFiles={false}
               maxFiles={1}
             />
           </TabsContent>
@@ -460,7 +464,7 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
     isError: imagesError,
     fetchNextPage,
     hasNextPage,
-  } = api.admin.media.getPage.useInfiniteQuery(
+  } = api.admin.media.queries.getPage.useInfiniteQuery(
     {
       pageSize: 10,
     },

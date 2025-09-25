@@ -1,65 +1,28 @@
 import { relations } from "drizzle-orm";
-import {
-  bigint,
-  index,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
-import { brands } from "./brands";
-import { variants } from "./variants";
-import { products } from "./products";
+import { bigint, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { productsMedia } from "./products-media";
 
-export const mediaOwnerTypeEnum = pgEnum("owner_type", [
-  "PRODUCT",
-  "PRODUCT_VARIANT",
-  "CATEGORY",
-  "BRAND",
-  "USER",
+export const allowedMimeTypesEnum = pgEnum("allowed_mime_types", [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
 ]);
-export const mediaStatusEnum = pgEnum("status", ["PENDING", "READY"]);
 
-export const media = pgTable(
-  "media",
-  {
-    id: bigint("id", { mode: "number" })
-      .primaryKey()
-      .generatedAlwaysAsIdentity(),
+export const media = pgTable("media", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
-    ownerType: mediaOwnerTypeEnum().notNull(),
-    ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  mimeType: allowedMimeTypesEnum("mime_type").notNull(),
 
-    status: mediaStatusEnum().notNull().default("PENDING"),
-    url: text("url").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
 
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (table) => [index("media_owner_id_idx").on(table.ownerId)],
-);
-
-export const mediaRelations = relations(media, ({ one }) => ({
-  brand: one(brands),
-
-  productThumbnail: one(products, {
-    fields: [media.ownerId],
-    references: [products.id],
-    relationName: "products_thumbnail",
-  }),
-
-  variantThumbnail: one(variants, {
-    fields: [media.ownerId],
-    references: [variants.id],
-    relationName: "variants_thumbnail",
-  }),
-
-  productMedia: one(products, {
-    fields: [media.ownerId],
-    references: [products.id],
-    relationName: "products_media",
-  }),
+export const mediaRelations = relations(media, ({ many }) => ({
+  productsMedia: many(productsMedia),
 }));

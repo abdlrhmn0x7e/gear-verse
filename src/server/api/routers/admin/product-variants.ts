@@ -1,9 +1,9 @@
 import { adminProcedure, createTRPCRouter } from "~/server/api/trpc";
-import { productVariantSchema } from "~/lib/schemas/product-variants";
+import { productVariantEntitySchema } from "~/lib/schemas/entities/product-variants";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
-import { paginationSchema } from "~/lib/schemas/pagination";
-import { paginate } from "~/server/api/helpers/pagination";
+import { paginationSchema } from "~/lib/schemas/contracts/pagination";
+import { paginate } from "~/server/application/helpers/pagination";
 
 export const productVariantsRouter = createTRPCRouter({
   findAll: adminProcedure.query(({ ctx }) => {
@@ -36,7 +36,7 @@ export const productVariantsRouter = createTRPCRouter({
 
   create: adminProcedure
     .input(
-      productVariantSchema.omit({
+      productVariantEntitySchema.omit({
         id: true,
         createdAt: true,
         updatedAt: true,
@@ -64,7 +64,7 @@ export const productVariantsRouter = createTRPCRouter({
 
   update: adminProcedure
     .input(
-      productVariantSchema
+      productVariantEntitySchema
         .omit({
           createdAt: true,
           updatedAt: true,
@@ -89,7 +89,7 @@ export const productVariantsRouter = createTRPCRouter({
   bulkCreate: adminProcedure
     .input(
       z.array(
-        productVariantSchema.omit({
+        productVariantEntitySchema.omit({
           id: true,
           createdAt: true,
           updatedAt: true,
@@ -113,7 +113,7 @@ export const productVariantsRouter = createTRPCRouter({
   bulkUpdate: adminProcedure
     .input(
       z.array(
-        productVariantSchema
+        productVariantEntitySchema
           .omit({
             createdAt: true,
             updatedAt: true,

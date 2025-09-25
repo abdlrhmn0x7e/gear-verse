@@ -33,7 +33,14 @@ export default function Header({
 
       <div>
         <Heading level={headingLevel}>{title}</Heading>
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <p
+          className={cn(
+            "text-muted-foreground text-sm",
+            headingLevel === 5 && "text-xs",
+          )}
+        >
+          {description}
+        </p>
       </div>
     </div>
   );

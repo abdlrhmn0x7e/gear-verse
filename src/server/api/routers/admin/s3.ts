@@ -3,23 +3,17 @@ import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import { s3GetPresignedUrlInputSchema } from "~/lib/schemas/contracts/admin/s3";
+import { allowedMimeTypesEnum } from "~/lib/schemas/contracts/admin/allowed-mime-types";
 
 export const s3Router = createTRPCRouter({
   /**
    * Mutations
    */
   getPresignedUrl: adminProcedure
-    .input(
-      z.object({
-        fileId: z.string(),
-        type: z.string(),
-        size: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { data, error } = await tryCatch(
-        s3GetPresignedUrl(input.type, input.size, input.fileId),
-      );
+    .input(s3GetPresignedUrlInputSchema)
+    .mutation(async ({ input }) => {
+      const { data, error } = await tryCatch(s3GetPresignedUrl(input));
 
       if (error) {
         throw new TRPCError({
@@ -28,62 +22,25 @@ export const s3Router = createTRPCRouter({
         });
       }
 
-      // Create a new media record
-      const { data: media, error: mediaError } = await tryCatch(
-        ctx.db.admin.media.mutations.create({
-          ownerType: "USER",
-          ownerId: Number(ctx.session.user.id),
-          url: data.accessUrl,
-        }),
-      );
-
-      if (mediaError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: mediaError.message,
-        });
-      }
-
-      if (!media) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create media record",
-        });
-      }
-
-      return {
-        ...data,
-        mediaId: media.id,
-      };
+      return data;
     }),
 
   getPresignedUrls: adminProcedure
-    .input(
-      z.array(
-        z.object({
-          fileId: z.string(),
-          type: z.string(),
-          size: z.number(),
-        }),
-      ),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const returnedData = new Map<
-        string,
-        {
-          key: string;
-          url: string;
-          fileId: string;
-          accessUrl: string;
-          mediaId: number;
-        }
-      >();
+    .input(z.array(s3GetPresignedUrlInputSchema))
+    .mutation(async ({ input }) => {
+      const allowedMimeTypesSchema = z.array(allowedMimeTypesEnum);
+      if (
+        allowedMimeTypesSchema.safeParse(input.map((item) => item.mimeType))
+          .error
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid mime type",
+        });
+      }
+
       const { data: presignedUrls, error: presignedUrlsError } = await tryCatch(
-        Promise.all(
-          input.map((item) =>
-            s3GetPresignedUrl(item.type, item.size, item.fileId),
-          ),
-        ),
+        Promise.all(input.map((item) => s3GetPresignedUrl(item))),
       );
 
       if (presignedUrlsError) {
@@ -93,44 +50,6 @@ export const s3Router = createTRPCRouter({
         });
       }
 
-      const { data: media, error: mediaError } = await tryCatch(
-        ctx.db.admin.media.mutations.createMany(
-          presignedUrls.map((item) => ({
-            ownerType: "USER",
-            ownerId: Number(ctx.session.user.id),
-            url: item.accessUrl,
-          })),
-        ),
-      );
-
-      if (mediaError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: mediaError.message,
-        });
-      }
-
-      presignedUrls.forEach((item) => {
-        returnedData.set(item.accessUrl, {
-          ...item,
-          mediaId: 0,
-        });
-      });
-
-      media.forEach((mediaItem) => {
-        const entry = returnedData.get(mediaItem.url);
-        if (!entry) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Media not found",
-          });
-        }
-        returnedData.set(mediaItem.url, {
-          ...entry,
-          mediaId: mediaItem.id,
-        });
-      });
-
-      return Array.from(returnedData.values());
+      return presignedUrls;
     }),
 });

@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { categorySchema } from "~/lib/schemas/category";
+import { categoryEntitySchema } from "~/lib/schemas/entities/category";
 import { CategoryCombobox } from "../inputs/category-combobox";
 import {
   Select,
@@ -24,7 +24,7 @@ import {
 } from "~/components/ui/select";
 import { iconsMap } from "~/lib/icons-map";
 
-const categoryFormSchema = categorySchema.omit({
+const categoryFormSchema = categoryEntitySchema.omit({
   id: true,
   created_at: true,
   slug: true,

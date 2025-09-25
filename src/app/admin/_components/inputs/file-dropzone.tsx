@@ -1,28 +1,57 @@
 import {
   CloudUploadIcon,
+  EyeIcon,
+  GridIcon,
+  ImageIcon,
+  ImageOffIcon,
+  ListIcon,
   MousePointerClickIcon,
-  TrashIcon,
-  UploadIcon,
+  UploadCloudIcon,
+  XIcon,
 } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
-import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import type { MediaAsset, MediaOwnerType } from "~/lib/schemas/media";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
+import { SearchInput } from "./search-input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "~/components/ui/select";
+import { AnimatePresence, motion } from "motion/react";
+import { api, type RouterOutputs } from "~/trpc/react";
+import { useDebounce } from "~/hooks/use-debounce";
+import Header from "~/components/header";
+import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { MediaTable } from "../tables/media/table";
+import {
+  MediaContextProvider,
+  useMediaContext,
+} from "../tables/media/media-preview-context";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Checkbox } from "~/components/ui/checkbox";
+import { keepPreviousData } from "@tanstack/react-query";
+import { LoadMore } from "~/components/load-more";
+import { useInView } from "react-intersection-observer";
 
 interface FileDropZoneProps {
-  onChange: (files: File[]) => void;
+  onChange?: (files: File[]) => void;
   maxFiles?: number;
   options?: DropzoneOptions;
   isLoading?: boolean;
-  showFiles?: boolean;
   className?: string;
-  initialFiles?: MediaAsset[];
 }
 
 export function FileDropzone({
@@ -30,25 +59,20 @@ export function FileDropzone({
   maxFiles,
   options = {},
   isLoading = false,
-  showFiles = true,
   className,
-  initialFiles,
 }: FileDropZoneProps) {
   const [files, setFiles] = useState<File[]>([]);
+  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      if (
-        maxFiles &&
-        files.length + acceptedFiles.length + (initialFiles?.length ?? 0) >
-          maxFiles
-      ) {
+      if (maxFiles && files.length + acceptedFiles.length > maxFiles) {
         return;
       }
 
-      onChange([...files, ...acceptedFiles]);
+      onChange?.([...files, ...acceptedFiles]);
       setFiles((prev) => [...prev, ...acceptedFiles]);
     },
-    [onChange, files, maxFiles, initialFiles],
+    [onChange, files, maxFiles],
   );
 
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
@@ -57,23 +81,17 @@ export function FileDropzone({
     accept: {
       "image/*": [".png", ".jpg", ".jpeg"],
     },
+    noClick: true,
     ...options,
   });
-
-  function handleRemoveFile(file: File) {
-    setFiles((prev) => prev.filter((f) => f.name !== file.name));
-    onChange(files.filter((f) => f.name !== file.name));
-  }
 
   return (
     <div className="space-y-4">
       <div
         className={cn(
-          "hover:bg-input/50 bg-input/40 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-4 text-center",
+          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
           isDragActive && "bg-input/60",
-          ((maxFiles &&
-            files.length + (initialFiles?.length ?? 0) >= maxFiles) ??
-            isLoading) &&
+          ((maxFiles && files.length >= maxFiles) ?? isLoading) &&
             "pointer-events-none opacity-50",
           className,
         )}
@@ -105,169 +123,409 @@ export function FileDropzone({
             </p>
           </>
         ) : (
-          <>
-            <UploadIcon size={32} className="text-muted-foreground" />
-            <p className="text-muted-foreground text-sm select-none">
-              Drag and drop files here, or click to select files
-            </p>
-            <Button type="button" onClick={open}>
-              <CloudUploadIcon />
-              Click to select files
-            </Button>
-          </>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <UploadCloudIcon size={16} className="text-muted-foreground" />
+
+              <p className="text-muted-foreground text-sm select-none">
+                Drag and drop files here, click to select files
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Button type="button" size="sm" onClick={open}>
+                <CloudUploadIcon />
+                Click to select files
+              </Button>
+
+              <MediaContextProvider>
+                <MediaDialog
+                  open={isMediaDialogOpen}
+                  setOpen={setIsMediaDialogOpen}
+                />
+              </MediaContextProvider>
+            </div>
+          </div>
         )}
       </div>
-
-      {showFiles && (
-        <div
-          className={cn(
-            "grid grid-cols-2 items-start gap-4",
-            maxFiles === 1 && "grid-cols-1",
-          )}
-        >
-          {files.map((file, idx) => (
-            <FileItem
-              key={`file-${file.name}-${idx}`}
-              file={file}
-              handleRemoveFile={handleRemoveFile}
-            />
-          ))}
-
-          {initialFiles &&
-            initialFiles.length > 0 &&
-            initialFiles.map((file, idx) => (
-              <FileItemPreview
-                key={`file-${file.url}-${idx}`}
-                file={file}
-                idx={idx}
-              />
-            ))}
-        </div>
-      )}
     </div>
   );
 }
 
-function FileItemPreview({
-  file,
-  idx,
+function MediaDialog({
+  open,
+  setOpen,
 }: {
-  file: { id: number; url: string; ownerType: MediaOwnerType };
-  idx: number;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
-  const { mutate: deleteMedia, isPending: deletingMedia } =
-    api.admin.media.delete.useMutation();
-  const utils = api.useUtils();
-  const router = useRouter();
+  const { mediaPreviewUrl } = useMediaContext();
+  const [viewKind, setViewKind] = useState<"list" | "grid">("grid");
+  const [search, setSearch] = useState("");
 
-  function handleRemoveFilePreview() {
-    deleteMedia(
-      { id: file.id, ownerType: file.ownerType },
-      {
-        onSuccess: () => {
-          router.refresh();
-          toast.success("Media deleted successfully");
-          switch (file.ownerType) {
-            case "PRODUCT":
-            case "PRODUCT_VARIANT":
-              void utils.admin.products.findById.invalidate();
-              break;
-            case "BRAND":
-              void utils.admin.brands.getPage.invalidate();
-              break;
-            case "USER":
-              void utils.admin.media.getPage.invalidate();
-              break;
-            default:
-              break;
-          }
-        },
-        onError: () => {
-          toast.error("Failed to delete media");
-        },
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="relative z-10" asChild>
+        <Button type="button" variant="link" size="sm">
+          Select existing
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl">
+        <DialogHeader>
+          <DialogTitle>Select Media</DialogTitle>
+        </DialogHeader>
+        <DialogBody className="space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <SearchInput
+              placeholder="Search media by name"
+              className="max-w-md"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <Select
+              value={viewKind}
+              onValueChange={(value) => setViewKind(value as "list" | "grid")}
+            >
+              <SelectTrigger>
+                {viewKind === "grid" ? <GridIcon /> : <ListIcon />}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="list">
+                  <ListIcon />
+                  List view
+                </SelectItem>
+                <SelectItem value="grid">
+                  <GridIcon />
+                  Grid view
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex h-[60svh] w-full gap-6 overflow-hidden">
+            <motion.div
+              className="flex w-full min-w-0 flex-col gap-4"
+              layout="position"
+            >
+              <MediaFileDropzone />
+
+              <div className="flex h-[calc(60svh-12rem)] flex-1 flex-col gap-4">
+                <Header
+                  title="Media gallery"
+                  description="Select existing media from the gallery"
+                  Icon={ImageIcon}
+                  headingLevel={5}
+                />
+
+                <MediaGallery search={search} viewKind={viewKind} />
+              </div>
+            </motion.div>
+
+            <AnimatePresence>
+              {mediaPreviewUrl && (
+                <motion.div
+                  initial={{ opacity: 0, width: 0, height: "auto" }}
+                  animate={{ opacity: 1, width: "34rem" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{
+                    type: "tween",
+                    duration: 0.2,
+                    ease: "easeInOut",
+                  }}
+                  className="flex items-start justify-center"
+                >
+                  <MediaPreview url={mediaPreviewUrl} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Close
+          </Button>
+          <Button type="button" onClick={() => setOpen(false)}>
+            Done
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
+  const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
+
+  const onDropAccepted = useCallback(
+    (acceptedFiles: File[]) => {
+      uploadFiles(acceptedFiles);
+    },
+    [uploadFiles],
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDropAccepted,
+    disabled: isPending,
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".webp"],
+    },
+    ...options,
+  });
+
+  return (
+    <div className="space-y-4">
+      <div
+        className={cn(
+          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
+          isDragActive && "bg-input/60",
+          isPending && "hover:bg-input/20 pointer-events-none opacity-50",
+          className,
+        )}
+        {...getRootProps()}
+      >
+        {/* 
+					This input has it's own state away from any
+					external state which could be a problem 
+				*/}
+        <input {...getInputProps()} />
+
+        {isDragActive ? (
+          <>
+            <MousePointerClickIcon
+              size={32}
+              className="text-muted-foreground"
+            />
+
+            <p className="text-muted-foreground text-sm select-none">
+              Drop files here to upload
+            </p>
+          </>
+        ) : isPending ? (
+          <>
+            <Spinner size="medium" />
+
+            <p className="text-muted-foreground text-sm select-none">
+              Uploading files...
+            </p>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <UploadCloudIcon size={16} className="text-muted-foreground" />
+
+              <p className="text-muted-foreground text-sm select-none">
+                Drag and drop files here, click to select files
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Button type="button" size="sm">
+                <CloudUploadIcon />
+                Click to select files
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MediaGallery({
+  search,
+  viewKind,
+}: {
+  search: string;
+  viewKind: "list" | "grid";
+}) {
+  const debouncedSearch = useDebounce(search, 500);
+
+  const {
+    data: mediaPages,
+    isPending,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+    isError,
+  } = api.admin.media.queries.getPage.useInfiniteQuery(
+    {
+      pageSize: 10,
+      filters: {
+        name: debouncedSearch,
       },
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      placeholderData: keepPreviousData,
+    },
+  );
+  const media = mediaPages?.pages.flatMap((page) => page.data);
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      void fetchNextPage();
+    }
+  }, [inView, hasNextPage, mediaPages, fetchNextPage]);
+
+  if (isPending) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner size="medium" />
+      </div>
     );
   }
 
-  return (
-    <div className="relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2">
-      <div className="relative z-10 flex items-center gap-2">
-        <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">
-          <Image
-            src={file.url}
-            alt={`Product Image ${idx + 1}`}
-            width={100}
-            height={100}
-            className="size-full object-cover object-center"
-          />
-        </div>
-
-        <p className="text-foreground line-clamp-1 text-sm font-medium">
-          {`Product Image ${idx + 1}`}
+  if (isError || !media) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2">
+        <ImageOffIcon size={64} className="text-muted-foreground" />
+        <p className="text-muted-foreground select-none">
+          Error loading media.
         </p>
       </div>
+    );
+  }
 
-      <Button
-        variant="destructiveGhost"
-        type="button"
-        size="icon"
-        className="relative z-10"
-        onClick={handleRemoveFilePreview}
-        disabled={deletingMedia}
-      >
-        {deletingMedia ? <Spinner /> : <TrashIcon />}
-      </Button>
+  if (media.length === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2">
+        <ImageOffIcon size={64} className="text-muted-foreground" />
+        <p className="text-muted-foreground select-none">No media found.</p>
+      </div>
+    );
+  }
 
-      <div className="bg-input/40 absolute inset-0" />
+  const renderMedia = () => {
+    switch (viewKind) {
+      case "list":
+        return (
+          <MediaTable data={media} className={cn(isFetching && "opacity-50")} />
+        );
+      case "grid":
+        return (
+          <MediaGrid media={media} className={cn(isFetching && "opacity-50")} />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="h-full overflow-y-auto">
+      {renderMedia()}
+      <LoadMore hasNextPage={hasNextPage} ref={ref} />
     </div>
   );
 }
 
-function FileItem({
-  file,
-
-  handleRemoveFile,
+function MediaGrid({
+  media,
+  className,
 }: {
-  file: File;
-
-  handleRemoveFile: (file: File) => void;
+  media: RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"];
+  className?: string;
 }) {
+  const { rowSelection, setRowSelection, setMediaPreviewUrl, mediaPreviewUrl } =
+    useMediaContext();
+
   return (
-    <div className="relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border p-px pr-2">
-      <div className="relative z-10 flex items-center gap-2">
-        <div className="bg-background relative size-12 shrink-0 overflow-hidden rounded-l-lg rounded-r-sm border">
-          <Image
-            src={URL.createObjectURL(file)}
-            alt={file.name}
-            width={100}
-            height={100}
-            className="size-full object-cover object-center"
-          />
-        </div>
+    <div className={cn("flex flex-wrap gap-3", className)}>
+      {media.map((media) => {
+        const currentChecked = rowSelection[media.id.toString()] ?? false;
+        function handleCheckedChange(checked: boolean) {
+          setRowSelection((prev) => {
+            if (currentChecked) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { [media.id.toString()]: _, ...rest } = prev;
+              return rest;
+            }
 
-        <div>
-          <p className="text-foreground line-clamp-1 text-sm font-medium">
-            {file.name}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            {file.size / 1024 > 1024
-              ? Math.round(file.size / 1024 / 1024) + " MB"
-              : Math.round(file.size / 1024) + " KB"}
-          </p>
-        </div>
+            return { ...prev, [media.id.toString()]: !!checked };
+          });
+        }
+
+        return (
+          <div
+            key={`media-preview-${media.id}`}
+            onClick={() => handleCheckedChange(!currentChecked)}
+            className="group hover:bg-input/30 relative flex flex-col items-center gap-2 rounded-lg p-2"
+          >
+            <Checkbox
+              className="bg-background absolute top-4 left-4"
+              checked={rowSelection[media.id.toString()] ?? false}
+              onCheckedChange={handleCheckedChange}
+            />
+            <div className="absolute right-4 bottom-15">
+              <Button
+                size="icon"
+                className={cn(
+                  "size-8 p-0 opacity-0 group-hover:opacity-100",
+                  mediaPreviewUrl === media.url && "opacity-100",
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  setMediaPreviewUrl((prev) =>
+                    prev === media.url ? null : media.url,
+                  );
+                }}
+              >
+                <EyeIcon />
+              </Button>
+            </div>
+            <ImageWithFallback
+              src={media.url}
+              alt={media.name}
+              className="size-32 rounded-lg"
+              width={128}
+              height={128}
+            />
+
+            <div className="text-center">
+              <p className="text-muted-foreground max-w-32 truncate text-sm select-none">
+                {media.name}
+              </p>
+              <p className="text-muted-foreground text-xs select-none">
+                {media.mimeType.split("/")[1]}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MediaPreview({ url }: { url: string }) {
+  const { setMediaPreviewUrl } = useMediaContext();
+
+  return (
+    <div className="bg-input/20 mr-1 space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
+      <div className="flex items-center justify-between px-1">
+        <p className="text-muted-foreground font-medium select-none">Preview</p>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          onClick={() => setMediaPreviewUrl(null)}
+        >
+          <XIcon />
+        </Button>
       </div>
-
-      <Button
-        variant="destructiveGhost"
-        type="button"
-        size="icon"
-        className="relative z-10"
-        onClick={() => handleRemoveFile(file)}
-      >
-        <TrashIcon />
-      </Button>
-
-      <div className="bg-input/40 absolute inset-0" />
+      <ImageWithFallback
+        src={url}
+        alt="Media preview"
+        className="size-[28rem] rounded-lg xl:size-[32rem]"
+        width={512}
+        height={512}
+      />
     </div>
   );
 }
