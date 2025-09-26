@@ -568,7 +568,6 @@ function LinkDrawerDialog({
     const urlSchema = z.url();
     const result = urlSchema.safeParse(url);
     if (!result.success) {
-      console.log("Invalid URL", result.error);
       toast.error("Invalid URL. Please enter a valid URL.");
       return;
     }

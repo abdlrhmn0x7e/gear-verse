@@ -36,6 +36,7 @@ export type ProductMedia = z.infer<typeof productMediaEntitySchema>;
 export const createProductMediaInputSchema = productMediaEntitySchema.omit({
   id: true,
   productId: true,
+  order: true, // whatever the order the array is in, that's the order
 });
 export type CreateProductMediaInput = z.infer<
   typeof createProductMediaInputSchema
@@ -49,6 +50,16 @@ export const createProductInputSchema = productEntitySchema
   })
   .extend({
     media: z.array(createProductMediaInputSchema),
+    options: z.array(
+      z.object({
+        name: z.string("Name is required"),
+        values: z.array(
+          z.object({
+            value: z.string("Value is required"),
+          }),
+        ),
+      }),
+    ),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 

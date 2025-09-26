@@ -1,5 +1,5 @@
 "use client";
-import { createSwapy, utils, type Swapy } from "swapy";
+// Swapy is handled via the shared Swapably component
 
 import {
   useFieldArray,
@@ -21,13 +21,13 @@ import {
   createProductInputSchema,
   createProductMediaInputSchema,
 } from "~/lib/schemas/entities/product";
-import { Card, CardContent } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Editor } from "../editor";
 import { FileDropzone, MediaDialog } from "../inputs/file-dropzone";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { PlusCircleIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import Image from "next/image";
@@ -37,6 +37,7 @@ import {
   MediaStoreProvider,
   useMediaStore,
 } from "../../_stores/media/provider";
+import { Swapably } from "../inputs/swapably";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -67,24 +68,29 @@ export function ProductForm({
       categoryId: 0,
       brandId: 0,
       media: [],
+      options: [],
     },
   });
   const {
     fields: mediaFields,
-    insert,
-    swap,
+    insert: insertMedia,
+    swap: swapMedia,
   } = useFieldArray({
     control: form.control,
     name: "media",
   });
-  console.log("mediaFields", mediaFields);
+
+  const { fields: optionFields, append: appendOption } = useFieldArray({
+    control: form.control,
+    name: "options",
+  });
 
   return (
     <Form {...form}>
       <form
         id="product-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-3 gap-12"
+        className="grid grid-cols-3 gap-12 pb-24"
       >
         <div className="col-span-2 space-y-8">
           <Card>
@@ -144,7 +150,7 @@ export function ProductForm({
                         <FormLabel>Media</FormLabel>
                         <FormControl>
                           <FileDropzone
-                            onChange={(media) => insert(0, media)}
+                            onChange={(media) => insertMedia(0, media)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -152,9 +158,28 @@ export function ProductForm({
                     )}
                   />
                 ) : (
-                  <MediaFields media={mediaFields} swap={swap} />
+                  <MediaFields media={mediaFields} swap={swapMedia} />
                 )}
               </MediaStoreProvider>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Variants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <OptionFields
+                  options={optionFields}
+                  add={() =>
+                    appendOption({
+                      name: "",
+                      values: [],
+                    })
+                  }
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -166,64 +191,18 @@ export function ProductForm({
 
 function MediaFields({
   media,
-  swap: _swap,
+  swap,
 }: {
   media: ProductFormValues["media"];
   swap: UseFieldArraySwap;
 }) {
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
+
   const { setValue } = useFormContext<ProductFormValues>();
   const [checkedMedia, setCheckedMedia] = useState<ProductFormValues["media"]>(
     [],
   );
-
-  // Swapy expects string ids in its SlotItemMap. Our domain id (mediaId) is a number,
-  // so we derive a stable string id only for Swapy usage to avoid string/number mismatches.
-  const swapyItems = useMemo(
-    () => media.map((m) => ({ ...m, swapyId: String(m.mediaId) })),
-    [media],
-  );
-  const [slotItemMap, setSlotItemMap] = useState(
-    utils.initSlotItemMap(swapyItems, "swapyId"),
-  );
-  const slottedItems = useMemo(
-    () => utils.toSlottedItems(swapyItems, "swapyId", slotItemMap),
-    [swapyItems, slotItemMap],
-  );
-
-  const swapy = useRef<Swapy | null>(null);
-  const container = useRef<HTMLDivElement>(null);
-  useEffect(
-    () =>
-      utils.dynamicSwapy(
-        swapy.current,
-        swapyItems,
-        "swapyId",
-        slotItemMap,
-        setSlotItemMap,
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [swapyItems],
-  );
-
-  useEffect(() => {
-    // If container element is loaded
-    if (container.current) {
-      swapy.current = createSwapy(container.current, {
-        manualSwap: true,
-      });
-
-      swapy.current.onSwap((event) => {
-        setSlotItemMap(event.newSlotItemMap.asArray);
-      });
-    }
-
-    return () => {
-      // Destroy the swapy instance on component destroy
-      swapy.current?.destroy();
-    };
-  }, []);
 
   useEffect(() => {
     setValue("media", selectedMedia);
@@ -239,7 +218,7 @@ function MediaFields({
             <Checkbox
               id="select-all"
               checked={
-                checkedMedia.length === slottedItems.length
+                checkedMedia.length === media.length
                   ? true
                   : checkedMedia.length === 0
                     ? false
@@ -277,53 +256,71 @@ function MediaFields({
         <Label className="h-9">Media</Label>
       )}
 
-      <div ref={container}>
-        <div className="grid grid-cols-[repeat(auto-fill,100px)] grid-rows-[repeat(auto-fill,100px)] gap-2">
-          {slottedItems.map(({ slotId, itemId, item: media }, index) => (
-            <div
-              key={slotId}
-              data-swapy-slot={slotId}
-              className={cn(index === 0 && "col-span-2 row-span-2 size-full")}
-            >
-              {itemId && media ? (
-                <div
-                  key={itemId}
-                  data-swapy-item={itemId}
-                  className="group relative size-full overflow-hidden rounded-lg border transition-opacity hover:cursor-grab hover:opacity-80 active:cursor-grabbing"
-                >
-                  <Image
-                    src={media.url}
-                    alt={media.mediaId.toString()}
-                    className="size-full object-cover"
-                    width={256}
-                    height={256}
-                  />
-
-                  <Checkbox
-                    className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100"
-                    checked={checkedMedia.some(
-                      (m) => m.mediaId === media.mediaId,
-                    )}
-                    onCheckedChange={(checked) => {
-                      setCheckedMedia((prev) =>
-                        checked
-                          ? [...prev, media]
-                          : prev.filter((m) => m.mediaId !== media.mediaId),
-                      );
-                    }}
-                  />
-                </div>
-              ) : null}
-            </div>
-          ))}
-
-          <MediaDialog onChange={(media) => setValue("media", media)}>
-            <div className="bg-card hover:bg-muted flex size-full items-center justify-center rounded-lg border border-dashed transition-colors hover:cursor-pointer">
-              <PlusIcon className="size-5" />
-            </div>
-          </MediaDialog>
-        </div>
-      </div>
+      <Swapably
+        items={media}
+        getId={(m) => m.mediaId}
+        onSwap={(event) => {
+          const from = Number(event.fromSlot) - 1;
+          const to = Number(event.toSlot) - 1;
+          swap(from, to);
+        }}
+        containerClassName="grid grid-cols-[repeat(auto-fill,100px)] grid-rows-[repeat(auto-fill,100px)] gap-2"
+        slotClassName={(index) =>
+          cn(index === 0 && "col-span-2 row-span-2 size-full")
+        }
+        itemClassName={() =>
+          "group relative size-full overflow-hidden rounded-lg border transition-opacity hover:cursor-grab hover:opacity-80 active:cursor-grabbing"
+        }
+        Comp={({ item: media }) => (
+          <>
+            <Image
+              src={media.url}
+              alt={media.mediaId.toString()}
+              className="size-full object-cover"
+              width={256}
+              height={256}
+            />
+            <Checkbox
+              className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100"
+              checked={checkedMedia.some((m) => m.mediaId === media.mediaId)}
+              onCheckedChange={(checked) => {
+                setCheckedMedia((prev) =>
+                  checked
+                    ? [...prev, media]
+                    : prev.filter((m) => m.mediaId !== media.mediaId),
+                );
+              }}
+            />
+          </>
+        )}
+      >
+        <MediaDialog onChange={(media) => setValue("media", media)}>
+          <div className="bg-card hover:bg-muted flex size-full items-center justify-center rounded-lg border border-dashed transition-colors hover:cursor-pointer">
+            <PlusIcon className="size-5" />
+          </div>
+        </MediaDialog>
+      </Swapably>
     </div>
   );
+}
+
+function OptionFields({
+  options,
+  add,
+}: {
+  options: ProductFormValues["options"];
+  add: () => void;
+}) {
+  if (options.length === 0) {
+    return (
+      <div className="space-y-2">
+        <Button type="button" variant="ghost" onClick={add}>
+          <PlusCircleIcon />
+          Add Options like color, connectivity, etc.
+        </Button>
+      </div>
+    );
+  }
+
+  return <div>OptionFields</div>;
 }

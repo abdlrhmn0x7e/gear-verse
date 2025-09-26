@@ -18,9 +18,7 @@ export const _adminMediaRepo = {
         name: string;
       }>;
     }) => {
-      console.log("cursor", cursor);
       const whereClause = [gt(media.id, cursor ?? 0)];
-      console.log("filters", filters);
       if (filters?.name) {
         whereClause.push(ilike(media.name, `%${filters.name}%`));
       }

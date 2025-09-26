@@ -159,7 +159,7 @@ export function MediaDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [viewKind, setViewKind] = useState<"list" | "grid">("grid");
+  const [viewKind, setViewKind] = useState<"list" | "grid">("list");
 
   const previewUrl = useMediaStore((state) => state.previewUrl);
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
@@ -253,7 +253,6 @@ export function MediaDialog({
             type="button"
             onClick={() => {
               onChange?.(selectedMedia);
-              console.log("selectedMedia", selectedMedia);
               setOpen(false);
             }}
           >
@@ -460,7 +459,6 @@ function MediaGrid({
                   {
                     mediaId: media.id,
                     url: media.url,
-                    order: selectedMedia.length,
                   },
                 ]
               : selectedMedia.filter((m) => m.mediaId !== media.id),

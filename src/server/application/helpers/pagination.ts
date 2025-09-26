@@ -16,7 +16,6 @@ export async function paginate<
   }) => Promise<Array<T>>;
 }) {
   const { cursor: encodedCursor, ...rest } = input;
-  console.log("rest", rest);
   const cursor = encodedCursor ? base64DecodeNumber(encodedCursor) : undefined;
 
   const { data, error } = await tryCatch(

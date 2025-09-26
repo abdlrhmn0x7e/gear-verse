@@ -18,7 +18,6 @@ import { mediaColumns } from "./columns";
 import { MediaTableHeader } from "./header";
 import { type RouterOutputs } from "~/trpc/react";
 import { useEffect, useState } from "react";
-import { useMediaContext } from "./media-preview-context";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
 

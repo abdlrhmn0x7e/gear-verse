@@ -122,6 +122,7 @@ export const productOptionValues = pgTable(
       .notNull(),
 
     value: text("value").notNull(),
+    order: integer("order").notNull().default(0),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

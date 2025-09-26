@@ -19,7 +19,6 @@ export function CompleteCheckout({
   const utils = api.useUtils();
   const { data: address, isPending: addressPending } =
     api.public.addresses.find.useQuery();
-  console.log(address);
   const router = useRouter();
   const { mutate: completeCheckout, isPending: completingCheckout } =
     api.public.checkout.complete.useMutation({
