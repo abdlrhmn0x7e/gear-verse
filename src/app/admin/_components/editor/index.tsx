@@ -16,6 +16,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "~/lib/utils";
 import { useVerseEditor } from "~/hooks/use-verse-editor";
 import { EditorContent, type JSONContent } from "@tiptap/react";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const CustomDialogContent = motion.div;
 
@@ -29,7 +30,7 @@ export function Editor({
   const { editor } = useVerseEditor({ onUpdate, defaultContent });
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!editor) return null;
+  if (!editor) return <Skeleton className="h-[24rem] w-full" />;
 
   function handleExpand() {
     setIsExpanded((prev) => !prev);

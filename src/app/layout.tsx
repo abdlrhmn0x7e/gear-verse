@@ -6,7 +6,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { inter } from "~/fonts";
+import { instrumentSans } from "~/fonts";
 import { env } from "~/env";
 
 export const metadata: Metadata = {
@@ -41,7 +41,17 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={instrumentSans.className}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
+      </head>
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <ThemeProvider

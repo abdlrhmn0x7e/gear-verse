@@ -1,9 +1,10 @@
-import type { RowSelectionState } from "@tanstack/react-table";
 import { createContext, useContext, useState } from "react";
+import type { CreateProductMediaInput } from "~/lib/schemas/entities";
 
+export type SelectedMedia = CreateProductMediaInput & { url: string };
 export const MediaContext = createContext<{
-  rowSelection: RowSelectionState;
-  setRowSelection: React.Dispatch<React.SetStateAction<RowSelectionState>>;
+  selectedMedia: SelectedMedia[];
+  setSelectedMedia: React.Dispatch<React.SetStateAction<SelectedMedia[]>>;
 
   mediaPreviewUrl: string | null;
   setMediaPreviewUrl: React.Dispatch<React.SetStateAction<string | null>>;
@@ -15,13 +16,13 @@ export function MediaContextProvider({
   children: React.ReactNode;
 }) {
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState<string | null>(null);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [selectedMedia, setSelectedMedia] = useState<SelectedMedia[]>([]);
 
   return (
     <MediaContext.Provider
       value={{
-        rowSelection,
-        setRowSelection,
+        selectedMedia,
+        setSelectedMedia,
         mediaPreviewUrl,
         setMediaPreviewUrl,
       }}

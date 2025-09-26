@@ -37,8 +37,8 @@ import Header from "~/components/header";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { MediaTable } from "../tables/media/table";
 import {
-  MediaContextProvider,
   useMediaContext,
+  type SelectedMedia,
 } from "../tables/media/media-preview-context";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -47,37 +47,37 @@ import { LoadMore } from "~/components/load-more";
 import { useInView } from "react-intersection-observer";
 
 interface FileDropZoneProps {
-  onChange?: (files: File[]) => void;
-  maxFiles?: number;
   options?: DropzoneOptions;
-  isLoading?: boolean;
   className?: string;
+  onChange?: (media: SelectedMedia[]) => void;
 }
 
 export function FileDropzone({
-  onChange,
-  maxFiles,
   options = {},
-  isLoading = false,
+  onChange,
   className,
 }: FileDropZoneProps) {
-  const [files, setFiles] = useState<File[]>([]);
-  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
+  const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      if (maxFiles && files.length + acceptedFiles.length > maxFiles) {
-        return;
-      }
-
-      onChange?.([...files, ...acceptedFiles]);
-      setFiles((prev) => [...prev, ...acceptedFiles]);
+      uploadFiles(acceptedFiles, {
+        onSuccess: (data) => {
+          onChange?.(
+            data.map((file, index) => ({
+              mediaId: file.id,
+              url: file.url,
+              order: index,
+            })),
+          );
+        },
+      });
     },
-    [onChange, files, maxFiles],
+    [onChange, uploadFiles],
   );
 
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDropAccepted,
-    disabled: isLoading,
+    disabled: isPending,
     accept: {
       "image/*": [".png", ".jpg", ".jpeg"],
     },
@@ -91,8 +91,7 @@ export function FileDropzone({
         className={cn(
           "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
           isDragActive && "bg-input/60",
-          ((maxFiles && files.length >= maxFiles) ?? isLoading) &&
-            "pointer-events-none opacity-50",
+          isPending && "pointer-events-none opacity-50",
           className,
         )}
         {...getRootProps()}
@@ -114,7 +113,7 @@ export function FileDropzone({
               Drop files here to upload
             </p>
           </>
-        ) : isLoading ? (
+        ) : isPending ? (
           <>
             <Spinner size="page" />
 
@@ -138,12 +137,11 @@ export function FileDropzone({
                 Click to select files
               </Button>
 
-              <MediaContextProvider>
-                <MediaDialog
-                  open={isMediaDialogOpen}
-                  setOpen={setIsMediaDialogOpen}
-                />
-              </MediaContextProvider>
+              <MediaDialog onChange={onChange}>
+                <Button type="button" variant="link" size="sm">
+                  Select existing
+                </Button>
+              </MediaDialog>
             </div>
           </div>
         )}
@@ -152,23 +150,22 @@ export function FileDropzone({
   );
 }
 
-function MediaDialog({
-  open,
-  setOpen,
+export function MediaDialog({
+  children,
+  onChange,
 }: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  children: React.ReactNode;
+  onChange?: (media: SelectedMedia[]) => void;
 }) {
-  const { mediaPreviewUrl } = useMediaContext();
-  const [viewKind, setViewKind] = useState<"list" | "grid">("grid");
+  const [open, setOpen] = useState(false);
+  const { mediaPreviewUrl, selectedMedia } = useMediaContext();
+  const [viewKind, setViewKind] = useState<"list" | "grid">("list");
   const [search, setSearch] = useState("");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="relative z-10" asChild>
-        <Button type="button" variant="link" size="sm">
-          Select existing
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl">
         <DialogHeader>
@@ -249,7 +246,14 @@ function MediaDialog({
           >
             Close
           </Button>
-          <Button type="button" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            onClick={() => {
+              onChange?.(selectedMedia);
+              console.log("selectedMedia", selectedMedia);
+              setOpen(false);
+            }}
+          >
             Done
           </Button>
         </DialogFooter>
@@ -431,22 +435,29 @@ function MediaGrid({
   media: RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"];
   className?: string;
 }) {
-  const { rowSelection, setRowSelection, setMediaPreviewUrl, mediaPreviewUrl } =
-    useMediaContext();
+  const {
+    selectedMedia,
+    setSelectedMedia,
+    setMediaPreviewUrl,
+    mediaPreviewUrl,
+  } = useMediaContext();
 
   return (
     <div className={cn("flex flex-wrap gap-3", className)}>
       {media.map((media) => {
-        const currentChecked = rowSelection[media.id.toString()] ?? false;
+        const currentChecked = selectedMedia.some(
+          (m) => m.mediaId === media.id,
+        );
         function handleCheckedChange(checked: boolean) {
-          setRowSelection((prev) => {
-            if (currentChecked) {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              const { [media.id.toString()]: _, ...rest } = prev;
-              return rest;
+          setSelectedMedia((prev) => {
+            if (!checked) {
+              return prev.filter((m) => m.mediaId !== media.id);
             }
 
-            return { ...prev, [media.id.toString()]: !!checked };
+            return [
+              ...prev,
+              { mediaId: media.id, url: media.url, order: prev.length },
+            ];
           });
         }
 
@@ -458,7 +469,7 @@ function MediaGrid({
           >
             <Checkbox
               className="bg-background absolute top-4 left-4"
-              checked={rowSelection[media.id.toString()] ?? false}
+              checked={currentChecked}
               onCheckedChange={handleCheckedChange}
             />
             <div className="absolute right-4 bottom-15">

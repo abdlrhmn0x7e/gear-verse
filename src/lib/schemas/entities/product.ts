@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const productEntitySchema = z.object({
-  id: z.number("ID must be a number").nonnegative("ID must be positive"),
+  id: z.number("ID must be a number").positive("ID must be positive"),
 
   title: z.string("Title is required").min(1, "Title is too short"),
   price: z.number("Price is required").min(1, "Price is required"),
@@ -10,18 +10,36 @@ export const productEntitySchema = z.object({
   description: z.record(z.string(), z.unknown(), "Description is required"),
   published: z.boolean("Published is required"),
 
-  categoryId: z.number("Category is required").min(1, "Category is required"),
-  brandId: z.number("Brand is required").min(1, "Brand is required"),
-
-  thumbnailMediaId: z
-    .number("Thumbnail media ID is required")
-    .min(1, "Thumbnail media ID is required"),
+  categoryId: z
+    .number("Category is required")
+    .positive("Category must be positive"),
+  brandId: z.number("Brand is required").positive("Brand must be positive"),
 
   createdAt: z.coerce.date<Date>("Created at must be a date"),
   updatedAt: z.coerce.date<Date>("Updated at must be a date"),
 });
 
 export type Product = z.infer<typeof productEntitySchema>;
+
+export const productMediaEntitySchema = z.object({
+  id: z.number("ID must be a number").positive("ID must be positive"),
+  productId: z
+    .number("Product ID is required")
+    .positive("Product ID must be positive"),
+  mediaId: z
+    .number("Media ID is required")
+    .positive("Media ID must be positive"),
+  order: z.number("Order is required").positive("Order must be positive"),
+});
+export type ProductMedia = z.infer<typeof productMediaEntitySchema>;
+
+export const createProductMediaInputSchema = productMediaEntitySchema.omit({
+  id: true,
+  productId: true,
+});
+export type CreateProductMediaInput = z.infer<
+  typeof createProductMediaInputSchema
+>;
 
 export const createProductInputSchema = productEntitySchema
   .omit({
@@ -30,7 +48,7 @@ export const createProductInputSchema = productEntitySchema
     updatedAt: true,
   })
   .extend({
-    media: z.array(z.string()),
+    media: z.array(createProductMediaInputSchema),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 

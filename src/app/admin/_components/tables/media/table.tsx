@@ -4,6 +4,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type Row,
   type RowSelectionState,
   type VisibilityState,
 } from "@tanstack/react-table";
@@ -30,22 +31,51 @@ export function MediaTable({
   data: Media[];
   className?: string;
 }) {
-  const { mediaPreviewUrl, rowSelection, setRowSelection } = useMediaContext();
+  const [lastSelectedRowId, setLastSelectedRowId] = useState<string | null>(
+    null,
+  );
+  const { mediaPreviewUrl, setSelectedMedia, selectedMedia } =
+    useMediaContext();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+    selectedMedia.reduce((acc, media) => {
+      acc[media.mediaId.toString()] = true;
+      return acc;
+    }, {} as RowSelectionState),
+  );
+
   const table = useReactTable({
     data,
     columns: mediaColumns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id.toString(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: (value) => {
-      setRowSelection(value);
-    },
+    onRowSelectionChange: setRowSelection,
     state: {
-      rowSelection,
       columnVisibility,
+      rowSelection,
     },
   });
+
+  const handleRowClick = (row: Row<Media>, event: React.MouseEvent) => {
+    if (event.shiftKey && lastSelectedRowId !== null) {
+      const allRowIds = table.getRowModel().rows.map((r) => r.id);
+      const startIndex = allRowIds.indexOf(lastSelectedRowId);
+      const endIndex = allRowIds.indexOf(row.id);
+
+      const newSelection = { ...rowSelection };
+      const [start, end] =
+        startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
+
+      for (let i = start; i <= end; i++) {
+        newSelection[allRowIds[i]!] = true;
+      }
+      setRowSelection(newSelection);
+    } else {
+      row.toggleSelected(); // TanStack's built-in toggle
+      setLastSelectedRowId(row.id);
+    }
+  };
 
   useEffect(() => {
     if (mediaPreviewUrl) {
@@ -64,8 +94,19 @@ export function MediaTable({
     }));
   }, [mediaPreviewUrl]);
 
+  useEffect(() => {
+    setSelectedMedia(
+      table.getSelectedRowModel().rows.map((row, index) => ({
+        mediaId: row.original.id,
+        url: row.original.url,
+        order: index + 1,
+      })),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowSelection]);
+
   return (
-    <Table containerClassName={cn("rounded-md", className)}>
+    <Table containerClassName={cn("rounded-md select-none", className)}>
       <MediaTableHeader />
 
       <TableBody>
@@ -75,7 +116,9 @@ export function MediaTable({
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
               className="cursor-pointer [&_td]:border-r-0"
-              onClick={() => row.toggleSelected()}
+              onClick={(event) => {
+                handleRowClick(row, event);
+              }}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>

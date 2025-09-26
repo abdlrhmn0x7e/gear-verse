@@ -1,7 +1,4 @@
-import {
-  createMediaInputSchema,
-  mediaEntitySchema,
-} from "~/lib/schemas/entities/media";
+import { createMediaInputSchema } from "~/lib/schemas/entities/media";
 import { adminProcedure, createTRPCRouter } from "../../trpc";
 import z from "zod";
 import { tryCatch } from "~/lib/utils/try-catch";
