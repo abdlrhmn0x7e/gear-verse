@@ -20,6 +20,7 @@ import { type RouterOutputs } from "~/trpc/react";
 import { useEffect, useState } from "react";
 import { useMediaContext } from "./media-preview-context";
 import { cn } from "~/lib/utils";
+import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
   RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];
@@ -31,11 +32,13 @@ export function MediaTable({
   data: Media[];
   className?: string;
 }) {
+  const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
+  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
+  const selectedMedia = useMediaStore((state) => state.selectedMedia);
+
   const [lastSelectedRowId, setLastSelectedRowId] = useState<string | null>(
     null,
   );
-  const { mediaPreviewUrl, setSelectedMedia, selectedMedia } =
-    useMediaContext();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     selectedMedia.reduce((acc, media) => {

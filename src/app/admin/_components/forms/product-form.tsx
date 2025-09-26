@@ -27,16 +27,16 @@ import { Textarea } from "~/components/ui/textarea";
 import { Editor } from "../editor";
 import { FileDropzone, MediaDialog } from "../inputs/file-dropzone";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  MediaContextProvider,
-  useMediaContext,
-} from "../tables/media/media-preview-context";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import Image from "next/image";
 import { cn } from "~/lib/utils";
 import { Checkbox } from "~/components/ui/checkbox";
+import {
+  MediaStoreProvider,
+  useMediaStore,
+} from "../../_stores/media/provider";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -134,7 +134,7 @@ export function ProductForm({
                 )}
               />
 
-              <MediaContextProvider>
+              <MediaStoreProvider>
                 {mediaFields.length === 0 ? (
                   <FormField
                     control={form.control}
@@ -154,7 +154,7 @@ export function ProductForm({
                 ) : (
                   <MediaFields media={mediaFields} swap={swap} />
                 )}
-              </MediaContextProvider>
+              </MediaStoreProvider>
             </CardContent>
           </Card>
         </div>
@@ -171,7 +171,8 @@ function MediaFields({
   media: ProductFormValues["media"];
   swap: UseFieldArraySwap;
 }) {
-  const { selectedMedia, setSelectedMedia } = useMediaContext();
+  const selectedMedia = useMediaStore((state) => state.selectedMedia);
+  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
   const { setValue } = useFormContext<ProductFormValues>();
   const [checkedMedia, setCheckedMedia] = useState<ProductFormValues["media"]>(
     [],
@@ -261,13 +262,11 @@ function MediaFields({
             size="sm"
             type="button"
             onClick={() => {
-              setSelectedMedia((prev) => {
-                const newSelectedMedia = prev.filter(
+              setSelectedMedia(
+                selectedMedia.filter(
                   (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
-                );
-
-                return newSelectedMedia;
-              });
+                ),
+              );
             }}
           >
             <TrashIcon />

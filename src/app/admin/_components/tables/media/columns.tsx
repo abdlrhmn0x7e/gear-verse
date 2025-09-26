@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
@@ -9,8 +10,8 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 
 import type { RouterOutputs } from "~/trpc/react";
-import { useMediaContext } from "./media-preview-context";
 import { cn } from "~/lib/utils";
+import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
   RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];
@@ -32,8 +33,8 @@ export const mediaColumns: ColumnDef<Media>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { mediaPreviewUrl, setMediaPreviewUrl } = useMediaContext();
+      const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
+      const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
 
       return (
         <div className="group flex items-center justify-between gap-2">
@@ -56,13 +57,12 @@ export const mediaColumns: ColumnDef<Media>[] = [
             size="icon"
             onClick={(e) => {
               e.stopPropagation();
-              setMediaPreviewUrl((prev) => {
-                if (prev === row.original.url) {
-                  return null;
-                }
+              if (mediaPreviewUrl === row.original.url) {
+                setMediaPreviewUrl(null);
+                return;
+              }
 
-                return row.original.url;
-              });
+              setMediaPreviewUrl(row.original.url);
             }}
           >
             <EyeIcon />

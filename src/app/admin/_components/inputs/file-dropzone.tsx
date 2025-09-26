@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CloudUploadIcon,
   EyeIcon,
@@ -9,7 +11,7 @@ import {
   UploadCloudIcon,
   XIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
@@ -36,15 +38,13 @@ import { useDebounce } from "~/hooks/use-debounce";
 import Header from "~/components/header";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { MediaTable } from "../tables/media/table";
-import {
-  useMediaContext,
-  type SelectedMedia,
-} from "../tables/media/media-preview-context";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Checkbox } from "~/components/ui/checkbox";
 import { keepPreviousData } from "@tanstack/react-query";
 import { LoadMore } from "~/components/load-more";
 import { useInView } from "react-intersection-observer";
+import { useMediaStore } from "../../_stores/media/provider";
+import type { SelectedMedia } from "../../_stores/media/store";
 
 interface FileDropZoneProps {
   options?: DropzoneOptions;
@@ -158,9 +158,11 @@ export function MediaDialog({
   onChange?: (media: SelectedMedia[]) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { mediaPreviewUrl, selectedMedia } = useMediaContext();
-  const [viewKind, setViewKind] = useState<"list" | "grid">("list");
   const [search, setSearch] = useState("");
+  const [viewKind, setViewKind] = useState<"list" | "grid">("grid");
+
+  const previewUrl = useMediaStore((state) => state.previewUrl);
+  const selectedMedia = useMediaStore((state) => state.selectedMedia);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -171,6 +173,7 @@ export function MediaDialog({
         <DialogHeader>
           <DialogTitle>Select Media</DialogTitle>
         </DialogHeader>
+
         <DialogBody className="space-y-4">
           <div className="flex items-center justify-between gap-2">
             <SearchInput
@@ -200,7 +203,7 @@ export function MediaDialog({
             </Select>
           </div>
 
-          <div className="flex h-[60svh] w-full gap-6 overflow-hidden">
+          <div className="flex h-[50svh] w-full gap-6 overflow-hidden xl:h-[60svh]">
             <motion.div
               className="flex w-full min-w-0 flex-col gap-4"
               layout="position"
@@ -220,7 +223,7 @@ export function MediaDialog({
             </motion.div>
 
             <AnimatePresence>
-              {mediaPreviewUrl && (
+              {previewUrl && (
                 <motion.div
                   initial={{ opacity: 0, width: 0, height: "auto" }}
                   animate={{ opacity: 1, width: "34rem" }}
@@ -232,7 +235,7 @@ export function MediaDialog({
                   }}
                   className="flex items-start justify-center"
                 >
-                  <MediaPreview url={mediaPreviewUrl} />
+                  <MediaPreview url={previewUrl} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -368,14 +371,17 @@ function MediaGallery({
       placeholderData: keepPreviousData,
     },
   );
-  const media = mediaPages?.pages.flatMap((page) => page.data);
+  const media = useMemo(
+    () => mediaPages?.pages.flatMap((page) => page.data),
+    [mediaPages],
+  );
   const { ref, inView } = useInView();
 
   useEffect(() => {
     if (inView && hasNextPage) {
       void fetchNextPage();
     }
-  }, [inView, hasNextPage, mediaPages, fetchNextPage]);
+  }, [inView, hasNextPage, fetchNextPage]);
 
   if (isPending) {
     return (
@@ -435,12 +441,10 @@ function MediaGrid({
   media: RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"];
   className?: string;
 }) {
-  const {
-    selectedMedia,
-    setSelectedMedia,
-    setMediaPreviewUrl,
-    mediaPreviewUrl,
-  } = useMediaContext();
+  const selectedMedia = useMediaStore((state) => state.selectedMedia);
+  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
+  const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
+  const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
 
   return (
     <div className={cn("flex flex-wrap gap-3", className)}>
@@ -449,16 +453,18 @@ function MediaGrid({
           (m) => m.mediaId === media.id,
         );
         function handleCheckedChange(checked: boolean) {
-          setSelectedMedia((prev) => {
-            if (!checked) {
-              return prev.filter((m) => m.mediaId !== media.id);
-            }
-
-            return [
-              ...prev,
-              { mediaId: media.id, url: media.url, order: prev.length },
-            ];
-          });
+          return setSelectedMedia(
+            checked
+              ? [
+                  ...selectedMedia,
+                  {
+                    mediaId: media.id,
+                    url: media.url,
+                    order: selectedMedia.length,
+                  },
+                ]
+              : selectedMedia.filter((m) => m.mediaId !== media.id),
+          );
         }
 
         return (
@@ -481,10 +487,12 @@ function MediaGrid({
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (mediaPreviewUrl === media.url) {
+                    setMediaPreviewUrl(null);
+                    return;
+                  }
 
-                  setMediaPreviewUrl((prev) =>
-                    prev === media.url ? null : media.url,
-                  );
+                  setMediaPreviewUrl(media.url);
                 }}
               >
                 <EyeIcon />
@@ -514,7 +522,7 @@ function MediaGrid({
 }
 
 function MediaPreview({ url }: { url: string }) {
-  const { setMediaPreviewUrl } = useMediaContext();
+  const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
 
   return (
     <div className="bg-input/20 mr-1 space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
@@ -525,7 +533,9 @@ function MediaPreview({ url }: { url: string }) {
           variant="ghost"
           size="icon"
           className="ml-auto"
-          onClick={() => setMediaPreviewUrl(null)}
+          onClick={() => {
+            setMediaPreviewUrl(null);
+          }}
         >
           <XIcon />
         </Button>
