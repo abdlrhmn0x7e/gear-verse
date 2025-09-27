@@ -1,10 +1,11 @@
 "use client";
-// Swapy is handled via the shared Swapably component
 
 import {
   useFieldArray,
   useForm,
   useFormContext,
+  type ControllerRenderProps,
+  type FieldArrayWithId,
   type UseFieldArraySwap,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -175,7 +176,7 @@ export function ProductForm({
                   add={() =>
                     appendOption({
                       name: "",
-                      values: [],
+                      values: [{ value: "" }],
                     })
                   }
                 />
@@ -308,9 +309,10 @@ function OptionFields({
   options,
   add,
 }: {
-  options: ProductFormValues["options"];
+  options: FieldArrayWithId<ProductFormValues, "options", "id">[];
   add: () => void;
 }) {
+  const form = useFormContext<ProductFormValues>();
   if (options.length === 0) {
     return (
       <div className="space-y-2">
@@ -322,5 +324,97 @@ function OptionFields({
     );
   }
 
-  return <div>OptionFields</div>;
+  return (
+    <div>
+      <div className="space-y-4 divide-y [&>div]:pb-4">
+        {options.map((option, index) => (
+          <div key={option.id} className="space-y-4">
+            <FormField
+              control={form.control}
+              name={`options.${index}.name`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Option Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <OptionField index={index} />
+          </div>
+        ))}
+
+        <Button type="button" variant="ghost" onClick={add}>
+          <PlusCircleIcon />
+          Add Another Option
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function OptionField({ index }: { index: number }) {
+  const form = useFormContext<ProductFormValues>();
+  const {
+    fields: valueFields,
+    append: appendValue,
+    remove: removeValue,
+  } = useFieldArray({
+    control: form.control,
+    name: `options.${index}.values`,
+  });
+
+  function handleChange(
+    cb: React.ChangeEventHandler<HTMLInputElement>,
+    index: number,
+  ) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      cb(e);
+
+      const value = e.target.value;
+      const nextValue = valueFields[index + 1];
+      if (value.length === 1 && !nextValue) {
+        appendValue({ value: "" }, { shouldFocus: false });
+      }
+    };
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>Option Values</Label>
+      {valueFields.map((value, valueIndex) => (
+        <FormField
+          key={value.id}
+          control={form.control}
+          name={`options.${index}.values.${valueIndex}.value`}
+          render={({ field }) => (
+            <FormItem className="relative">
+              <FormControl>
+                <Input
+                  placeholder={
+                    valueIndex === 0 ? "Some Value" : "Add Another Value"
+                  }
+                  value={field.value}
+                  onChange={handleChange(field.onChange, valueIndex)}
+                />
+              </FormControl>
+              {valueFields.length > 1 && (
+                <Button
+                  type="button"
+                  variant="destructiveGhost"
+                  className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                  size="icon"
+                  onClick={() => removeValue(valueIndex)}
+                >
+                  <TrashIcon />
+                </Button>
+              )}
+            </FormItem>
+          )}
+        />
+      ))}
+    </div>
+  );
 }
