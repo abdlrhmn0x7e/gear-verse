@@ -52,10 +52,11 @@ export const createProductInputSchema = productEntitySchema
     media: z.array(createProductMediaInputSchema),
     options: z.array(
       z.object({
-        name: z.string("Name is required"),
+        id: z.cuid("ID is required"),
+        name: z.string("Name is required").min(1, "Name is too short"),
         values: z.array(
           z.object({
-            value: z.string("Value is required"),
+            value: z.string("Value is required").min(1, "Value is too short"),
           }),
         ),
       }),

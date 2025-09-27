@@ -60,6 +60,7 @@ export function Swapably<T>({
     if (container.current) {
       swapy.current = createSwapy(container.current, {
         manualSwap: true,
+        dragOnHold: true,
       });
 
       swapy.current.onSwap((event) => {
@@ -79,7 +80,7 @@ export function Swapably<T>({
     <div ref={container} className={containerClassName}>
       {slottedItems.map(({ slotId, itemId, item }, index) => (
         <div
-          key={slotId}
+          key={`slot-${slotId}`}
           data-swapy-slot={slotId}
           className={
             typeof slotClassName === "function"
@@ -87,7 +88,7 @@ export function Swapably<T>({
               : slotClassName
           }
         >
-          {itemId && item ? (
+          {itemId && item && (
             <div
               key={`swapy-item-${itemId}`}
               data-swapy-item={itemId}
@@ -95,7 +96,7 @@ export function Swapably<T>({
             >
               <Comp item={item} index={index} />
             </div>
-          ) : null}
+          )}
         </div>
       ))}
       {children}
