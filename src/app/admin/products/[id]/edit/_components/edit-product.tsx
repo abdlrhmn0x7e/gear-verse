@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   ProductForm,
   type ProductFormValues,
-} from "~/app/admin/_components/forms/product-form";
+} from "~/app/admin/_components/forms/product";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { useEditProductMutation } from "~/hooks/mutations/use-edit-product-mutation";

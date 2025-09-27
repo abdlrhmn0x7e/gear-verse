@@ -38,7 +38,7 @@ import {
 } from "~/components/ui/collapsible";
 import { Spinner } from "~/components/spinner";
 import { Separator } from "~/components/ui/separator";
-import { AddCategoryDialog } from "../dialogs/add-category-dialog";
+import { AddCategoryDialog } from "../dialogs/add-category";
 import { iconsMap } from "~/lib/icons-map";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 

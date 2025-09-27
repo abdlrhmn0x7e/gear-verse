@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { ProductFormValues } from "~/app/admin/_components/forms/product-form";
+import type { ProductFormValues } from "~/app/admin/_components/forms/product";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { api, type RouterInputs, type RouterOutputs } from "~/trpc/react";
 import {

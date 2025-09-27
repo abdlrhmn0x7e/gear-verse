@@ -4,7 +4,7 @@ import { CheckIcon, SaveIcon } from "lucide-react";
 import {
   ProductForm,
   type ProductFormValues,
-} from "~/app/admin/_components/forms/product-form";
+} from "~/app/admin/_components/forms/product";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/spinner";

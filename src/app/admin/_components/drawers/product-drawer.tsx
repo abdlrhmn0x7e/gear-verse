@@ -31,7 +31,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 // Custom Components
 import Header, { HeaderSkeleton } from "~/components/header";
 import { ProductDescription } from "../../../../components/product-description";
-import { DeleteProductDialog } from "../dialogs/delete-product-dialog";
+import { DeleteProductDialog } from "../dialogs/delete-product";
 import {
   VerseCarousel,
   VerseCarouselSkeleton,

@@ -56,10 +56,28 @@ export const createProductInputSchema = productEntitySchema
         name: z.string("Name is required").min(1, "Name is too short"),
         values: z.array(
           z.object({
+            id: z.cuid("ID is required"),
             value: z.string("Value is required").min(1, "Value is too short"),
           }),
         ),
       }),
+    ),
+    variants: z.array(
+      z.array(
+        z.object({
+          id: z.cuid("Value ID must be a cuid").optional(),
+          value: z.string("Value must be a string").optional(),
+          thumbnailMediaId: z
+            .number("Thumbnail media ID is required")
+            .positive("Thumbnail media ID must be positive"),
+          overridePrice: z
+            .number("Price is required")
+            .nonnegative("Price must be nonnegative"),
+          stock: z
+            .number("Stock is required")
+            .nonnegative("Stock must be nonnegative"),
+        }),
+      ),
     ),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;

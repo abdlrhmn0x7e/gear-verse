@@ -8,8 +8,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { DeleteProductDialog } from "../../dialogs/delete-product-dialog";
-import { PublishProductDialog } from "../../dialogs/publish-product-dialog";
+import { DeleteProductDialog } from "../../dialogs/delete-product";
+import { PublishProductDialog } from "../../dialogs/publish-product";
 
 export function ProductsTableActions({
   id,

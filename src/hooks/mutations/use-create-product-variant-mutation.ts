@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import type { ProductFormValues } from "~/app/admin/_components/forms/product-form";
+import type { ProductFormValues } from "~/app/admin/_components/forms/product";
 import type { UseUploadFileMutationProps } from "./use-upload-file-mutation";
 import { api, type RouterInputs, type RouterOutputs } from "~/trpc/react";
 import type { UseUploadFilesMutationProps } from "./use-upload-files-mutations";

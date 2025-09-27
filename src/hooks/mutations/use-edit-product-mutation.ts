@@ -6,7 +6,7 @@ import {
   type UseUploadFileMutationProps,
 } from "./use-upload-file-mutation";
 import { useMutation } from "@tanstack/react-query";
-import type { ProductFormValues } from "~/app/admin/_components/forms/product-form";
+import type { ProductFormValues } from "~/app/admin/_components/forms/product";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { toast } from "sonner";
 import {

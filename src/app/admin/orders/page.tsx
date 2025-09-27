@@ -3,7 +3,7 @@ import Header from "~/components/header";
 import { api, HydrateClient } from "~/trpc/server";
 import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
-import { AddOrderDialog } from "../_components/dialogs/add-order-dialog";
+import { AddOrderDialog } from "../_components/dialogs/add-order";
 
 export default function AdminOrdersPage() {
   void api.admin.orders.getPage.prefetchInfinite({

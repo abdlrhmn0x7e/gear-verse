@@ -18,10 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
-import {
-  restrictToHorizontalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
+
 import { cn } from "~/lib/utils";
 
 export function SwapableContext({
