@@ -1,10 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import {
+  useFieldArray,
+  useForm,
+  useFormContext,
+  useWatch,
+} from "react-hook-form";
 import z from "zod";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import {
   Form,
   FormControl,
@@ -78,19 +89,15 @@ export function ProductForm({
     name: "options",
     keyName: "keyId",
   });
-  const { append: appendVariant } = useFieldArray({
-    control: form.control,
-    name: "variants",
-  });
 
   return (
     <Form {...form}>
       <form
         id="product-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-3 gap-12 pb-24"
+        className="grid grid-cols-1 gap-12 pb-24 lg:grid-cols-3"
       >
-        <div className="col-span-2 space-y-8">
+        <div className="space-y-8 lg:col-span-2">
           <Card>
             <CardContent className="space-y-6">
               <FormField
@@ -162,12 +169,13 @@ export function ProductForm({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="gap-0 overflow-hidden pb-0">
+            <CardHeader className="mb-4">
               <CardTitle>Variants</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
+
+            <CardContent className="space-y-6 p-0">
+              <div className="p-2">
                 <Options
                   options={optionFields}
                   add={(id) => {
@@ -182,14 +190,30 @@ export function ProductForm({
                   remove={(index) => removeOption(index)}
                   swap={swapOption}
                 />
-
-                <Variants control={form.control} />
               </div>
+
+              <Variants control={form.control} />
             </CardContent>
+            <TotalInventory />
           </Card>
         </div>
         <div></div>
       </form>
     </Form>
+  );
+}
+
+function TotalInventory() {
+  const form = useFormContext<ProductFormValues>();
+  const variants = useWatch({ control: form.control, name: "variants" });
+  if (!variants || variants.length === 0) return null;
+
+  return (
+    <CardFooter className="bg-muted justify-center border-t pb-4">
+      <p className="text-muted-foreground text-sm">
+        Total Inventory is{" "}
+        {variants.reduce((acc, variant) => acc + Number(variant.stock), 0)}
+      </p>
+    </CardFooter>
   );
 }

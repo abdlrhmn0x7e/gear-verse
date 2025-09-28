@@ -20,6 +20,7 @@ import { type RouterOutputs } from "~/trpc/react";
 import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
+import { toast } from "sonner";
 
 type Media =
   RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];
@@ -34,6 +35,7 @@ export function MediaTable({
   const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
+  const maxFiles = useMediaStore((state) => state.maxFiles);
 
   const [lastSelectedRowId, setLastSelectedRowId] = useState<string | null>(
     null,
@@ -52,7 +54,12 @@ export function MediaTable({
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id.toString(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    enableRowSelection: maxFiles
+      ? Object.keys(rowSelection).length < maxFiles
+      : true,
+    onRowSelectionChange: (selection) => {
+      setRowSelection(selection);
+    },
     state: {
       columnVisibility,
       rowSelection,
@@ -60,6 +67,11 @@ export function MediaTable({
   });
 
   const handleRowClick = (row: Row<Media>, event: React.MouseEvent) => {
+    if (maxFiles === 1) {
+      setRowSelection({ [row.id.toString()]: true });
+      return;
+    }
+
     if (event.shiftKey && lastSelectedRowId !== null) {
       const allRowIds = table.getRowModel().rows.map((r) => r.id);
       const startIndex = allRowIds.indexOf(lastSelectedRowId);

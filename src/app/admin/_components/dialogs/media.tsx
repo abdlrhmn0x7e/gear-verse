@@ -46,6 +46,8 @@ import { useInView } from "react-intersection-observer";
 import { useMediaStore } from "../../_stores/media/provider";
 import type { SelectedMedia } from "../../_stores/media/store";
 import type { FileDropZoneProps } from "../inputs/file-dropzone";
+import { toast } from "sonner";
+
 export function MediaDialog({
   children,
   onChange,
@@ -148,6 +150,11 @@ export function MediaDialog({
           <Button
             type="button"
             onClick={() => {
+              if (selectedMedia.length === 0) {
+                toast.error("Please select at least one media");
+                return;
+              }
+
               onChange?.(selectedMedia);
               setOpen(false);
             }}
@@ -340,6 +347,7 @@ function MediaGrid({
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
   const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
   const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
+  const maxFiles = useMediaStore((state) => state.maxFiles);
 
   return (
     <div className={cn("flex flex-wrap gap-3", className)}>
@@ -348,6 +356,16 @@ function MediaGrid({
           (m) => m.mediaId === media.id,
         );
         function handleCheckedChange(checked: boolean) {
+          if (maxFiles === 1) {
+            setSelectedMedia([{ mediaId: media.id, url: media.url }]);
+            return;
+          }
+
+          if (maxFiles && selectedMedia.length >= maxFiles) {
+            toast.error(`You can only select up to ${maxFiles} media`);
+            return;
+          }
+
           return setSelectedMedia(
             checked
               ? [

@@ -11,13 +11,21 @@ export const MediaStoreContext = createContext<MediaStoreApi | null>(null);
 
 export interface MediaStoreProviderProps {
   children: ReactNode;
+  maxFiles?: number;
 }
 
-export const MediaStoreProvider = ({ children }: MediaStoreProviderProps) => {
+export const MediaStoreProvider = ({
+  children,
+  maxFiles,
+}: MediaStoreProviderProps) => {
   const storeRef = useRef<MediaStoreApi | null>(null);
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
-    storeRef.current = createMediaStore();
-    console.log("storeRef.current", storeRef.current);
+    storeRef.current = createMediaStore({
+      selectedMedia: [],
+      previewUrl: null,
+      maxFiles,
+    });
   }
 
   return (

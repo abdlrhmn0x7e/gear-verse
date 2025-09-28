@@ -5,6 +5,7 @@ export type SelectedMedia = CreateProductMediaInput & { url: string };
 export type MediaState = {
   selectedMedia: SelectedMedia[];
   previewUrl: string | null;
+  maxFiles?: number;
 };
 
 export type MediaActions = {
