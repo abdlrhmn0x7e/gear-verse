@@ -20,7 +20,7 @@ import { BrandsCommand } from "../../inputs/brands-combobox";
 import { api } from "~/trpc/react";
 import { useInView } from "react-intersection-observer";
 import { debounce } from "nuqs";
-import { CategoriesCommand } from "../../inputs/category-combobox";
+import { CategoriesCommand } from "../../inputs/categories-combobox";
 import { FilterList, type FilterKey } from "../../filter-list";
 
 export function ProductsFilter() {

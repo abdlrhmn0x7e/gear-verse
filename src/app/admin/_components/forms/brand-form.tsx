@@ -1,8 +1,7 @@
 import { useForm } from "react-hook-form";
-import { brandEntitySchema } from "~/lib/schemas/entities/brand";
-import { z } from "zod";
+import { createBrandInputSchema } from "@schemas/entities/brand";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { imageSchema } from "~/lib/schemas/contracts/image";
 import {
   Form,
   FormControl,
@@ -14,20 +13,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { FileDropzone } from "../inputs/file-dropzone";
+import { MediaStoreProvider } from "../../_stores/media/provider";
 
-const brandFormSchema = brandEntitySchema
-  .omit({
-    id: true,
-    slug: true,
-    createdAt: true,
-    updatedAt: true,
-    logoMediaId: true,
-  })
-  .and(
-    z.object({
-      logoImage: z.array(imageSchema),
-    }),
-  );
+const brandFormSchema = createBrandInputSchema;
 export type BrandFormValues = z.infer<typeof brandFormSchema>;
 
 export function BrandForm({
@@ -68,12 +56,17 @@ export function BrandForm({
 
         <FormField
           control={form.control}
-          name="logoImage"
+          name="logoMediaId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Logo Image</FormLabel>
               <FormControl>
-                <FileDropzone onChange={field.onChange} />
+                <MediaStoreProvider maxFiles={1}>
+                  <FileDropzone
+                    onChange={(media) => field.onChange(media[0]?.mediaId)}
+                    showFiles
+                  />
+                </MediaStoreProvider>
               </FormControl>
               <FormDescription>
                 Make sure this image is squared like your brain

@@ -40,7 +40,7 @@ import { Options } from "./options";
 import { Variants } from "./variants";
 import cuid from "cuid";
 import { BrandsCombobox } from "../../inputs/brands-combobox";
-import { CategoryCombobox } from "../../inputs/category-combobox";
+import { CategoriesCombobox } from "../../inputs/categories-combobox";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
@@ -336,7 +336,7 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <CategoryCombobox
+                      <CategoriesCombobox
                         onValueChange={field.onChange}
                         value={field.value}
                       />

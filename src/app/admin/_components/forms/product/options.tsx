@@ -83,7 +83,7 @@ export function Options({
     return (
       <div className="space-y-6">
         <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
-          <InfoIcon className="size-12" />
+          <InfoIcon className="size-8" />
           <p className="max-w-sm text-sm text-pretty">
             Options are used to group variants. For example, color, size,
             connectivity, etc.

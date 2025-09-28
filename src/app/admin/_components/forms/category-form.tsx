@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { categoryEntitySchema } from "~/lib/schemas/entities/category";
-import { CategoryCombobox } from "../inputs/category-combobox";
+import { CategoriesCombobox } from "../inputs/categories-combobox";
 import {
   Select,
   SelectItem,
@@ -112,7 +112,7 @@ export function CategoryForm({
             <FormItem>
               <FormLabel>Parent Category (optional)</FormLabel>
               <FormControl>
-                <CategoryCombobox
+                <CategoriesCombobox
                   value={field.value}
                   onValueChange={field.onChange}
                 />

@@ -4,7 +4,6 @@ export const brandEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
   name: z.string("Name is required").min(1, "Name is required"),
-  slug: z.string("Slug is required").min(1, "Slug is required"),
   logoMediaId: z
     .number("Logo media ID must be a number")
     .nonnegative("Logo media ID must be positive"),

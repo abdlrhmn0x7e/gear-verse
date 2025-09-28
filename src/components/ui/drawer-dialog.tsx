@@ -4,6 +4,7 @@ import * as React from "react";
 
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -82,6 +83,17 @@ export function DrawerDialogDescription({
     return <DrawerDescription {...props}>{children}</DrawerDescription>;
   }
   return <DialogDescription {...props}>{children}</DialogDescription>;
+}
+
+export function DrawerDialogBody({
+  children,
+  ...props
+}: React.ComponentProps<typeof DialogBody>) {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return <div {...props}>{children}</div>;
+  }
+  return <DialogBody {...props}>{children}</DialogBody>;
 }
 
 export function DrawerDialogFooter({

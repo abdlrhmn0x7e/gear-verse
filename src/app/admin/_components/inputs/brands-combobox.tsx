@@ -25,6 +25,7 @@ import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
+import { AddBrandDrawer } from "../drawers/add-brand";
 
 export function BrandsCombobox({
   value,
@@ -120,7 +121,7 @@ export function BrandsCombobox({
     return (
       <div className="flex items-center gap-2">
         <ImageWithFallback
-          src={brand?.logoUrl ?? ""}
+          src={brand?.logo?.url ?? ""}
           alt={brand?.name ?? ""}
           className="size-6 overflow-hidden rounded-sm border"
           width={24}
@@ -166,6 +167,8 @@ export function BrandsCombobox({
         />
 
         <Separator />
+
+        <AddBrandDrawer />
       </PopoverContent>
     </Popover>
   );
@@ -209,7 +212,7 @@ export function BrandsCommand({
             >
               <div className="bg-muted size-6 overflow-hidden rounded-sm border">
                 <Image
-                  src={brand.logoUrl ?? ""}
+                  src={brand.logo?.url ?? ""}
                   alt={brand.name}
                   className="size-full object-cover"
                   width={24}

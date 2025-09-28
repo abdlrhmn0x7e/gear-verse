@@ -11,6 +11,8 @@ export type MediaState = {
 export type MediaActions = {
   setSelectedMedia: (media: SelectedMedia[]) => void;
   setPreviewUrl: (url: string | null) => void;
+
+  deleteSelectedMedia: (mediaId: number) => void;
 };
 
 export type MediaStore = MediaState & MediaActions;
@@ -25,5 +27,11 @@ export const createMediaStore = (initState: MediaState = defaultInitState) => {
     ...initState,
     setSelectedMedia: (media) => set({ selectedMedia: media }),
     setPreviewUrl: (url) => set({ previewUrl: url }),
+    deleteSelectedMedia: (mediaId) =>
+      set((state) => ({
+        selectedMedia: state.selectedMedia.filter(
+          (media) => media.mediaId !== mediaId,
+        ),
+      })),
   }));
 };

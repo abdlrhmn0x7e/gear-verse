@@ -1,9 +1,6 @@
 import z from "zod";
-import { paginationSchema } from "~/lib/schemas/contracts/pagination";
 import { productEntitySchema } from "~/lib/schemas/entities/product";
-import { paginate } from "../../../application/helpers/pagination";
 import { adminProcedure, createTRPCRouter } from "../../trpc";
-import { TRPCError } from "@trpc/server";
 import { generateSlug } from "~/lib/utils/slugs";
 import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
