@@ -46,12 +46,12 @@ export default function RootLayout({
       className={instrumentSans.className}
       suppressHydrationWarning
     >
-      <head>
+      {/* <head>
         <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
         />
-      </head>
+      </head> */}
       <body className="flex min-h-screen flex-col">
         <NuqsAdapter>
           <ThemeProvider

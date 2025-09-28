@@ -74,20 +74,44 @@ export const createProductInputSchema = productEntitySchema
     updatedAt: true,
   })
   .extend({
+    profit: z
+      .number("Profit is required")
+      .nonnegative("Profit must be nonnegative"),
+    margin: z
+      .number("Margin is required")
+      .nonnegative("Margin must be nonnegative")
+      .max(100, "Margin must be less than or equal to 100"),
+    seo: z
+      .object({
+        pageTitle: z.string("Page title is required").optional(),
+        urlHandler: z
+          .string("URL handle is required")
+          .regex(
+            /^$|^[a-z0-9-]+$/,
+            "URL handle must be empty or lowercase and contain only letters, numbers, and hyphens",
+          )
+          .optional(),
+        metaDescription: z.string("Meta description is required").optional(),
+      })
+      .partial(),
     media: z.array(createProductMediaInputSchema),
-    options: z.array(
-      z.object({
-        id: z.cuid("id must be a cuid"),
-        name: z.string("name must be a string").min(1, "Name is too short"),
-        values: z.array(
-          z.object({
-            id: z.cuid("id must be a cuid"),
-            value: z.string("Value is required").min(1, "Value is too short"),
-          }),
-        ),
-      }),
-    ),
-    variants: z.array(createProductVariantInputSchema),
+    options: z
+      .array(
+        z.object({
+          id: z.cuid("id must be a cuid"),
+          name: z.string("name must be a string").min(1, "Name is too short"),
+          values: z.array(
+            z.object({
+              id: z.cuid("id must be a cuid"),
+              value: z.string("Value is required").min(1, "Value is too short"),
+            }),
+          ),
+        }),
+      )
+      .min(1, "Options are required"),
+    variants: z
+      .array(createProductVariantInputSchema)
+      .min(1, "Variants are required"),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 

@@ -44,10 +44,10 @@ import { useFlatCategories } from "~/hooks/use-flat-categories";
 
 export function CategoryCombobox({
   value,
-  setValue,
+  onValueChange,
 }: {
   value: number | undefined | null;
-  setValue: React.Dispatch<React.SetStateAction<number | null>>;
+  onValueChange: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
   const [open, setOpen] = React.useState(false);
   const { data: categories, isPending: categoriesPending } =
@@ -147,14 +147,10 @@ export function CategoryCombobox({
       <PopoverContent className="p-0">
         <CategoriesCommand
           categories={categories}
-          setValue={(value) => setValue(value ?? null)}
+          setValue={(value) => onValueChange(value ?? null)}
           setOpen={setOpen}
           value={value ?? null}
         />
-
-        <Separator />
-
-        <AddCategoryDialog />
       </PopoverContent>
     </Popover>
   );

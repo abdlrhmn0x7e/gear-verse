@@ -12,6 +12,7 @@ import z from "zod";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -19,6 +20,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -37,6 +39,12 @@ import { MediaFields } from "./media";
 import { Options } from "./options";
 import { Variants } from "./variants";
 import cuid from "cuid";
+import { BrandsCombobox } from "../../inputs/brands-combobox";
+import { CategoryCombobox } from "../../inputs/category-combobox";
+import { env } from "~/env";
+import { cn } from "~/lib/utils";
+import { Switch } from "~/components/ui/switch";
+import { TriangleAlertIcon } from "lucide-react";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -64,10 +72,19 @@ export function ProductForm({
       title: "",
       summary: "",
       description: {},
+      published: false,
+      price: 0,
+      profit: 0,
+      margin: 0,
       categoryId: 0,
       brandId: 0,
       media: [],
       options: [],
+      seo: {
+        pageTitle: "",
+        urlHandler: "",
+        metaDescription: "",
+      },
     },
   });
   const {
@@ -89,13 +106,14 @@ export function ProductForm({
     name: "options",
     keyName: "keyId",
   });
+  console.log("form values", form.getValues());
 
   return (
     <Form {...form}>
       <form
         id="product-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 gap-12 pb-24 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3"
       >
         <div className="space-y-8 lg:col-span-2">
           <Card>
@@ -121,7 +139,7 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Summary</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea className="h-24" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -169,9 +187,22 @@ export function ProductForm({
             </CardContent>
           </Card>
 
-          <Card className="gap-0 overflow-hidden pb-0">
+          <Card
+            className={cn(
+              "gap-0 overflow-hidden pb-0",
+              form.formState.errors.options && "border-destructive",
+            )}
+          >
             <CardHeader className="mb-4">
               <CardTitle>Variants</CardTitle>
+              <CardDescription>
+                {form.formState.errors.options && (
+                  <FormMessage className="text-destructive flex items-center gap-2">
+                    <TriangleAlertIcon className="size-4" />
+                    {form.formState.errors.options.message}
+                  </FormMessage>
+                )}
+              </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6 p-0">
@@ -197,7 +228,203 @@ export function ProductForm({
             <TotalInventory />
           </Card>
         </div>
-        <div></div>
+
+        <div className="space-y-4">
+          <Card className="gap-3">
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="published"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between gap-2">
+                      <FormLabel>
+                        Make this product public immediately
+                      </FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <FormField
+                  control={form.control}
+                  name="profit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profit</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="margin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Margin</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} max={100} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Meta data</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="brandId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Brand</FormLabel>
+                    <FormControl>
+                      <BrandsCombobox
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <CategoryCombobox
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Search engine optimization{" "}
+                <span className="text-muted-foreground text-sm">
+                  (optional)
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="seo.pageTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Page title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Sus product" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="seo.urlHandler"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL handler </FormLabel>
+                    <FormControl>
+                      <div
+                        className={cn(
+                          "has-file:text-foreground placeholder:text-muted-foreground/60 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                          "has-focus-within:border-ring has-focus-within:ring-ring/50 has-focus-within:ring-[3px]",
+                          "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                          "flex items-center gap-2",
+                        )}
+                      >
+                        <p className="text-muted-foreground select-none">
+                          {env.NEXT_PUBLIC_APP_URL.split("/")
+                            .slice(1)
+                            .join("/")
+                            .slice(1)}
+                          /
+                        </p>
+                        <input
+                          placeholder="amogus-product"
+                          className="flex-1 border-none focus-visible:outline-none"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      This will be used as the URL handler for the product. it
+                      should be a lowercase string with no spaces and unique per
+                      product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="seo.metaDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meta description</FormLabel>
+                    <FormControl>
+                      <Textarea className="h-24" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </form>
     </Form>
   );
@@ -209,7 +436,7 @@ function TotalInventory() {
   if (!variants || variants.length === 0) return null;
 
   return (
-    <CardFooter className="bg-muted justify-center border-t pb-4">
+    <CardFooter className="bg-muted justify-center border-t pb-4 [.border-t]:pt-4">
       <p className="text-muted-foreground text-sm">
         Total Inventory is{" "}
         {variants.reduce((acc, variant) => acc + Number(variant.stock), 0)}

@@ -114,7 +114,7 @@ export function CategoryForm({
               <FormControl>
                 <CategoryCombobox
                   value={field.value}
-                  setValue={field.onChange}
+                  onValueChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />

@@ -107,7 +107,6 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
   }, [computedVariants]);
 
   if (!variants || variants.length === 0) return null;
-  console.log(variants);
 
   return (
     <div className="space-y-2">

@@ -21,7 +21,6 @@ import {
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
-import { AddBrandDialog } from "../dialogs/add-brand";
 import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -167,8 +166,6 @@ export function BrandsCombobox({
         />
 
         <Separator />
-
-        <AddBrandDialog />
       </PopoverContent>
     </Popover>
   );

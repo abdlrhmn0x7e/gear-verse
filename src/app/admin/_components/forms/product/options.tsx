@@ -10,7 +10,7 @@ import {
   type UseFieldArraySwap,
 } from "react-hook-form";
 
-import { PlusCircleIcon, Trash2Icon } from "lucide-react";
+import { InfoIcon, PlusCircleIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -81,7 +81,14 @@ export function Options({
 
   if (options.length === 0) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-6">
+        <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
+          <InfoIcon className="size-12" />
+          <p className="max-w-sm text-sm text-pretty">
+            Options are used to group variants. For example, color, size,
+            connectivity, etc.
+          </p>
+        </div>
         <Button type="button" variant="ghost" onClick={handleAddOption}>
           <PlusCircleIcon />
           Add Options like color, connectivity, etc.
