@@ -31,6 +31,7 @@ import { Textarea } from "~/components/ui/textarea";
 import {
   createProductInputSchema,
   createProductMediaInputSchema,
+  createProductOptionInputSchema,
 } from "~/lib/schemas/entities/product";
 import { MediaStoreProvider } from "../../../_stores/media/provider";
 import { Editor } from "../../editor";
@@ -55,6 +56,11 @@ const productFormSchema = createProductInputSchema
     media: z.array(
       createProductMediaInputSchema.extend({
         url: z.url(),
+      }),
+    ),
+    options: z.array(
+      createProductOptionInputSchema.extend({
+        id: z.cuid("id must be a cuid"),
       }),
     ),
   });

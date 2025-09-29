@@ -2,23 +2,37 @@ import { TRPCError } from "@trpc/server";
 import { isAppError } from "~/lib/errors/app-error";
 
 export function errorMap(error: unknown) {
+  console.error("error", error);
   if (isAppError(error)) {
     switch (error.kind) {
       case "NOT_FOUND":
-        return new TRPCError({ code: "NOT_FOUND", message: error.message });
+        return new TRPCError({
+          code: "NOT_FOUND",
+          cause: error.cause,
+          ...error,
+        });
       case "BAD_REQUEST":
-        return new TRPCError({ code: "BAD_REQUEST", message: error.message });
+        return new TRPCError({
+          code: "BAD_REQUEST",
+          cause: error.cause,
+          ...error,
+        });
       case "CONFLICT":
-        return new TRPCError({ code: "CONFLICT", message: error.message });
+        return new TRPCError({
+          code: "CONFLICT",
+          cause: error.cause,
+          ...error,
+        });
       case "INTERNAL":
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
+          cause: error.cause,
         });
       default:
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
+          cause: error.cause,
+          ...error,
         });
     }
   }
@@ -26,5 +40,6 @@ export function errorMap(error: unknown) {
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
     message: "Internal server error",
+    cause: error,
   });
 }

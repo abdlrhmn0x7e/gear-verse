@@ -64,7 +64,7 @@ export function ProductsFilter() {
 
         return {
           ...prev,
-          name: value,
+          title: value,
         };
       },
       { limitUrlUpdates: debounce(500) },
@@ -133,7 +133,7 @@ export function ProductsFilter() {
   return (
     <div className="flex items-center gap-2">
       <SearchInput
-        className="h-full max-w-sm"
+        className="h-full w-full max-w-sm"
         value={filters.title ?? ""}
         onChange={handleSearchChange}
       >

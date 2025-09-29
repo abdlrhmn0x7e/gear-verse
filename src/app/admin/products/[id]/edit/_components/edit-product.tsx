@@ -8,61 +8,21 @@ import {
 } from "~/app/admin/_components/forms/product";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { useEditProductMutation } from "~/hooks/mutations/use-edit-product-mutation";
 import { cn } from "~/lib/utils";
 import { type RouterOutputs } from "~/trpc/react";
 
 export function EditProduct({
   product,
 }: {
-  product: RouterOutputs["admin"]["products"]["findById"];
+  product: RouterOutputs["admin"]["products"]["queries"]["findById"];
 }) {
-  const {
-    output: submitOutput,
-    mutate: editProduct,
-    isPending: editingProduct,
-  } = useEditProductMutation(product);
-
   function onSubmit(data: ProductFormValues) {
-    editProduct(data);
+    console.log(data);
   }
 
   return (
     <div>
-      <ProductForm
-        onSubmit={onSubmit}
-        defaultValues={{
-          name: product.name,
-          summary: product.summary,
-          description: product.description,
-          categoryId: product.categoryId,
-          brandId: product.brand.id,
-          variants: product.variants.map((variant) => ({
-            id: variant.id,
-            name: variant.name,
-            stock: variant.stock,
-            price: variant.price,
-            options: variant.options.map((option) => ({ value: option })),
-          })),
-          specifications: Object.entries(product.specifications).map(
-            ([name, value]) => ({
-              name,
-              value,
-            }),
-          ),
-        }}
-        oldThumbnailAsset={product.thumbnail ?? undefined}
-        oldVariantsAssets={product.variants.reduce(
-          (acc, variant) => ({
-            ...acc,
-            [`variant-${variant.id}`]: {
-              thumbnail: variant.thumbnail ?? undefined,
-              images: variant.images,
-            },
-          }),
-          {},
-        )}
-      />
+      <ProductForm onSubmit={onSubmit} defaultValues={{}} />
 
       <motion.div
         className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"
@@ -72,7 +32,7 @@ export function EditProduct({
           <motion.div
             className={cn(
               "bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm",
-              submitOutput && "scale-95 opacity-50",
+              false && "scale-95 opacity-50",
             )}
             layout
           >
@@ -84,18 +44,14 @@ export function EditProduct({
                 </p>
               </div>
 
-              <Button
-                type="submit"
-                form="product-form"
-                disabled={editingProduct}
-              >
+              <Button type="submit" form="product-form" disabled={false}>
                 <SaveIcon size={16} />
                 Save Product
               </Button>
             </div>
           </motion.div>
 
-          {submitOutput && (
+          {false && (
             <AnimatePresence>
               <motion.div
                 className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm"
@@ -109,13 +65,13 @@ export function EditProduct({
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {editingProduct ? (
+                  {false ? (
                     <Spinner />
                   ) : (
                     <CheckIcon className="size-6 text-green-500" />
                   )}
                   <div>
-                    <p className="flex-1 font-medium">{submitOutput}</p>
+                    <p className="flex-1 font-medium">{false}</p>
                     <p className="text-muted-foreground text-sm">
                       Please be patient untill the process is complete.
                     </p>

@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/react";
 import z from "zod";
 
 export const productEntitySchema = z.object({
@@ -9,7 +10,7 @@ export const productEntitySchema = z.object({
     .min(1, "Price is required"),
   slug: z.string("Slug is required").min(1, "Slug is too short"),
   summary: z.string("Summary is required").min(1, "Summary is too short"),
-  description: z.record(z.string(), z.unknown(), "Description is required"),
+  description: z.custom<JSONContent>(),
   published: z.boolean("Published is required"),
 
   categoryId: z
@@ -37,7 +38,6 @@ export type ProductMedia = z.infer<typeof productMediaEntitySchema>;
 export const createProductMediaInputSchema = productMediaEntitySchema.omit({
   id: true,
   productId: true,
-  slug: true,
   order: true, // whatever the order the array is in, that's the order
 });
 export type CreateProductMediaInput = z.infer<
@@ -69,6 +69,19 @@ export type CreateProductVariantInput = z.infer<
   typeof createProductVariantInputSchema
 >;
 
+export const createProductOptionInputSchema = z.object({
+  name: z.string("name must be a string").min(1, "Name is too short"),
+  values: z.array(
+    z.object({
+      id: z.cuid("id must be a cuid"),
+      value: z.string("value must be a string").min(1, "Value is too short"),
+    }),
+  ),
+});
+export type CreateProductOptionInput = z.infer<
+  typeof createProductOptionInputSchema
+>;
+
 export const createProductInputSchema = productEntitySchema
   .omit({
     id: true,
@@ -86,31 +99,19 @@ export const createProductInputSchema = productEntitySchema
       .max(100, "Margin must be less than or equal to 100"),
     seo: z
       .object({
-        pageTitle: z.string("Page title is required").optional(),
+        pageTitle: z.string("Page title is required"),
         urlHandler: z
           .string("URL handle is required")
           .regex(
             /^$|^[a-z0-9-]+$/,
             "URL handle must be empty or lowercase and contain only letters, numbers, and hyphens",
-          )
-          .optional(),
-        metaDescription: z.string("Meta description is required").optional(),
+          ),
+        metaDescription: z.string("Meta description is required"),
       })
-      .partial(),
+      .optional(),
     media: z.array(createProductMediaInputSchema),
     options: z
-      .array(
-        z.object({
-          id: z.cuid("id must be a cuid"),
-          name: z.string("name must be a string").min(1, "Name is too short"),
-          values: z.array(
-            z.object({
-              id: z.cuid("id must be a cuid"),
-              value: z.string("Value is required").min(1, "Value is too short"),
-            }),
-          ),
-        }),
-      )
+      .array(createProductOptionInputSchema)
       .min(1, "Options are required"),
     variants: z
       .array(createProductVariantInputSchema)

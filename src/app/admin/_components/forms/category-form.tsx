@@ -40,7 +40,7 @@ export function CategoryForm({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: "",
-      parent_id: null,
+      parentId: null,
     },
   });
 
@@ -107,7 +107,7 @@ export function CategoryForm({
         </div>
         <FormField
           control={form.control}
-          name="parent_id"
+          name="parentId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Parent Category (optional)</FormLabel>

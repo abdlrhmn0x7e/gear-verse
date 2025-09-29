@@ -36,12 +36,6 @@ import { Input } from "~/components/ui/input";
 import { PriceInput } from "../../inputs/price-input";
 import { cn } from "~/lib/utils";
 
-declare module "@tanstack/react-table" {
-  interface AggregationFns {
-    getChildRows: AggregationFn<unknown>;
-  }
-}
-
 export type VariantsTableData = {
   optionValues: Record<string, { id: string; value: string }>;
   thumbnail: { id: number; url: string };
@@ -87,7 +81,8 @@ export function VariantsTable({
         header: "Variant",
         minSize: 200,
         maxSize: 400,
-        aggregationFn: "getChildRows",
+        aggregationFn:
+          "getChildRows" as unknown as AggregationFn<VariantsTableData>, // TODO: fix this
         aggregatedCell: ({ row, getValue }) => {
           const childRows = getValue<VariantsTableData[]>();
           const optionValue =

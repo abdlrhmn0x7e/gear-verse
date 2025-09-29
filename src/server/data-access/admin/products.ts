@@ -1,9 +1,37 @@
 import { eq, gt, ilike, and, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { media, products, productVariants } from "../../db/schema";
+import {
+  productOptions,
+  productOptionValues,
+  productOptionValuesVariants,
+  products,
+  productsMedia,
+  productVariants,
+  seo,
+} from "../../db/schema";
+import { inventoryItems } from "~/server/db/schema/inventory";
 
 type NewProduct = typeof products.$inferInsert;
-type UpdateProduct = Partial<NewProduct>;
+type NewProductOption = Omit<
+  typeof productOptions.$inferInsert,
+  "productId"
+> & {
+  values: NewProductOptionValue[];
+};
+type NewProductOptionValue = Omit<
+  typeof productOptionValues.$inferInsert,
+  "productOptionId"
+> & {
+  id: string;
+};
+type NewProductVariant = Omit<
+  typeof productVariants.$inferInsert,
+  "productId"
+> & {
+  optionValues: Record<string, { id: string; value: string }>;
+  stock: number;
+};
+type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
 
 export const _adminProductsRepo = {
   queries: {
@@ -81,27 +109,26 @@ export const _adminProductsRepo = {
           id: true,
           title: true,
           published: true,
+          price: true,
         },
+
         with: {
+          thumbnail: {
+            columns: {
+              url: true,
+            },
+          },
+
           brand: {
             columns: {
-              id: true,
               name: true,
             },
             with: {
               logo: {
                 columns: {
-                  id: true,
                   url: true,
                 },
               },
-            },
-          },
-
-          thumbnail: {
-            columns: {
-              id: true,
-              url: true,
             },
           },
 
@@ -120,6 +147,7 @@ export const _adminProductsRepo = {
             },
           },
         },
+
         limit: pageSize + 1,
         orderBy: products.id,
       });
@@ -133,6 +161,10 @@ export const _adminProductsRepo = {
           title: true,
           summary: true,
           description: true,
+          price: true,
+          margin: true,
+          profit: true,
+          published: true,
           categoryId: true,
           brandId: true,
 
@@ -143,7 +175,6 @@ export const _adminProductsRepo = {
             columns: {
               id: true,
               url: true,
-              ownerType: true,
             },
           },
 
@@ -161,6 +192,46 @@ export const _adminProductsRepo = {
               },
             },
           },
+
+          category: {
+            columns: {
+              id: true,
+              name: true,
+            },
+            with: {
+              parent: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+
+          variants: {
+            columns: {
+              id: true,
+              overridePrice: true,
+              thumbnailMediaId: true,
+            },
+          },
+
+          options: {
+            columns: {
+              id: true,
+              name: true,
+            },
+            with: {
+              values: {
+                columns: {
+                  id: true,
+                  value: true,
+                  order: true,
+                },
+                orderBy: productOptionValues.order,
+              },
+            },
+          },
         },
       });
 
@@ -169,68 +240,120 @@ export const _adminProductsRepo = {
   },
 
   mutations: {
-    create: async (value: NewProduct) => {
+    createDeep: async ({
+      newProduct,
+      newProdcutMediaIds,
+      newProductOptions,
+      newVariants,
+      newSeo,
+    }: {
+      newProduct: NewProduct;
+      newProdcutMediaIds: number[];
+      newProductOptions: NewProductOption[];
+      newVariants: NewProductVariant[];
+      newSeo?: NewSeo;
+    }) => {
       return db.transaction(async (tx) => {
-        const product = await tx
+        const [product] = await tx
           .insert(products)
-          .values(value)
-          .returning({
-            id: products.id,
-            thumbnailMediaId: products.thumbnailMediaId,
-          })
-          .then(([product]) => product);
+          .values(newProduct)
+          .returning({ id: products.id });
 
         if (!product) {
-          return;
+          throw new Error("Failed to create product");
         }
 
-        if (product.thumbnailMediaId) {
-          await tx
-            .update(media)
-            .set({ ownerType: "PRODUCT", ownerId: product.id })
-            .where(eq(media.id, product.thumbnailMediaId));
+        const { id: productId } = product;
+
+        // create product media relations
+        await tx.insert(productsMedia).values(
+          newProdcutMediaIds.map((mediaId, index) => ({
+            productId,
+            mediaId,
+            order: index + 1,
+          })),
+        );
+
+        const valuesCuidToDbId = new Map<string, number>();
+
+        for (const o of newProductOptions) {
+          const { values: newOptionValues, ...newOption } = o;
+
+          const [option] = await tx
+            .insert(productOptions)
+            .values({
+              ...newOption,
+              productId,
+            })
+            .returning({ id: productOptions.id, name: productOptions.name });
+
+          if (!option) {
+            throw new Error("Failed to create product option");
+          }
+
+          const values = await tx
+            .insert(productOptionValues)
+            .values(
+              newOptionValues.map((value, index) => ({
+                value: value.value,
+                order: index + 1,
+                productOptionId: option.id,
+              })),
+            )
+            .returning({ id: productOptionValues.id });
+
+          if (!values || values.length === 0) {
+            throw new Error("Failed to create product option values");
+          }
+
+          // assuming the ids are the same as the order of the values
+          values.forEach((value, index) => {
+            valuesCuidToDbId.set(newOptionValues[index]!.id, value.id);
+          });
+        }
+
+        const variants = await tx
+          .insert(productVariants)
+          .values(
+            newVariants.map((variant) => ({
+              ...variant,
+              productId,
+            })),
+          )
+          .returning({ id: productVariants.id });
+
+        if (!variants || variants.length === 0) {
+          throw new Error("Failed to create product variants");
+        }
+
+        // link the option values to the variants
+        for (const [index, variant] of variants.entries()) {
+          const { optionValues, stock } = newVariants[index]!;
+
+          // link the option values to the variants
+          await tx.insert(productOptionValuesVariants).values(
+            Object.values(optionValues).map((value) => ({
+              productOptionValueId: valuesCuidToDbId.get(value.id)!,
+              productVariantId: variant.id,
+            })),
+          );
+
+          // create an inventory record for this variant
+          await tx.insert(inventoryItems).values({
+            variantId: variant.id,
+            quantity: stock,
+          });
+        }
+
+        // create a SEO record for this product
+        if (newSeo) {
+          await tx.insert(seo).values({
+            ...newSeo,
+            productId,
+          });
         }
 
         return product;
-      });
-    },
-
-    update: async (id: number, value: UpdateProduct) => {
-      return db
-        .update(products)
-        .set(value)
-        .where(eq(products.id, id))
-        .returning({ id: products.id })
-        .then(([result]) => result);
-    },
-
-    delete: async (id: number) => {
-      return db.transaction(async (tx) => {
-        const variantIds = await tx
-          .select({ id: productVariants.id })
-          .from(productVariants)
-          .where(eq(productVariants.productId, id))
-          .then((result) => result.map((row) => row.id));
-
-        // Delete product first - CASCADE will handle thumbnail nullification
-        await tx.delete(products).where(eq(products.id, id));
-
-        // Variants are deleted via ON DELETE CASCADE; remove variant-owned media (images, etc.)
-        if (variantIds.length > 0) {
-          await tx
-            .delete(media)
-            .where(
-              and(
-                inArray(media.ownerId, variantIds),
-                eq(media.ownerType, "PRODUCT_VARIANT"),
-              ),
-            );
-        }
-
-        // Delete product's owned media (thumbnail will be handled by CASCADE)
-        await tx
-          .delete(media)
-          .where(and(eq(media.ownerId, id), eq(media.ownerType, "PRODUCT")));
       });
     },
   },

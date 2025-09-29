@@ -18,7 +18,9 @@ export default async function EditProductPage({
   void api.admin.brands.getPage.prefetchInfinite({
     pageSize: 10,
   });
-  const product = await api.admin.products.findById({ id: parseInt(id) });
+  const product = await api.admin.products.queries.findById({
+    id: parseInt(id),
+  });
   if (!product) {
     return notFound();
   }
@@ -35,7 +37,7 @@ export default async function EditProductPage({
       </div>
 
       <Header
-        title={`Edit ${product.name}`}
+        title={`Edit ${product.title}`}
         description="Let's get this product looking good alright?"
         Icon={PackageIcon}
       />

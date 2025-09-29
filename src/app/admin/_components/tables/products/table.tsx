@@ -42,11 +42,11 @@ export function ProductsTable() {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery(
-    utils.admin.products.getPage.infiniteQueryOptions(
+    utils.admin.products.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
-          name: debouncedFilters.name ?? undefined,
+          title: debouncedFilters.title ?? undefined,
           brands: params.brands ?? undefined,
           categories: params.categories ?? undefined,
         },

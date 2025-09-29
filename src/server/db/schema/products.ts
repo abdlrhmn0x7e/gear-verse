@@ -15,6 +15,7 @@ import { brands } from "./brands";
 import { categories } from "./categories";
 import { media } from "./media";
 import { productsMedia } from "./products-media";
+import { seo } from "./seo";
 
 export const products = pgTable(
   "products",
@@ -25,6 +26,8 @@ export const products = pgTable(
 
     title: text("title").notNull(),
     price: integer("price").notNull(),
+    profit: integer("profit").notNull(),
+    margin: integer("margin").notNull(),
     summary: text("summary").notNull(),
     description: jsonb("description").$type<JSONContent>().notNull(),
     published: boolean("published").notNull().default(false),
@@ -32,7 +35,9 @@ export const products = pgTable(
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
-    }).references(() => media.id, { onDelete: "set null" }),
+    })
+      .references(() => media.id, { onDelete: "set null" })
+      .notNull(),
     categoryId: bigint("category_id", { mode: "number" })
       .notNull()
       .references(() => categories.id),
@@ -71,6 +76,11 @@ export const productRelations = relations(products, ({ one, many }) => ({
     references: [brands.id],
   }),
   options: many(productOptions),
+  variants: many(productVariants),
+  seo: one(seo, {
+    fields: [products.id],
+    references: [seo.productId],
+  }),
 }));
 
 export const productOptions = pgTable(
@@ -104,6 +114,9 @@ export const productOptionsRelations = relations(
     product: one(products, {
       fields: [productOptions.productId],
       references: [products.id],
+    }),
+    values: many(productOptionValues, {
+      relationName: "product_options_values",
     }),
     productsMedia: many(productsMedia, {
       relationName: "product_options_media",
@@ -156,10 +169,9 @@ export const productVariants = pgTable("product_variants", {
   productId: bigint("product_id", { mode: "number" })
     .references(() => products.id)
     .notNull(),
-  thumbnailMediaId: bigint("thumbnail_media_id", { mode: "number" }).references(
-    () => media.id,
-    { onDelete: "set null" },
-  ),
+  thumbnailMediaId: bigint("thumbnail_media_id", { mode: "number" })
+    .references(() => media.id, { onDelete: "set null" })
+    .notNull(),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")

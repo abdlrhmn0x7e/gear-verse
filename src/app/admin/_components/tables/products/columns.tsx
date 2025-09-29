@@ -12,7 +12,7 @@ import { ProductsTableActions } from "./actions";
 import { Badge } from "~/components/ui/badge";
 
 export const productColumns: ColumnDef<
-  RouterOutputs["admin"]["products"]["getPage"]["data"][number]
+  RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",
@@ -28,7 +28,7 @@ export const productColumns: ColumnDef<
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "title",
     cell: ({ row }) => {
       const ParentIcon = row.original.category.parent
         ? iconsMap.get(row.original.category.parent.icon)
@@ -38,13 +38,13 @@ export const productColumns: ColumnDef<
         <div className="flex items-center gap-3">
           <ImageWithFallback
             src={row.original.thumbnail?.url}
-            alt={row.original.name ?? "Product Thumbnail"}
+            alt={row.original.title ?? "Product Thumbnail"}
             width={40}
             height={40}
           />
 
           <div className="text-muted-foreground text-sm">
-            <p className="font-medium">{row.original.name}</p>
+            <p className="font-medium">{row.original.title}</p>
             <div className="flex items-center gap-1">
               {row.original.category.parent && (
                 <>

@@ -1,7 +1,9 @@
 import { AppError } from "~/lib/errors/app-error";
-import type { ProductsGetPageInput } from "@schemas/contracts/admin/products";
-import { paginate } from "~/server/application/helpers/pagination";
 import { data } from "~/server/data-access";
+import type { CreateProductInput } from "@schemas/entities";
+import type { ProductsGetPageInput } from "@schemas/contracts";
+import { paginate } from "~/server/application/helpers/pagination";
+import { generateSlug } from "~/lib/utils/slugs";
 
 export const _products = {
   queries: {
@@ -18,5 +20,30 @@ export const _products = {
       return product;
     },
   },
-  mutations: {},
+  mutations: {
+    createDeep: (input: CreateProductInput) => {
+      const { options, variants, seo, media, ...product } = input;
+
+      const [thumbnail, ...restMedia] = media;
+      if (!thumbnail?.mediaId) {
+        throw new AppError("Thumbnail media ID is required", "BAD_REQUEST");
+      }
+
+      return data.admin.products.mutations.createDeep({
+        newProduct: {
+          ...product,
+          slug: seo?.urlHandler ?? generateSlug(product.title),
+          thumbnailMediaId: thumbnail.mediaId,
+        },
+        newProdcutMediaIds: restMedia.map((m) => m.mediaId),
+        newProductOptions: options,
+        newVariants: variants.map((v) => ({
+          ...v,
+          thumbnail: undefined,
+          thumbnailMediaId: v.thumbnail.id,
+        })),
+        newSeo: seo,
+      });
+    },
+  },
 };

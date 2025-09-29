@@ -21,6 +21,7 @@ export type CategoryIconEnum = z.infer<typeof categoryIconEnum>;
 
 export const categoryEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
+
   name: z
     .string("Name is required")
     .min(1, "Name is required")

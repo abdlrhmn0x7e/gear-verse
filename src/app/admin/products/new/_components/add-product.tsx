@@ -9,10 +9,27 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
+import { api } from "~/trpc/react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function AddProduct() {
+  const router = useRouter();
+  const utils = api.useUtils();
+  const { mutate: createProduct, isPending: isCreatingProduct } =
+    api.admin.products.mutations.createDeep.useMutation({
+      onSuccess: () => {
+        toast.success("Product created successfully");
+        void utils.admin.products.queries.getPage.invalidate();
+        router.push("/admin/products");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
   function onSubmit(data: ProductFormValues) {
-    console.log(data);
+    createProduct(data);
   }
 
   return (
@@ -39,14 +56,18 @@ export function AddProduct() {
                 </p>
               </div>
 
-              <Button type="submit" form="product-form" disabled={false}>
+              <Button
+                type="submit"
+                form="product-form"
+                disabled={isCreatingProduct}
+              >
                 <SaveIcon size={16} />
                 Save Product
               </Button>
             </div>
           </motion.div>
 
-          {false && (
+          {isCreatingProduct && (
             <AnimatePresence>
               <motion.div
                 className="bg-background/80 z-50 rounded-md border px-4 py-2 backdrop-blur-sm"
@@ -60,13 +81,17 @@ export function AddProduct() {
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {false ? (
+                  {isCreatingProduct ? (
                     <Spinner />
                   ) : (
                     <CheckIcon className="size-6 text-green-500" />
                   )}
                   <div>
-                    <p className="flex-1 font-medium">{false}</p>
+                    <p className="flex-1 font-medium">
+                      {isCreatingProduct
+                        ? "Creating product..."
+                        : "Product created successfully"}
+                    </p>
                     <p className="text-muted-foreground text-sm">
                       Please be patient untill the process is complete.
                     </p>
