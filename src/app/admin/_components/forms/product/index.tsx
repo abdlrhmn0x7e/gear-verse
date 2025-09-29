@@ -45,6 +45,7 @@ import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
 import { TriangleAlertIcon } from "lucide-react";
+import { PriceInput } from "../../inputs/price-input";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -106,7 +107,6 @@ export function ProductForm({
     name: "options",
     keyName: "keyId",
   });
-  console.log("form values", form.getValues());
 
   return (
     <Form {...form}>
@@ -269,14 +269,14 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <Input type="number" min={0} {...field} />
+                      <PriceInput placeholder="0 dollarz" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 items-start gap-2">
                 <FormField
                   control={form.control}
                   name="profit"
@@ -284,7 +284,7 @@ export function ProductForm({
                     <FormItem>
                       <FormLabel>Profit</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} {...field} />
+                        <PriceInput {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

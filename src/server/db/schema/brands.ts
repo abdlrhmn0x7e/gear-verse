@@ -1,4 +1,11 @@
-import { bigint, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigint,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { media } from "./media";
 import { relations } from "drizzle-orm";
 
@@ -8,11 +15,12 @@ export const brands = pgTable(
     id: bigint("id", { mode: "number" })
       .primaryKey()
       .generatedAlwaysAsIdentity(),
-
-    name: text("name").notNull(),
     logoMediaId: bigint("logo_media_id", { mode: "number" })
       .notNull()
       .references(() => media.id),
+
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -20,7 +28,10 @@ export const brands = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [index("brands_logo_media_id_idx").on(table.logoMediaId)],
+  (table) => [
+    index("brands_logo_media_id_idx").on(table.logoMediaId),
+    uniqueIndex("brands_slug_unique").on(table.slug),
+  ],
 );
 
 export const brandRelations = relations(brands, ({ one }) => ({

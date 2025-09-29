@@ -1,21 +1,22 @@
-import {
-  categoryEntitySchema,
-  categoryTreeSchema,
-  type Category,
-} from "~/lib/schemas/entities/category";
+import { categoryEntitySchema } from "~/lib/schemas/entities/category";
 import { adminProcedure, createTRPCRouter, publicProcedure } from "../../trpc";
-import { z } from "zod";
-import { generateSlug } from "~/lib/utils/slugs";
+import { errorMap } from "../../error-map";
+import { tryCatch } from "~/lib/utils/try-catch";
 
 export const categoriesRouter = createTRPCRouter({
   /**
    * Queries
    */
-  findAll: publicProcedure
-    .output(z.array(categoryTreeSchema))
-    .query(({ ctx }) => {
-      return ctx.db.admin.categories.queries.findAll();
-    }),
+  findAll: publicProcedure.query(async ({ ctx }) => {
+    const { data, error } = await tryCatch(
+      ctx.app.admin.categories.queries.findAll(),
+    );
+    if (error) {
+      throw errorMap(error);
+    }
+
+    return data;
+  }),
 
   /**
    * Mutations
@@ -25,17 +26,12 @@ export const categoriesRouter = createTRPCRouter({
       categoryEntitySchema.omit({ id: true, slug: true, created_at: true }),
     )
     .mutation(async ({ ctx, input }) => {
-      let parentCategory: Category | undefined = undefined;
-
-      if (input.parent_id) {
-        parentCategory = await ctx.db.admin.categories.queries.findById(
-          input.parent_id,
-        );
+      const { data, error } = await tryCatch(
+        ctx.app.admin.categories.mutations.create(input),
+      );
+      if (error) {
+        throw errorMap(error);
       }
-
-      return await ctx.db.admin.categories.mutations.create({
-        ...input,
-        slug: generateSlug(`${input.name} ${parentCategory?.name ?? ""}`),
-      });
+      return data;
     }),
 });

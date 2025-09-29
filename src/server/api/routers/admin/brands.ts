@@ -1,9 +1,6 @@
 import { adminProcedure, createTRPCRouter } from "../../trpc";
 import { brandsGetPageInputSchema } from "@schemas/contracts/admin/brands";
-import {
-  brandEntitySchema,
-  createBrandInputSchema,
-} from "~/lib/schemas/entities/brand";
+import { createBrandInputSchema } from "~/lib/schemas/entities/brand";
 import { errorMap } from "../../error-map";
 import { tryCatch } from "~/lib/utils/try-catch";
 

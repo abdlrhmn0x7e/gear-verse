@@ -64,12 +64,14 @@ export const _adminCategoriesRepo = {
 
       // fuck the ORM, use raw SQL
       const result = (await db.execute(query))[0]!.tree as string;
-      return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
+      return JSON.parse(result ?? "[]") as unknown[]; // this is validated on the application layer
     },
 
     findById(id: number) {
       return db
-        .select()
+        .select({
+          slug: categories.slug,
+        })
         .from(categories)
         .where(eq(categories.id, id))
         .limit(1)

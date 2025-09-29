@@ -1,7 +1,8 @@
 import type { BrandsGetPageInput } from "@schemas/contracts/admin/brands";
 import type { CreateBrandInput } from "@schemas/entities/brand";
-import { paginate } from "../helpers/pagination";
+import { generateSlug } from "~/lib/utils/slugs";
 import { data } from "~/server/data-access";
+import { paginate } from "../helpers/pagination";
 
 export const _brands = {
   queries: {
@@ -12,7 +13,10 @@ export const _brands = {
 
   mutations: {
     create: (input: CreateBrandInput) => {
-      return data.admin.brands.mutations.create(input);
+      return data.admin.brands.mutations.create({
+        ...input,
+        slug: generateSlug(input.name),
+      });
     },
   },
 };

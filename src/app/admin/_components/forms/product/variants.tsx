@@ -20,7 +20,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
   const options = useWatch({ control, name: "options" });
   const variants = useWatch({ control, name: "variants" });
   const debouncedOptions = useDebounce(options, 500);
-  const [groubByOption, setGroubByOption] = useState<string>(
+  const [groupByOption, setGroupByOption] = useState<string>(
     debouncedOptions?.[0]?.name ?? "",
   );
 
@@ -33,6 +33,8 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
         string,
         { id: string; value: string; optionName: string }
       >();
+
+    setGroupByOption(debouncedOptions[0]?.name ?? "");
 
     return new Map(
       debouncedOptions.flatMap((option) =>
@@ -112,7 +114,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 px-2">
         <Label className="text-muted-foreground font-medium">Group by</Label>
-        <Select value={groubByOption} onValueChange={setGroubByOption}>
+        <Select value={groupByOption} onValueChange={setGroupByOption}>
           <SelectTrigger size="sm">
             <SelectValue placeholder="Select an option" />
           </SelectTrigger>
@@ -129,7 +131,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
         </Select>
       </div>
 
-      <VariantsTable data={variants} groupByOption={groubByOption} />
+      <VariantsTable data={variants} groupByOption={groupByOption} />
     </div>
   );
 }

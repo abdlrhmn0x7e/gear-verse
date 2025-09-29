@@ -4,7 +4,9 @@ export const productEntitySchema = z.object({
   id: z.number("ID must be a number").positive("ID must be positive"),
 
   title: z.string("Title is required").min(1, "Title is too short"),
-  price: z.number("Price is required").min(1, "Price is required"),
+  price: z.coerce
+    .number<number>("Price is required")
+    .min(1, "Price is required"),
   slug: z.string("Slug is required").min(1, "Slug is too short"),
   summary: z.string("Summary is required").min(1, "Summary is too short"),
   description: z.record(z.string(), z.unknown(), "Description is required"),
@@ -18,7 +20,6 @@ export const productEntitySchema = z.object({
   createdAt: z.coerce.date<Date>("Created at must be a date"),
   updatedAt: z.coerce.date<Date>("Updated at must be a date"),
 });
-
 export type Product = z.infer<typeof productEntitySchema>;
 
 export const productMediaEntitySchema = z.object({
@@ -36,6 +37,7 @@ export type ProductMedia = z.infer<typeof productMediaEntitySchema>;
 export const createProductMediaInputSchema = productMediaEntitySchema.omit({
   id: true,
   productId: true,
+  slug: true,
   order: true, // whatever the order the array is in, that's the order
 });
 export type CreateProductMediaInput = z.infer<
@@ -57,8 +59,8 @@ export const createProductVariantInputSchema = z.object({
       .positive("Thumbnail media ID must be positive"),
     url: z.url("Thumbnail media URL is required"),
   }),
-  overridePrice: z
-    .number("Price is required")
+  overridePrice: z.coerce
+    .number<number>("Price is required")
     .nonnegative("Price must be nonnegative")
     .optional(),
   stock: z.number("Stock is required").nonnegative("Stock must be nonnegative"),
@@ -70,15 +72,16 @@ export type CreateProductVariantInput = z.infer<
 export const createProductInputSchema = productEntitySchema
   .omit({
     id: true,
+    slug: true,
     createdAt: true,
     updatedAt: true,
   })
   .extend({
-    profit: z
-      .number("Profit is required")
+    profit: z.coerce
+      .number<number>("Profit is required")
       .nonnegative("Profit must be nonnegative"),
-    margin: z
-      .number("Margin is required")
+    margin: z.coerce
+      .number<number>("Margin is required")
       .nonnegative("Margin must be nonnegative")
       .max(100, "Margin must be less than or equal to 100"),
     seo: z
