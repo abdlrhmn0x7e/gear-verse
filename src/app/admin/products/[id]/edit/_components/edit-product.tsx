@@ -19,10 +19,11 @@ export function EditProduct({
   function onSubmit(data: ProductFormValues) {
     console.log(data);
   }
+  console.log("product", product);
 
   return (
     <div>
-      <ProductForm onSubmit={onSubmit} defaultValues={{}} />
+      <ProductForm onSubmit={onSubmit} defaultValues={product} />
 
       <motion.div
         className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"

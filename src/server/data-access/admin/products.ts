@@ -193,6 +193,18 @@ export const _adminProductsRepo = {
             },
           },
 
+          media: {
+            columns: {},
+            with: {
+              media: {
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
+            },
+          },
+
           category: {
             columns: {
               id: true,
@@ -210,9 +222,36 @@ export const _adminProductsRepo = {
 
           variants: {
             columns: {
-              id: true,
               overridePrice: true,
-              thumbnailMediaId: true,
+            },
+            with: {
+              thumbnail: {
+                columns: {
+                  id: true,
+                  url: true,
+                },
+              },
+
+              optionValues: {
+                columns: {},
+                with: {
+                  optionValue: {
+                    with: {
+                      option: {
+                        columns: {
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+
+              stock: {
+                columns: {
+                  quantity: true,
+                },
+              },
             },
           },
 
@@ -226,7 +265,6 @@ export const _adminProductsRepo = {
                 columns: {
                   id: true,
                   value: true,
-                  order: true,
                 },
                 orderBy: productOptionValues.order,
               },
@@ -235,7 +273,27 @@ export const _adminProductsRepo = {
         },
       });
 
-      return product;
+      return {
+        ...product,
+        media: product?.media.map((m) => ({
+          mediaId: m.media.id,
+          url: m.media.url,
+        })),
+        variants: product?.variants.map((v) => ({
+          ...v,
+          overridePrice: v.overridePrice ?? 0,
+          stock: v.stock?.quantity ?? 0,
+          optionValues: Object.fromEntries(
+            v.optionValues.map((ov) => [
+              ov.optionValue.option.name,
+              {
+                id: ov.optionValue.id,
+                value: ov.optionValue.value,
+              },
+            ]),
+          ),
+        })),
+      };
     },
   },
 

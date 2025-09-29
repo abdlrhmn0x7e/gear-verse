@@ -40,15 +40,14 @@ export const productsMedia = pgTable(
   ],
 );
 export const productsMediaRelations = relations(productsMedia, ({ one }) => ({
-  media: one(media, {
-    fields: [productsMedia.mediaId],
-    references: [media.id],
-    relationName: "products_media",
-  }),
-
   product: one(products, {
     fields: [productsMedia.productId],
     references: [products.id],
     relationName: "products_media",
+  }),
+  media: one(media, {
+    fields: [productsMedia.mediaId],
+    references: [media.id],
+    relationName: "media_products",
   }),
 }));

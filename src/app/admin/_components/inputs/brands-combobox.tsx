@@ -144,6 +144,7 @@ export function BrandsCombobox({
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
           disabled={disabled}
+          suppressHydrationWarning
         >
           {value ? (
             renderValue(value)

@@ -16,6 +16,7 @@ import { categories } from "./categories";
 import { media } from "./media";
 import { productsMedia } from "./products-media";
 import { seo } from "./seo";
+import { inventoryItems } from "./inventory";
 
 export const products = pgTable(
   "products",
@@ -115,12 +116,7 @@ export const productOptionsRelations = relations(
       fields: [productOptions.productId],
       references: [products.id],
     }),
-    values: many(productOptionValues, {
-      relationName: "product_options_values",
-    }),
-    productsMedia: many(productsMedia, {
-      relationName: "product_options_media",
-    }),
+    values: many(productOptionValues),
   }),
 );
 
@@ -191,6 +187,7 @@ export const productVariantsRelations = relations(
       references: [media.id],
     }),
     optionValues: many(productOptionValuesVariants),
+    stock: one(inventoryItems),
   }),
 );
 

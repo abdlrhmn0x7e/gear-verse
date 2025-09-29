@@ -29,10 +29,17 @@ import { verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { AnimatePresence, motion } from "motion/react";
 import { Badge } from "~/components/ui/badge";
 import { useDebounce } from "~/hooks/use-debounce";
-import {
-  SwapableContext,
-  SwapableItemWithHandle,
-} from "../../swapable-context";
+import dynamic from "next/dynamic";
+
+const SwapableContext = dynamic(
+  () => import("../../swapable-context").then((m) => m.SwapableContext),
+  { ssr: false },
+);
+
+const SwapableItemWithHandle = dynamic(
+  () => import("../../swapable-context").then((m) => m.SwapableItemWithHandle),
+  { ssr: false },
+);
 
 import type { ProductFormValues } from ".";
 
@@ -42,20 +49,21 @@ export function Options({
   remove,
   swap,
 }: {
-  options: FieldArrayWithId<ProductFormValues, "options", "id">[];
-  add: (id: string) => void;
+  options: FieldArrayWithId<ProductFormValues, "options", "keyId">[];
+  add: (id: string | number) => void;
   remove: (index: number) => void;
   swap: UseFieldArraySwap;
 }) {
-  const [openOptions, setOpenOptions] = useState<string[]>([]);
+  const [openOptions, setOpenOptions] = useState<(string | number)[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  function toggleOpen(id: string) {
+  function toggleOpen(id: string | number) {
     setOpenOptions((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   }
 
-  function handleRemove(id: string) {
+  function handleRemove(id: string | number) {
     setOpenOptions((prev) => prev.filter((i) => i !== id));
     remove(options.findIndex((o) => o.id === id));
   }
@@ -79,6 +87,10 @@ export function Options({
     add(newId);
   }
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (options.length === 0) {
     return (
       <div className="space-y-6">
@@ -98,31 +110,33 @@ export function Options({
   }
 
   return (
-    <div className="space-y-3">
-      <SwapableContext
-        items={options.map((option) => option.id)}
-        strategy={verticalListSortingStrategy}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
-      >
-        {options.map((option, index) => (
-          <SwapableItemWithHandle
-            key={option.id}
-            id={option.id}
-            disabled={openOptions.length > 0}
-            className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
-          >
-            <Option
+    <div className="space-y-3" suppressHydrationWarning>
+      {mounted ? (
+        <SwapableContext
+          items={options.map((option) => option.id)}
+          strategy={verticalListSortingStrategy}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          {options.map((option, index) => (
+            <SwapableItemWithHandle
               key={option.id}
               id={option.id}
-              index={index}
-              open={openOptions.includes(option.id)}
-              toggleOpen={() => toggleOpen(option.id)}
-              remove={() => handleRemove(option.id)}
-            />
-          </SwapableItemWithHandle>
-        ))}
-      </SwapableContext>
+              disabled={openOptions.length > 0}
+              className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
+            >
+              <Option
+                key={option.id}
+                id={option.id}
+                index={index}
+                open={openOptions.includes(option.id)}
+                toggleOpen={() => toggleOpen(option.id)}
+                remove={() => handleRemove(option.id)}
+              />
+            </SwapableItemWithHandle>
+          ))}
+        </SwapableContext>
+      ) : null}
 
       <Button type="button" variant="ghost" onClick={handleAddOption}>
         <PlusCircleIcon />
@@ -231,6 +245,11 @@ function OptionFields({ index }: { index: number }) {
   const addValueInputRef = useRef<HTMLInputElement>(null);
 
   const form = useFormContext<ProductFormValues>();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const debouncedAddValue = useDebounce(addValue, 500);
 
@@ -290,34 +309,38 @@ function OptionFields({ index }: { index: number }) {
 
       <div className="space-y-2">
         <Label>Option Values</Label>
-        <SwapableContext
-          items={valueFields.map((value) => value.id)}
-          strategy={verticalListSortingStrategy}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          {valueFields.map((value, valueIndex) => (
-            <SwapableItemWithHandle key={value.id} id={value.id}>
-              <OptionValueField
-                index={index}
-                valueIndex={valueIndex}
-                valueFields={valueFields}
-                appendValue={appendValue}
-                removeValue={removeValue}
-              />
-            </SwapableItemWithHandle>
-          ))}
+        <div suppressHydrationWarning>
+          {mounted ? (
+            <SwapableContext
+              items={valueFields.map((value) => value.id)}
+              strategy={verticalListSortingStrategy}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              {valueFields.map((value, valueIndex) => (
+                <SwapableItemWithHandle key={value.id} id={value.id}>
+                  <OptionValueField
+                    index={index}
+                    valueIndex={valueIndex}
+                    valueFields={valueFields}
+                    appendValue={appendValue}
+                    removeValue={removeValue}
+                  />
+                </SwapableItemWithHandle>
+              ))}
 
-          <div className="ml-6">
-            <Input
-              placeholder="Add Another Value"
-              ref={addValueInputRef}
-              value={addValue}
-              className="w-full"
-              onChange={(e) => setAddValue(e.target.value)}
-            />
-          </div>
-        </SwapableContext>
+              <div className="ml-6">
+                <Input
+                  placeholder="Add Another Value"
+                  ref={addValueInputRef}
+                  value={addValue}
+                  className="w-full"
+                  onChange={(e) => setAddValue(e.target.value)}
+                />
+              </div>
+            </SwapableContext>
+          ) : null}
+        </div>
       </div>
     </div>
   );

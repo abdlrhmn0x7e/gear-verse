@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cartesianProduct } from "~/lib/utils/cartesian-product";
 import { useDebounce } from "~/hooks/use-debounce";
 import { VariantsTable } from "./variants-table";
+import type { VariantsTableData } from "./variants-table";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -18,11 +19,14 @@ import {
 export function Variants({ control }: { control: Control<ProductFormValues> }) {
   const form = useFormContext<ProductFormValues>();
   const options = useWatch({ control, name: "options" });
-  const variants = useWatch({ control, name: "variants" });
+  const variants = useWatch({ control, name: "variants" }) as
+    | VariantsTableData[]
+    | undefined;
   const debouncedOptions = useDebounce(options, 500);
   const [groupByOption, setGroupByOption] = useState<string>(
     debouncedOptions?.[0]?.name ?? "",
   );
+  const [mounted, setMounted] = useState(false);
 
   const valuesMap = useMemo(() => {
     if (
@@ -34,8 +38,6 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
         { id: string; value: string; optionName: string }
       >();
 
-    setGroupByOption(debouncedOptions[0]?.name ?? "");
-
     return new Map(
       debouncedOptions.flatMap((option) =>
         option.values.map((value) => [
@@ -45,6 +47,18 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       ),
     );
   }, [debouncedOptions]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const firstName = debouncedOptions?.[0]?.name ?? "";
+    if (firstName && firstName !== groupByOption) {
+      setGroupByOption(firstName);
+    }
+  }, [debouncedOptions, groupByOption, mounted]);
 
   const combinations = useMemo(() => {
     if (debouncedOptions.length === 0) return [];
@@ -95,20 +109,25 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
         .sort()
         .join("::");
       const existing = oldByKey.get(key);
-      return existing
-        ? { ...existing, optionValues: variant.optionValues }
-        : variant;
+
+      return {
+        optionValues: variant.optionValues, // always use string IDs from computed
+        thumbnail: existing?.thumbnail ?? { id: 0, url: "" },
+        stock: existing?.stock ?? 0,
+        overridePrice: existing?.overridePrice,
+      };
     });
 
     return merged;
   }, [combinations, form, valuesMap]);
 
   useEffect(() => {
+    if (!mounted) return;
     form.setValue("variants", computedVariants);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computedVariants]);
+  }, [computedVariants, mounted]);
 
-  if (!variants || variants.length === 0) return null;
+  if (!mounted || !variants || variants.length === 0) return null;
 
   return (
     <div className="space-y-2">

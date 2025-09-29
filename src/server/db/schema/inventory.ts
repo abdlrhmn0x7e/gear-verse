@@ -6,7 +6,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { productVariants } from "./products";
 
 export const inventoryItems = pgTable(
@@ -32,3 +32,10 @@ export const inventoryItems = pgTable(
     check("inventory_quantity_non_negative", sql`${table.quantity} >= 0`),
   ],
 );
+
+export const inventoryItemsRelations = relations(inventoryItems, ({ one }) => ({
+  variant: one(productVariants, {
+    fields: [inventoryItems.variantId],
+    references: [productVariants.id],
+  }),
+}));

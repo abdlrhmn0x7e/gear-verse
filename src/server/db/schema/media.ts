@@ -24,5 +24,5 @@ export const media = pgTable("media", {
 });
 
 export const mediaRelations = relations(media, ({ many }) => ({
-  productsMedia: many(productsMedia),
+  products: many(productsMedia, { relationName: "products_media" }),
 }));

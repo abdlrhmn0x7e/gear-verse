@@ -82,7 +82,7 @@ export function VariantsTable({
         minSize: 200,
         maxSize: 400,
         aggregationFn:
-          "getChildRows" as unknown as AggregationFn<VariantsTableData>, // TODO: fix this
+          "getChildRows" as unknown as AggregationFn<VariantsTableData>, //
         aggregatedCell: ({ row, getValue }) => {
           const childRows = getValue<VariantsTableData[]>();
           const optionValue =
@@ -242,6 +242,7 @@ export function VariantsTable({
       getChildRows: (_, __, childRows) =>
         childRows.map((row) => row.original as VariantsTableData),
     },
+    autoResetPageIndex: false,
   });
 
   return (

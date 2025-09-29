@@ -48,7 +48,7 @@ export const createProductVariantInputSchema = z.object({
   optionValues: z.record(
     z.string(),
     z.object({
-      id: z.cuid("Value ID must be a cuid"),
+      id: z.cuid("Value ID must be a cuid").or(z.number().positive()),
       value: z.string("Value must be a string"),
     }),
   ),
@@ -73,7 +73,7 @@ export const createProductOptionInputSchema = z.object({
   name: z.string("name must be a string").min(1, "Name is too short"),
   values: z.array(
     z.object({
-      id: z.cuid("id must be a cuid"),
+      id: z.cuid("id must be a cuid").or(z.number().positive()),
       value: z.string("value must be a string").min(1, "Value is too short"),
     }),
   ),
