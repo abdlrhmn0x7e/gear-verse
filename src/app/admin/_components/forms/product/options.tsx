@@ -309,7 +309,7 @@ function OptionFields({ index }: { index: number }) {
 
       <div className="space-y-2">
         <Label>Option Values</Label>
-        <div suppressHydrationWarning>
+        <div className="space-y-2" suppressHydrationWarning>
           {mounted ? (
             <SwapableContext
               items={valueFields.map((value) => value.id)}

@@ -47,7 +47,6 @@ import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
 import { TriangleAlertIcon } from "lucide-react";
 import { PriceInput } from "../../inputs/price-input";
-import type { SelectedMedia } from "~/app/admin/_stores/media/store";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -70,11 +69,9 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 export function ProductForm({
   onSubmit,
   defaultValues,
-  defaultSelectedMedia,
 }: {
   onSubmit: (data: ProductFormValues) => void;
   defaultValues?: Partial<ProductFormValues>;
-  defaultSelectedMedia?: SelectedMedia[];
 }) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
