@@ -16,14 +16,34 @@ export function EditProduct({
 }: {
   product: RouterOutputs["admin"]["products"]["queries"]["findById"];
 }) {
-  function onSubmit(data: ProductFormValues) {
-    console.log(data);
+  function onSubmit(data: Partial<ProductFormValues>) {
+    console.log("data", data);
   }
-  console.log("product", product);
 
   return (
     <div>
-      <ProductForm onSubmit={onSubmit} defaultValues={product} />
+      <ProductForm
+        onSubmitPartial={onSubmit}
+        defaultValues={{
+          title: product.title,
+          summary: product.summary,
+          description: product.description,
+
+          published: product.published,
+          price: product.price,
+          profit: product.profit,
+          margin: product.margin,
+
+          categoryId: product.categoryId,
+          brandId: product.brandId,
+
+          seo: product.seo,
+
+          media: product.media,
+          options: product.options,
+          variants: product.variants,
+        }}
+      />
 
       <motion.div
         className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"

@@ -32,7 +32,7 @@ export default async function AdminProductsPage({
         />
 
         <Button size="lg" asChild>
-          <Link href="/admin/products/add">
+          <Link href="/admin/products/new">
             <PackagePlusIcon />
             Add Product
           </Link>

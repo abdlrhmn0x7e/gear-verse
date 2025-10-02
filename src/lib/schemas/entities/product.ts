@@ -45,20 +45,18 @@ export type CreateProductMediaInput = z.infer<
 >;
 
 export const createProductVariantInputSchema = z.object({
+  thumbnail: z.object({
+    id: z.number().positive(),
+    url: z.string("Thumbnail URL must be a string"),
+  }),
   optionValues: z.record(
     z.string(),
     z.object({
-      id: z.cuid("Value ID must be a cuid").or(z.number().positive()),
+      id: z.number().positive(),
       value: z.string("Value must be a string"),
     }),
   ),
 
-  thumbnail: z.object({
-    id: z
-      .number("Thumbnail media ID is required")
-      .positive("Thumbnail media ID must be positive"),
-    url: z.url("Thumbnail media URL is required"),
-  }),
   overridePrice: z.coerce
     .number<number>("Price is required")
     .nonnegative("Price must be nonnegative")
@@ -73,7 +71,7 @@ export const createProductOptionInputSchema = z.object({
   name: z.string("name must be a string").min(1, "Name is too short"),
   values: z.array(
     z.object({
-      id: z.cuid("id must be a cuid").or(z.number().positive()),
+      id: z.number().positive(),
       value: z.string("value must be a string").min(1, "Value is too short"),
     }),
   ),
@@ -108,6 +106,7 @@ export const createProductInputSchema = productEntitySchema
           ),
         metaDescription: z.string("Meta description is required"),
       })
+      .partial()
       .optional(),
     media: z.array(createProductMediaInputSchema),
     options: z

@@ -1,6 +1,5 @@
 "use client";
 
-import cuid from "cuid";
 import {
   useFieldArray,
   useFormContext,
@@ -42,6 +41,7 @@ const SwapableItemWithHandle = dynamic(
 );
 
 import type { ProductFormValues } from ".";
+import { generateRandomId } from "~/lib/utils/generate-random-id";
 
 export function Options({
   options,
@@ -50,20 +50,20 @@ export function Options({
   swap,
 }: {
   options: FieldArrayWithId<ProductFormValues, "options", "keyId">[];
-  add: (id: string | number) => void;
+  add: (id: number) => void;
   remove: (index: number) => void;
   swap: UseFieldArraySwap;
 }) {
   const [openOptions, setOpenOptions] = useState<(string | number)[]>([]);
   const [mounted, setMounted] = useState(false);
 
-  function toggleOpen(id: string | number) {
+  function toggleOpen(id: number) {
     setOpenOptions((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   }
 
-  function handleRemove(id: string | number) {
+  function handleRemove(id: number) {
     setOpenOptions((prev) => prev.filter((i) => i !== id));
     remove(options.findIndex((o) => o.id === id));
   }
@@ -82,7 +82,7 @@ export function Options({
   }
 
   function handleAddOption() {
-    const newId = cuid();
+    const newId = generateRandomId();
     setOpenOptions((prev) => [...prev, newId]);
     add(newId);
   }
@@ -258,7 +258,7 @@ function OptionFields({ index }: { index: number }) {
       const option = form.getValues("options")[index];
       if (!option) return;
 
-      const valueId = cuid();
+      const valueId = generateRandomId();
 
       appendValue(
         { id: valueId, value: debouncedAddValue },

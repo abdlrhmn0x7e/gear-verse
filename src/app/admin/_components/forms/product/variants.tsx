@@ -34,8 +34,8 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       debouncedOptions[0]?.values[0]?.value === ""
     )
       return new Map<
-        string,
-        { id: string; value: string; optionName: string }
+        number,
+        { id: number; value: string; optionName: string }
       >();
 
     return new Map(
@@ -74,7 +74,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
   const computedVariants = useMemo(() => {
     if (valuesMap.size === 0) return [];
 
-    const computed = combinations.map((combination: string[] | string) => {
+    const computed = combinations.map((combination: number[] | number) => {
       const ids = Array.isArray(combination) ? combination : [combination];
       const optionValues = Object.fromEntries(
         ids.map((id) => {
@@ -111,7 +111,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       const existing = oldByKey.get(key);
 
       return {
-        optionValues: variant.optionValues, // always use string IDs from computed
+        optionValues: variant.optionValues,
         thumbnail: existing?.thumbnail ?? { id: 0, url: "" },
         stock: existing?.stock ?? 0,
         overridePrice: existing?.overridePrice,
@@ -119,11 +119,12 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
     });
 
     return merged;
-  }, [combinations, form, valuesMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinations, valuesMap]);
 
   useEffect(() => {
     if (!mounted) return;
-    form.setValue("variants", computedVariants);
+    form.setValue("variants", computedVariants, { shouldDirty: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computedVariants, mounted]);
 

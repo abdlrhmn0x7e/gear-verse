@@ -70,7 +70,7 @@ export function BrandsCombobox({
         className="justify-between"
         disabled
       >
-        <div className="flex items-center justify-start gap-2">
+        <div className="flex items-center gap-2">
           <Spinner size="small" />
           Loading brands...
         </div>
@@ -88,7 +88,7 @@ export function BrandsCombobox({
         className="justify-between"
         disabled
       >
-        <div className="flex items-center justify-start gap-2">
+        <div className="flex items-center gap-2">
           <XCircleIcon size="small" />
           Error loading brands...
         </div>
@@ -99,14 +99,8 @@ export function BrandsCombobox({
 
   if (!brands.pages) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className="justify-between"
-        disabled
-      >
-        <div className="flex items-center justify-start gap-2">
+      <Button variant="outline" role="combobox" aria-expanded={open} disabled>
+        <div className="flex items-center gap-2">
           <XCircleIcon size="small" />
           No brands found...
         </div>
@@ -137,14 +131,13 @@ export function BrandsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild suppressHydrationWarning>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
           disabled={disabled}
-          suppressHydrationWarning
         >
           {value ? (
             renderValue(value)

@@ -39,7 +39,6 @@ import { FileDropzone } from "../../inputs/file-dropzone";
 import { MediaFields } from "./media";
 import { Options } from "./options";
 import { Variants } from "./variants";
-import cuid from "cuid";
 import { BrandsCombobox } from "../../inputs/brands-combobox";
 import { CategoriesCombobox } from "../../inputs/categories-combobox";
 import { env } from "~/env";
@@ -47,6 +46,7 @@ import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
 import { TriangleAlertIcon } from "lucide-react";
 import { PriceInput } from "../../inputs/price-input";
+import { generateRandomId } from "~/lib/utils/generate-random-id";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -60,17 +60,61 @@ const productFormSchema = createProductInputSchema
     ),
     options: z.array(
       createProductOptionInputSchema.extend({
-        id: z.cuid("id must be a cuid").or(z.number().positive()),
+        id: z.number().positive(),
       }),
     ),
   });
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
+export const getDirtyFields = <
+  TData extends
+    | Record<keyof TDirtyItems, unknown>
+    | Record<keyof TDirtyItems, undefined>,
+  TDirtyItems extends Record<string, unknown>,
+>(
+  formValues: TData,
+  dirtyItems: TDirtyItems,
+): Partial<TData> => {
+  return Object.entries(dirtyItems).reduce((dirtyData, [key, value]) => {
+    const formValue = formValues[key];
+    if (value === false) return dirtyData;
+    if (value === true) return { ...dirtyData, [key]: formValue };
+
+    const child = getDirtyFields(
+      formValues[key] as TData,
+      dirtyItems[key] as TDirtyItems,
+    );
+
+    if (typeof child === "object" && Object.keys(child).length === 0) {
+      return dirtyData;
+    }
+
+    // if the form value is an array, return the whole array
+    if (Array.isArray(formValue)) {
+      return {
+        ...dirtyData,
+        [key]: formValue,
+      };
+    }
+
+    if (Array.isArray(child) && child.length === 0) {
+      return dirtyData;
+    }
+
+    return {
+      ...dirtyData,
+      [key]: child,
+    };
+  }, {});
+};
+
 export function ProductForm({
   onSubmit,
+  onSubmitPartial,
   defaultValues,
 }: {
-  onSubmit: (data: ProductFormValues) => void;
+  onSubmit?: (data: ProductFormValues) => void;
+  onSubmitPartial?: (data: Partial<ProductFormValues>) => void;
   defaultValues?: Partial<ProductFormValues>;
 }) {
   const form = useForm<ProductFormValues>({
@@ -94,6 +138,7 @@ export function ProductForm({
       },
     },
   });
+  console.log("errors", form.formState.errors);
   const {
     fields: mediaFields,
     insert: insertMedia,
@@ -114,11 +159,23 @@ export function ProductForm({
     keyName: "keyId",
   });
 
+  function handleSubmit(data: ProductFormValues) {
+    if (defaultValues) {
+      console.log("dirty fields", form.formState.dirtyFields);
+      const _data = getDirtyFields(data, form.formState.dirtyFields);
+
+      onSubmitPartial?.(_data);
+      return;
+    }
+
+    onSubmit?.(data);
+  }
+
   return (
     <Form {...form}>
       <form
         id="product-form"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3"
       >
         <div className="space-y-8 lg:col-span-2">
@@ -216,7 +273,7 @@ export function ProductForm({
                 <Options
                   options={optionFields}
                   add={(id) => {
-                    const valueId = cuid();
+                    const valueId = generateRandomId();
 
                     appendOption({
                       id,

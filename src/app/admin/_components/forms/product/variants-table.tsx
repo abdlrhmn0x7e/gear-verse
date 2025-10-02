@@ -37,7 +37,7 @@ import { PriceInput } from "../../inputs/price-input";
 import { cn } from "~/lib/utils";
 
 export type VariantsTableData = {
-  optionValues: Record<string, { id: string; value: string }>;
+  optionValues: Record<string, { id: number; value: string }>;
   thumbnail: { id: number; url: string };
   overridePrice?: number;
   stock: number;
@@ -352,7 +352,7 @@ function VariantMediaDialog({ index }: { index: number }) {
           type="button"
           className={cn(
             "group hover:bg-muted flex size-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed transition-all hover:opacity-80",
-            form.formState.errors.variants?.[index]?.thumbnail?.url &&
+            form.formState.errors.variants?.[index]?.thumbnail &&
               "border-destructive",
           )}
           onClick={(e) => e.stopPropagation()}

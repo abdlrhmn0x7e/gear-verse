@@ -33,6 +33,22 @@ type NewProductVariant = Omit<
 };
 type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
 
+type UpdateProduct = Partial<NewProduct> & {
+  id: number;
+};
+type UpdateProductOption = Partial<NewProductOption> & {
+  id: number;
+};
+type UpdateProductOptionValue = Partial<NewProductOptionValue> & {
+  id: string;
+};
+type UpdateProductVariant = Partial<NewProductVariant> & {
+  id: number;
+};
+type UpdateSeo = Partial<NewSeo> & {
+  id: number;
+};
+
 export const _adminProductsRepo = {
   queries: {
     findAll: async () => {
@@ -171,6 +187,15 @@ export const _adminProductsRepo = {
           createdAt: true,
         },
         with: {
+          seo: {
+            columns: {
+              id: true,
+              pageTitle: true,
+              urlHandler: true,
+              metaDescription: true,
+            },
+          },
+
           thumbnail: {
             columns: {
               id: true,
@@ -413,6 +438,22 @@ export const _adminProductsRepo = {
 
         return product;
       });
+    },
+
+    editDeep: async ({
+      updatedProduct,
+      updatedProdcutMediaIds,
+      updatedProductOptions,
+      updatedVariants,
+      updatedSeo,
+    }: {
+      updatedProduct: UpdateProduct;
+      updatedProdcutMediaIds: number[];
+      updatedProductOptions: UpdateProductOption[];
+      updatedVariants: UpdateProductVariant[];
+      updatedSeo?: UpdateSeo;
+    }) => {
+      return;
     },
   },
 };
