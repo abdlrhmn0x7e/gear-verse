@@ -2,6 +2,8 @@
 
 import { CheckIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   ProductForm,
   type ProductFormValues,
@@ -17,11 +19,29 @@ export function EditProduct({
 }: {
   product: RouterOutputs["admin"]["products"]["queries"]["findById"];
 }) {
+  const utils = api.useUtils();
+  const router = useRouter();
   const { mutate: updateProduct, isPending: isUpdatingProduct } =
     api.admin.products.mutations.editDeep.useMutation();
   function onSubmit(data: Partial<ProductFormValues>) {
     console.log("data", data);
-    updateProduct({ id: product.id, data });
+    updateProduct(
+      { id: product.id, data },
+      {
+        onSuccess: () => {
+          toast.success("Product updated successfully");
+          void utils.admin.products.queries.getPage.invalidate();
+          void utils.admin.products.queries.findById.invalidate({
+            id: product.id,
+          });
+
+          router.push(`/admin/products`);
+        },
+        onError: () => {
+          toast.error("Failed to update product");
+        },
+      },
+    );
   }
 
   return (

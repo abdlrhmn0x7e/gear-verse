@@ -39,6 +39,7 @@ export function BrandsCombobox({
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [hasMounted, setHasMounted] = React.useState(false);
   const { ref, inView } = useInView();
   const {
     data: brands,
@@ -56,10 +57,32 @@ export function BrandsCombobox({
   );
 
   React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  React.useEffect(() => {
     if (inView && hasNextPage) {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage, hasNextPage]);
+
+  if (!hasMounted) {
+    return (
+      <Button
+        variant="outline"
+        role="combobox"
+        aria-expanded={false}
+        className={cn("w-full justify-between", className)}
+        disabled={disabled}
+      >
+        <div className="flex items-center gap-2">
+          <TargetIcon className="text-muted-foreground size-4" />
+          <span className="text-muted-foreground">Select a brand</span>
+        </div>
+        <ChevronsUpDown className="opacity-50" />
+      </Button>
+    );
+  }
 
   if (brandsPending) {
     return (
@@ -131,8 +154,9 @@ export function BrandsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild suppressHydrationWarning>
+      <PopoverTrigger asChild>
         <Button
+          suppressHydrationWarning
           variant="outline"
           role="combobox"
           aria-expanded={open}

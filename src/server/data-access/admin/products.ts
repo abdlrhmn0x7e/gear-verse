@@ -34,20 +34,8 @@ type NewProductVariant = Omit<
   stock: number;
 };
 type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
-
-type UpdateProduct = Partial<NewProduct>;
-type UpdateProductOption = Partial<NewProductOption> & {
-  id: number;
-};
-type UpdateProductOptionValue = Partial<NewProductOptionValue> & {
-  id: number;
-};
-type UpdateProductVariant = Partial<NewProductVariant> & {
-  id: number;
-};
-type UpdateSeo = Partial<NewSeo> & {
-  id: number;
-};
+type UpdateSeo = Partial<NewSeo>;
+type UpdateProduct = Partial<NewProduct & { media: number[]; seo: UpdateSeo }>;
 
 export const _adminProducts = {
   queries: {
@@ -311,20 +299,29 @@ export const _adminProducts = {
         .where(eq(variantsQuery.productId, id))
         .as("variants_json");
 
+      const productMediaQuery = db
+        .select({
+          mediaId: productsMedia.mediaId,
+          url: media.url,
+        })
+        .from(productsMedia)
+        .orderBy(productsMedia.order)
+        .leftJoin(media, eq(productsMedia.mediaId, media.id))
+        .where(eq(productsMedia.productId, id))
+        .as("product_media_query");
+
       const productMediaJson = db
         .select({
           json: sql<{ mediaId: number; url: string }[]>`
-          jsonb_agg(
-            jsonb_build_object(
-              'mediaId', ${productsMedia.mediaId},
-              'url', ${media.url}
+            jsonb_agg(
+              jsonb_build_object(
+                'mediaId', ${productMediaQuery.mediaId},
+                'url', ${productMediaQuery.url}
+              )
             )
-          )
         `.as("product_media"),
         })
-        .from(productsMedia)
-        .leftJoin(media, eq(productsMedia.mediaId, media.id))
-        .where(eq(productsMedia.productId, id))
+        .from(productMediaQuery)
         .as("product_media_json");
 
       return db
@@ -538,13 +535,38 @@ export const _adminProducts = {
       });
     },
 
-    async update(productId: number, updatedProduct: UpdateProduct) {
-      return db
-        .update(products)
-        .set(updatedProduct)
-        .where(eq(products.id, productId))
-        .returning({ id: products.id })
-        .then(([product]) => product);
+    async update(productId: number, updatedData: UpdateProduct) {
+      return db.transaction(async (tx) => {
+        const { media: mediaData, seo: seoData, ...product } = updatedData;
+
+        if (Object.keys(product).length > 0) {
+          await tx
+            .update(products)
+            .set(product)
+            .where(eq(products.id, productId))
+            .returning({ id: products.id });
+        }
+
+        if (mediaData && mediaData.length > 0) {
+          // delete the old media relations
+          await tx
+            .delete(productsMedia)
+            .where(eq(productsMedia.productId, productId));
+
+          // create the new media relations
+          await tx.insert(productsMedia).values(
+            mediaData.map((mediaId, index) => ({
+              productId,
+              mediaId,
+              order: index + 1,
+            })),
+          );
+        }
+
+        if (seoData) {
+          await tx.update(seo).set(seoData).where(eq(seo.productId, productId));
+        }
+      });
     },
   },
 };

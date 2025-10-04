@@ -49,11 +49,14 @@ export const _products = {
     },
 
     async editDeep(productId: number, input: UpdateProductInput) {
-      const { options, variants, seo, media, ...product } = input;
+      const { options, variants, ...product } = input;
 
       // update the product if there are any changes
       if (Object.keys(product).length > 0) {
-        await data.admin.products.mutations.update(productId, product);
+        await data.admin.products.mutations.update(productId, {
+          ...product,
+          media: product.media?.map((m) => m.mediaId) ?? [],
+        });
       }
 
       // variants and options are both required to update them both

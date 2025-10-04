@@ -166,6 +166,7 @@ export function ProductForm({
 
   function handleSubmit(data: ProductFormValues) {
     if (defaultValues) {
+      // FIX: brand id isn't marked as dirty on first change
       const _data = getDirtyFields(data, form.formState.dirtyFields);
 
       onSubmitPartial?.(_data);
@@ -387,10 +388,10 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Brand</FormLabel>
                     <FormControl>
-                      {/* <BrandsCombobox
+                      <BrandsCombobox
                         onValueChange={field.onChange}
                         value={field.value}
-                      /> */}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
