@@ -45,6 +45,7 @@ export type CreateProductMediaInput = z.infer<
 >;
 
 export const createProductVariantInputSchema = z.object({
+  id: z.number().positive().optional(),
   thumbnail: z.object({
     id: z.number().positive(),
     url: z.string("Thumbnail URL must be a string"),
@@ -118,10 +119,5 @@ export const createProductInputSchema = productEntitySchema
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 
-export const updateProductInputSchema = productEntitySchema
-  .omit({
-    createdAt: true,
-    updatedAt: true,
-  })
-  .partial();
+export const updateProductInputSchema = createProductInputSchema.partial();
 export type UpdateProductInput = z.infer<typeof updateProductInputSchema>;

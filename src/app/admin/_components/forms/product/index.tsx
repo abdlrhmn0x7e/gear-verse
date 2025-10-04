@@ -76,9 +76,13 @@ export const getDirtyFields = <
   dirtyItems: TDirtyItems,
 ): Partial<TData> => {
   return Object.entries(dirtyItems).reduce((dirtyData, [key, value]) => {
-    const formValue = formValues[key];
+    // react hook form considers removed array fields as dirty
+    // so we need to check if the form value is not undefined
+    const formValue = formValues?.[key];
+
     if (value === false) return dirtyData;
     if (value === true) return { ...dirtyData, [key]: formValue };
+    if (!formValue) return formValues; // if the form value is not found, return the dirty data
 
     const child = getDirtyFields(
       formValues[key] as TData,
@@ -138,7 +142,7 @@ export function ProductForm({
       },
     },
   });
-  console.log("errors", form.formState.errors);
+
   const {
     fields: mediaFields,
     insert: insertMedia,
@@ -157,11 +161,11 @@ export function ProductForm({
     control: form.control,
     name: "options",
     keyName: "keyId",
+    shouldUnregister: true,
   });
 
   function handleSubmit(data: ProductFormValues) {
     if (defaultValues) {
-      console.log("dirty fields", form.formState.dirtyFields);
       const _data = getDirtyFields(data, form.formState.dirtyFields);
 
       onSubmitPartial?.(_data);
@@ -383,10 +387,10 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Brand</FormLabel>
                     <FormControl>
-                      <BrandsCombobox
+                      {/* <BrandsCombobox
                         onValueChange={field.onChange}
                         value={field.value}
-                      />
+                      /> */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

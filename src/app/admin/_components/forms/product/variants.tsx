@@ -111,6 +111,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       const existing = oldByKey.get(key);
 
       return {
+        id: existing?.id,
         optionValues: variant.optionValues,
         thumbnail: existing?.thumbnail ?? { id: 0, url: "" },
         stock: existing?.stock ?? 0,

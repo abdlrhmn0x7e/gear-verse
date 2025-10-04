@@ -1,6 +1,7 @@
 import { eq, gt, ilike, and, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
+  media,
   productOptions,
   productOptionValues,
   productOptionValuesVariants,
@@ -10,6 +11,7 @@ import {
   seo,
 } from "../../db/schema";
 import { inventoryItems } from "~/server/db/schema/inventory";
+import { alias } from "drizzle-orm/pg-core";
 
 type NewProduct = typeof products.$inferInsert;
 type NewProductOption = Omit<
@@ -22,25 +24,23 @@ type NewProductOptionValue = Omit<
   typeof productOptionValues.$inferInsert,
   "productOptionId"
 > & {
-  id: string;
+  id: number;
 };
 type NewProductVariant = Omit<
   typeof productVariants.$inferInsert,
   "productId"
 > & {
-  optionValues: Record<string, { id: string; value: string }>;
+  optionValues: Record<string, { id: number; value: string }>;
   stock: number;
 };
 type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
 
-type UpdateProduct = Partial<NewProduct> & {
-  id: number;
-};
+type UpdateProduct = Partial<NewProduct>;
 type UpdateProductOption = Partial<NewProductOption> & {
   id: number;
 };
 type UpdateProductOptionValue = Partial<NewProductOptionValue> & {
-  id: string;
+  id: number;
 };
 type UpdateProductVariant = Partial<NewProductVariant> & {
   id: number;
@@ -49,7 +49,7 @@ type UpdateSeo = Partial<NewSeo> & {
   id: number;
 };
 
-export const _adminProductsRepo = {
+export const _adminProducts = {
   queries: {
     findAll: async () => {
       return db
@@ -170,29 +170,227 @@ export const _adminProductsRepo = {
     },
 
     findById: async (id: number) => {
-      const product = await db.query.products.findFirst({
-        where: eq(products.id, id),
+      const nonArchivedOptionValues = db.$with("non_archived_option_values").as(
+        db
+          .selectDistinct({
+            valueId: productOptionValues.id,
+            value: productOptionValues.value,
+            productOptionId: productOptionValues.productOptionId,
+          })
+          .from(productOptionValues)
+          .innerJoin(
+            productOptionValuesVariants,
+            eq(
+              productOptionValuesVariants.productOptionValueId,
+              productOptionValues.id,
+            ),
+          )
+          .innerJoin(
+            productVariants,
+            and(
+              eq(
+                productVariants.id,
+                productOptionValuesVariants.productVariantId,
+              ),
+              eq(productVariants.archived, false),
+            ),
+          ),
+      );
+
+      const productOptionsJson = db
+        .with(nonArchivedOptionValues)
+        .select({
+          productId: productOptions.productId,
+          options: sql<
+            {
+              id: number;
+              name: string;
+              values: { id: number; value: string }[];
+            }[]
+          >`
+            jsonb_agg(
+              jsonb_build_object(
+                'id', ${productOptions.id},
+                'name', ${productOptions.name},
+                'values', coalesce(
+                  (
+                    select
+                      jsonb_agg(jsonb_build_object('id', ${nonArchivedOptionValues.valueId}, 'value', ${nonArchivedOptionValues.value}))
+                    from ${nonArchivedOptionValues}
+                    where
+                      "product_options"."id" = "product_option_id"
+                  ),
+                  '[]'::jsonb
+                )
+              )
+            )
+          `.as("options"), // the where clause had to be hard coded for some reason
+          // the generated query was ambiguous. it was mixing the value id with the product option id
+        })
+        .from(productOptions)
+        .groupBy(productOptions.productId)
+        .as("product_options_json");
+
+      const variantThumbnail = alias(media, "variant_thumbnail");
+      const variantsQuery = db
+        .select({
+          id: productVariants.id,
+          productId: productVariants.productId,
+          overridePrice: productVariants.overridePrice,
+          thumbnail: {
+            id: sql<number>`${variantThumbnail.id}`.as("thumbnailId"),
+            url: variantThumbnail.url,
+          },
+          stock: inventoryItems.quantity,
+          optionValues: sql<Record<string, { id: number; value: string }>>`
+          jsonb_object_agg(
+              ${productOptions.name}, json_build_object(
+                'id', ${productOptionValues.id},
+                'value', ${productOptionValues.value}
+              )
+            )
+        `.as("option_values"),
+        })
+        .from(productVariants)
+        .leftJoin(
+          variantThumbnail,
+          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
+        )
+        .leftJoin(
+          inventoryItems,
+          eq(productVariants.id, inventoryItems.variantId),
+        )
+        .leftJoin(
+          productOptionValuesVariants,
+          eq(productOptionValuesVariants.productVariantId, productVariants.id),
+        )
+        .leftJoin(
+          productOptionValues,
+          eq(
+            productOptionValuesVariants.productOptionValueId,
+            productOptionValues.id,
+          ),
+        )
+        .leftJoin(
+          productOptions,
+          eq(productOptionValues.productOptionId, productOptions.id),
+        )
+        .groupBy(
+          productVariants.id,
+          inventoryItems.quantity,
+          variantThumbnail.id,
+        )
+        .as("product_variants");
+
+      const variantsJson = db
+        .select({
+          json: sql<
+            {
+              id: number;
+              overridePrice: number;
+              thumbnail: { id: number; url: string };
+              stock: number;
+              optionValues: Record<string, { id: number; value: string }>;
+            }[]
+          >`
+          jsonb_agg(
+            jsonb_build_object(
+              'id', ${variantsQuery.id},
+              'overridePrice', ${variantsQuery.overridePrice},
+              'thumbnail', jsonb_build_object(
+                'id', ${variantsQuery.thumbnail.id},
+                'url', ${variantsQuery.thumbnail.url}
+              ),
+              'stock', ${variantsQuery.stock},
+              'optionValues', ${variantsQuery.optionValues}
+            )
+          )
+        `.as("json"),
+        })
+        .from(variantsQuery)
+        .where(eq(variantsQuery.productId, id))
+        .as("variants_json");
+
+      const productMediaJson = db
+        .select({
+          json: sql<{ mediaId: number; url: string }[]>`
+          jsonb_agg(
+            jsonb_build_object(
+              'mediaId', ${productsMedia.mediaId},
+              'url', ${media.url}
+            )
+          )
+        `.as("product_media"),
+        })
+        .from(productsMedia)
+        .leftJoin(media, eq(productsMedia.mediaId, media.id))
+        .where(eq(productsMedia.productId, id))
+        .as("product_media_json");
+
+      return db
+        .select({
+          id: products.id,
+          title: products.title,
+          price: products.price,
+          summary: products.summary,
+          description: products.description,
+          published: products.published,
+          categoryId: products.categoryId,
+          brandId: products.brandId,
+          profit: products.profit,
+          margin: products.margin,
+          options: productOptionsJson.options,
+          variants: variantsJson.json,
+          media: productMediaJson.json,
+          seo: {
+            pageTitle: seo.pageTitle,
+            urlHandler: seo.urlHandler,
+            metaDescription: seo.metaDescription,
+          },
+        })
+        .from(products)
+        .leftJoin(
+          productOptionsJson,
+          eq(productOptionsJson.productId, products.id),
+        )
+        .leftJoinLateral(variantsJson, sql`true`)
+        .leftJoinLateral(productMediaJson, sql`true`)
+        .leftJoin(seo, eq(seo.productId, products.id))
+        .where(eq(products.id, id))
+        .limit(1)
+        .then(([product]) => product);
+    },
+
+    getVariants: async (id: number) => {
+      const variants = await db.query.productVariants.findMany({
+        where: eq(productVariants.productId, id),
         columns: {
           id: true,
-          title: true,
-          summary: true,
-          description: true,
-          price: true,
-          margin: true,
-          profit: true,
-          published: true,
-          categoryId: true,
-          brandId: true,
-
-          createdAt: true,
+          overridePrice: true,
         },
         with: {
-          seo: {
+          optionValues: {
+            columns: {},
+            with: {
+              optionValue: {
+                columns: {
+                  id: true,
+                  value: true,
+                },
+                with: {
+                  option: {
+                    columns: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+
+          stock: {
             columns: {
-              id: true,
-              pageTitle: true,
-              urlHandler: true,
-              metaDescription: true,
+              quantity: true,
             },
           },
 
@@ -202,128 +400,28 @@ export const _adminProductsRepo = {
               url: true,
             },
           },
-
-          brand: {
-            columns: {
-              id: true,
-              name: true,
-            },
-            with: {
-              logo: {
-                columns: {
-                  id: true,
-                  url: true,
-                },
-              },
-            },
-          },
-
-          media: {
-            columns: {},
-            with: {
-              media: {
-                columns: {
-                  id: true,
-                  url: true,
-                },
-              },
-            },
-          },
-
-          category: {
-            columns: {
-              id: true,
-              name: true,
-            },
-            with: {
-              parent: {
-                columns: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-
-          variants: {
-            columns: {
-              overridePrice: true,
-            },
-            with: {
-              thumbnail: {
-                columns: {
-                  id: true,
-                  url: true,
-                },
-              },
-
-              optionValues: {
-                columns: {},
-                with: {
-                  optionValue: {
-                    with: {
-                      option: {
-                        columns: {
-                          name: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-
-              stock: {
-                columns: {
-                  quantity: true,
-                },
-              },
-            },
-          },
-
-          options: {
-            columns: {
-              id: true,
-              name: true,
-            },
-            with: {
-              values: {
-                columns: {
-                  id: true,
-                  value: true,
-                },
-                orderBy: productOptionValues.order,
-              },
-            },
-          },
         },
       });
 
-      return {
-        ...product,
-        media: product?.media.map((m) => ({
-          mediaId: m.media.id,
-          url: m.media.url,
-        })),
-        variants: product?.variants.map((v) => ({
-          ...v,
-          overridePrice: v.overridePrice ?? 0,
-          stock: v.stock?.quantity ?? 0,
-          optionValues: Object.fromEntries(
-            v.optionValues.map((ov) => [
-              ov.optionValue.option.name,
-              {
-                id: ov.optionValue.id,
-                value: ov.optionValue.value,
-              },
-            ]),
-          ),
-        })),
-      };
+      return variants.map((v) => ({
+        ...v,
+        overridePrice: v.overridePrice ?? 0,
+        stock: v.stock?.quantity ?? 0,
+        optionValues: Object.fromEntries(
+          v.optionValues.map((ov) => [
+            ov.optionValue.option.name,
+            {
+              id: ov.optionValue.id,
+              value: ov.optionValue.value,
+            },
+          ]),
+        ),
+      }));
     },
   },
 
   mutations: {
-    createDeep: async ({
+    async createDeep({
       newProduct,
       newProdcutMediaIds,
       newProductOptions,
@@ -335,7 +433,7 @@ export const _adminProductsRepo = {
       newProductOptions: NewProductOption[];
       newVariants: NewProductVariant[];
       newSeo?: NewSeo;
-    }) => {
+    }) {
       return db.transaction(async (tx) => {
         const [product] = await tx
           .insert(products)
@@ -357,7 +455,7 @@ export const _adminProductsRepo = {
           })),
         );
 
-        const valuesCuidToDbId = new Map<string, number>();
+        const valuesIdToDbId = new Map<number, number>();
 
         for (const o of newProductOptions) {
           const { values: newOptionValues, ...newOption } = o;
@@ -391,7 +489,7 @@ export const _adminProductsRepo = {
 
           // assuming the ids are the same as the order of the values
           values.forEach((value, index) => {
-            valuesCuidToDbId.set(newOptionValues[index]!.id, value.id);
+            valuesIdToDbId.set(newOptionValues[index]!.id, value.id);
           });
         }
 
@@ -416,7 +514,7 @@ export const _adminProductsRepo = {
           // link the option values to the variants
           await tx.insert(productOptionValuesVariants).values(
             Object.values(optionValues).map((value) => ({
-              productOptionValueId: valuesCuidToDbId.get(value.id)!,
+              productOptionValueId: valuesIdToDbId.get(value.id)!,
               productVariantId: variant.id,
             })),
           );
@@ -440,20 +538,13 @@ export const _adminProductsRepo = {
       });
     },
 
-    editDeep: async ({
-      updatedProduct,
-      updatedProdcutMediaIds,
-      updatedProductOptions,
-      updatedVariants,
-      updatedSeo,
-    }: {
-      updatedProduct: UpdateProduct;
-      updatedProdcutMediaIds: number[];
-      updatedProductOptions: UpdateProductOption[];
-      updatedVariants: UpdateProductVariant[];
-      updatedSeo?: UpdateSeo;
-    }) => {
-      return;
+    async update(productId: number, updatedProduct: UpdateProduct) {
+      return db
+        .update(products)
+        .set(updatedProduct)
+        .where(eq(products.id, productId))
+        .returning({ id: products.id })
+        .then(([product]) => product);
     },
   },
 };

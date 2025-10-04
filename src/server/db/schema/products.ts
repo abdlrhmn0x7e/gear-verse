@@ -91,10 +91,11 @@ export const productOptions = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
     productId: bigint("product_id", { mode: "number" })
-      .references(() => products.id)
+      .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
 
     name: text("name").notNull(),
+    order: integer("order").notNull().default(0),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -127,7 +128,7 @@ export const productOptionValues = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
     productOptionId: bigint("product_option_id", { mode: "number" })
-      .references(() => productOptions.id)
+      .references(() => productOptions.id, { onDelete: "cascade" })
       .notNull(),
 
     value: text("value").notNull(),
@@ -161,9 +162,10 @@ export const productVariants = pgTable("product_variants", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
 
   overridePrice: integer("override_price"),
+  archived: boolean("archived").notNull().default(false),
 
   productId: bigint("product_id", { mode: "number" })
-    .references(() => products.id)
+    .references(() => products.id, { onDelete: "cascade" })
     .notNull(),
   thumbnailMediaId: bigint("thumbnail_media_id", { mode: "number" })
     .references(() => media.id, { onDelete: "set null" })
@@ -201,7 +203,7 @@ export const productOptionValuesVariants = pgTable(
       .references(() => productOptionValues.id)
       .notNull(),
     productVariantId: bigint("product_variant_id", { mode: "number" })
-      .references(() => productVariants.id)
+      .references(() => productVariants.id, { onDelete: "cascade" })
       .notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -213,7 +215,7 @@ export const productOptionValuesVariants = pgTable(
   (table) => [
     uniqueIndex(
       "product_option_values_variants_product_option_value_id_product_variant_id_idx",
-    ).on(table.productOptionValueId, table.productVariantId),
+    ).on(table.productVariantId, table.productOptionValueId),
   ],
 );
 export const productOptionValuesVariantsRelations = relations(

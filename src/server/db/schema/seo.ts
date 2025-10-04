@@ -10,11 +10,11 @@ export const seo = pgTable(
       .generatedAlwaysAsIdentity(),
     productId: bigint("product_id", { mode: "number" })
       .notNull()
-      .references(() => products.id),
+      .references(() => products.id, { onDelete: "cascade" }),
 
-    pageTitle: text("page_title").notNull(),
-    urlHandler: text("url_handler").notNull(),
-    metaDescription: text("meta_description").notNull(),
+    pageTitle: text("page_title"),
+    urlHandler: text("url_handler"),
+    metaDescription: text("meta_description"),
   },
   (table) => ({
     uniqueProductId: uniqueIndex("unique_product_id").on(table.productId),

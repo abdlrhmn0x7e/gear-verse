@@ -10,14 +10,18 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 
 export function EditProduct({
   product,
 }: {
   product: RouterOutputs["admin"]["products"]["queries"]["findById"];
 }) {
+  const { mutate: updateProduct, isPending: isUpdatingProduct } =
+    api.admin.products.mutations.editDeep.useMutation();
   function onSubmit(data: Partial<ProductFormValues>) {
     console.log("data", data);
+    updateProduct({ id: product.id, data });
   }
 
   return (
@@ -37,7 +41,11 @@ export function EditProduct({
           categoryId: product.categoryId,
           brandId: product.brandId,
 
-          seo: product.seo,
+          seo: {
+            pageTitle: product.seo?.pageTitle ?? "",
+            urlHandler: product.seo?.urlHandler ?? "",
+            metaDescription: product.seo?.metaDescription ?? "",
+          },
 
           media: product.media,
           options: product.options,
@@ -53,7 +61,7 @@ export function EditProduct({
           <motion.div
             className={cn(
               "bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm",
-              false && "scale-95 opacity-50",
+              isUpdatingProduct && "scale-95 opacity-50",
             )}
             layout
           >
@@ -65,14 +73,18 @@ export function EditProduct({
                 </p>
               </div>
 
-              <Button type="submit" form="product-form" disabled={false}>
+              <Button
+                type="submit"
+                form="product-form"
+                disabled={isUpdatingProduct}
+              >
                 <SaveIcon size={16} />
                 Save Product
               </Button>
             </div>
           </motion.div>
 
-          {false && (
+          {isUpdatingProduct && (
             <AnimatePresence>
               <motion.div
                 className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm"
@@ -86,13 +98,13 @@ export function EditProduct({
                 layout
               >
                 <div className="flex items-center gap-3">
-                  {false ? (
+                  {isUpdatingProduct ? (
                     <Spinner />
                   ) : (
                     <CheckIcon className="size-6 text-green-500" />
                   )}
                   <div>
-                    <p className="flex-1 font-medium">{false}</p>
+                    <p className="flex-1 font-medium">Updating product...</p>
                     <p className="text-muted-foreground text-sm">
                       Please be patient untill the process is complete.
                     </p>

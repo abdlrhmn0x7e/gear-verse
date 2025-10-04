@@ -1,4 +1,7 @@
-import { createProductInputSchema } from "@schemas/entities";
+import {
+  createProductInputSchema,
+  updateProductInputSchema,
+} from "@schemas/entities";
 import z from "zod";
 import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -47,6 +50,19 @@ export const productsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.mutations.createDeep(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    editDeep: adminProcedure
+      .input(z.object({ id: z.number(), data: updateProductInputSchema }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.editDeep(input.id, input.data),
         );
         if (error) {
           throw errorMap(error);

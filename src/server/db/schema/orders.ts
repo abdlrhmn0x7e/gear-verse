@@ -86,6 +86,7 @@ export const orderItems = pgTable(
       table.orderId,
       table.productVariantId,
     ),
+    index("order_items_product_variant_id_idx").on(table.productVariantId),
   ],
 );
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({

@@ -1,291 +1,237 @@
-import { and, eq, inArray, gt, ilike } from "drizzle-orm";
-import { db } from "../../db";
-import { media, productVariants, products } from "../../db/schema";
+import {
+  inventoryItems,
+  orderItems,
+  productOptionValues,
+  productOptionValuesVariants,
+  productVariants,
+} from "~/server/db/schema";
+import { db, type Tx } from "~/server/db";
+import { eq, inArray } from "drizzle-orm";
 
-type ProductVariantFilters = {
-  search?: string | null;
-  productId?: number | null;
+type NewProductVariant = Omit<
+  typeof productVariants.$inferInsert,
+  "productId"
+> & {
+  optionValues: Record<string, { id: number; value: string }>;
+  stock: number;
 };
 
-type InsertProductVariant = typeof productVariants.$inferInsert;
-type UpdateProductVariant = Partial<InsertProductVariant>;
-
-export const _adminVariantsRepo = {
-  queries: {
-    findAll: async () => {
-      return db.query.productVariants.findMany({
-        columns: {
-          id: true,
-          overridePrice: true,
-        },
-        with: {
-          product: {
-            columns: {
-              id: true,
-              title: true,
-            },
-          },
-        },
-        orderBy: (variants, { asc }) => asc(variants.overridePrice),
-      });
-    },
-
-    getPage: async ({
-      cursor,
-      pageSize,
-      filters,
-    }: {
-      cursor: number | undefined;
-      pageSize: number;
-      filters?: ProductVariantFilters;
-    }) => {
-      const whereClause = [gt(productVariants.id, cursor ?? 0)];
-
-      if (filters?.search) {
-        whereClause.push(
-          ilike(productVariants.overridePrice, `%${filters.search}%`),
-        );
-      }
-
-      if (filters?.productId) {
-        whereClause.push(eq(productVariants.productId, filters.productId));
-      }
-
-      return db
-        .select({
-          id: productVariants.id,
-          overridePrice: productVariants.overridePrice,
-          thumbnail: {
-            url: media.url,
-          },
-          product: {
-            id: products.id,
-            title: products.title,
-          },
-        })
-        .from(productVariants)
-        .leftJoin(products, eq(productVariants.productId, products.id))
-        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
-        .where(and(...whereClause))
-        .limit(pageSize + 1)
-        .orderBy(productVariants.id);
-    },
-  },
+export const _adminProductVariants = {
+  queries: {},
   mutations: {
-    create: (input: InsertProductVariant) => {
-      return db.transaction(async (tx) => {
-        const [productVariant] = await tx
-          .insert(productVariants)
-          .values(input)
-          .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
-          });
+    async upsertMany(
+      productId: number,
 
-        if (!productVariant) {
-          return;
-        }
-
-        /**
-         * Take ownership of the thumbnail
-         */
-        if (productVariant.thumbnailMediaId) {
-          const [updatedMedia] = await tx
-            .update(media)
-            .set({
-              ownerType: "PRODUCT_VARIANT",
-              ownerId: productVariant.id,
-            })
-            .where(eq(media.id, productVariant.thumbnailMediaId))
-            .returning({ id: media.id });
-
-          if (!updatedMedia) {
-            throw new Error("Failed to update media");
-          }
-        }
-
-        return productVariant;
-      });
+      toInsert: NewProductVariant[],
+      toUpdate: (NewProductVariant & { id: number })[],
+      valuesIdToDbId: Map<number, number>,
+    ) {
+      return db.transaction(async (tx) =>
+        this.helpers.upsertManyTx(
+          tx,
+          productId,
+          toInsert,
+          toUpdate,
+          valuesIdToDbId,
+        ),
+      );
     },
 
-    bulkCreate: async (input: InsertProductVariant[]) => {
-      return db.transaction(async (tx) => {
-        const newProductVariants = await tx
-          .insert(productVariants)
-          .values(input)
-          .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
-          });
-
-        if (!newProductVariants) {
-          throw new Error("Failed to create product variants");
-        }
-
-        for (const v of newProductVariants) {
-          if (!v.thumbnailMediaId) {
-            continue;
-          }
-
-          const [updatedMedia] = await tx
-            .update(media)
-            .set({ ownerId: v.id, ownerType: "PRODUCT_VARIANT" })
-            .where(eq(media.id, v.thumbnailMediaId))
-            .returning({ id: media.id });
-
-          if (!updatedMedia) {
-            throw new Error("Failed to update media");
-          }
-        }
-
-        return newProductVariants;
-      });
+    deleteOrArchiveMany(variantIds: number[]) {
+      return db.transaction(async (tx) =>
+        this.helpers.deleteOrArchiveManyTx(tx, variantIds),
+      );
     },
 
-    update: async (
-      id: number,
-      oldThumbnailMediaId: number | null,
-      input: UpdateProductVariant,
-    ) => {
+    recreate({
+      productId,
+      variantsIds,
+      toInsert,
+      toUpdate,
+      valuesIdToDbId,
+    }: {
+      productId: number;
+      variantsIds: number[];
+      toInsert: NewProductVariant[];
+      toUpdate: (NewProductVariant & { id: number })[];
+      valuesIdToDbId: Map<number, number>;
+    }) {
       return db.transaction(async (tx) => {
-        const [productVariant] = await tx
-          .update(productVariants)
-          .set(input)
-          .where(eq(productVariants.id, id))
-          .returning({
-            id: productVariants.id,
-            thumbnailMediaId: productVariants.thumbnailMediaId,
-          });
-
-        if (!productVariant) {
-          return;
-        }
-
-        const newThumbnailMediaId = productVariant.thumbnailMediaId;
-
-        // Delete the old thumbnail if it changed (CASCADE will handle nullifying the FK)
-        if (
-          oldThumbnailMediaId &&
-          oldThumbnailMediaId !== newThumbnailMediaId
-        ) {
-          await tx.delete(media).where(eq(media.id, oldThumbnailMediaId));
-        }
-
-        // Take ownership of the new thumbnail
-        if (newThumbnailMediaId) {
-          await tx
-            .update(media)
-            .set({ ownerId: productVariant.id, ownerType: "PRODUCT_VARIANT" })
-            .where(eq(media.id, newThumbnailMediaId));
-        }
-
-        return productVariant;
-      });
-    },
-
-    bulkUpdate: async (variants: (UpdateProductVariant & { id: number })[]) => {
-      const productId = variants[0]?.productId;
-      if (!productId) {
-        throw new Error("Product ID Must be provided in each variant");
-      }
-
-      const hasDiffProductIds = variants.some((v) => v.productId !== productId);
-      if (hasDiffProductIds) {
-        throw new Error("Product IDs must be the same");
-      }
-
-      return db.transaction(async (tx) => {
-        const existingVariants = await tx
-          .select()
-          .from(productVariants)
-          .where(eq(productVariants.productId, productId));
-
-        const existingVariantsMap = new Map(
-          existingVariants.map((v) => [v.id, v]),
+        // 1) Create the new variants, options, option values, and pivots
+        await this.helpers.upsertManyTx(
+          tx,
+          productId,
+          toInsert,
+          toUpdate,
+          valuesIdToDbId,
         );
-        const incomingIds = new Set<number>();
-        const toUpdate: (UpdateProductVariant & { id: number })[] = [];
 
-        // diff the variants
-        for (const v of variants) {
-          const { id, ...data } = v;
-          incomingIds.add(id);
-          if (!existingVariantsMap.has(id)) {
-            continue;
+        // 2) Delete/archive the old variants, options, option values and pivots
+        return this.helpers.deleteOrArchiveManyTx(tx, variantsIds);
+      });
+    },
+
+    helpers: {
+      async upsertManyTx(
+        tx: Tx,
+        productId: number,
+
+        toInsert: NewProductVariant[],
+        toUpdate: (NewProductVariant & { id: number })[],
+        valuesIdToDbId: Map<number, number>,
+      ) {
+        const newVariants = [];
+
+        // insert new variants
+        for (const item of toInsert) {
+          const [newVariant] = await tx
+            .insert(productVariants)
+            .values({
+              productId,
+              overridePrice: item.overridePrice,
+              archived: item.archived,
+              thumbnailMediaId: item.thumbnailMediaId,
+            })
+            .onConflictDoNothing({
+              target: productVariants.id,
+            })
+            .returning({ id: productVariants.id });
+
+          if (!newVariant) {
+            throw new Error("Failed to create product variant");
           }
 
-          toUpdate.push({ id, ...data });
+          const newPivots = await tx
+            .insert(productOptionValuesVariants)
+            .values(
+              Object.values(item.optionValues).map((value) => ({
+                productOptionValueId: valuesIdToDbId.get(value.id)!,
+                productVariantId: newVariant.id,
+              })),
+            )
+            .returning({
+              productVariantId: productOptionValuesVariants.productVariantId,
+              productOptionValueId:
+                productOptionValuesVariants.productOptionValueId,
+            });
+
+          if (!newPivots) {
+            throw new Error("Failed to create product option values variants");
+          }
+
+          await tx
+            .insert(inventoryItems)
+            .values({ variantId: newVariant.id, quantity: item.stock })
+            .onConflictDoUpdate({
+              target: inventoryItems.variantId,
+              set: { quantity: item.stock },
+            });
+
+          newVariants.push({ ...newVariant, optionValues: newPivots });
         }
 
-        const toDelete = existingVariants
-          .map((v) => v.id)
-          .filter((id) => !incomingIds.has(id));
-
-        // Delete old variants and their media if any
-        if (toDelete.length > 0) {
-          await tx
-            .delete(productVariants)
-            .where(inArray(productVariants.id, toDelete));
-          await tx
-            .delete(media)
-            .where(
-              and(
-                inArray(media.ownerId, toDelete),
-                eq(media.ownerType, "PRODUCT_VARIANT"),
-              ),
-            );
-        }
-
-        // Update existing variants
-        for (const v of toUpdate) {
-          const { id, ...data } = v;
+        // update existing variants
+        for (const { id, ...item } of toUpdate) {
           await tx
             .update(productVariants)
-            .set(data)
+            .set({
+              overridePrice: item.overridePrice,
+              archived: item.archived,
+              thumbnailMediaId: item.thumbnailMediaId,
+            })
             .where(eq(productVariants.id, id));
+
+          // update the stock
+          await tx
+            .update(inventoryItems)
+            .set({ quantity: item.stock })
+            .where(eq(inventoryItems.variantId, id));
         }
-      });
-    },
 
-    delete: async (id: number) => {
-      return db.transaction(async (tx) => {
-        // Delete all media owned by this variant (images, etc.) - CASCADE will handle thumbnail nullification
-        await tx
-          .delete(media)
-          .where(
-            and(eq(media.ownerType, "PRODUCT_VARIANT"), eq(media.ownerId, id)),
+        return newVariants;
+      },
+
+      async deleteOrArchiveManyTx(tx: Tx, variantIds: number[]) {
+        const deletedVariantIds: number[] = [];
+        const archivedVariantIds: number[] = [];
+
+        if (variantIds.length === 0) {
+          return { deletedVariantIds, archivedVariantIds };
+        }
+
+        // 1) Find variants with orders → archive in bulk
+        const rowsToArchive = await tx
+          .select({ id: orderItems.productVariantId })
+          .from(orderItems)
+          .where(inArray(orderItems.productVariantId, variantIds));
+
+        const toArchiveIds = Array.from(
+          new Set(rowsToArchive.map((r) => r.id)),
+        );
+        if (toArchiveIds.length > 0) {
+          await tx
+            .update(productVariants)
+            .set({ archived: true })
+            .where(inArray(productVariants.id, toArchiveIds));
+          archivedVariantIds.push(...toArchiveIds);
+        }
+
+        // 2) The rest can be deleted
+        const toArchiveSet = new Set(toArchiveIds);
+        const toDeleteIds = variantIds.filter((id) => !toArchiveSet.has(id));
+
+        if (toDeleteIds.length > 0) {
+          // Collect candidate option value ids BEFORE deleting variants (pivots will cascade)
+          const candidateRows = await tx
+            .select({
+              id: productOptionValuesVariants.productOptionValueId,
+            })
+            .from(productOptionValuesVariants)
+            .where(
+              inArray(
+                productOptionValuesVariants.productVariantId,
+                toDeleteIds,
+              ),
+            );
+          const candidateIds = Array.from(
+            new Set(candidateRows.map((r) => r.id)),
           );
 
-        // Delete the variant first
-        const [deleted] = await tx
-          .delete(productVariants)
-          .where(eq(productVariants.id, id))
-          .returning({ id: productVariants.id });
+          // Bulk delete variants (pivots cascade)
+          await tx
+            .delete(productVariants)
+            .where(inArray(productVariants.id, toDeleteIds));
+          deletedVariantIds.push(...toDeleteIds);
 
-        return deleted;
-      });
-    },
+          // Delete only option values that are no longer referenced by ANY variant
+          if (candidateIds.length > 0) {
+            const stillRefRows = await tx
+              .select({
+                id: productOptionValuesVariants.productOptionValueId,
+              })
+              .from(productOptionValuesVariants)
+              .where(
+                inArray(
+                  productOptionValuesVariants.productOptionValueId,
+                  candidateIds,
+                ),
+              );
 
-    bulkDelete: async (ids: number[]) => {
-      return db.transaction(async (tx) => {
-        // Delete all media owned by these variants (images, etc.) - CASCADE will handle thumbnail nullification
-        await tx
-          .delete(media)
-          .where(
-            and(
-              eq(media.ownerType, "PRODUCT_VARIANT"),
-              inArray(media.ownerId, ids),
-            ),
-          );
+            const stillRefSet = new Set(stillRefRows.map((r) => r.id));
+            const toDeleteValueIds = candidateIds.filter(
+              (id) => !stillRefSet.has(id),
+            );
 
-        // Delete variants first
-        const deleted = await tx
-          .delete(productVariants)
-          .where(inArray(productVariants.id, ids))
-          .returning({ id: productVariants.id });
+            if (toDeleteValueIds.length > 0) {
+              await tx
+                .delete(productOptionValues)
+                .where(inArray(productOptionValues.id, toDeleteValueIds));
+            }
+          }
+        }
 
-        return deleted;
-      });
+        return { deletedVariantIds, archivedVariantIds };
+      },
     },
   },
 };

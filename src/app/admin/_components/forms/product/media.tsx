@@ -147,9 +147,9 @@ export function MediaFields({
             onDragStart={handleDragStart}
           >
             <div className="relative flex flex-wrap gap-2">
-              {media.map((m) => (
+              {media.map((m, index) => (
                 <div
-                  key={`${m.mediaId}-container`}
+                  key={`${m.mediaId}-${index}-container`}
                   className="peer group relative"
                 >
                   <SwapableItem id={m.mediaId} className="size-32 rounded-lg">
