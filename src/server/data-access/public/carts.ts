@@ -10,7 +10,7 @@ import {
   products,
   productVariants,
 } from "~/server/db/schema";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 
 type NewCart = typeof carts.$inferInsert;
 type NewCartItem = typeof cartItems.$inferInsert;
@@ -72,6 +72,7 @@ export const _carts = {
           eq(productVariants.id, variantValues.productVariantId),
         )
         .leftJoin(products, eq(productVariants.productId, products.id))
+        .orderBy(desc(productVariants.id))
         .as("variants");
 
       type CartItem = {

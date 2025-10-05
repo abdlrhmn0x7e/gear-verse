@@ -19,6 +19,10 @@ export const _carts = {
 
       return cart;
     },
+
+    getItemsStock: async (productVariantIds: number[]) => {
+      return data.public.inventory.queries.getItemsStock(productVariantIds);
+    },
   },
 
   mutations: {

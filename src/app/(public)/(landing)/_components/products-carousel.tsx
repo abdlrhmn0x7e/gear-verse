@@ -1,10 +1,7 @@
 "use client";
 
 import { PackageOpenIcon } from "lucide-react";
-import Link from "next/link";
 import React from "react";
-import { Heading } from "~/components/heading";
-import { ImageWithFallback } from "~/components/image-with-fallback";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import {
   Carousel,
@@ -17,8 +14,7 @@ import {
 import { Progress } from "~/components/ui/progress";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 import {
   Empty,
   EmptyDescription,
@@ -26,6 +22,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { ProductCard } from "~/components/product-card";
 
 export function ProductsCarousel() {
   const [data] = api.public.products.queries.getPage.useSuspenseQuery({
@@ -129,53 +126,5 @@ export function ProductCardSkeleton() {
       </Carousel>
       <Skeleton className="mt-6 ml-auto h-4 w-36" />
     </div>
-  );
-}
-
-function ProductCard({
-  product,
-}: {
-  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
-}) {
-  console.log("product", product);
-  return (
-    <Link href={`/products/${product.slug}`}>
-      <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
-        <AspectRatio ratio={1} className="overflow-hidden">
-          <ImageWithFallback
-            src={product.thumbnailUrl}
-            alt={product.title}
-            className="size-full rounded-none border-none transition-transform duration-300 group-hover:scale-105"
-            width={512}
-            height={512}
-          />
-        </AspectRatio>
-
-        <Separator />
-
-        <div className="bg-muted flex-1 space-y-4 p-4 text-center sm:text-left">
-          <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <ImageWithFallback
-                src={product.brand.logoUrl}
-                alt={product.brand.name ?? ""}
-                className="size-6 rounded-full"
-                width={48}
-                height={48}
-              />
-              <span className="text-sm font-medium">{product.brand.name}</span>
-            </div>
-
-            <p className="text-muted-foreground text-sm">
-              From {formatCurrency(product.price ?? 0)}
-            </p>
-          </div>
-
-          <div>
-            <Heading level={4}>{product.title}</Heading>
-          </div>
-        </div>
-      </div>
-    </Link>
   );
 }

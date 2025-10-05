@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { api } from "~/trpc/server";
+import { CompleteCheckout } from "./_components/complete-checkout";
 
 export default async function CheckoutPage() {
   const cart = await api.public.carts.queries.find();
@@ -12,12 +13,18 @@ export default async function CheckoutPage() {
     cart.items.length > 1 ? (cart.items.length % 2 === 0 ? 2 : 3) : 1;
 
   return (
-    <section className="min-h-screen py-32">
-      <MaxWidthWrapper className="hidden gap-6 lg:grid lg:grid-cols-2 xl:grid-cols-3">
-        <Card>
+    <section>
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-32 xl:grid-cols-3">
+        <CompleteCheckout
+          className="xl:col-span-2"
+          hasCartItems={cart.items.length > 0}
+        />
+
+        <Card className="hidden h-fit space-y-3 lg:block">
           <CardHeader>
             <CardTitle className="text-xl">Order Summary</CardTitle>
           </CardHeader>
+
           <CardContent className="space-y-8">
             <div
               className="grid gap-2"

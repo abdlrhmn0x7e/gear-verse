@@ -36,7 +36,6 @@ export const orders = pgTable(
       .notNull()
       .references(() => addresses.id),
 
-    phoneNumber: text("phone_number").notNull(),
     paymentMethod: orderPaymentMethodsEnum("payment_method").notNull(),
     status: orderStatusEnum("status").notNull().default("PENDING"),
 

@@ -2,12 +2,12 @@
 
 import { Button } from "~/components/ui/button";
 import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
-import { ArrowBigUpDashIcon } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { ArrowBigUpDashIcon, SparklesIcon } from "lucide-react";
+import { Heading } from "~/components/heading";
 import { api } from "~/trpc/react";
-import { toast } from "sonner";
-import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
+import { Spinner } from "~/components/spinner";
+import { cn } from "~/lib/utils";
 
 export function CompleteCheckout({
   hasCartItems,
@@ -16,43 +16,50 @@ export function CompleteCheckout({
   hasCartItems: boolean;
   className?: string;
 }) {
-  const utils = api.useUtils();
-  const { data: address, isPending: addressPending } =
-    api.public.addresses.find.useQuery();
   const router = useRouter();
-  const { mutate: completeCheckout, isPending: completingCheckout } =
-    api.public.checkout.complete.useMutation({
-      onSuccess: (response) => {
-        void utils.public.carts.invalidate();
-        void utils.public.products.invalidate();
-
-        router.push(`/checkout/success?orderId=${response.id}`);
-      },
-      onError: () => {
-        toast.error("Failed to complete checkout");
+  const { mutate: checkout, isPending: checkoutPending } =
+    api.public.checkout.mutations.complete.useMutation({
+      onSuccess: (order) => {
+        router.push(`/checkout/success?orderId=${order.id}`);
       },
     });
 
   function onSubmit(data: CheckoutFormValues) {
-    completeCheckout(data);
+    checkout(data);
   }
 
   return (
-    <div className={cn("flex flex-col justify-between gap-4", className)}>
-      <CheckoutForm
-        onSubmit={onSubmit}
-        defaultValues={{ address }}
-        disabled={addressPending}
-      />
-      <Button
-        className="w-full lg:w-auto"
-        size="lg"
-        form="checkout-form"
-        disabled={completingCheckout || !hasCartItems}
-      >
-        {completingCheckout ? <Spinner /> : <ArrowBigUpDashIcon />}
-        Checkout
-      </Button>
+    <div className={className}>
+      <div className="flex items-center gap-2">
+        <SparklesIcon className="mb-1 size-6" />
+
+        <Heading level={1} className="text-lg md:text-xl">
+          Gear Verse
+        </Heading>
+      </div>
+
+      <div className="flex h-full flex-col justify-between gap-4">
+        <div
+          className={cn(
+            "flex-1 space-y-4",
+            checkoutPending && "pointer-events-none opacity-50",
+          )}
+        >
+          <Heading level={2}>Your Details</Heading>
+
+          <CheckoutForm onSubmit={onSubmit} />
+        </div>
+
+        <Button
+          className="w-full lg:w-auto"
+          size="lg"
+          form="checkout-form"
+          disabled={!hasCartItems || checkoutPending}
+        >
+          {checkoutPending ? <Spinner /> : <ArrowBigUpDashIcon />}
+          Checkout
+        </Button>
+      </div>
     </div>
   );
 }

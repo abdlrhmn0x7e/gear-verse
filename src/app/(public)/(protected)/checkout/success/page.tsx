@@ -1,13 +1,21 @@
-import { BadgeCheckIcon } from "lucide-react";
+import { BadgeCheckIcon, PackageIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { api } from "~/trpc/server";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { Separator } from "~/components/ui/separator";
 import { PaymentMethod } from "../../_components/payment-method";
+import { Button } from "~/components/ui/button";
+import Link from "next/link";
 
 export default async function SuccessPage({
   searchParams,
@@ -20,14 +28,14 @@ export default async function SuccessPage({
     return notFound();
   }
 
-  const order = await api.public.orders.findById({ id: parsedOrderId });
+  const order = await api.public.orders.queries.findById({ id: parsedOrderId });
   if (!order) {
     return notFound();
   }
 
   return (
-    <section className="min-h-screen py-32 sm:py-48">
-      <MaxWidthWrapper className="max-w-2xl space-y-8">
+    <section>
+      <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32 sm:py-48">
         <div className="flex flex-col items-center gap-4">
           <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
           <div className="text-center">
@@ -40,7 +48,7 @@ export default async function SuccessPage({
         </div>
 
         {/* Order Summary */}
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Order Summary</CardTitle>
           </CardHeader>
@@ -58,44 +66,54 @@ export default async function SuccessPage({
 
                 <PaymentMethod paymentMethod={order.paymentMethod} />
               </div>
-
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-muted-foreground font-medium">Total Price</p>
-                <p className="text-lg font-medium">
-                  {formatCurrency(
-                    order.items.reduce(
-                      (acc, item) =>
-                        acc + item.quantity * item.productVariant.price,
-                      0,
-                    ),
-                  )}
-                </p>
-              </div>
             </div>
 
             <Separator />
 
-            <div className="flex flex-col gap-2 divide-y [&>div]:py-4">
-              {order.items.map((item) => (
-                <div key={item.productVariant.name} className="flex gap-4">
-                  <ImageWithFallback
-                    src={item.productVariant.thumbnail?.url}
-                    alt={item.productVariant.name}
-                    className="size-24 shrink-0"
-                    width={512}
-                    height={512}
-                  />
-
+            <div className="space-y-4">
+              {order.items.map((item, index) => (
+                <div
+                  key={`item-${item.id}-${index}`}
+                  className="flex items-start justify-between gap-3 text-lg font-medium"
+                >
                   <div>
-                    <p className="font-medium">{`${item.quantity}x ${item.productVariant.product.name} - ${item.productVariant.name}`}</p>
-                    <p className="text-muted-foreground line-clamp-3 text-sm">
-                      {item.productVariant.product.summary}
+                    <p>
+                      {item.quantity} x {item.title}
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      {item.values.join(", ")}
                     </p>
                   </div>
+
+                  <p className="text-primary-foreground text-lg font-medium">
+                    {formatCurrency(item.price * item.quantity)}
+                  </p>
                 </div>
               ))}
             </div>
+            <Separator />
+
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-muted-foreground font-medium">Total Price</p>
+              <p className="text-lg font-medium">
+                {formatCurrency(
+                  order.items.reduce(
+                    (acc, item) => acc + item.quantity * item.price,
+                    150,
+                  ),
+                )}
+              </p>
+            </div>
           </CardContent>
+
+          <CardFooter>
+            <Button className="w-full" variant="link" asChild>
+              <Link href="/orders">
+                <PackageIcon />
+                Track your orders
+              </Link>
+            </Button>
+          </CardFooter>
         </Card>
       </MaxWidthWrapper>
     </section>

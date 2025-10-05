@@ -1,10 +1,10 @@
 import {
   bigint,
+  index,
   pgEnum,
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { relations } from "drizzle-orm";
@@ -50,7 +50,10 @@ export const addresses = pgTable(
       .notNull()
       .references(() => users.id),
 
+    fullName: text("full_name").notNull(),
+    phoneNumber: text("phone_number").notNull(),
     address: text("address").notNull(),
+    buildingNameOrNumber: text("building_name_or_number").notNull(),
     city: text("city").notNull(),
     governorate: addressGovernoratesEnum("governorate").notNull(),
 
@@ -60,7 +63,7 @@ export const addresses = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [uniqueIndex("idx_addresses_user_id").on(table.userId)],
+  (table) => [index("idx_addresses_user_id").on(table.userId)],
 );
 
 export const addressRelations = relations(addresses, ({ one, many }) => ({

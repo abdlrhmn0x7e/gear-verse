@@ -1,4 +1,5 @@
 import z from "zod";
+import { phoneNumberSchema } from "../phone-number";
 
 export const addressGovernoratesEnum = z.enum([
   "ALEXANDRIA",
@@ -34,7 +35,12 @@ export type AddressGovernoratesEnum = z.infer<typeof addressGovernoratesEnum>;
 export const addressEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
+  fullName: z.string().min(1, "Full name is required"),
+  phoneNumber: phoneNumberSchema,
   address: z.string().min(1, "Address is required"),
+  buildingNameOrNumber: z
+    .string()
+    .min(1, "Building name or number is required"),
   city: z.string().min(1, "City is required"),
   governorate: addressGovernoratesEnum,
 

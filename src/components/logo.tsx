@@ -14,7 +14,7 @@ export function Logo({
 }) {
   if (transparent) {
     return (
-      <div className={cn("h-12 overflow-hidden", className)}>
+      <div className={cn("w-18 overflow-hidden", className)}>
         <Image
           src="/images/gear-dark-transparent.png"
           alt="Gear Verse"

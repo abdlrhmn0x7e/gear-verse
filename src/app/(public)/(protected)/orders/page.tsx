@@ -13,7 +13,7 @@ export default async function OrdersPage({
   searchParams: Promise<SearchParams>;
 }) {
   void loadOrderSearchParams(searchParams);
-  const orders = await api.public.orders.findAll();
+  const orders = await api.public.orders.queries.findAll();
 
   return (
     <section className="min-h-screen py-32">

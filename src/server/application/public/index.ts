@@ -3,6 +3,8 @@ import { _brands } from "./brands";
 import { _carts } from "./carts";
 import { _categories } from "./categories";
 import { _reviews } from "./reviews";
+import { _checkout } from "./check-out";
+import { _orders } from "./orders";
 
 export const _public = {
   products: _products,
@@ -10,4 +12,6 @@ export const _public = {
   brands: _brands,
   carts: _carts,
   reviews: _reviews,
+  checkout: _checkout,
+  orders: _orders,
 };
