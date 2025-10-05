@@ -22,24 +22,29 @@ export function AddToCartButton({
   productVariantId: number;
   stock: number;
 }) {
-  const { mutate: addToCart, isPending: addingToCart } =
-    api.public.carts.addItem.useMutation();
-  const { mutate: removeFromCart, isPending: removingFromCart } =
-    api.public.carts.removeItem.useMutation();
-  const { data: cart } = api.public.carts.find.useQuery();
-  const [, setParams] = useCartSearchParams();
   const utils = api.useUtils();
+  const [, setParams] = useCartSearchParams();
+
+  const { mutate: addToCart, isPending: addingToCart } =
+    api.public.carts.mutations.addItem.useMutation();
+  const { mutate: removeFromCart, isPending: removingFromCart } =
+    api.public.carts.mutations.removeItem.useMutation();
+  const { data: cart } = api.public.carts.queries.find.useQuery();
+
   const currentCartItem = useMemo(
-    () =>
-      cart?.items.find((item) => item.productVariant?.id === productVariantId),
+    () => cart?.items.find((item) => item.id === productVariantId),
     [cart, productVariantId],
   );
+
+  const onSuccess = () => {
+    void utils.public.carts.queries.find.invalidate();
+  };
 
   function handleAddToCart() {
     addToCart(
       { productVariantId },
       {
-        onSuccess: () => void utils.public.carts.find.invalidate(),
+        onSuccess,
       },
     );
   }
@@ -49,7 +54,7 @@ export function AddToCartButton({
     removeFromCart(
       { productVariantId },
       {
-        onSuccess: () => void utils.public.carts.find.invalidate(),
+        onSuccess,
       },
     );
   }
@@ -59,7 +64,7 @@ export function AddToCartButton({
     addToCart(
       { productVariantId },
       {
-        onSuccess: () => void utils.public.carts.find.invalidate(),
+        onSuccess,
       },
     );
   }

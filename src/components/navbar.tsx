@@ -4,23 +4,19 @@ import { Logo } from "./logo";
 import { Button } from "./ui/button";
 import {
   ArrowRightCircleIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   DoorOpenIcon,
   HomeIcon,
-  ListTreeIcon,
   MinusIcon,
   PlusIcon,
   ShieldUserIcon,
   type LucideIcon,
 } from "lucide-react";
 import {
+  useEffect,
   useState,
   type ComponentProps,
-  type Dispatch,
   type ForwardRefExoticComponent,
   type RefAttributes,
-  type SetStateAction,
 } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -43,15 +39,12 @@ import {
 } from "@tabler/icons-react";
 import { AspectRatio } from "./ui/aspect-ratio";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { iconsMap } from "~/lib/icons-map";
@@ -102,9 +95,22 @@ export function Navbar({
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
 
+  const utils = api.useUtils();
   const { data: cart, isPending: isPendingCart } =
-    api.public.carts.find.useQuery();
+    api.public.carts.queries.find.useQuery();
   const [, setParams] = useCartSearchParams();
+  const pathname = usePathname();
+
+  // prefetch products
+  useEffect(() => {
+    void utils.public.products.queries.getPage.prefetch({
+      pageSize: 6,
+    });
+  }, [utils]);
+
+  useEffect(() => {
+    setProductsMenuOpen(false);
+  }, [pathname]);
 
   return (
     <>
@@ -237,24 +243,19 @@ function ProductsMenu({ open }: { open: boolean }) {
         paddingBottom: "1rem",
       }}
       animate={open ? "open" : "closed"}
-      className="grid grid-cols-4 gap-3 overflow-hidden"
+      className="mx-auto grid max-w-screen-xl grid-cols-4 gap-3 overflow-hidden px-3"
     >
       <div className="col-span-3 space-y-3">
-        <Link
-          href="/products"
-          className="hover:bg-accent/20 hover:border-border block w-full rounded-lg border border-transparent px-2 py-1 transition-all"
-        >
-          <Header
-            title="Recent Products"
-            description="View our recent products"
-            Icon={IconShoppingBagPlus}
-            headingLevel={4}
-          />
-        </Link>
+        <Header
+          title="Recent Products"
+          description="View our recent products"
+          Icon={IconShoppingBagPlus}
+          headingLevel={4}
+        />
 
         <ProductsMenuContent />
 
-        <Button variant="ghost" size="lg" asChild>
+        <Button variant="link" size="lg" asChild>
           <Link href="/products">
             <ArrowRightCircleIcon />
             View All Products
@@ -262,10 +263,10 @@ function ProductsMenu({ open }: { open: boolean }) {
         </Button>
       </div>
 
-      <div className="col-span-1 space-y-1 p-4">
+      <div className="col-span-1 space-y-1">
         {SOCIAL_LINKS.map((link) => (
           <Button
-            variant="ghost"
+            variant="link"
             size="lg"
             className="w-full justify-start"
             asChild
@@ -337,7 +338,7 @@ function ProductCard({
             alt={products.title}
             width={512}
             height={512}
-            className="size-full border-none object-cover transition-all group-hover:scale-105"
+            className="size-full border-none object-cover"
           />
         </AspectRatio>
 
@@ -501,17 +502,17 @@ function MobileMenu() {
 function CartDrawer({
   cart,
 }: {
-  cart: RouterOutputs["public"]["carts"]["find"];
+  cart: RouterOutputs["public"]["carts"]["queries"]["find"];
 }) {
   const utils = api.useUtils();
-  // const { mutate: removeItem, isPending: removingItem } =
-  //   api.public.carts.removeItem.useMutation({
-  //     onSuccess: () => void utils.public.carts.find.invalidate(),
-  //   });
-  // const { mutate: addItem, isPending: addingItem } =
-  //   api.public.carts.addItem.useMutation({
-  //     onSuccess: () => void utils.public.carts.find.invalidate(),
-  //   });
+  const { mutate: removeItem, isPending: removingItem } =
+    api.public.carts.mutations.removeItem.useMutation({
+      onSuccess: () => void utils.public.carts.queries.find.invalidate(),
+    });
+  const { mutate: addItem, isPending: addingItem } =
+    api.public.carts.mutations.addItem.useMutation({
+      onSuccess: () => void utils.public.carts.queries.find.invalidate(),
+    });
   const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();
 
@@ -559,8 +560,8 @@ function CartDrawer({
                   <div
                     className={cn(
                       "flex w-full items-center gap-6 rounded-lg border p-1",
-                      // removingItem ||
-                      //   (addingItem && "pointer-events-none opacity-50"),
+                      removingItem ||
+                        (addingItem && "pointer-events-none opacity-50"),
                     )}
                   >
                     <Button
@@ -568,12 +569,11 @@ function CartDrawer({
                       size="icon"
                       className="flex-1 md:size-6"
                       onClick={() =>
-                        // removeItem({
-                        //   productVariantId: item.productVariant?.id ?? 0,
-                        // })
-                        console.log("remove item")
+                        removeItem({
+                          productVariantId: item.id ?? 0,
+                        })
                       }
-                      // disabled={removingItem}
+                      disabled={removingItem}
                     >
                       <MinusIcon className="size-4" />
                     </Button>
@@ -583,14 +583,14 @@ function CartDrawer({
                       size="icon"
                       className="flex-1 md:size-6"
                       onClick={() =>
-                        // addItem({
-                        //   productVariantId: item.id ?? 0,
-                        // })
-                        console.log("add item")
+                        addItem({
+                          productVariantId: item.id ?? 0,
+                        })
                       }
                       disabled={
-                        // addingItem ||
-                        item.stock === 0 || (item.stock ?? 0) <= item.quantity
+                        addingItem ||
+                        item.stock === 0 ||
+                        (item.stock ?? 0) <= item.quantity
                       }
                     >
                       <PlusIcon className="size-4" />

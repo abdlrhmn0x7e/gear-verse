@@ -1,6 +1,5 @@
 import { cn } from "~/lib/utils";
 import { ImageWithFallback } from "./image-with-fallback";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { type RouterOutputs } from "~/trpc/react";
 
 export function VariantButton({
@@ -12,27 +11,20 @@ export function VariantButton({
   className?: string;
 } & React.ComponentProps<"button">) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          className={cn(
-            "ring-primary focus-visible:ring-ring relative size-16 cursor-pointer rounded-md border transition-opacity hover:opacity-80 hover:ring-2 focus-visible:ring-2 focus-visible:outline-none",
-            className,
-          )}
-          {...props}
-        >
-          <ImageWithFallback
-            src={variant.thumbnailUrl}
-            alt={Object.values(variant.optionValues).join(", ")}
-            className="size-full"
-            width={100}
-            height={100}
-          />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{Object.values(variant.optionValues).join(", ")}</p>
-      </TooltipContent>
-    </Tooltip>
+    <button
+      className={cn(
+        "ring-primary focus-visible:ring-ring relative size-16 cursor-pointer rounded-md border transition-opacity hover:opacity-80 hover:ring-2 focus-visible:ring-2 focus-visible:outline-none",
+        className,
+      )}
+      {...props}
+    >
+      <ImageWithFallback
+        src={variant.thumbnailUrl}
+        alt={Object.values(variant.optionValues).join(", ")}
+        className="size-full"
+        width={100}
+        height={100}
+      />
+    </button>
   );
 }

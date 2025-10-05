@@ -23,7 +23,7 @@ export const _carts = {
         .from(carts)
         .where(eq(carts.userId, userId))
         .limit(1)
-        .then((res) => res[0]);
+        .then(([res]) => res);
     },
 
     find: async (userId: number) => {
@@ -140,15 +140,15 @@ export const _carts = {
         .insert(carts)
         .values(cart)
         .returning({ id: carts.id })
-        .then((res) => res[0]);
+        .then(([res]) => res);
     },
 
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
         const [variant] = await tx
-          .select({ stock: variants.stock })
-          .from(variants)
-          .where(eq(variants.id, item.productVariantId))
+          .select({ stock: inventoryItems.quantity })
+          .from(inventoryItems)
+          .where(eq(inventoryItems.variantId, item.productVariantId))
           .limit(1);
 
         if (!variant) {

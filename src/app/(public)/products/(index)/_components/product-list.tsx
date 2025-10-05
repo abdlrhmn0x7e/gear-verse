@@ -128,7 +128,7 @@ function ProductCard({
 
         <div className="space-y-3">
           <div className="space-y-3 px-1">
-            <div className="space-y-1">
+            <div>
               <div className="flex items-center gap-2">
                 <ImageWithFallback
                   src={product.brand.logoUrl}
@@ -137,25 +137,23 @@ function ProductCard({
                   width={16}
                   height={16}
                 />
-
                 <span className="text-md mb-1">{product.brand.name}</span>
               </div>
 
               <Heading level={4}>{product.title}</Heading>
+
+              <p className="line-clamp-3">{product.summary}</p>
             </div>
 
-            <p className="line-clamp-3">{product.summary}</p>
-
-            <p className="flex items-center justify-between gap-3">
+            <p className="flex items-end gap-3">
+              <span className="text-primary-foreground text-xl font-semibold">
+                {formatCurrency(product.price)}
+              </span>
               {product.strikeThroughPrice && (
                 <span className="text-muted-foreground line-through">
                   {formatCurrency(product.strikeThroughPrice)}
                 </span>
               )}
-
-              <span className="text-primary-foreground text-xl font-semibold">
-                {formatCurrency(product.price)}
-              </span>
             </p>
 
             {product.variants.length > 0 && (
