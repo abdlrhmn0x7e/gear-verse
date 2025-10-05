@@ -24,7 +24,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${productVariants.overridePrice})`,
+          totalPrice: sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`,
           createdAt: orders.createdAt,
         })
         .from(orders)
@@ -33,6 +33,7 @@ export const _orders = {
           productVariants,
           eq(orderItems.productVariantId, productVariants.id),
         )
+        .leftJoin(products, eq(productVariants.productId, products.id))
         .where(eq(orders.userId, userId))
         .groupBy(orders.id);
     },

@@ -20,7 +20,7 @@ import { PackageOpenIcon } from "lucide-react";
 export function OrdersDrawer() {
   const [params, setParams] = useOrdersSearchParams();
   const { data: order, isPending: orderPending } =
-    api.public.orders.findById.useQuery(
+    api.public.orders.queries.findById.useQuery(
       {
         id: params.orderId ?? 0,
       },
@@ -60,7 +60,7 @@ export function OrdersDrawer() {
 function OrderDetails({
   order,
 }: {
-  order: RouterOutputs["public"]["orders"]["findById"];
+  order: RouterOutputs["public"]["orders"]["queries"]["findById"];
 }) {
   return (
     <div className="space-y-6 px-4 pb-12">
@@ -81,8 +81,8 @@ function OrderDetails({
           <p className="font-medium">
             {formatCurrency(
               order.items.reduce(
-                (acc, item) => acc + item.quantity * item.productVariant.price,
-                0,
+                (acc, item) => acc + item.quantity * item.price,
+                150,
               ),
             )}
           </p>
@@ -92,20 +92,20 @@ function OrderDetails({
       <Separator />
 
       <div className="flex flex-col gap-2 divide-y [&>div]:py-4">
-        {order.items.map((item) => (
-          <div key={item.productVariant.name} className="flex gap-4">
+        {order.items.map((item, index) => (
+          <div key={`item-${item.title}-${index}`} className="flex gap-4">
             <ImageWithFallback
-              src={item.productVariant.thumbnail?.url}
-              alt={item.productVariant.name}
+              src={item.thumbnailUrl}
+              alt={item.title}
               className="size-24 shrink-0"
               width={512}
               height={512}
             />
 
             <div>
-              <p className="font-medium">{`${item.quantity}x ${item.productVariant.product.name} - ${item.productVariant.name}`}</p>
+              <p className="font-medium">{`${item.quantity}x ${item.title} - ${item.values.join(", ")}`}</p>
               <p className="text-muted-foreground line-clamp-3 text-sm">
-                {item.productVariant.product.summary}
+                {item.summary}
               </p>
             </div>
           </div>
