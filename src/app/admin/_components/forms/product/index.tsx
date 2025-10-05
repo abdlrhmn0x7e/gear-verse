@@ -46,7 +46,6 @@ import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
 import { TriangleAlertIcon } from "lucide-react";
 import { PriceInput } from "../../inputs/price-input";
-import { generateRandomId } from "~/lib/utils/generate-random-id";
 import {
   InputGroup,
   InputGroupAddon,
@@ -157,18 +156,6 @@ export function ProductForm({
   } = useFieldArray({
     control: form.control,
     name: "media",
-  });
-
-  const {
-    fields: optionFields,
-    append: appendOption,
-    swap: swapOption,
-    remove: removeOption,
-  } = useFieldArray({
-    control: form.control,
-    name: "options",
-    keyName: "keyId",
-    shouldUnregister: true,
   });
 
   // you have to subscribe to the dirty fields here
@@ -290,23 +277,13 @@ export function ProductForm({
                 <FormField
                   control={form.control}
                   name="options"
-                  render={({ field }) => (
-                    <FormControl>
-                      <Options
-                        options={field.value}
-                        add={(id) => {
-                          const valueId = generateRandomId();
-
-                          appendOption({
-                            id,
-                            name: "",
-                            values: [{ id: valueId, value: "" }],
-                          });
-                        }}
-                        remove={(index) => removeOption(index)}
-                        swap={swapOption}
-                      />
-                    </FormControl>
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <Options />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
               </div>

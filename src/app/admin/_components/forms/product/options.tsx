@@ -153,6 +153,7 @@ function Option({
   const option = useWatch({
     control: form.control,
     name: `options.${index}`,
+    exact: true,
   });
 
   async function handleDone() {
@@ -164,6 +165,8 @@ function Option({
   }
 
   function renderOptionContent() {
+    if (!option) return null;
+
     if (!open) {
       return (
         <motion.button

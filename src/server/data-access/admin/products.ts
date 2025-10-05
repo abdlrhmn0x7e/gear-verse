@@ -488,7 +488,10 @@ export const _products = {
           .insert(productVariants)
           .values(
             newVariants.map((variant) => ({
-              ...variant,
+              overridePrice:
+                variant.overridePrice === 0 ? null : variant.overridePrice,
+              archived: variant.archived,
+              thumbnailMediaId: variant.thumbnailMediaId,
               productId,
             })),
           )
