@@ -20,7 +20,6 @@ import { type RouterOutputs } from "~/trpc/react";
 import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
-import { toast } from "sonner";
 
 type Media =
   RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];

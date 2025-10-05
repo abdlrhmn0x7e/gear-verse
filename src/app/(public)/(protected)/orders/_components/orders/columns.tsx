@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { PaymentMethod } from "../../../_components/payment-method";
 
 export const ordersColumns: ColumnDef<
-  RouterOutputs["public"]["queries"]["orders"]["findAll"][number]
+  RouterOutputs["public"]["orders"]["queries"]["findAll"][number]
 >[] = [
   {
     accessorKey: "id",

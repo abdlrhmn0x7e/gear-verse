@@ -17,7 +17,7 @@ type NewProductVariant = Omit<
   stock: number;
 };
 
-export const _adminProductVariants = {
+export const _productVariants = {
   queries: {},
   mutations: {
     async upsertMany(

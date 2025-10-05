@@ -26,7 +26,6 @@ import { humanizeString } from "~/lib/utils/humanize-string";
 import { cn } from "~/lib/utils";
 import { ProductVariantsCombobox } from "../inputs/product-variants-combobox";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { OrderStatus } from "../tables/orders/order-status";
 

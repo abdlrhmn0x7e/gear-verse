@@ -42,7 +42,7 @@ export function OrdersTable() {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery(
-    utils.admin.orders.getPage.infiniteQueryOptions(
+    utils.admin.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {

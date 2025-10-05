@@ -5,7 +5,7 @@ import { media } from "../../db/schema";
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
 
-export const _adminMediaRepo = {
+export const _media = {
   queries: {
     getPage: ({
       cursor,

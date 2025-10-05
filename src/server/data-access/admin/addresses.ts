@@ -3,7 +3,7 @@ import { addresses } from "~/server/db/schema";
 
 type NewAddress = typeof addresses.$inferInsert;
 
-export const _adminAddressesRepo = {
+export const _addresses = {
   mutations: {
     create: async (input: NewAddress) => {
       const [address] = await db

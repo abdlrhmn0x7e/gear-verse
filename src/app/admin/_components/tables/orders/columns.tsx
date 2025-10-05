@@ -11,7 +11,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
 export const ordersColumns: ColumnDef<
-  RouterOutputs["admin"]["orders"]["getPage"]["data"][number]
+  RouterOutputs["admin"]["orders"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",

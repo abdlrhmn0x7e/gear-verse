@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormContext, useWatch } from "react-hook-form";
 import type { ProductFormValues } from ".";
 import { useEffect, useMemo, useState } from "react";
 import { cartesianProduct } from "~/lib/utils/cartesian-product";

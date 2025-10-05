@@ -82,7 +82,7 @@ export function FilterList({
           <div className="flex items-center gap-2">
             <div className="size-6 overflow-hidden rounded-sm border">
               <ImageWithFallback
-                src={brand?.logoUrl}
+                src={brand?.logo?.url}
                 alt={brand?.name ?? `Brand name ${value}`}
                 width={20}
                 height={20}

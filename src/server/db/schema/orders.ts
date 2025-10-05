@@ -4,7 +4,6 @@ import {
   integer,
   pgEnum,
   pgTable,
-  text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";

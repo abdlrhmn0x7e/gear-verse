@@ -1,23 +1,23 @@
-import { _adminBrandsRepo } from "./brands";
-import { _adminCategoriesRepo } from "./categories";
-import { _adminMediaRepo } from "./media";
-import { _adminOrdersRepo } from "./orders";
-import { _adminProductVariants } from "./product-variants";
-import { _adminProducts } from "./products";
-import { _adminUsers } from "./users";
-import { _adminAddressesRepo } from "./addresses";
-import { _adminOptions } from "./options";
-import { _adminOptionValuesRepo } from "./option-values";
+import { _brands } from "./brands";
+import { _categories } from "./categories";
+import { _media } from "./media";
+import { _orders } from "./orders";
+import { _productVariants } from "./product-variants";
+import { _products } from "./products";
+import { _users } from "./users";
+import { _addresses } from "./addresses";
+import { _options } from "./options";
+import { _optionValues } from "./option-values";
 
 export const _adminRepo = {
-  products: _adminProducts,
-  productVariants: _adminProductVariants,
-  productOptions: _adminOptions,
-  productOptionValues: _adminOptionValuesRepo,
-  brands: _adminBrandsRepo,
-  categories: _adminCategoriesRepo,
-  media: _adminMediaRepo,
-  orders: _adminOrdersRepo,
-  addresses: _adminAddressesRepo,
-  users: _adminUsers,
+  products: _products,
+  productVariants: _productVariants,
+  productOptions: _options,
+  productOptionValues: _optionValues,
+  brands: _brands,
+  categories: _categories,
+  media: _media,
+  orders: _orders,
+  addresses: _addresses,
+  users: _users,
 };

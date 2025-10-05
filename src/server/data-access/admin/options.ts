@@ -5,7 +5,7 @@ type NewOption = typeof productOptions.$inferInsert & {
   values: { id: number; value: string; order: number }[];
 };
 
-export const _adminOptions = {
+export const _options = {
   mutations: {
     upsertMany: async (data: NewOption[]) => {
       const valuesIdToDbId = new Map<number, number>();

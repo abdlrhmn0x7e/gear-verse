@@ -17,7 +17,7 @@ export function ProductsTableSkeleton() {
         <SearchInput
           className="max-w-sm"
           disabled
-          defaultValue={filters.name ?? ""}
+          defaultValue={filters.title ?? ""}
         >
           <button className="text-muted-foreground [&_svg]:size-4" disabled>
             <ListFilterIcon />

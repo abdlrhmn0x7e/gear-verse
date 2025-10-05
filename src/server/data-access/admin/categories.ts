@@ -1,11 +1,10 @@
 import { db } from "../../db";
 import { eq, sql } from "drizzle-orm";
 import { categories } from "../../db/schema";
-import type { CategoryTree } from "~/lib/schemas/entities/category";
 
 type NewCategory = typeof categories.$inferInsert;
 
-export const _adminCategoriesRepo = {
+export const _categories = {
   queries: {
     async findAll() {
       const query = sql<{ tree: string }[]>`

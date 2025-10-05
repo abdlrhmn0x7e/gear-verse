@@ -63,6 +63,7 @@ import {
 import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useCartSearchParams } from "~/hooks/use-cart-search-params";
+import { useRouter } from "next/navigation";
 
 export interface NavigationLink {
   title: string;
@@ -93,7 +94,7 @@ export function Navbar({
   user: (User & { role?: string | null | undefined }) | null;
 }) {
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
-  const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
+  const [, setCategoriesMenuOpen] = useState(false);
 
   const utils = api.useUtils();
   const { data: cart, isPending: isPendingCart } =
@@ -505,13 +506,20 @@ function CartDrawer({
   cart: RouterOutputs["public"]["carts"]["queries"]["find"];
 }) {
   const utils = api.useUtils();
+  const router = useRouter();
   const { mutate: removeItem, isPending: removingItem } =
     api.public.carts.mutations.removeItem.useMutation({
-      onSuccess: () => void utils.public.carts.queries.find.invalidate(),
+      onSuccess: () => {
+        void utils.public.carts.queries.find.invalidate();
+        router.refresh();
+      },
     });
   const { mutate: addItem, isPending: addingItem } =
     api.public.carts.mutations.addItem.useMutation({
-      onSuccess: () => void utils.public.carts.queries.find.invalidate(),
+      onSuccess: () => {
+        void utils.public.carts.queries.find.invalidate();
+        router.refresh();
+      },
     });
   const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();

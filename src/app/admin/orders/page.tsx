@@ -6,7 +6,7 @@ import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { AddOrderDialog } from "../_components/dialogs/add-order";
 
 export default function AdminOrdersPage() {
-  void api.admin.orders.getPage.prefetchInfinite({
+  void api.admin.orders.queries.getPage.prefetchInfinite({
     pageSize: 10,
   });
 

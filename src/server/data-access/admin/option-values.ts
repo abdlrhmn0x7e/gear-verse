@@ -3,7 +3,7 @@ import { productOptionValues } from "~/server/db/schema";
 
 type NewOptionValue = typeof productOptionValues.$inferInsert;
 
-export const _adminOptionValuesRepo = {
+export const _optionValues = {
   mutations: {
     upsertMany: async (data: NewOptionValue[]) => {
       return db.transaction(async (tx) => {

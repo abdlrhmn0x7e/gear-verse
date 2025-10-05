@@ -1,11 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
 import { TRPCError } from "@trpc/server";
-import z from "zod";
-import { phoneNumberSchema } from "~/lib/schemas/phone-number";
-import {
-  addressGovernoratesEnum,
-  createAddressInputSchema,
-} from "~/lib/schemas/entities/address";
+import { createAddressInputSchema } from "~/lib/schemas/entities/address";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";

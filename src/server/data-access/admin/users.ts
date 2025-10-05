@@ -2,7 +2,7 @@ import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { asc } from "drizzle-orm";
 
-export const _adminUsers = {
+export const _users = {
   queries: {
     findAll: async () => {
       return db

@@ -38,7 +38,7 @@ type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
 type UpdateSeo = Partial<NewSeo>;
 type UpdateProduct = Partial<NewProduct & { media: number[]; seo: UpdateSeo }>;
 
-export const _adminProducts = {
+export const _products = {
   queries: {
     getPage: async ({
       cursor,

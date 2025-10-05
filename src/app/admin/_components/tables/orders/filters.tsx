@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  CoinsIcon,
-  ListFilterIcon,
-  SquareDashedIcon,
-  TagIcon,
-  TargetIcon,
-} from "lucide-react";
+import { CoinsIcon, ListFilterIcon, SquareDashedIcon } from "lucide-react";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuSubContent,
