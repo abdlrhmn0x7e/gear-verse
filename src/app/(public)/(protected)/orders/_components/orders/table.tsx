@@ -19,7 +19,7 @@ import { useOrdersSearchParams } from "../../_hooks/use-orders-search-params";
 export function OrdersTable({
   orders,
 }: {
-  orders: RouterOutputs["public"]["orders"]["queries"]["findAll"];
+  orders: RouterOutputs["public"]["queries"]["orders"]["findAll"];
 }) {
   const [, setParams] = useOrdersSearchParams();
 

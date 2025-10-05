@@ -13,10 +13,10 @@ export default async function UserLayout({
   const data = await auth.api.getSession({
     headers: await headers(),
   });
-  void api.public.products.getPage.prefetch({
+  void api.public.products.queries.getPage.prefetch({
     pageSize: 10,
   });
-  void api.public.products.getPage.prefetch({
+  void api.public.products.queries.getPage.prefetch({
     pageSize: 6,
   });
 

@@ -1,23 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 import { useAllProductSearchParams } from "./hooks";
 import { useDebounce } from "~/hooks/use-debounce";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { Heading } from "~/components/heading";
 import { Button } from "~/components/ui/button";
-import {
-  ArrowUpRightIcon,
-  CheckCircleIcon,
-  EyeIcon,
-  XIcon,
-} from "lucide-react";
+import { ArrowUpRightIcon } from "lucide-react";
 import {
   Empty,
   EmptyContent,
@@ -27,7 +17,6 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
-import { Badge } from "~/components/ui/badge";
 import { ProductCard } from "~/components/product-card";
 
 export function ProductList() {

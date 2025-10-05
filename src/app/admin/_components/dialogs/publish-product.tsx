@@ -34,7 +34,7 @@ export function PublishProductDialog({
 }) {
   const utils = api.useUtils();
   const { mutate: updateProduct, isPending } =
-    api.admin.products.update.useMutation();
+    api.admin.products.mutations.update.useMutation();
 
   function handlePublish() {
     updateProduct(

@@ -1,7 +1,6 @@
 import { BadgeCheckIcon, PackageIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Heading } from "~/components/heading";
-import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import {
   Card,

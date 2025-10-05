@@ -32,7 +32,7 @@ export function DeleteProductDialog({
 }) {
   const utils = api.useUtils();
   const { mutate: deleteProduct, isPending } =
-    api.admin.products.delete.useMutation();
+    api.admin.products.mutations.delete.useMutation();
 
   function handleDelete() {
     deleteProduct(
