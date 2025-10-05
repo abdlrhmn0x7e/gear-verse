@@ -34,7 +34,9 @@ export const _products = {
       return data.admin.products.mutations.createDeep({
         newProduct: {
           ...product,
-          slug: seo?.urlHandler ?? generateSlug(product.title),
+          slug: !!seo?.urlHandler
+            ? seo?.urlHandler
+            : generateSlug(product.title),
           thumbnailMediaId: thumbnail.mediaId,
         },
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
