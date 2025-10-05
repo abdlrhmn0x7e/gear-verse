@@ -539,7 +539,7 @@ function CartDrawer({
             cart.items.map((item, idx) => (
               <div key={`cart-item-${idx}`} className="flex items-center gap-3">
                 <ImageWithFallback
-                  src={item.thumbnail?.url}
+                  src={item.thumbnailUrl}
                   alt={item.title ?? `Product ${idx + 1}`}
                   className="size-24 shrink-0 rounded-md"
                   width={256}

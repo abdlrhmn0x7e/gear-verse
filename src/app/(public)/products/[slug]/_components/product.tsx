@@ -117,7 +117,7 @@ export function Product({
             <div className="space-y-2">
               <div className="flex flex-col justify-between gap-2 lg:flex-row">
                 <Heading level={2}>{product.title}</Heading>
-                <Badge variant="outline" className="rounded-full pr-1.5">
+                <Badge variant="outline" className="h-9 rounded-full pr-1.5">
                   <ImageWithFallback
                     src={product.brand.logoUrl}
                     alt={product.brand.name ?? "unknown brand"}

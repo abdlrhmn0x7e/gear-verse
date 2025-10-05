@@ -58,10 +58,7 @@ export const _carts = {
               "price",
             ),
           stock: sql`${inventoryItems.quantity}`.as("stock"),
-          quantity: sql`${cartItems.quantity}`.as("item_quantity"),
-          thumbnail: {
-            url: media.url,
-          },
+          thumbnailUrl: media.url,
           values: variantValues.json,
         })
         .from(productVariants)
@@ -75,12 +72,7 @@ export const _carts = {
           eq(productVariants.id, variantValues.productVariantId),
         )
         .leftJoin(products, eq(productVariants.productId, products.id))
-        .leftJoin(cartItems, eq(productVariants.id, cartItems.productVariantId))
-        .leftJoin(
-          carts,
-          and(eq(cartItems.cartId, carts.id), eq(carts.userId, userId)),
-        )
-        .as("cart_variants");
+        .as("variants");
 
       type CartItem = {
         id: number;
@@ -88,31 +80,30 @@ export const _carts = {
         stock: number;
         title: string;
         price: number;
-        thumbnail: { url: string };
+        thumbnailUrl: string;
         values: string[];
       };
 
       const cartVariantsJson = db
         .select({
-          id: cartVariants.id,
+          id: cartItems.cartId,
           json: sql<CartItem[]>`
             jsonb_agg(
               jsonb_build_object(
                 'id', ${cartVariants.id},
-                'quantity', ${cartVariants.quantity},
+                'quantity', ${cartItems.quantity},
                 'stock', ${cartVariants.stock},
                 'title', ${cartVariants.title},
                 'price', ${cartVariants.price},
-                'thumbnail', jsonb_build_object(
-                  'url', ${cartVariants.thumbnail.url}
-                ),
+                'thumbnailUrl', ${cartVariants.thumbnailUrl},
                 'values', ${cartVariants.values}
               )
             )
           `.as("items"),
         })
         .from(cartVariants)
-        .groupBy(cartVariants.id)
+        .leftJoin(cartItems, eq(cartItems.productVariantId, cartVariants.id))
+        .groupBy(cartItems.cartId)
         .as("cart_variants_json");
 
       return db
@@ -123,11 +114,7 @@ export const _carts = {
           >`coalesce(${cartVariantsJson.json}, '[]'::jsonb)`.as("items"),
         })
         .from(carts)
-        .leftJoin(cartItems, eq(carts.id, cartItems.cartId))
-        .leftJoin(
-          cartVariantsJson,
-          eq(cartItems.productVariantId, cartVariantsJson.id),
-        )
+        .leftJoin(cartVariantsJson, eq(carts.id, cartVariantsJson.id))
         .where(eq(carts.userId, userId))
         .limit(1)
         .then(([res]) => res);
