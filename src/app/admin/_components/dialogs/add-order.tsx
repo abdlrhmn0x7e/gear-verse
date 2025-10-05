@@ -5,6 +5,7 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DrawerDialog,
+  DrawerDialogBody,
   DrawerDialogContent,
   DrawerDialogDescription,
   DrawerDialogFooter,
@@ -12,16 +13,9 @@ import {
   DrawerDialogTitle,
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
-import { OrderForm, type OrderFormValues } from "../forms/order-form";
-
-const CREATE_ORDER_FORM_ID = "create-order-form";
 
 export function AddOrderDialog() {
   const [open, setOpen] = useState(false);
-
-  function onSubmit(values: OrderFormValues) {
-    console.log(values);
-  }
 
   return (
     <DrawerDialog open={open} onOpenChange={setOpen}>
@@ -39,14 +33,13 @@ export function AddOrderDialog() {
           </DrawerDialogDescription>
         </DrawerDialogHeader>
 
-        <OrderForm
-          formId={CREATE_ORDER_FORM_ID}
-          onSubmit={onSubmit}
-          isBusy={false}
-        />
+        <DrawerDialogBody>
+          One day you&apos;ll grow up son. untill then, you&apos;ll be a baby.
+          (a wise man)
+        </DrawerDialogBody>
 
         <DrawerDialogFooter>
-          <Button type="submit" form={CREATE_ORDER_FORM_ID} disabled={false}>
+          <Button type="submit" disabled={false}>
             {false ? "Creating..." : "Create Order"}
           </Button>
         </DrawerDialogFooter>
