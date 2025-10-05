@@ -9,7 +9,7 @@ import { PackageIcon } from "lucide-react";
 import { Suspense } from "react";
 
 export function RecentProducts() {
-  void api.public.products.getPage.prefetch({
+  void api.public.products.queries.getPage.prefetch({
     pageSize: 10,
   });
 

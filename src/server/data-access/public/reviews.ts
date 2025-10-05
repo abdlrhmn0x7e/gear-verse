@@ -6,7 +6,7 @@ import { productVariants, reviews, users } from "~/server/db/schema";
 type NewReview = typeof reviews.$inferInsert;
 type UpdateReview = Partial<NewReview>;
 
-export const _userReviewsRepo = {
+export const _reviews = {
   queries: {
     findAll: async (productId: number) => {
       const isVerifiedPurchaserSubQuery = db

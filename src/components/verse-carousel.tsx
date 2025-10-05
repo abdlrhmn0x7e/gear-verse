@@ -19,7 +19,7 @@ export function VerseCarousel({
   photos,
 }: {
   className?: string;
-  photos: { id: number; url: string }[];
+  photos: string[];
 }) {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -47,7 +47,7 @@ export function VerseCarousel({
             <CarouselItem key={index} className="lg:basis-4/5">
               <AspectRatio ratio={1 / 1}>
                 <SuspendableImage
-                  src={photo.url}
+                  src={photo}
                   alt={`Product Image ${index + 1}`}
                   isPriority={index === currentSlide}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -84,7 +84,7 @@ export function VerseCarousel({
             >
               <div className="relative h-full w-full">
                 <SuspendableImage
-                  src={photo.url}
+                  src={photo}
                   alt={`Product Thumbnail ${index + 1}`}
                   isPriority={false}
                   width={256}

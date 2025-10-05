@@ -5,6 +5,9 @@ import {
   publicProcedure,
 } from "../../trpc";
 import { TRPCError } from "@trpc/server";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { errorMap } from "../../error-map";
+import { createReviewInputSchema } from "~/lib/schemas/entities/reviews";
 
 export const userReviewsRouter = createTRPCRouter({
   findAll: publicProcedure
@@ -14,22 +17,34 @@ export const userReviewsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db.user.reviews.queries.findAll(input.productId);
+      const { data, error } = await tryCatch(
+        ctx.app.public.reviews.queries.findAll(input.productId),
+      );
+      if (error) {
+        throw errorMap(error);
+      }
+      return data;
     }),
 
   create: protectedProcedure
     .input(
-      z.object({
+      createReviewInputSchema.extend({
         productId: z.number(),
-        rating: z.number(),
-        comment: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.user.reviews.mutations.create({
-        userId: Number(ctx.session.user.id),
-        ...input,
-      });
+      const { data, error } = await tryCatch(
+        ctx.app.public.reviews.mutations.create(
+          input,
+          Number(ctx.session.user.id),
+          input.productId,
+        ),
+      );
+      if (error) {
+        throw errorMap(error);
+      }
+
+      return data;
     }),
 
   update: protectedProcedure

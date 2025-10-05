@@ -120,7 +120,7 @@ export function Options({
             className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
           >
             <Option
-              key={option.id}
+              key={`${option.id}-${option.name}`}
               id={option.id}
               index={index}
               option={option}

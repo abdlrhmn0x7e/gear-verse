@@ -28,7 +28,7 @@ import {
 } from "~/components/ui/empty";
 
 export function ProductsCarousel() {
-  const [data] = api.public.products.getPage.useSuspenseQuery({
+  const [data] = api.public.products.queries.getPage.useSuspenseQuery({
     pageSize: 10,
   });
 
@@ -135,7 +135,7 @@ export function ProductCardSkeleton() {
 function ProductCard({
   product,
 }: {
-  product: RouterOutputs["public"]["products"]["getPage"]["data"][number];
+  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   console.log("product", product);
   return (

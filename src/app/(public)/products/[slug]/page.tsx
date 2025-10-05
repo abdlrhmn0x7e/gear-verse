@@ -1,10 +1,11 @@
 import notFound from "~/app/admin/not-found";
 import { api } from "~/trpc/server";
 import { Product } from "./_components/product";
-import { ProductDetails } from "./_components/product-details";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Reviews } from "./_components/reviews";
 import { InfoIcon, MessageCircleIcon } from "lucide-react";
+import { Heading } from "~/components/heading";
+import { ProductDescription } from "~/components/product-description";
 
 export default async function ProductPage({
   params,
@@ -12,7 +13,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await api.public.products.findBySlug({ slug });
+  const product = await api.public.products.queries.findBySlug({ slug });
   if (!product) {
     return notFound();
   }
@@ -32,7 +33,14 @@ export default async function ProductPage({
         </TabsList>
 
         <TabsContent value="details">
-          <ProductDetails product={product} />
+          <div className="space-y-4">
+            <Heading level={2}>Description</Heading>
+
+            <ProductDescription
+              description={product.description}
+              className="m-0"
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="reviews">

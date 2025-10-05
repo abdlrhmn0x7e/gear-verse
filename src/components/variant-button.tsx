@@ -1,23 +1,14 @@
 import { cn } from "~/lib/utils";
 import { ImageWithFallback } from "./image-with-fallback";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-
-interface Variant {
-  name: string;
-  stock: number;
-  price: number;
-  thumbnail: {
-    url: string;
-    id: number;
-  } | null;
-}
+import { type RouterOutputs } from "~/trpc/react";
 
 export function VariantButton({
   variant,
   className,
   ...props
 }: {
-  variant: Variant;
+  variant: RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"][number];
   className?: string;
 } & React.ComponentProps<"button">) {
   return (
@@ -31,8 +22,8 @@ export function VariantButton({
           {...props}
         >
           <ImageWithFallback
-            src={variant.thumbnail?.url}
-            alt={variant.name}
+            src={variant.thumbnailUrl}
+            alt={Object.values(variant.optionValues).join(", ")}
             className="size-full"
             width={100}
             height={100}
@@ -40,7 +31,7 @@ export function VariantButton({
         </button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{variant.name}</p>
+        <p>{Object.values(variant.optionValues).join(", ")}</p>
       </TooltipContent>
     </Tooltip>
   );

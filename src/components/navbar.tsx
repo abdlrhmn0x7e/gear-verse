@@ -284,7 +284,7 @@ function ProductsMenu({ open }: { open: boolean }) {
 
 function ProductsMenuContent() {
   const { data: products, isPending: productsPending } =
-    api.public.products.getPage.useQuery({
+    api.public.products.queries.getPage.useQuery({
       pageSize: 6,
     });
   if (productsPending) {
@@ -323,7 +323,7 @@ function ProductsMenuContent() {
 function ProductCard({
   products,
 }: {
-  products: RouterOutputs["public"]["products"]["getPage"]["data"][number];
+  products: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   return (
     <Link href={`/products/${products.slug}`}>

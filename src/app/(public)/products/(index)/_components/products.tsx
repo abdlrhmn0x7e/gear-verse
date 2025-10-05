@@ -15,7 +15,7 @@ export async function Products({
   searchParams: Promise<SearchParams>;
 }) {
   const filters = await loadAllProductSearchParams(searchParams);
-  void api.public.products.getPage.prefetchInfinite({
+  void api.public.products.queries.getPage.prefetchInfinite({
     pageSize: 9,
     filters: {
       brands: filters.brands ?? undefined,

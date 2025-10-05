@@ -4,7 +4,7 @@ import { _categories } from "./categories";
 import { _carts } from "./carts";
 import { _orders } from "./orders";
 import { _addresses } from "./addresses";
-import { _userReviewsRepo } from "./reviews";
+import { _reviews } from "./reviews";
 
 export const _public = {
   products: _products,
@@ -13,5 +13,5 @@ export const _public = {
   carts: _carts,
   orders: _orders,
   addresses: _addresses,
-  reviews: _userReviewsRepo,
+  reviews: _reviews,
 };

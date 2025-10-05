@@ -15,16 +15,32 @@ import { XIcon, CheckCircleIcon } from "lucide-react";
 import { AddToCartButton } from "./add-to-cart-button";
 import { api } from "~/trpc/react";
 import { StarRating } from "./star-rating";
+import { Button } from "~/components/ui/button";
 
 export function Product({
   children,
   product,
 }: PropsWithChildren<{
-  product: RouterOutputs["public"]["products"]["findBySlug"];
+  product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
 }>) {
-  const [selectedVariant, setSelectedVariant] = useState<
-    RouterOutputs["public"]["products"]["findBySlug"]["variants"][number]
-  >(product.variants[0]!);
+  // Options are ordered; grouping is based on the first option
+  const options = product.options ?? [];
+  const firstOption = options[0];
+  const otherOptions = options.slice(1);
+
+  // Track the currently selected option values; derive the variant from them
+  const [selectedOptions, setSelectedOptions] = useState<
+    Record<string, string>
+  >(() => ({ ...(product.variants[0]?.optionValues ?? {}) }));
+
+  const selectedVariant = useMemo(() => {
+    const exact = product.variants.find((variant) =>
+      Object.entries(selectedOptions).every(
+        ([name, value]) => variant.optionValues[name] === value,
+      ),
+    );
+    return exact ?? product.variants[0]!;
+  }, [product.variants, selectedOptions]);
   const { data: reviews } = api.public.reviews.findAll.useQuery({
     productId: product.id,
   });
@@ -33,21 +49,52 @@ export function Product({
     () => selectedVariant.stock > 0,
     [selectedVariant],
   );
-  const carouselPhotos = useMemo(() => {
-    const basePhotos = [...selectedVariant.images];
-    if (selectedVariant.thumbnail) {
-      basePhotos.unshift(selectedVariant.thumbnail);
+
+  function getVariantMatchingPartial(partial: Record<string, string>) {
+    return product.variants.find((variant) =>
+      Object.entries(partial).every(
+        ([name, value]) => variant.optionValues[name] === value,
+      ),
+    );
+  }
+
+  function handleSelectOption(optionName: string, value: string) {
+    const desired = { ...selectedOptions, [optionName]: value };
+    // Prefer an exact match; otherwise fall back to any variant matching the changed option
+    const exact = getVariantMatchingPartial(desired);
+    if (exact) {
+      setSelectedOptions({ ...exact.optionValues });
+      return;
     }
 
-    return basePhotos;
-  }, [selectedVariant]);
+    const fallback = product.variants.find(
+      (v) => v.optionValues[optionName] === value,
+    );
+    setSelectedOptions({ ...(fallback ?? product.variants[0]!).optionValues });
+  }
+
+  function getRepresentativeVariantForFirstValue(value: string) {
+    if (!firstOption) return product.variants[0]!;
+    const partial: Record<string, string> = { [firstOption.name]: value };
+    for (const opt of otherOptions) {
+      const selected = selectedOptions[opt.name];
+      if (selected) partial[opt.name] = selected;
+    }
+    return (
+      getVariantMatchingPartial(partial) ??
+      product.variants.find(
+        (v) => v.optionValues[firstOption.name] === value,
+      ) ??
+      product.variants[0]!
+    );
+  }
 
   return (
     <section className="py-24 lg:py-32">
       <MaxWidthWrapper className="relative space-y-8 lg:grid lg:grid-cols-2 lg:gap-12">
         <div className="h-fit w-full max-w-full lg:sticky lg:top-32">
           <VerseCarousel
-            photos={carouselPhotos}
+            photos={[selectedVariant.thumbnailUrl, ...product.media]}
             className="w-full max-w-full"
           />
         </div>
@@ -56,15 +103,16 @@ export function Product({
           <div className="space-y-8">
             <div className="space-y-4 text-center lg:text-left">
               <div className="flex flex-col items-center justify-between gap-4 lg:flex-row lg:items-start">
-                <Heading level={2}>{product.name}</Heading>
+                <Heading level={2}>{product.title}</Heading>
                 <Badge variant="outline" className="pr-1">
                   <ImageWithFallback
-                    src={product.brand.logo?.url}
-                    alt={product.brand.name}
+                    src={product.brand.logoUrl}
+                    alt={product.brand.name ?? "unknown brand"}
                     className="size-6 rounded-full border-none"
                     width={16}
                     height={16}
                   />
+
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-md">{product.brand.name}</span>
                     <Badge
@@ -83,8 +131,21 @@ export function Product({
             </div>
 
             <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
-              <p className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
-                {formatCurrency(selectedVariant.price)}
+              <p className="space-x-2">
+                <span className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
+                  {formatCurrency(
+                    selectedVariant.overridePrice === 0 ||
+                      !selectedVariant.overridePrice
+                      ? product.price
+                      : selectedVariant.overridePrice,
+                  )}
+                </span>
+
+                {product.strikeThroughPrice && (
+                  <span className="text-muted-foreground line-through">
+                    {formatCurrency(product.strikeThroughPrice ?? 0)}
+                  </span>
+                )}
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 <StarRating
@@ -100,23 +161,71 @@ export function Product({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Heading level={2}>Variants</Heading>
-                <p className="text-muted-foreground text-left text-sm md:text-base">
-                  (Current Variant - {selectedVariant.name})
+                <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
+                  (Current Variant -{" "}
+                  {Object.values(selectedVariant.optionValues).join(", ")})
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant, index) => (
-                  <VariantButton
-                    key={`${variant.name}-${index}`}
-                    variant={variant}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={cn(
-                      selectedVariant.name === variant.name &&
-                        "ring-primary ring-2",
-                    )}
-                  />
-                ))}
-              </div>
+
+              {firstOption && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{firstOption.name}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {firstOption.values.map((val, index) => {
+                      const representative =
+                        getRepresentativeVariantForFirstValue(val.value);
+                      const isSelected =
+                        selectedOptions[firstOption.name] === val.value;
+                      return (
+                        <VariantButton
+                          key={`${firstOption.name}-${val.value}-${index}`}
+                          variant={representative}
+                          onClick={() =>
+                            handleSelectOption(firstOption.name, val.value)
+                          }
+                          className={cn(isSelected && "ring-primary ring-2")}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {otherOptions.length > 0 && (
+                <div className="space-y-3">
+                  {otherOptions.map((opt) => (
+                    <div key={opt.id} className="space-y-2">
+                      <p className="text-sm font-medium">{opt.name}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {opt.values.map((val) => {
+                          const isSelected =
+                            selectedOptions[opt.name] === val.value;
+                          // Enable/disable based on existence of any variant matching this value with the rest of selections
+                          const desired: Record<string, string> = {
+                            ...selectedOptions,
+                            [opt.name]: val.value,
+                          };
+                          const exists = !!getVariantMatchingPartial(desired);
+                          return (
+                            <Button
+                              key={`${opt.name}-${val.id}`}
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                              size="sm"
+                              disabled={!exists}
+                              onClick={() =>
+                                handleSelectOption(opt.name, val.value)
+                              }
+                            >
+                              {val.value}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-2 lg:flex-row">

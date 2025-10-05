@@ -12,7 +12,12 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { Heading } from "~/components/heading";
 import { Button } from "~/components/ui/button";
-import { ArrowUpRightIcon, EyeIcon } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  CheckCircleIcon,
+  EyeIcon,
+  XIcon,
+} from "lucide-react";
 import {
   Empty,
   EmptyContent,
@@ -22,12 +27,13 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
+import { Badge } from "~/components/ui/badge";
 
 export function ProductList() {
   const [filters] = useAllProductSearchParams();
   const debouncedFilters = useDebounce(filters);
   const [data, { hasNextPage, fetchNextPage }] =
-    api.public.products.getPage.useSuspenseInfiniteQuery(
+    api.public.products.queries.getPage.useSuspenseInfiniteQuery(
       {
         pageSize: 6,
         filters: {
@@ -102,7 +108,7 @@ export function ProductList() {
 function ProductCard({
   product,
 }: {
-  product: RouterOutputs["public"]["products"]["getPage"]["data"][number];
+  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   return (
     <Link href={`/products/${product.slug}`} className="group">
@@ -146,10 +152,49 @@ function ProductCard({
                   {formatCurrency(product.strikeThroughPrice)}
                 </span>
               )}
+
               <span className="text-primary-foreground text-xl font-semibold">
                 {formatCurrency(product.price)}
               </span>
             </p>
+
+            {product.variants.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-sm font-medium">
+                  Available in {product.variants.length} variants
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((variant) => (
+                    <Badge
+                      key={`${variant.id}-${Object.values(variant.optionValues).join(", ")}`}
+                      variant="outline"
+                      className="px-1 py-px"
+                    >
+                      <ImageWithFallback
+                        src={variant.thumbnailUrl}
+                        alt={`${product.title} - ${Object.values(variant.optionValues).join(", ")}`}
+                        className="size-4 rounded-full"
+                        width={16}
+                        height={16}
+                      />
+
+                      <span className="capitalize">
+                        {Object.values(variant.optionValues)
+                          .slice(0, 2)
+                          .join(", ")}
+                      </span>
+
+                      {variant.stock > 0 ? (
+                        <CheckCircleIcon className="size-3 text-green-500" />
+                      ) : (
+                        <XIcon className="size-3 text-red-500" />
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <Button className="w-full">

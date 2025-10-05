@@ -241,18 +241,12 @@ export const _products = {
           id: productVariants.id,
           productSlug: products.slug,
           overridePrice: productVariants.overridePrice,
-          thumbnail: {
-            id: sql<number>`${variantThumbnail.id}`.as("thumbnailId"),
-            url: variantThumbnail.url,
-          },
+          thumbnailUrl: variantThumbnail.url,
           stock: inventoryItems.quantity,
-          optionValues: sql<Record<string, { id: number; value: string }>>`
+          optionValues: sql<Record<string, string>>`
           jsonb_object_agg(
-              ${productOptions.name}, json_build_object(
-                'id', ${productOptionValues.id},
-                'value', ${productOptionValues.value}
-              )
-            )
+            ${productOptions.name}, ${productOptionValues.value}
+          )
         `.as("option_values"),
         })
         .from(productVariants)
@@ -281,6 +275,7 @@ export const _products = {
         )
         .leftJoin(products, eq(products.id, productVariants.productId))
         .groupBy(
+          products.slug,
           productVariants.id,
           inventoryItems.quantity,
           variantThumbnail.id,
@@ -293,19 +288,16 @@ export const _products = {
             {
               id: number;
               overridePrice: number;
-              thumbnail: { id: number; url: string };
+              thumbnailUrl: string;
               stock: number;
-              optionValues: Record<string, { id: number; value: string }>;
+              optionValues: Record<string, string>;
             }[]
           >`
           jsonb_agg(
             jsonb_build_object(
               'id', ${variantsQuery.id},
               'overridePrice', ${variantsQuery.overridePrice},
-              'thumbnail', jsonb_build_object(
-                'id', ${variantsQuery.thumbnail.id},
-                'url', ${variantsQuery.thumbnail.url}
-              ),
+              'thumbnailUrl', ${variantsQuery.thumbnailUrl},
               'stock', ${variantsQuery.stock},
               'optionValues', ${variantsQuery.optionValues}
             )
@@ -330,28 +322,29 @@ export const _products = {
 
       const productMediaJson = db
         .select({
-          json: sql<{ mediaId: number; url: string }[]>`
-            jsonb_agg(
-              jsonb_build_object(
-                'mediaId', ${productMediaQuery.mediaId},
-                'url', ${productMediaQuery.url}
-              )
-            )
+          json: sql<string[]>`
+            jsonb_agg(${productMediaQuery.url})
         `.as("product_media"),
         })
         .from(productMediaQuery)
         .as("product_media_json");
+
+      const brandsMedia = alias(media, "brands_media");
 
       return db
         .select({
           id: products.id,
           title: products.title,
           price: products.price,
+          strikeThroughPrice: products.strikeThroughPrice,
           summary: products.summary,
           description: products.description,
           published: products.published,
           categoryId: products.categoryId,
-          brandId: products.brandId,
+          brand: {
+            name: brands.name,
+            logoUrl: brandsMedia.url,
+          },
           profit: products.profit,
           margin: products.margin,
           options: productOptionsJson.options,
@@ -364,6 +357,8 @@ export const _products = {
           },
         })
         .from(products)
+        .leftJoin(brands, eq(products.brandId, brands.id))
+        .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoin(
           productOptionsJson,
           eq(productOptionsJson.productSlug, products.slug),
