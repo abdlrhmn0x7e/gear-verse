@@ -287,19 +287,27 @@ export function ProductForm({
 
             <CardContent className="space-y-6 p-0">
               <div className="p-2">
-                <Options
-                  options={optionFields}
-                  add={(id) => {
-                    const valueId = generateRandomId();
+                <FormField
+                  control={form.control}
+                  name="options"
+                  render={({ field }) => (
+                    <FormControl>
+                      <Options
+                        options={field.value}
+                        add={(id) => {
+                          const valueId = generateRandomId();
 
-                    appendOption({
-                      id,
-                      name: "",
-                      values: [{ id: valueId, value: "" }],
-                    });
-                  }}
-                  remove={(index) => removeOption(index)}
-                  swap={swapOption}
+                          appendOption({
+                            id,
+                            name: "",
+                            values: [{ id: valueId, value: "" }],
+                          });
+                        }}
+                        remove={(index) => removeOption(index)}
+                        swap={swapOption}
+                      />
+                    </FormControl>
+                  )}
                 />
               </div>
 
@@ -307,11 +315,7 @@ export function ProductForm({
                 control={form.control}
                 name="variants"
                 render={({ field }) => (
-                  <Variants
-                    variants={field.value}
-                    options={optionFields}
-                    onChange={field.onChange}
-                  />
+                  <Variants variants={field.value} onChange={field.onChange} />
                 )}
               />
             </CardContent>

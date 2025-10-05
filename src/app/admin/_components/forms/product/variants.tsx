@@ -13,16 +13,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useFormContext, useWatch } from "react-hook-form";
 
 export function Variants({
   variants,
-  options,
   onChange,
 }: {
   variants: ProductFormValues["variants"];
-  options: ProductFormValues["options"];
   onChange: (variants: ProductFormValues["variants"]) => void;
 }) {
+  const form = useFormContext<ProductFormValues>();
+  const options = useWatch({
+    control: form.control,
+    name: "options",
+  });
   const debouncedOptions = useDebounce(options, 500);
   const [groupByOption, setGroupByOption] = useState<string>(
     debouncedOptions?.[0]?.name ?? "loading...",
@@ -89,7 +93,7 @@ export function Variants({
     });
 
     const oldByKey = new Map(
-      variants.map((variant) => {
+      variants?.map((variant) => {
         const key = Object.values(variant.optionValues)
           .map((v) => v.id)
           .sort()

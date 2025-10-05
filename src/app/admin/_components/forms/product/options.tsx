@@ -3,6 +3,7 @@
 import {
   useFieldArray,
   useFormContext,
+  useWatch,
   type FieldArrayWithId,
   type UseFieldArrayAppend,
   type UseFieldArrayRemove,
@@ -28,32 +29,28 @@ import { verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { AnimatePresence, motion } from "motion/react";
 import { Badge } from "~/components/ui/badge";
 import { useDebounce } from "~/hooks/use-debounce";
-import dynamic from "next/dynamic";
-
-const SwapableContext = dynamic(
-  () => import("../../swapable-context").then((m) => m.SwapableContext),
-  { ssr: false },
-);
-
-const SwapableItemWithHandle = dynamic(
-  () => import("../../swapable-context").then((m) => m.SwapableItemWithHandle),
-  { ssr: false },
-);
+import {
+  SwapableContext,
+  SwapableItemWithHandle,
+} from "../../swapable-context";
 
 import type { ProductFormValues } from ".";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 
-export function Options({
-  options,
-  add,
-  remove,
-  swap,
-}: {
-  options: FieldArrayWithId<ProductFormValues, "options", "keyId">[];
-  add: (id: number) => void;
-  remove: (index: number) => void;
-  swap: UseFieldArraySwap;
-}) {
+export function Options() {
+  const form = useFormContext<ProductFormValues>();
+  const {
+    fields: options,
+    append,
+    remove,
+    swap,
+  } = useFieldArray({
+    control: form.control,
+    name: "options",
+    keyName: "keyId",
+    shouldUnregister: true,
+  });
+
   const [openOptions, setOpenOptions] = useState<(string | number)[]>([]);
 
   function toggleOpen(id: number) {
@@ -83,7 +80,7 @@ export function Options({
   function handleAddOption() {
     const newId = generateRandomId();
     setOpenOptions((prev) => [...prev, newId]);
-    add(newId);
+    append({ id: newId, name: "", values: [] });
   }
 
   if (options.length === 0) {
@@ -123,7 +120,6 @@ export function Options({
               key={`${option.id}-${option.name}`}
               id={option.id}
               index={index}
-              option={option}
               open={openOptions.includes(option.id)}
               toggleOpen={() => toggleOpen(option.id)}
               remove={() => handleRemove(option.id)}
@@ -143,19 +139,21 @@ export function Options({
 function Option({
   id,
   index,
-  option,
   open,
   toggleOpen,
   remove,
 }: {
   id: UniqueIdentifier;
   index: number;
-  option: FieldArrayWithId<ProductFormValues, "options", "keyId">;
   open: boolean;
   toggleOpen: () => void;
   remove: () => void;
 }) {
   const form = useFormContext<ProductFormValues>();
+  const option = useWatch({
+    control: form.control,
+    name: `options.${index}`,
+  });
 
   async function handleDone() {
     const isValid = await form.trigger(`options.${index}`);
