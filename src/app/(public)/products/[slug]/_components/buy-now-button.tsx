@@ -10,7 +10,7 @@ export function BuyNowButton({
   ...props
 }: React.ComponentProps<typeof Button> & { productVariantId: number }) {
   const { mutate: addItem, isPending: addingItem } =
-    api.public.carts.addItem.useMutation();
+    api.public.carts.mutations.addItem.useMutation();
   const router = useRouter();
 
   function handleClick() {

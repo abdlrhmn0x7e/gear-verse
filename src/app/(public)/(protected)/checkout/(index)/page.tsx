@@ -8,7 +8,7 @@ import { CompleteCheckout } from "./_components/complete-checkout";
 import { IconShoppingBagX } from "@tabler/icons-react";
 
 export default async function CheckoutPage() {
-  const cart = await api.public.carts.find();
+  const cart = await api.public.carts.queries.find();
 
   return (
     <section>
@@ -19,9 +19,7 @@ export default async function CheckoutPage() {
           <div className="flex h-full flex-col justify-between gap-2">
             <div className="scroll-shadow flex-1 space-y-2 overflow-y-auto pt-1">
               {cart.items.length > 0 ? (
-                cart.items.map((item) => (
-                  <ItemCard key={item.productVariant?.id} item={item} />
-                ))
+                cart.items.map((item) => <ItemCard key={item.id} item={item} />)
               ) : (
                 <div className="flex flex-col items-center justify-center gap-3 py-16">
                   <IconShoppingBagX size={64} />
@@ -36,10 +34,7 @@ export default async function CheckoutPage() {
               <Heading level={3}>Total Amount:</Heading>
               <p className="text-muted-foreground mt-px text-2xl font-medium">
                 {formatCurrency(
-                  cart.items.reduce(
-                    (acc, item) => acc + (item.productVariant?.price ?? 0),
-                    0,
-                  ),
+                  cart.items.reduce((acc, item) => acc + (item.price ?? 0), 0),
                 )}
               </p>
             </div>
@@ -61,13 +56,13 @@ export default async function CheckoutPage() {
 function ItemCard({
   item,
 }: {
-  item: RouterOutputs["public"]["carts"]["find"]["items"][number];
+  item: RouterOutputs["public"]["carts"]["queries"]["find"]["items"][number];
 }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border p-1">
       <ImageWithFallback
-        src={item.productVariant?.thumbnail?.url}
-        alt={item.productVariant?.product?.name ?? "Product"}
+        src={item.thumbnail?.url}
+        alt={item.title ?? "Product"}
         className="size-32 shrink-0"
         width={256}
         height={200}
@@ -75,14 +70,13 @@ function ItemCard({
 
       <div className="flex-1 space-y-2">
         <Heading level={4}>
-          {item.quantity} x {item.productVariant?.product?.name} (
-          {item.productVariant?.name})
+          {item.quantity} x {item.title} ({item.values.join(", ")})
         </Heading>
 
         <div className="flex items-center gap-1">
           <p className="font-medium">Total Amount:</p>
           <p className="text-muted-foreground mt-px text-sm">
-            {formatCurrency((item.productVariant?.price ?? 0) * item.quantity)}
+            {formatCurrency((item.price ?? 0) * item.quantity)}
           </p>
         </div>
       </div>

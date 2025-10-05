@@ -119,7 +119,7 @@ export function Variants({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinations, valuesMap]);
 
-  if (!variants || variants.length === 0) return <div>No variants</div>;
+  if (!variants || variants.length === 0) return null;
 
   return (
     <div className="space-y-2">

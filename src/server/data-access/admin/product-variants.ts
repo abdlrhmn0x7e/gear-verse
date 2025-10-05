@@ -86,7 +86,11 @@ export const _adminProductVariants = {
 
           await tx
             .update(productVariants)
-            .set(rest)
+            .set({
+              ...rest,
+              overridePrice:
+                rest.overridePrice === 0 ? null : rest.overridePrice,
+            })
             .where(eq(productVariants.id, variant.id));
 
           await tx
@@ -114,7 +118,8 @@ export const _adminProductVariants = {
             .insert(productVariants)
             .values({
               productId,
-              overridePrice: item.overridePrice,
+              overridePrice:
+                item.overridePrice === 0 ? null : item.overridePrice,
               archived: item.archived,
               thumbnailMediaId: item.thumbnailMediaId,
             })
@@ -161,7 +166,8 @@ export const _adminProductVariants = {
           await tx
             .update(productVariants)
             .set({
-              overridePrice: item.overridePrice,
+              overridePrice:
+                item.overridePrice === 0 ? null : item.overridePrice,
               archived: item.archived,
               thumbnailMediaId: item.thumbnailMediaId,
             })
