@@ -40,7 +40,7 @@ export function DeleteProductDialog({
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void utils.admin.products.getPage.invalidate();
+          void utils.admin.products.queries.getPage.invalidate();
         },
       },
     );

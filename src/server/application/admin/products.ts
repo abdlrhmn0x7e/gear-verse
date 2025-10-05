@@ -203,6 +203,15 @@ export const _products = {
       }
     },
 
+    async delete(productId: number) {
+      const deleted = await data.admin.products.mutations.delete(productId);
+      if (!deleted) {
+        throw new AppError("Product not found", "NOT_FOUND");
+      }
+
+      return deleted;
+    },
+
     helpers: {
       getVariantSigs(variants: Required<UpdateProductInput>["variants"]) {
         return new Set(

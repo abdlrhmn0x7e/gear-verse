@@ -30,9 +30,12 @@ import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function ProductsTable() {
-  const [params, setParams] = useProductSearchParams();
+  const router = useRouter();
+  const [params] = useProductSearchParams();
   const debouncedFilters = useDebounce(params);
   const utils = api.useUtils();
   const {
@@ -102,10 +105,10 @@ export function ProductsTable() {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    onClick={() =>
-                      setParams({ ...params, productId: row.original.id })
-                    }
                     className="cursor-pointer"
+                    onClick={() =>
+                      router.push(`/products/${row.original.slug}`)
+                    }
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

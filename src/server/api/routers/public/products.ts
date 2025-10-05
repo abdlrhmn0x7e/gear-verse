@@ -1,8 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "../../trpc";
-import { paginate } from "../../../application/helpers/pagination";
 import { paginationSchema } from "~/lib/schemas/contracts/pagination";
 import z from "zod";
-import { TRPCError } from "@trpc/server";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 

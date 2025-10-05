@@ -2,6 +2,7 @@ import { eq, gt, ilike, and, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   media,
+  orderItems,
   productOptions,
   productOptionValues,
   productOptionValuesVariants,
@@ -52,7 +53,10 @@ export const _adminProducts = {
         categories?: number[] | null;
       };
     }) => {
-      const whereClause = [gt(products.id, cursor ?? 0)];
+      const whereClause = [
+        gt(products.id, cursor ?? 0),
+        eq(products.archived, false),
+      ];
       if (filters?.title) {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
       }
@@ -556,6 +560,66 @@ export const _adminProducts = {
         if (seoData) {
           await tx.update(seo).set(seoData).where(eq(seo.productId, productId));
         }
+      });
+    },
+
+    delete(productId: number) {
+      return db.transaction(async (tx) => {
+        const variantRows = await tx
+          .select({ id: productVariants.id })
+          .from(productVariants)
+          .where(eq(productVariants.productId, productId));
+
+        // check if any variants are linked to an order
+        const items = await tx
+          .select({ id: orderItems.productVariantId })
+          .from(orderItems)
+          .where(
+            inArray(
+              orderItems.productVariantId,
+              variantRows.map((v) => v.id),
+            ),
+          );
+
+        if (items.length > 0) {
+          await tx
+            .update(productVariants)
+            .set({ archived: true })
+            .where(
+              inArray(
+                productVariants.id,
+                variantRows.map((v) => v.id),
+              ),
+            );
+
+          const variantsToDeleteIds = Array.from(
+            new Set(
+              variantRows.filter((v) => !items.some((i) => i.id === v.id)),
+            ),
+          );
+
+          if (variantsToDeleteIds.length > 0) {
+            await tx.delete(productVariants).where(
+              inArray(
+                productVariants.id,
+                variantsToDeleteIds.map((v) => v.id),
+              ),
+            );
+          }
+
+          return tx
+            .update(products)
+            .set({ archived: true })
+            .where(eq(products.id, productId))
+            .returning({ id: products.id })
+            .then(([product]) => product);
+        }
+
+        return tx
+          .delete(products)
+          .where(eq(products.id, productId))
+          .returning({ id: products.id })
+          .then(([product]) => product);
       });
     },
   },

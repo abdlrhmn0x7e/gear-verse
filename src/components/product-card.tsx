@@ -7,6 +7,7 @@ import { ImageWithFallback } from "./image-with-fallback";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 export function ProductCard({
   product,
@@ -105,5 +106,60 @@ export function ProductCard({
         </div>
       </div>
     </Link>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="group">
+      <div className="bg-card space-y-3 rounded-lg border p-1">
+        <AspectRatio
+          ratio={16 / 10}
+          className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
+        >
+          <Skeleton className="size-full rounded-none border-none" />
+        </AspectRatio>
+
+        <div className="space-y-3">
+          <div className="space-y-3 px-1">
+            <div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-4 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+
+              <Skeleton className="mt-2 h-6 w-3/4" />
+              <div className="mt-2 space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-11/12" />
+                <Skeleton className="h-4 w-10/12" />
+              </div>
+            </div>
+
+            <div className="flex items-end gap-3">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <div className="flex flex-wrap gap-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-1 rounded-md border px-1 py-px"
+                  >
+                    <Skeleton className="size-4 rounded-full" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <Skeleton className="h-9 w-full" />
+        </div>
+      </div>
+    </div>
   );
 }

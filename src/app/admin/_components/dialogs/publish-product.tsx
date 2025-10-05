@@ -34,7 +34,7 @@ export function PublishProductDialog({
 }) {
   const utils = api.useUtils();
   const { mutate: updateProduct, isPending } =
-    api.admin.products.mutations.update.useMutation();
+    api.admin.products.mutations.editDeep.useMutation();
 
   function handlePublish() {
     updateProduct(
@@ -42,7 +42,7 @@ export function PublishProductDialog({
       {
         onSuccess: () => {
           onPublishSuccess?.();
-          void utils.admin.products.getPage.invalidate();
+          void utils.admin.products.queries.getPage.invalidate();
         },
       },
     );

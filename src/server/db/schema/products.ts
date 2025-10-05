@@ -33,6 +33,7 @@ export const products = pgTable(
     summary: text("summary").notNull(),
     description: jsonb("description").$type<JSONContent>().notNull(),
     published: boolean("published").notNull().default(false),
+    archived: boolean("archived").notNull().default(false),
     slug: text("slug").notNull(),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {

@@ -7,7 +7,6 @@ import Header from "../../../../components/header";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
 import { api, HydrateClient } from "~/trpc/server";
-import { ProductDrawer } from "../../_components/drawers/product-drawer";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -41,7 +40,6 @@ export default async function AdminProductsPage({
 
       <HydrateClient>
         <ProductsTable />
-        <ProductDrawer />
       </HydrateClient>
     </section>
   );

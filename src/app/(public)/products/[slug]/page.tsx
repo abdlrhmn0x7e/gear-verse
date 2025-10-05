@@ -13,7 +13,6 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   const product = await api.public.products.queries.findBySlug({ slug });
   if (!product) {

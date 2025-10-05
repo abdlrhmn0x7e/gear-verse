@@ -10,7 +10,6 @@ const productSearchParams = {
   title: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
   categories: parseAsArrayOf(parseAsInteger),
-  productId: parseAsInteger,
 };
 
 export function useProductSearchParams() {
