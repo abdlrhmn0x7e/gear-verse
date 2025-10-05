@@ -141,13 +141,13 @@ export function Navbar({
                   <span>Explore Our Store</span>
                 </Button>
 
-                <CategoriesMenu
+                {/* <CategoriesMenu
                   open={categoriesMenuOpen}
                   setOpen={(open) => {
                     setProductsMenuOpen(false);
                     setCategoriesMenuOpen(open);
                   }}
-                />
+                /> */}
               </div>
             </div>
 
@@ -333,8 +333,8 @@ function ProductCard({
           className="w-full overflow-hidden rounded-lg border"
         >
           <ImageWithFallback
-            src={products.thumbnail}
-            alt={products.name}
+            src={products.thumbnailUrl}
+            alt={products.title}
             width={512}
             height={512}
             className="size-full border-none object-cover transition-all group-hover:scale-105"
@@ -342,7 +342,7 @@ function ProductCard({
         </AspectRatio>
 
         <div className="px-2 pb-3">
-          <h4 className="font-medium">{products.name}</h4>
+          <h4 className="font-medium">{products.title}</h4>
           <p className="text-muted-foreground line-clamp-3 text-sm">
             {products.summary}
           </p>
@@ -370,49 +370,49 @@ function ProductCardSkeleton() {
   );
 }
 
-function CategoriesMenu({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-}) {
-  const { data: categories, isPending: isPendingCategories } =
-    api.public.categories.findAll.useQuery();
+// function CategoriesMenu({
+//   open,
+//   setOpen,
+// }: {
+//   open: boolean;
+//   setOpen: Dispatch<SetStateAction<boolean>>;
+// }) {
+//   const { data: categories, isPending: isPendingCategories } =
+//     api.public.categories.findAll.useQuery();
 
-  if (isPendingCategories || !categories) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="lg" disabled>
-            <ChevronDownIcon />
-            Categories
-          </Button>
-        </DropdownMenuTrigger>
-      </DropdownMenu>
-    );
-  }
+//   if (isPendingCategories || !categories) {
+//     return (
+//       <DropdownMenu>
+//         <DropdownMenuTrigger asChild>
+//           <Button variant="ghost" size="lg" disabled>
+//             <ChevronDownIcon />
+//             Categories
+//           </Button>
+//         </DropdownMenuTrigger>
+//       </DropdownMenu>
+//     );
+//   }
 
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild disabled>
-        <Button variant="ghost" size="lg">
-          {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
-          Categories
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
-          <ListTreeIcon className="size-4" />
-          Our Verse Categories
-        </DropdownMenuLabel>
-        {categories.map((category) => (
-          <CategoryDropdownMenuContent key={category.id} category={category} />
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+//   return (
+//     <DropdownMenu open={open} onOpenChange={setOpen}>
+//       <DropdownMenuTrigger asChild disabled>
+//         <Button variant="ghost" size="lg">
+//           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
+//           Categories
+//         </Button>
+//       </DropdownMenuTrigger>
+//       <DropdownMenuContent align="start">
+//         <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
+//           <ListTreeIcon className="size-4" />
+//           Our Verse Categories
+//         </DropdownMenuLabel>
+//         {categories.map((category) => (
+//           <CategoryDropdownMenuContent key={category.id} category={category} />
+//         ))}
+//       </DropdownMenuContent>
+//     </DropdownMenu>
+//   );
+// }
 
 function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
   const Icon = iconsMap.get(category.icon);
@@ -504,14 +504,14 @@ function CartDrawer({
   cart: RouterOutputs["public"]["carts"]["find"];
 }) {
   const utils = api.useUtils();
-  const { mutate: removeItem, isPending: removingItem } =
-    api.public.carts.removeItem.useMutation({
-      onSuccess: () => void utils.public.carts.find.invalidate(),
-    });
-  const { mutate: addItem, isPending: addingItem } =
-    api.public.carts.addItem.useMutation({
-      onSuccess: () => void utils.public.carts.find.invalidate(),
-    });
+  // const { mutate: removeItem, isPending: removingItem } =
+  //   api.public.carts.removeItem.useMutation({
+  //     onSuccess: () => void utils.public.carts.find.invalidate(),
+  //   });
+  // const { mutate: addItem, isPending: addingItem } =
+  //   api.public.carts.addItem.useMutation({
+  //     onSuccess: () => void utils.public.carts.find.invalidate(),
+  //   });
   const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();
 
@@ -538,32 +538,29 @@ function CartDrawer({
             cart.items.map((item, idx) => (
               <div key={`cart-item-${idx}`} className="flex items-center gap-3">
                 <ImageWithFallback
-                  src={item.productVariant?.thumbnail?.url}
-                  alt={item.productVariant?.name ?? `Product ${idx + 1}`}
+                  src={item.thumbnail?.url}
+                  alt={item.title ?? `Product ${idx + 1}`}
                   className="size-24 shrink-0 rounded-md"
                   width={256}
                   height={256}
                 />
                 <div className="flex-1 space-y-1">
                   <p className="text-left text-sm font-medium">
-                    {item.productVariant?.product.name} -{" "}
-                    {item.productVariant?.name}
+                    {item.title} - {item.values.join(", ")}
                   </p>
                   <div className="flex items-center justify-between">
                     <p className="text-muted-foreground text-sm">
                       Total Amount
                     </p>
                     <p className="text-sm">
-                      {formatCurrency(
-                        (item.productVariant?.price ?? 0) * item.quantity,
-                      )}
+                      {formatCurrency((item.price ?? 0) * item.quantity)}
                     </p>
                   </div>
                   <div
                     className={cn(
                       "flex w-full items-center gap-6 rounded-lg border p-1",
-                      removingItem ||
-                        (addingItem && "pointer-events-none opacity-50"),
+                      // removingItem ||
+                      //   (addingItem && "pointer-events-none opacity-50"),
                     )}
                   >
                     <Button
@@ -571,11 +568,12 @@ function CartDrawer({
                       size="icon"
                       className="flex-1 md:size-6"
                       onClick={() =>
-                        removeItem({
-                          productVariantId: item.productVariant?.id ?? 0,
-                        })
+                        // removeItem({
+                        //   productVariantId: item.productVariant?.id ?? 0,
+                        // })
+                        console.log("remove item")
                       }
-                      disabled={removingItem}
+                      // disabled={removingItem}
                     >
                       <MinusIcon className="size-4" />
                     </Button>
@@ -585,14 +583,14 @@ function CartDrawer({
                       size="icon"
                       className="flex-1 md:size-6"
                       onClick={() =>
-                        addItem({
-                          productVariantId: item.productVariant?.id ?? 0,
-                        })
+                        // addItem({
+                        //   productVariantId: item.id ?? 0,
+                        // })
+                        console.log("add item")
                       }
                       disabled={
-                        addingItem ||
-                        item.productVariant?.stock === 0 ||
-                        (item.productVariant?.stock ?? 0) <= item.quantity
+                        // addingItem ||
+                        item.stock === 0 || (item.stock ?? 0) <= item.quantity
                       }
                     >
                       <PlusIcon className="size-4" />

@@ -8,6 +8,9 @@ export const productEntitySchema = z.object({
   price: z.coerce
     .number<number>("Price is required")
     .min(1, "Price is required"),
+  strikeThroughPrice: z.coerce
+    .number<number>("Strike Through Price Must be a Number")
+    .optional(),
   slug: z.string("Slug is required").min(1, "Slug is too short"),
   summary: z.string("Summary is required").min(1, "Summary is too short"),
   description: z.custom<JSONContent>(),
@@ -62,7 +65,9 @@ export const createProductVariantInputSchema = z.object({
     .number<number>("Price is required")
     .nonnegative("Price must be nonnegative")
     .optional(),
-  stock: z.number("Stock is required").nonnegative("Stock must be nonnegative"),
+  stock: z.coerce
+    .number<number>("Stock is required")
+    .nonnegative("Stock must be nonnegative"),
 });
 export type CreateProductVariantInput = z.infer<
   typeof createProductVariantInputSchema

@@ -27,7 +27,7 @@ export function SuspendableImage({
 
   if (hasError) {
     return (
-      <div className="bg-muted flex size-full items-center justify-center rounded-lg">
+      <div className="bg-muted flex size-full flex-col items-center justify-center gap-3 rounded-lg">
         <ImageOffIcon className="size-8" />
         <div className="text-muted-foreground text-center">
           <div className="text-sm">Failed to load image</div>

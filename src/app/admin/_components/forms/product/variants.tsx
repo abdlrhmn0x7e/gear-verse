@@ -1,12 +1,11 @@
 "use client";
 
-import { type Control, useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import type { ProductFormValues } from ".";
 import { useEffect, useMemo, useState } from "react";
 import { cartesianProduct } from "~/lib/utils/cartesian-product";
 import { useDebounce } from "~/hooks/use-debounce";
 import { VariantsTable } from "./variants-table";
-import type { VariantsTableData } from "./variants-table";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -16,27 +15,31 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-export function Variants({ control }: { control: Control<ProductFormValues> }) {
-  const form = useFormContext<ProductFormValues>();
-  const options = useWatch({ control, name: "options" });
-  const variants = useWatch({ control, name: "variants" }) as
-    | VariantsTableData[]
-    | undefined;
+export function Variants({
+  variants,
+  options,
+  onChange,
+}: {
+  variants: ProductFormValues["variants"];
+  options: ProductFormValues["options"];
+  onChange: (variants: ProductFormValues["variants"]) => void;
+}) {
   const debouncedOptions = useDebounce(options, 500);
   const [groupByOption, setGroupByOption] = useState<string>(
-    debouncedOptions?.[0]?.name ?? "",
+    debouncedOptions?.[0]?.name ?? "loading...",
   );
-  const [mounted, setMounted] = useState(false);
 
   const valuesMap = useMemo(() => {
     if (
+      !debouncedOptions ||
       debouncedOptions.length === 0 ||
       debouncedOptions[0]?.values[0]?.value === ""
-    )
+    ) {
       return new Map<
         number,
         { id: number; value: string; optionName: string }
       >();
+    }
 
     return new Map(
       debouncedOptions.flatMap((option) =>
@@ -48,20 +51,8 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
     );
   }, [debouncedOptions]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    const firstName = debouncedOptions?.[0]?.name ?? "";
-    if (firstName && firstName !== groupByOption) {
-      setGroupByOption(firstName);
-    }
-  }, [debouncedOptions, groupByOption, mounted]);
-
   const combinations = useMemo(() => {
-    if (debouncedOptions.length === 0) return [];
+    if (!debouncedOptions || debouncedOptions.length === 0) return [];
 
     const values = debouncedOptions.map((option) =>
       option.values.map((value) => value.id),
@@ -71,8 +62,15 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
     return cartesianProduct(values);
   }, [debouncedOptions]);
 
-  const computedVariants = useMemo(() => {
-    if (valuesMap.size === 0) return [];
+  useEffect(() => {
+    const firstName = debouncedOptions?.[0]?.name ?? "";
+    if (firstName && firstName !== groupByOption) {
+      setGroupByOption(firstName);
+    }
+  }, [debouncedOptions, groupByOption]);
+
+  useEffect(() => {
+    if (valuesMap.size === 0) return;
 
     const computed = combinations.map((combination: number[] | number) => {
       const ids = Array.isArray(combination) ? combination : [combination];
@@ -91,10 +89,8 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       };
     });
 
-    const oldVariants = form.getValues("variants") ?? [];
-
     const oldByKey = new Map(
-      oldVariants.map((variant) => {
+      variants.map((variant) => {
         const key = Object.values(variant.optionValues)
           .map((v) => v.id)
           .sort()
@@ -111,7 +107,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       const existing = oldByKey.get(key);
 
       return {
-        id: existing?.id,
+        id: existing?.id ?? 0,
         optionValues: variant.optionValues,
         thumbnail: existing?.thumbnail ?? { id: 0, url: "" },
         stock: existing?.stock ?? 0,
@@ -119,17 +115,11 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
       };
     });
 
-    return merged;
+    onChange(merged);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinations, valuesMap]);
 
-  useEffect(() => {
-    if (!mounted) return;
-    form.setValue("variants", computedVariants, { shouldDirty: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computedVariants, mounted]);
-
-  if (!mounted || !variants || variants.length === 0) return null;
+  if (!variants || variants.length === 0) return <div>No variants</div>;
 
   return (
     <div className="space-y-2">
@@ -140,7 +130,7 @@ export function Variants({ control }: { control: Control<ProductFormValues> }) {
             <SelectValue placeholder="Select an option" />
           </SelectTrigger>
           <SelectContent>
-            {debouncedOptions.map(
+            {debouncedOptions?.map(
               (option) =>
                 option.name && (
                   <SelectItem key={option.id} value={option.name}>

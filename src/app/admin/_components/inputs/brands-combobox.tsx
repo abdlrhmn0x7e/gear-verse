@@ -39,7 +39,6 @@ export function BrandsCombobox({
   className?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [hasMounted, setHasMounted] = React.useState(false);
   const { ref, inView } = useInView();
   const {
     data: brands,
@@ -57,16 +56,12 @@ export function BrandsCombobox({
   );
 
   React.useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  React.useEffect(() => {
     if (inView && hasNextPage) {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  if (!hasMounted) {
+  if (!brands) {
     return (
       <Button
         variant="outline"

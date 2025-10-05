@@ -3,6 +3,7 @@
 import { CheckIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import {
   ProductForm,
@@ -19,12 +20,12 @@ export function EditProduct({
 }: {
   product: RouterOutputs["admin"]["products"]["queries"]["findById"];
 }) {
-  const utils = api.useUtils();
   const router = useRouter();
+  const utils = api.useUtils();
   const { mutate: updateProduct, isPending: isUpdatingProduct } =
     api.admin.products.mutations.editDeep.useMutation();
+
   function onSubmit(data: Partial<ProductFormValues>) {
-    console.log("data", data);
     updateProduct(
       { id: product.id, data },
       {
@@ -44,34 +45,38 @@ export function EditProduct({
     );
   }
 
+  const defaultValues = useMemo(
+    (): Partial<ProductFormValues> => ({
+      title: product.title,
+      summary: product.summary,
+      description: product.description,
+
+      published: product.published,
+
+      price: product.price,
+      strikeThroughPrice: product.strikeThroughPrice ?? 0,
+      profit: product.profit,
+      margin: product.margin,
+
+      categoryId: product.categoryId,
+      brandId: product.brandId,
+
+      seo: {
+        pageTitle: product.seo?.pageTitle ?? "",
+        urlHandler: product.seo?.urlHandler ?? "",
+        metaDescription: product.seo?.metaDescription ?? "",
+      },
+
+      media: product.media,
+      options: product.options,
+      variants: product.variants,
+    }),
+    [product],
+  );
+
   return (
     <div>
-      <ProductForm
-        onSubmitPartial={onSubmit}
-        defaultValues={{
-          title: product.title,
-          summary: product.summary,
-          description: product.description,
-
-          published: product.published,
-          price: product.price,
-          profit: product.profit,
-          margin: product.margin,
-
-          categoryId: product.categoryId,
-          brandId: product.brandId,
-
-          seo: {
-            pageTitle: product.seo?.pageTitle ?? "",
-            urlHandler: product.seo?.urlHandler ?? "",
-            metaDescription: product.seo?.metaDescription ?? "",
-          },
-
-          media: product.media,
-          options: product.options,
-          variants: product.variants,
-        }}
-      />
+      <ProductForm onSubmitPartial={onSubmit} defaultValues={defaultValues} />
 
       <motion.div
         className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"

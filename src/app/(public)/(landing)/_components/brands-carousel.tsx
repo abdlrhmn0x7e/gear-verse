@@ -3,10 +3,16 @@
 import { PackageOpenIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import {
   Carousel,
   CarouselContent,
@@ -19,11 +25,12 @@ import { Progress } from "~/components/ui/progress";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 export function BrandsCarousel() {
-  const { data: brands, isPending } = api.public.brands.findAll.useQuery();
+  const [brands] = api.public.brands.findAll.useSuspenseQuery();
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
   const progress = (current * 100) / count;
+
   React.useEffect(() => {
     if (!carouselApi) {
       return;
@@ -35,44 +42,21 @@ export function BrandsCarousel() {
     });
   }, [carouselApi]);
 
-  if (isPending) {
+  if (true) {
     return (
-      <div className="relative w-full">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {Array.from({ length: 6 }).map((_, index) => (
-              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/6">
-                <div className="group bg-card flex h-full flex-col overflow-hidden rounded-lg border">
-                  <AspectRatio ratio={1} className="overflow-hidden p-8">
-                    <Skeleton className="size-full rounded-none border-none" />
-                  </AspectRatio>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+      <Empty className="gap-3">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="size-12">
+            <PackageOpenIcon />
+          </EmptyMedia>
+        </EmptyHeader>
 
-          <CarouselPrevious className="top-[calc(100%+1rem)] left-0 size-10 translate-y-0" />
-          <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
-        </Carousel>
-        <Skeleton className="mt-6 ml-auto h-4 w-36" />
-      </div>
-    );
-  }
-
-  if (!brands || brands.length === 0) {
-    return (
-      <div className="relative w-full">
-        <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-lg">
-          <PackageOpenIcon className="size-12" />
-          <div className="space-y-2 text-center">
-            <Heading level={2}>No brands found</Heading>
-            <div className="text-muted-foreground">
-              <p>We are cooking something delicious for you.</p>
-              <p>Check back later.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        <EmptyTitle className="text-2xl">No brands found</EmptyTitle>
+        <EmptyDescription className="text-lg">
+          We couldn&apos;t find any brands to display at the moment. Please
+          check back later!
+        </EmptyDescription>
+      </Empty>
     );
   }
 
@@ -117,5 +101,30 @@ function BrandCard({
         </AspectRatio>
       </div>
     </Link>
+  );
+}
+
+export function BrandsCarouselSkeleton() {
+  return (
+    <div className="relative w-full">
+      <Carousel className="w-full">
+        <CarouselContent>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <CarouselItem
+              key={index}
+              className="basis-3/5 sm:basis-2/5 lg:basis-2/12"
+            >
+              <AspectRatio className="overflow-hidden">
+                <Skeleton className="size-full" />
+              </AspectRatio>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        <CarouselPrevious className="top-[calc(100%+1rem)] left-0 size-10 translate-y-0" />
+        <CarouselNext className="top-[calc(100%+1rem)] left-3 size-10 translate-x-full translate-y-0" />
+      </Carousel>
+      <Skeleton className="mt-6 ml-auto h-4 w-36" />
+    </div>
   );
 }

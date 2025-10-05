@@ -1,22 +1,10 @@
+import { categoriesFindAllInputSchema } from "~/lib/schemas/contracts/public/categories";
 import { createTRPCRouter, publicProcedure } from "../../trpc";
-import z from "zod";
 
 export const userCategoriesRouter = createTRPCRouter({
   findAll: publicProcedure
-    .input(
-      z
-        .object({
-          filters: z
-            .object({
-              root: z.boolean(),
-            })
-            .partial(),
-        })
-        .optional(),
-    )
+    .input(categoriesFindAllInputSchema)
     .query(({ ctx, input }) => {
-      return ctx.db.user.categories.queries.findAll({
-        filters: input?.filters,
-      });
+      return ctx.app.public.categories.queries.findAll(input);
     }),
 });

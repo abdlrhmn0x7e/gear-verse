@@ -57,7 +57,7 @@ export default async function AdminPage() {
           <QuickAction
             title="New Product"
             description="Create a new product to add to your store."
-            href="/admin/products/add"
+            href="/admin/products/new"
             Icon={PlusIcon}
           />
 

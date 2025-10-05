@@ -14,10 +14,6 @@ export default async function EditProductPage({
     return notFound();
   }
 
-  void api.admin.categories.findAll.prefetch();
-  void api.admin.brands.getPage.prefetchInfinite({
-    pageSize: 10,
-  });
   const product = await api.admin.products.queries.findById({
     id: parseInt(id),
   });

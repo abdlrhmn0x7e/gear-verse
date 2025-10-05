@@ -17,18 +17,17 @@ export default function ProductsPage({
   void api.public.brands.findAll.prefetch();
 
   return (
-    <>
-      <MaxWidthWrapper className="relative grid grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
-        <Suspense
-          fallback={<FiltersSkeleton className="lg:col-span-4 xl:col-span-3" />}
-        >
-          <Filters className="lg:col-span-4 xl:col-span-3" />
-        </Suspense>
-        <Products
-          className="lg:col-span-8 xl:col-span-9"
-          searchParams={searchParams}
-        />
-      </MaxWidthWrapper>
-    </>
+    <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
+      <Suspense
+        fallback={<FiltersSkeleton className="lg:col-span-4 xl:col-span-3" />}
+      >
+        <Filters className="lg:col-span-4 xl:col-span-3" />
+      </Suspense>
+
+      <Products
+        className="lg:col-span-8 xl:col-span-9"
+        searchParams={searchParams}
+      />
+    </MaxWidthWrapper>
   );
 }

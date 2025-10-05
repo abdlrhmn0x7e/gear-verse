@@ -129,6 +129,7 @@ export function ProductForm({
       description: {},
       published: false,
       price: 0,
+      strikeThroughPrice: 0,
       profit: 0,
       margin: 0,
       categoryId: 0,
@@ -164,10 +165,15 @@ export function ProductForm({
     shouldUnregister: true,
   });
 
+  // you have to subscribe to the dirty fields here
+  // accessing it directly from the onSubmit function won't work
+  // because the form state is not updated yet
+  const { dirtyFields } = form.formState;
+
   function handleSubmit(data: ProductFormValues) {
     if (defaultValues) {
       // FIX: brand id isn't marked as dirty on first change
-      const _data = getDirtyFields(data, form.formState.dirtyFields);
+      const _data = getDirtyFields(data, dirtyFields);
 
       onSubmitPartial?.(_data);
       return;
@@ -291,7 +297,17 @@ export function ProductForm({
                 />
               </div>
 
-              <Variants control={form.control} />
+              <FormField
+                control={form.control}
+                name="variants"
+                render={({ field }) => (
+                  <Variants
+                    variants={field.value}
+                    options={optionFields}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
             </CardContent>
             <TotalInventory />
           </Card>
@@ -344,7 +360,21 @@ export function ProductForm({
                 )}
               />
 
-              <div className="grid grid-cols-2 items-start gap-2">
+              <FormField
+                control={form.control}
+                name="strikeThroughPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Strike Through Price (optional)</FormLabel>
+                    <FormControl>
+                      <PriceInput placeholder="0 dollaz?" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 items-start gap-4">
                 <FormField
                   control={form.control}
                   name="profit"

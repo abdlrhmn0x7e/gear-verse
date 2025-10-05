@@ -39,18 +39,6 @@ type UpdateProduct = Partial<NewProduct & { media: number[]; seo: UpdateSeo }>;
 
 export const _adminProducts = {
   queries: {
-    findAll: async () => {
-      return db
-        .select({
-          id: products.id,
-          title: products.title,
-          slug: products.slug,
-          createdAt: products.createdAt,
-          updatedAt: products.updatedAt,
-        })
-        .from(products);
-    },
-
     getPage: async ({
       cursor,
       pageSize,
@@ -112,6 +100,7 @@ export const _adminProducts = {
         columns: {
           id: true,
           title: true,
+          slug: true,
           published: true,
           price: true,
         },
@@ -329,6 +318,7 @@ export const _adminProducts = {
           id: products.id,
           title: products.title,
           price: products.price,
+          strikeThroughPrice: products.strikeThroughPrice,
           summary: products.summary,
           description: products.description,
           published: products.published,

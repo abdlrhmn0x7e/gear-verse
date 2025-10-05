@@ -2,8 +2,11 @@ import { cn } from "~/lib/utils";
 
 export function PriceInput({
   className,
+  value,
   ...props
-}: React.ComponentProps<"input">) {
+}: React.ComponentProps<"input"> & {
+  value: number | null | undefined;
+}) {
   return (
     <div
       className={cn(
@@ -19,6 +22,7 @@ export function PriceInput({
         className="flex-1 border-none focus-visible:outline-none"
         type="number"
         min={0}
+        value={value ?? ""}
         {...props}
       />
     </div>

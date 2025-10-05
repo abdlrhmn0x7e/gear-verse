@@ -189,6 +189,18 @@ export const _products = {
           })),
         );
       }
+
+      // update the variants if there are any changes there only
+      if (variants && !options) {
+        await data.admin.productVariants.mutations.updateMany(
+          variants.map((v) => ({
+            id: v.id!,
+            stock: v.stock,
+            thumbnailMediaId: v.thumbnail.id,
+            overridePrice: v.overridePrice ?? null,
+          })),
+        );
+      }
     },
 
     helpers: {

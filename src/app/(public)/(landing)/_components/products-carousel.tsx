@@ -19,6 +19,13 @@ import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 
 export function ProductsCarousel() {
   const [data] = api.public.products.getPage.useSuspenseQuery({
@@ -29,6 +36,7 @@ export function ProductsCarousel() {
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
   const progress = (current * 100) / count;
+
   React.useEffect(() => {
     if (!carouselApi) {
       return;
@@ -42,18 +50,19 @@ export function ProductsCarousel() {
 
   if (!data || data.data.length === 0) {
     return (
-      <div className="relative w-full">
-        <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-lg">
-          <PackageOpenIcon className="size-12" />
-          <div className="space-y-2 text-center">
-            <Heading level={2}>No products found</Heading>
-            <div className="text-muted-foreground">
-              <p>We are cooking something delicious for you.</p>
-              <p>Check back later.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Empty className="gap-3">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="size-12">
+            <PackageOpenIcon />
+          </EmptyMedia>
+        </EmptyHeader>
+
+        <EmptyTitle className="text-2xl">No products found</EmptyTitle>
+        <EmptyDescription className="text-lg">
+          We couldn&apos;t find any products to display at the moment. Please
+          check back later!
+        </EmptyDescription>
+      </Empty>
     );
   }
 
@@ -128,13 +137,14 @@ function ProductCard({
 }: {
   product: RouterOutputs["public"]["products"]["getPage"]["data"][number];
 }) {
+  console.log("product", product);
   return (
     <Link href={`/products/${product.slug}`}>
       <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
         <AspectRatio ratio={1} className="overflow-hidden">
           <ImageWithFallback
-            src={product.thumbnail}
-            alt={product.name}
+            src={product.thumbnailUrl}
+            alt={product.title}
             className="size-full rounded-none border-none transition-transform duration-300 group-hover:scale-105"
             width={512}
             height={512}
@@ -147,7 +157,7 @@ function ProductCard({
           <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
             <div className="flex items-center gap-2">
               <ImageWithFallback
-                src={product.brand.logo}
+                src={product.brand.logoUrl}
                 alt={product.brand.name ?? ""}
                 className="size-6 rounded-full"
                 width={48}
@@ -162,7 +172,7 @@ function ProductCard({
           </div>
 
           <div>
-            <Heading level={4}>{product.name}</Heading>
+            <Heading level={4}>{product.title}</Heading>
           </div>
         </div>
       </div>

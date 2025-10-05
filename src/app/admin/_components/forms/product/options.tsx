@@ -55,7 +55,6 @@ export function Options({
   swap: UseFieldArraySwap;
 }) {
   const [openOptions, setOpenOptions] = useState<(string | number)[]>([]);
-  const [mounted, setMounted] = useState(false);
 
   function toggleOpen(id: number) {
     setOpenOptions((prev) =>
@@ -87,10 +86,6 @@ export function Options({
     add(newId);
   }
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (options.length === 0) {
     return (
       <div className="space-y-6">
@@ -111,32 +106,31 @@ export function Options({
 
   return (
     <div className="space-y-3" suppressHydrationWarning>
-      {mounted ? (
-        <SwapableContext
-          items={options.map((option) => option.id)}
-          strategy={verticalListSortingStrategy}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          {options.map((option, index) => (
-            <SwapableItemWithHandle
+      <SwapableContext
+        items={options.map((option) => option.id)}
+        strategy={verticalListSortingStrategy}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis]}
+      >
+        {options.map((option, index) => (
+          <SwapableItemWithHandle
+            key={option.id}
+            id={option.id}
+            disabled={openOptions.length > 0}
+            className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
+          >
+            <Option
               key={option.id}
               id={option.id}
-              disabled={openOptions.length > 0}
-              className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
-            >
-              <Option
-                key={option.id}
-                id={option.id}
-                index={index}
-                open={openOptions.includes(option.id)}
-                toggleOpen={() => toggleOpen(option.id)}
-                remove={() => handleRemove(option.id)}
-              />
-            </SwapableItemWithHandle>
-          ))}
-        </SwapableContext>
-      ) : null}
+              index={index}
+              option={option}
+              open={openOptions.includes(option.id)}
+              toggleOpen={() => toggleOpen(option.id)}
+              remove={() => handleRemove(option.id)}
+            />
+          </SwapableItemWithHandle>
+        ))}
+      </SwapableContext>
 
       <Button type="button" variant="ghost" onClick={handleAddOption}>
         <PlusCircleIcon />
@@ -149,18 +143,19 @@ export function Options({
 function Option({
   id,
   index,
+  option,
   open,
   toggleOpen,
   remove,
 }: {
   id: UniqueIdentifier;
   index: number;
+  option: FieldArrayWithId<ProductFormValues, "options", "keyId">;
   open: boolean;
   toggleOpen: () => void;
   remove: () => void;
 }) {
   const form = useFormContext<ProductFormValues>();
-  const option = form.getValues("options")[index];
 
   async function handleDone() {
     const isValid = await form.trigger(`options.${index}`);
@@ -172,8 +167,6 @@ function Option({
 
   function renderOptionContent() {
     if (!open) {
-      if (!option) return null;
-
       return (
         <motion.button
           key={`option-closed-${id}`}
@@ -255,9 +248,6 @@ function OptionFields({ index }: { index: number }) {
 
   useEffect(() => {
     if (debouncedAddValue.length > 0) {
-      const option = form.getValues("options")[index];
-      if (!option) return;
-
       const valueId = generateRandomId();
 
       appendValue(

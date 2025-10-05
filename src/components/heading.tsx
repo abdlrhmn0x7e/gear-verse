@@ -10,9 +10,9 @@ const headingVariants = cva(
         1: `text-3xl md:text-4xl font-extrabold leading-12 md:leading-16 ${tanNimbus.className}`,
         2: "text-2xl md:text-3xl font-semibold",
         3: "text-xl md:text-2xl font-semibold",
-        4: "text-lg md:text-xl font-semibold",
-        5: "text-base md:text-lg font-semibold",
-        6: "text-sm md:text-base font-semibold",
+        4: "text-lg md:text-xl font-medium",
+        5: "text-base md:text-lg",
+        6: "text-sm md:text-base",
       },
       font: {
         default: tanNimbus.className,

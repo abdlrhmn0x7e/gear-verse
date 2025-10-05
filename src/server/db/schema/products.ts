@@ -27,6 +27,7 @@ export const products = pgTable(
 
     title: text("title").notNull(),
     price: integer("price").notNull(),
+    strikeThroughPrice: integer("strike_through_price"),
     profit: integer("profit").notNull(),
     margin: integer("margin").notNull(),
     summary: text("summary").notNull(),

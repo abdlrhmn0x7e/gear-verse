@@ -1,6 +1,7 @@
 import {
   inventoryItems,
   orderItems,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   productVariants,
@@ -68,6 +69,31 @@ export const _adminProductVariants = {
 
         // 2) Delete/archive the old variants, options, option values and pivots
         return this.helpers.deleteOrArchiveManyTx(tx, variantsIds);
+      });
+    },
+
+    updateMany(
+      variants: {
+        id: number;
+        stock: number;
+        thumbnailMediaId: number;
+        overridePrice: number | null;
+      }[],
+    ) {
+      return db.transaction(async (tx) => {
+        for (const variant of variants) {
+          const { id, stock, ...rest } = variant;
+
+          await tx
+            .update(productVariants)
+            .set(rest)
+            .where(eq(productVariants.id, variant.id));
+
+          await tx
+            .update(inventoryItems)
+            .set({ quantity: stock })
+            .where(eq(inventoryItems.variantId, id));
+        }
       });
     },
 
@@ -223,9 +249,36 @@ export const _adminProductVariants = {
             );
 
             if (toDeleteValueIds.length > 0) {
-              await tx
+              const deleted = await tx
                 .delete(productOptionValues)
-                .where(inArray(productOptionValues.id, toDeleteValueIds));
+                .where(inArray(productOptionValues.id, toDeleteValueIds))
+                .returning({ optionId: productOptionValues.productOptionId });
+
+              // if an option has no values left, delete it
+              const candidateOptionIds = Array.from(
+                new Set(deleted.map((d) => d.optionId)),
+              );
+
+              const stillHasValues = await tx
+                .select({ optionId: productOptionValues.productOptionId })
+                .from(productOptionValues)
+                .where(
+                  inArray(
+                    productOptionValues.productOptionId,
+                    candidateOptionIds,
+                  ),
+                );
+
+              const stillSet = new Set(stillHasValues.map((r) => r.optionId));
+              const toDeleteOptionIds = candidateOptionIds.filter(
+                (id) => !stillSet.has(id),
+              );
+
+              if (toDeleteOptionIds.length > 0) {
+                await tx
+                  .delete(productOptions)
+                  .where(inArray(productOptions.id, toDeleteOptionIds));
+              }
             }
           }
         }

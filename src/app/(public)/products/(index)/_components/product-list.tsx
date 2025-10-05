@@ -1,21 +1,27 @@
 "use client";
 
-import { EyeIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { Heading } from "~/components/heading";
-import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
-import { Skeleton } from "~/components/ui/skeleton";
-import { formatCurrency } from "~/lib/utils/format-currency";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { useAllProductSearchParams } from "./hooks";
 import { useDebounce } from "~/hooks/use-debounce";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { Heading } from "~/components/heading";
+import { Button } from "~/components/ui/button";
+import { ArrowUpRightIcon, EyeIcon } from "lucide-react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { IconShoppingBagX } from "@tabler/icons-react";
 
 export function ProductList() {
   const [filters] = useAllProductSearchParams();
@@ -41,11 +47,44 @@ export function ProductList() {
   const products = data.pages.flatMap((page) => page.data);
 
   const { ref, inView } = useInView();
+
   useEffect(() => {
     if (inView) {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage]);
+
+  if (products.length === 0) {
+    return (
+      <Empty className="h-2/3">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <IconShoppingBagX />
+          </EmptyMedia>
+          <EmptyTitle>No Products Found</EmptyTitle>
+          <EmptyDescription>
+            We couldn&apos;t find any products to display at the moment. Please
+            check back later!
+          </EmptyDescription>
+        </EmptyHeader>
+
+        <EmptyContent className="flex-row items-center justify-center gap-0">
+          <p className="text-muted-foreground">Need Something Specific?</p>
+          <Button
+            variant="link"
+            asChild
+            className="text-muted-foreground"
+            size="sm"
+          >
+            <a href="/contact">
+              Contact Us
+              <ArrowUpRightIcon />
+            </a>
+          </Button>
+        </EmptyContent>
+      </Empty>
+    );
+  }
 
   return (
     <>
@@ -66,116 +105,59 @@ function ProductCard({
   product: RouterOutputs["public"]["products"]["getPage"]["data"][number];
 }) {
   return (
-    <Link href={`/products/${product.slug}`}>
-      <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
-        <AspectRatio ratio={1} className="overflow-hidden">
+    <Link href={`/products/${product.slug}`} className="group">
+      <div className="bg-card space-y-3 rounded-lg border p-1">
+        <AspectRatio
+          ratio={16 / 10}
+          className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
+        >
           <ImageWithFallback
-            src={product.thumbnail}
-            alt={product.name}
-            className="size-full rounded-none border-none transition-transform duration-300 group-hover:scale-105"
+            src={product.thumbnailUrl}
+            alt={product.title}
             width={512}
             height={512}
+            className="size-full rounded-none border-none"
           />
         </AspectRatio>
 
-        <Separator />
+        <div className="space-y-3">
+          <div className="space-y-3 px-1">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <ImageWithFallback
+                  src={product.brand.logoUrl}
+                  alt={product.brand.name ?? "unknown brand"}
+                  className="size-4 rounded-full"
+                  width={16}
+                  height={16}
+                />
 
-        <div className="bg-card flex flex-1 flex-col gap-4 p-4 text-center sm:text-left">
-          <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <ImageWithFallback
-                src={product.brand.logo}
-                alt={product.brand.name ?? ""}
-                className="size-6 rounded-full"
-                width={48}
-                height={48}
-              />
-              <span className="text-sm font-medium">{product.brand.name}</span>
+                <span className="text-md mb-1">{product.brand.name}</span>
+              </div>
+
+              <Heading level={4}>{product.title}</Heading>
             </div>
 
-            <p className="text-muted-foreground text-sm">
-              From {formatCurrency(product.price ?? 0)}
+            <p className="line-clamp-3">{product.summary}</p>
+
+            <p className="flex items-center justify-between gap-3">
+              {product.strikeThroughPrice && (
+                <span className="text-muted-foreground line-through">
+                  {formatCurrency(product.strikeThroughPrice)}
+                </span>
+              )}
+              <span className="text-primary-foreground text-xl font-semibold">
+                {formatCurrency(product.price)}
+              </span>
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Heading level={5} className="line-clamp-1">
-              {product.name}
-            </Heading>
-            <div className="flex items-center gap-2">
-              <SparklesIcon className="size-4" />
-              <p className="text-muted-foreground text-sm">
-                Available variants
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {product.variants.map((variant, index) => (
-                <Badge variant="outline" key={`${variant.name}-${index}`}>
-                  <ImageWithFallback
-                    src={variant.thumbnail}
-                    alt={variant.name ?? ""}
-                    className="size-4 rounded-full"
-                    width={16}
-                    height={16}
-                  />
-                  {variant.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          <div className="flex h-full items-end">
-            <Button className="w-full">
-              <EyeIcon />
-              View Details
-            </Button>
-          </div>
+          <Button className="w-full">
+            <EyeIcon />
+            View Details
+          </Button>
         </div>
       </div>
     </Link>
-  );
-}
-
-export function ProductListSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="group flex h-full flex-col overflow-hidden rounded-lg border"
-        >
-          <AspectRatio ratio={1} className="overflow-hidden">
-            <Skeleton className="size-full rounded-none border-none" />
-          </AspectRatio>
-
-          <Separator />
-
-          <div className="bg-muted flex flex-1 flex-col gap-4 p-4 text-center sm:text-left">
-            <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
-              <div className="flex items-center gap-2">
-                <Skeleton className="size-6 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-              <Skeleton className="h-4 w-20" />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Skeleton className="h-5 w-48" />
-              <div className="flex items-center gap-2">
-                <Skeleton className="size-4 rounded-full" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 4 }).map((_, badgeIdx) => (
-                  <Skeleton key={badgeIdx} className="h-6 w-20 rounded-full" />
-                ))}
-              </div>
-            </div>
-            <div className="flex h-full items-end">
-              <Skeleton className="h-10 w-full rounded-md" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }

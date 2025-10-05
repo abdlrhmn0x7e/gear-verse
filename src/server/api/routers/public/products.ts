@@ -3,6 +3,8 @@ import { paginate } from "../../../application/helpers/pagination";
 import { paginationSchema } from "~/lib/schemas/contracts/pagination";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { errorMap } from "../../error-map";
 
 export const userProductsRouter = createTRPCRouter({
   getPage: publicProcedure
@@ -24,18 +26,26 @@ export const userProductsRouter = createTRPCRouter({
           .optional(),
       }),
     )
-    .query(({ ctx, input }) => {
-      return paginate({ input, getPage: ctx.db.user.products.queries.getPage });
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await tryCatch(
+        ctx.app.public.products.queries.getPage(input),
+      );
+
+      if (error) {
+        throw errorMap(error);
+      }
+
+      return data;
     }),
+
   findBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const product = await ctx.db.user.products.queries.findBySlug(input.slug);
-      if (!product) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Product not found",
-        });
+      const { data: product, error: productError } = await tryCatch(
+        ctx.app.public.products.queries.findBySlug(input.slug),
+      );
+      if (productError) {
+        throw errorMap(productError);
       }
 
       return product;
