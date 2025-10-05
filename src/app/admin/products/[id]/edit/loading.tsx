@@ -1,98 +1,184 @@
-import { PackageIcon, SaveIcon } from "lucide-react";
-import { Card, CardContent } from "~/components/ui/card";
+import { PackageIcon, TriangleAlertIcon } from "lucide-react";
+import Header from "~/components/header";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
-import { Button } from "~/components/ui/button";
-import { HeaderSkeleton } from "~/components/header";
 
 export default function Loading() {
   return (
     <section className="space-y-6">
-      {/* Page Header Skeleton */}
-      <HeaderSkeleton Icon={PackageIcon} />
-
-      {/* Product Form Skeleton */}
-      <div className="space-y-8">
-        {/* Title Field */}
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-12" />
-          <Skeleton className="h-10 w-full" />
+      <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
+        <div className="flex items-center justify-center gap-2">
+          <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
+          <p className="text-primary-foreground text-sm">
+            this page is not meant to be used on mobile devices.
+          </p>
         </div>
+      </div>
 
-        {/* Category and Brand Fields (Grid) */}
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
+      <Header
+        title={`Edit Product`}
+        description="Let's get this product looking good alright?"
+        Icon={PackageIcon}
+      />
 
-        {/* Images Dropzone */}
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-16" />
-          <Card className="border-2 border-dashed">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2 text-center">
-                  <Skeleton className="mx-auto h-4 w-48" />
-                  <Skeleton className="mx-auto h-3 w-32" />
+      <div className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <Card>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-56 w-full" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-12 w-full rounded-sm" />
-            ))}
-          </div>
-        </div>
+          <Card className="gap-0 overflow-hidden pb-0">
+            <CardHeader className="mb-4">
+              <Skeleton className="h-6 w-24" />
+              <CardDescription>
+                <Skeleton className="mt-2 h-4 w-64" />
+              </CardDescription>
+            </CardHeader>
 
-        {/* Description Editor */}
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-20" />
-          <Card>
-            <CardContent className="p-0">
-              {/* Editor Toolbar */}
-              <div className="border-b p-3">
-                <div className="flex items-center justify-center gap-3">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <Skeleton key={i} className="size-6 rounded-sm" />
+            <CardContent className="space-y-6 p-0">
+              <div className="p-2">
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-8 w-28" />
                   ))}
                 </div>
               </div>
 
-              {/* Editor Content Area */}
-              <div className="space-y-3 p-4">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6" />
-                <Skeleton className="h-4 w-4/5" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
+              <div className="border-t">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-[1fr,160px,100px] items-center gap-4 border-b p-3 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-12 w-12" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-9 w-full" />
+                    <Skeleton className="h-9 w-full" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+
+            <CardFooter className="bg-muted justify-center border-t pb-4 [.border-t]:pt-4">
+              <Skeleton className="h-4 w-40" />
+            </CardFooter>
+          </Card>
+        </div>
+        <div className="space-y-4">
+          <Card className="gap-3">
+            <CardHeader>
+              <Skeleton className="h-6 w-24" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-6 w-12 rounded-full" />
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
 
-      {/* Floating Save Button Skeleton */}
-      <div className="fixed right-10 bottom-10">
-        <div className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 space-y-1">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-48" />
-            </div>
-            <Button disabled>
-              <SaveIcon size={16} />
-              Save Product
-            </Button>
-          </div>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-28" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-44" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+              <div className="grid grid-cols-2 items-start gap-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-24" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-9 w-28" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </section>
