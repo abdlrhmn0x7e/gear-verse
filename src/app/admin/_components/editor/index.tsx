@@ -58,8 +58,11 @@ export function Editor({
               className="shrink-0"
             />
 
-            <ScrollArea className="h-[20rem] p-4">
-              <EditorContent editor={editor} className="w-full" />
+            <ScrollArea
+              onClick={() => editor.chain().focus().run()}
+              className="h-[20rem] p-4"
+            >
+              <EditorContent editor={editor} className="size-full" />
             </ScrollArea>
           </>
         )}
@@ -98,7 +101,10 @@ export function Editor({
                     disableTooltips
                   />
 
-                  <ScrollArea className="flex-1 p-4">
+                  <ScrollArea
+                    onClick={() => editor.chain().focus().run()}
+                    className="flex-1 p-4"
+                  >
                     <div className="h-[80svh]">
                       <EditorContent editor={editor} className="w-full pb-24" />
                     </div>
