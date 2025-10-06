@@ -32,8 +32,6 @@ export function Variants({
   const [groupByOption, setGroupByOption] = useState<string>(
     debouncedOptions?.[0]?.name ?? "loading...",
   );
-  console.log("debouncedOptions", debouncedOptions);
-  console.log("options", options);
 
   const valuesMap = useMemo(() => {
     if (

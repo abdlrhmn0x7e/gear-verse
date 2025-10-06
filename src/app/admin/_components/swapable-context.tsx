@@ -20,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon } from "lucide-react";
+import { useId } from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -32,6 +33,9 @@ export function SwapableContext({
   items: UniqueIdentifier[];
   strategy: SortingStrategy;
 } & React.ComponentProps<typeof DndContext>) {
+  // ssr fix
+  const id = useId();
+
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -61,7 +65,12 @@ export function SwapableContext({
     }),
   );
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} {...props}>
+    <DndContext
+      id={id}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      {...props}
+    >
       <SortableContext items={items} strategy={strategy}>
         {children}
       </SortableContext>

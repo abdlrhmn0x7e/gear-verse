@@ -73,6 +73,7 @@ export function EditProduct({
     }),
     [product],
   );
+  console.log("defaultValues", defaultValues);
 
   return (
     <div>

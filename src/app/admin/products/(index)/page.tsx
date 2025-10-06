@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/button";
 import Header from "../../../../components/header";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
-import { api, HydrateClient } from "~/trpc/server";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -14,12 +13,6 @@ export default async function AdminProductsPage({
   searchParams: Promise<SearchParams>;
 }) {
   void loadProductSearchParams(searchParams);
-  void api.admin.products.queries.getPage.prefetchInfinite({
-    pageSize: 10,
-  });
-  void api.admin.brands.getPage.prefetchInfinite({
-    pageSize: 10,
-  });
 
   return (
     <section className="space-y-6">
@@ -38,9 +31,7 @@ export default async function AdminProductsPage({
         </Button>
       </div>
 
-      <HydrateClient>
-        <ProductsTable />
-      </HydrateClient>
+      <ProductsTable />
     </section>
   );
 }
