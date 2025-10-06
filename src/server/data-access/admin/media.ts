@@ -1,4 +1,4 @@
-import { eq, and, gt, ilike, asc } from "drizzle-orm";
+import { eq, and, gt, ilike, lt, desc } from "drizzle-orm";
 import { db } from "../../db";
 import { media } from "../../db/schema";
 
@@ -18,7 +18,7 @@ export const _media = {
         name: string;
       }>;
     }) => {
-      const whereClause = [gt(media.id, cursor ?? 0)];
+      const whereClause = cursor ? [lt(media.id, cursor)] : [];
       if (filters?.name) {
         whereClause.push(ilike(media.name, `%${filters.name}%`));
       }
@@ -34,7 +34,7 @@ export const _media = {
         .from(media)
         .where(and(...whereClause))
         .limit(pageSize + 1)
-        .orderBy(asc(media.id));
+        .orderBy(desc(media.id));
     },
   },
 

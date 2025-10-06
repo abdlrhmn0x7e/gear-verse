@@ -9,7 +9,7 @@ import { _addresses } from "./addresses";
 import { _options } from "./options";
 import { _optionValues } from "./option-values";
 
-export const _adminRepo = {
+export const _admin = {
   products: _products,
   productVariants: _productVariants,
   productOptions: _options,

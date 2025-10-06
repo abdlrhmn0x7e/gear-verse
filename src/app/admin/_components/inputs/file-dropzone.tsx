@@ -32,6 +32,7 @@ export function FileDropzone({
 }: FileDropZoneProps) {
   const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
+  const addSelectedMedia = useMediaStore((state) => state.addSelectedMedia);
   const maxFiles = useMediaStore((state) => state.maxFiles);
   const deleteSelectedMedia = useMediaStore(
     (state) => state.deleteSelectedMedia,
@@ -40,6 +41,12 @@ export function FileDropzone({
     (acceptedFiles: File[]) => {
       uploadFiles(acceptedFiles, {
         onSuccess: (data) => {
+          addSelectedMedia(
+            data.map((file) => ({
+              mediaId: file.id,
+              url: file.url,
+            })),
+          );
           onChange?.(
             data.map((file, index) => ({
               mediaId: file.id,
@@ -50,7 +57,7 @@ export function FileDropzone({
         },
       });
     },
-    [onChange, uploadFiles],
+    [onChange, uploadFiles, addSelectedMedia],
   );
 
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({

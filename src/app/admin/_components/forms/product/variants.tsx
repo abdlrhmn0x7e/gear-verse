@@ -32,6 +32,8 @@ export function Variants({
   const [groupByOption, setGroupByOption] = useState<string>(
     debouncedOptions?.[0]?.name ?? "loading...",
   );
+  console.log("debouncedOptions", debouncedOptions);
+  console.log("options", options);
 
   const valuesMap = useMemo(() => {
     if (
@@ -74,7 +76,10 @@ export function Variants({
   }, [debouncedOptions, groupByOption]);
 
   useEffect(() => {
-    if (valuesMap.size === 0) return;
+    if (valuesMap.size === 0) {
+      onChange([]);
+      return;
+    }
 
     const computed = combinations.map((combination: number[] | number) => {
       const ids = Array.isArray(combination) ? combination : [combination];
