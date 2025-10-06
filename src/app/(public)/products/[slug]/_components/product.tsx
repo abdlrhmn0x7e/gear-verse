@@ -20,8 +20,12 @@ import { Button } from "~/components/ui/button";
 export function Product({
   children,
   product,
+  className,
+  hideActions,
 }: PropsWithChildren<{
   product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
+  className?: string;
+  hideActions?: boolean;
 }>) {
   const { data: reviews } = api.public.reviews.findAll.useQuery({
     productId: product.id,
@@ -103,164 +107,167 @@ export function Product({
   }
 
   return (
-    <section className="py-24 lg:py-32">
-      <MaxWidthWrapper className="relative space-y-8 lg:grid lg:grid-cols-2 lg:gap-12">
-        <div className="h-fit w-full max-w-full lg:sticky lg:top-32">
-          <VerseCarousel
-            photos={[selectedVariant.thumbnailUrl, ...product.media]}
-            className="w-full max-w-full"
-          />
-        </div>
+    <MaxWidthWrapper
+      className={cn(
+        "relative space-y-8 lg:grid lg:grid-cols-2 lg:gap-12",
+        className,
+      )}
+    >
+      <div className="h-fit w-full max-w-full lg:sticky lg:top-32">
+        <VerseCarousel
+          photos={[selectedVariant.thumbnailUrl, ...product.media]}
+          className="w-full max-w-full"
+        />
+      </div>
 
-        <div className="space-y-8 divide-y [&>*:not(:last-child)]:pb-8">
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <div className="flex flex-col justify-between gap-2 lg:flex-row">
-                <Heading level={2}>{product.title}</Heading>
-                <Badge variant="outline" className="h-9 rounded-full pr-1.5">
-                  <ImageWithFallback
-                    src={product.brand.logoUrl}
-                    alt={product.brand.name ?? "unknown brand"}
-                    className="size-6 rounded-full border-none"
-                    width={16}
-                    height={16}
-                  />
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-md">{product.brand.name}</span>
-                    <Badge
-                      variant={selectedVariantInStock ? "success" : "error"}
-                      className="rounded-full"
-                    >
-                      {selectedVariantInStock ? <CheckCircleIcon /> : <XIcon />}
-                      <span>{selectedVariant.stock}</span>
-                      {selectedVariantInStock ? "In Stock" : "Out of Stock"}
-                    </Badge>
-                  </div>
-                </Badge>
-              </div>
-
-              <p className="text-muted-foreground text-pretty lg:text-lg">
-                {product.summary}
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
-              <p className="space-x-2">
-                <span className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
-                  {formatCurrency(
-                    selectedVariant.overridePrice === 0 ||
-                      !selectedVariant.overridePrice
-                      ? product.price
-                      : selectedVariant.overridePrice,
-                  )}
-                </span>
-
-                {product.strikeThroughPrice && (
-                  <span className="text-muted-foreground line-through">
-                    {formatCurrency(product.strikeThroughPrice ?? 0)}
-                  </span>
-                )}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <StarRating
-                  rating={
-                    (reviews?.reduce((acc, review) => acc + review.rating, 0) ??
-                      0) / (reviews?.length ?? 0)
-                  }
+      <div className="space-y-8 divide-y [&>*:not(:last-child)]:pb-8">
+        <div className="space-y-8">
+          <div className="space-y-2">
+            <div className="flex flex-col justify-between gap-2 lg:flex-row">
+              <Heading level={2}>{product.title}</Heading>
+              <Badge variant="outline" className="h-9 rounded-full pr-1.5">
+                <ImageWithFallback
+                  src={product.brand.logoUrl}
+                  alt={product.brand.name ?? "unknown brand"}
+                  className="size-6 rounded-full border-none"
+                  width={16}
+                  height={16}
                 />
-                ({reviews?.length ?? 0} reviews)
-              </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-md">{product.brand.name}</span>
+                  <Badge
+                    variant={selectedVariantInStock ? "success" : "error"}
+                    className="rounded-full"
+                  >
+                    {selectedVariantInStock ? <CheckCircleIcon /> : <XIcon />}
+                    <span>{selectedVariant.stock}</span>
+                    {selectedVariantInStock ? "In Stock" : "Out of Stock"}
+                  </Badge>
+                </div>
+              </Badge>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <Heading level={2}>Variants</Heading>
+            <p className="text-muted-foreground text-pretty lg:text-lg">
+              {product.summary}
+            </p>
+          </div>
 
-                <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
-                  (Current Variant -{" "}
-                  {Object.values(selectedVariant.optionValues).join(", ")})
-                </p>
-              </div>
-
-              <div className="space-y-4 p-2">
-                {firstOption && (
-                  <div className="space-y-2">
-                    <p className="text-lg font-medium capitalize">
-                      {firstOption.name}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {firstOption.values.map((val, index) => {
-                        const representative =
-                          getRepresentativeVariantForFirstValue(val.value);
-                        const isSelected =
-                          selectedOptions[firstOption.name] === val.value;
-
-                        return (
-                          <div
-                            key={`${firstOption.name}-${val.value}-${index}`}
-                            className="flex flex-col items-center gap-2"
-                          >
-                            <VariantButton
-                              variant={representative}
-                              onClick={() =>
-                                handleSelectOption(firstOption.name, val.value)
-                              }
-                              className={cn(
-                                isSelected && "ring-primary ring-2",
-                              )}
-                            />
-                            <p className="text-sm font-medium">{val.value}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+          <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
+            <p className="space-x-2">
+              <span className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
+                {formatCurrency(
+                  selectedVariant.overridePrice === 0 ||
+                    !selectedVariant.overridePrice
+                    ? product.price
+                    : selectedVariant.overridePrice,
                 )}
+              </span>
 
-                {otherOptions.length > 0 && (
-                  <div className="space-y-3">
-                    {otherOptions.map((opt) => (
-                      <div key={opt.id} className="space-y-2">
-                        <p className="text-lg font-medium capitalize">
-                          {opt.name}
-                        </p>
+              {product.strikeThroughPrice && (
+                <span className="text-muted-foreground line-through">
+                  {formatCurrency(product.strikeThroughPrice ?? 0)}
+                </span>
+              )}
+            </p>
 
-                        <div className="flex flex-wrap gap-2">
-                          {opt.values.map((val) => {
-                            const isSelected =
-                              selectedOptions[opt.name] === val.value;
-                            // Enable/disable based on existence of any variant matching this value with the rest of selections
-                            const desired: Record<string, string> = {
-                              ...selectedOptions,
-                              [opt.name]: val.value,
-                            };
-                            const exists = !!getVariantMatchingPartial(desired);
-                            return (
-                              <Button
-                                key={`${opt.name}-${val.id}`}
-                                type="button"
-                                variant={isSelected ? "default" : "outline"}
-                                disabled={!exists}
-                                className="border border-transparent capitalize"
-                                onClick={() =>
-                                  handleSelectOption(opt.name, val.value)
-                                }
-                              >
-                                {val.value}
-                              </Button>
-                            );
-                          })}
+            <div className="flex flex-wrap items-center gap-2">
+              <StarRating
+                rating={
+                  (reviews?.reduce((acc, review) => acc + review.rating, 0) ??
+                    0) / (reviews?.length ?? 0)
+                }
+              />
+              ({reviews?.length ?? 0} reviews)
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <Heading level={2}>Variants</Heading>
+
+              <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
+                (Current Variant -{" "}
+                {Object.values(selectedVariant.optionValues).join(", ")})
+              </p>
+            </div>
+
+            <div className="space-y-4 p-2">
+              {firstOption && (
+                <div className="space-y-2">
+                  <p className="text-lg font-medium capitalize">
+                    {firstOption.name}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    {firstOption.values.map((val, index) => {
+                      const representative =
+                        getRepresentativeVariantForFirstValue(val.value);
+                      const isSelected =
+                        selectedOptions[firstOption.name] === val.value;
+
+                      return (
+                        <div
+                          key={`${firstOption.name}-${val.value}-${index}`}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <VariantButton
+                            variant={representative}
+                            onClick={() =>
+                              handleSelectOption(firstOption.name, val.value)
+                            }
+                            className={cn(isSelected && "ring-primary ring-2")}
+                          />
+                          <p className="text-sm font-medium">{val.value}</p>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )}
 
+              {otherOptions.length > 0 && (
+                <div className="space-y-3">
+                  {otherOptions.map((opt) => (
+                    <div key={opt.id} className="space-y-2">
+                      <p className="text-lg font-medium capitalize">
+                        {opt.name}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {opt.values.map((val) => {
+                          const isSelected =
+                            selectedOptions[opt.name] === val.value;
+                          // Enable/disable based on existence of any variant matching this value with the rest of selections
+                          const desired: Record<string, string> = {
+                            ...selectedOptions,
+                            [opt.name]: val.value,
+                          };
+                          const exists = !!getVariantMatchingPartial(desired);
+                          return (
+                            <Button
+                              key={`${opt.name}-${val.id}`}
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                              disabled={!exists}
+                              className="border border-transparent capitalize"
+                              onClick={() =>
+                                handleSelectOption(opt.name, val.value)
+                              }
+                            >
+                              {val.value}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {!hideActions && (
             <div className="flex flex-col gap-2 lg:flex-row">
               <AddToCartButton
                 className="w-full lg:flex-1"
@@ -276,11 +283,11 @@ export function Product({
                 disabled={!selectedVariantInStock}
               />
             </div>
-          </div>
-
-          {children}
+          )}
         </div>
-      </MaxWidthWrapper>
-    </section>
+
+        {children}
+      </div>
+    </MaxWidthWrapper>
   );
 }

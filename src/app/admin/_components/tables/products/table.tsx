@@ -30,11 +30,9 @@ import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
-import { useRouter } from "next/navigation";
 
 export function ProductsTable() {
-  const router = useRouter();
-  const [params] = useProductSearchParams();
+  const [params, setParams] = useProductSearchParams();
   const debouncedFilters = useDebounce(params);
   const utils = api.useUtils();
   const {
@@ -106,7 +104,10 @@ export function ProductsTable() {
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer"
                     onClick={() =>
-                      router.push(`/products/${row.original.slug}`)
+                      setParams((prev) => ({
+                        ...prev,
+                        slug: row.original.slug,
+                      }))
                     }
                   >
                     {row.getVisibleCells().map((cell) => (

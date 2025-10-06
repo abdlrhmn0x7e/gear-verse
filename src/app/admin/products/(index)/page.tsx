@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import Header from "../../../../components/header";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
+import { ProductDrawer } from "../../_components/drawers/product-drawer";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -32,6 +33,8 @@ export default async function AdminProductsPage({
       </div>
 
       <ProductsTable />
+
+      <ProductDrawer />
     </section>
   );
 }

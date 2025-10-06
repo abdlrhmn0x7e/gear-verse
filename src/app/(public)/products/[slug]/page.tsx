@@ -20,34 +20,36 @@ export default async function ProductPage({
   }
 
   return (
-    <Product product={product}>
-      <Tabs defaultValue="details" className="space-y-4">
-        <TabsList className="w-full">
-          <TabsTrigger value="details">
-            <InfoIcon />
-            Details
-          </TabsTrigger>
-          <TabsTrigger value="reviews">
-            <MessageCircleIcon />
-            Reviews
-          </TabsTrigger>
-        </TabsList>
+    <section className="py-24 lg:py-32">
+      <Product product={product}>
+        <Tabs defaultValue="details" className="space-y-4">
+          <TabsList className="w-full">
+            <TabsTrigger value="details">
+              <InfoIcon />
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="reviews">
+              <MessageCircleIcon />
+              Reviews
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="details">
-          <div className="space-y-4">
-            <Heading level={2}>Description</Heading>
+          <TabsContent value="details">
+            <div className="space-y-4">
+              <Heading level={2}>Description</Heading>
 
-            <ProductDescription
-              description={product.description}
-              className="m-0"
-            />
-          </div>
-        </TabsContent>
+              <ProductDescription
+                description={product.description}
+                className="m-0"
+              />
+            </div>
+          </TabsContent>
 
-        <TabsContent value="reviews">
-          <Reviews productId={product.id} />
-        </TabsContent>
-      </Tabs>
-    </Product>
+          <TabsContent value="reviews">
+            <Reviews productId={product.id} />
+          </TabsContent>
+        </Tabs>
+      </Product>
+    </section>
   );
 }

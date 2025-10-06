@@ -8,6 +8,7 @@ import {
 
 const productSearchParams = {
   title: parseAsString,
+  slug: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
   categories: parseAsArrayOf(parseAsInteger),
 };
