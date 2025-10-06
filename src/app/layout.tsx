@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { instrumentSans } from "~/fonts";
 import { env } from "~/env";
+import { cn } from "~/lib/utils";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
@@ -41,18 +42,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={instrumentSans.className}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       {/* <head>
         <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
         />
       </head> */}
-      <body className="flex min-h-screen flex-col">
+      <body
+        className={cn(instrumentSans.className, "flex min-h-screen flex-col")}
+      >
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"

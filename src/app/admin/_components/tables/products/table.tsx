@@ -15,7 +15,6 @@ import { useInView } from "react-intersection-observer";
 
 // UI & Icons
 import { PackageOpenIcon } from "lucide-react";
-import { Spinner } from "~/components/spinner";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
@@ -30,6 +29,7 @@ import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
+import { LoadMore } from "~/components/load-more";
 
 export function ProductsTable() {
   const [params, setParams] = useProductSearchParams();
@@ -138,11 +138,7 @@ export function ProductsTable() {
               )}
             </TableBody>
 
-            {hasNextPage && (
-              <div className="flex items-center justify-center p-4" ref={ref}>
-                <Spinner />
-              </div>
-            )}
+            <LoadMore hasNextPage={hasNextPage} ref={ref} />
           </Table>
         </div>
       </CardContent>

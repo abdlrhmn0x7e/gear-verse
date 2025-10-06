@@ -12,7 +12,7 @@ import {
   DialogOverlay,
   DialogPortal,
 } from "~/components/ui/dialog";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Dialog as DialogPrimitive } from "radix-ui";
 import { cn } from "~/lib/utils";
 import { useVerseEditor } from "~/hooks/use-verse-editor";
 import { EditorContent, type JSONContent } from "@tiptap/react";

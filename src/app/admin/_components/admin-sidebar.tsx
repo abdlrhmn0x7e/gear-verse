@@ -22,6 +22,7 @@ import Link from "next/link";
 import { NavUser } from "./nav-user";
 import { Button } from "~/components/ui/button";
 import { CommandShortcut } from "~/components/ui/command";
+import { ProductSearchDialog } from "./product-search-dialog";
 
 const DASHBOARD_ITEMS = [
   {
@@ -64,11 +65,7 @@ export function AdminSidebar({
         </SidebarMenuButton>
 
         <SidebarMenuButton asChild>
-          <Button variant="outline" className="w-full justify-start">
-            <SearchIcon className="size-4" />
-            Search Products...
-            <CommandShortcut>⌘K</CommandShortcut>
-          </Button>
+          <ProductSearchDialog />
         </SidebarMenuButton>
       </SidebarHeader>
 
