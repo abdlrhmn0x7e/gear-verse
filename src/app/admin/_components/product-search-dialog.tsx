@@ -59,18 +59,20 @@ export function ProductSearchDialog({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <div className="relative" ref={setTrigger}>
-        <Dialog.Trigger
-          className="group relative w-full cursor-text first:relative first:z-10 focus-visible:outline-none"
-          data-state={open ? "open" : "closed"}
-        >
-          {children}
-
+        <Dialog.Trigger asChild>
           <div
-            className={cn(
-              "bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 rounded-lg border bg-clip-padding",
-              anchor === "navbar" ? "origin-left" : "origin-left",
-            )}
-          />
+            className="group relative w-full cursor-text first:relative first:z-10 focus-visible:outline-none"
+            data-state={open ? "open" : "closed"}
+          >
+            {children}
+
+            <div
+              className={cn(
+                "bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 rounded-lg border bg-clip-padding",
+                anchor === "navbar" ? "origin-left" : "origin-left",
+              )}
+            />
+          </div>
         </Dialog.Trigger>
 
         <div

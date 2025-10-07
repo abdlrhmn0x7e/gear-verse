@@ -68,7 +68,7 @@ export function AdminSidebar({
         </SidebarMenuButton>
 
         <ProductSearchDialog>
-          <SidebarMenuButton className="group relative z-10">
+          <SidebarMenuButton className="group hover:bg-background hover:border-border relative z-10 w-full cursor-text border">
             <ProductSearchIcon />
             <ProductSearchPlaceholder>Search Products</ProductSearchPlaceholder>
 
