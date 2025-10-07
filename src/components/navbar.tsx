@@ -64,6 +64,12 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { useRouter } from "next/navigation";
+import {
+  ProductSearchDialog,
+  ProductSearchIcon,
+  ProductSearchPlaceholder,
+} from "~/app/admin/_components/product-search-dialog";
+import { Kbd, KbdGroup } from "./ui/kbd";
 
 export interface NavigationLink {
   title: string;
@@ -125,10 +131,23 @@ export function Navbar({
           onMouseLeave={() => setProductsMenuOpen(false)}
         >
           <nav className="flex items-center justify-between">
-            <div className="flex flex-1 items-center gap-8">
-              <Link href="/">
+            <div className="flex flex-1 items-center gap-2">
+              <Link href="/" className="mr-4">
                 <Logo />
               </Link>
+
+              <ProductSearchDialog anchor="navbar" withOverlay={false}>
+                <div className="relative z-10 flex w-full min-w-48 items-center gap-2 px-3 py-2 pr-16">
+                  <ProductSearchIcon className="size-4" />
+                  <ProductSearchPlaceholder>
+                    Search Products
+                  </ProductSearchPlaceholder>
+                </div>
+
+                <KbdGroup className="absolute top-1/2 right-3 z-10 -translate-y-1/2 pt-1 group-data-[sidebar-open=false]:hidden">
+                  <Kbd>⌘ K</Kbd>
+                </KbdGroup>
+              </ProductSearchDialog>
 
               {/* Nav Items */}
               <div className="hidden w-full items-center gap-2 md:flex">

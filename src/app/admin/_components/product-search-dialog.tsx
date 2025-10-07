@@ -24,15 +24,23 @@ import {
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { Spinner } from "~/components/spinner";
 import { keepPreviousData } from "@tanstack/react-query";
+import { cn } from "~/lib/utils";
 
 export function ProductSearchDialog({
   children,
+  className,
+  withOverlay = true,
+  anchor = "sidebar",
 }: {
+  className?: string;
   children: React.ReactNode;
+  withOverlay?: boolean;
+  anchor?: "navbar" | "sidebar";
 }) {
   const [open, setOpen] = useState(false);
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [trigger, setTrigger] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -50,12 +58,19 @@ export function ProductSearchDialog({
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <div className="relative">
-        <Dialog.Trigger className="relative z-10" asChild>
-          <div className="group" data-state={open ? "open" : "closed"}>
-            {children}
-            <div className="bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 origin-left rounded-lg border bg-clip-padding" />
-          </div>
+      <div className="relative" ref={setTrigger}>
+        <Dialog.Trigger
+          className="group relative w-full cursor-text first:relative first:z-10 focus-visible:outline-none"
+          data-state={open ? "open" : "closed"}
+        >
+          {children}
+
+          <div
+            className={cn(
+              "bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 rounded-lg border bg-clip-padding",
+              anchor === "navbar" ? "origin-left" : "origin-left",
+            )}
+          />
         </Dialog.Trigger>
 
         <div
@@ -65,15 +80,25 @@ export function ProductSearchDialog({
       </div>
 
       <Dialog.Portal container={container}>
-        <DialogOverlay />
+        {withOverlay && <DialogOverlay />}
 
         <Dialog.Content className="group data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 relative z-50 flex w-fit flex-col gap-4 duration-200 focus-visible:outline-none">
           <Dialog.Title className="sr-only">Search Products</Dialog.Title>
 
-          <div className="h-[410px] w-[400px] rounded-lg">
+          <div
+            className={cn("h-[410px] rounded-lg", className)}
+            style={{
+              width: trigger?.clientWidth ? trigger.clientWidth * 2 : 400,
+            }}
+          >
             <Content close={() => setOpen(false)} />
 
-            <div className="bg-background group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding" />
+            <div
+              className={cn(
+                "bg-background group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
+                anchor === "navbar" ? "origin-center" : "origin-top-left",
+              )}
+            />
           </div>
         </Dialog.Content>
       </Dialog.Portal>
@@ -81,9 +106,14 @@ export function ProductSearchDialog({
   );
 }
 
-export function ProductSearchIcon() {
+export function ProductSearchIcon({ className }: { className?: string }) {
   return (
-    <SearchIcon className="duration-200 group-data-[state=open]:translate-x-[16px]" />
+    <SearchIcon
+      className={cn(
+        "transition-[opacity,transform] duration-200 group-data-[state=open]:translate-x-[16px] group-data-[state=open]:opacity-0",
+        className,
+      )}
+    />
   );
 }
 
@@ -93,7 +123,7 @@ export function ProductSearchPlaceholder({
   children: React.ReactNode;
 }) {
   return (
-    <span className="truncate transition-transform duration-200 group-data-[state=open]:translate-x-[12px]">
+    <span className="truncate transition-transform duration-100 group-data-[state=open]:translate-x-[26px]">
       {children}
     </span>
   );
@@ -105,9 +135,9 @@ function Content({ close }: { close: () => void }) {
   const debouncedSearch = useDebounce(search, 500);
   const [hover, setHover] = useState<number | null>(null);
   const { data, isPending, isFetching, isError } =
-    api.admin.products.queries.getPage.useQuery(
+    api.public.products.queries.getPage.useQuery(
       {
-        pageSize: 5,
+        pageSize: 4,
         filters: {
           title: debouncedSearch,
         },
@@ -148,7 +178,7 @@ function Content({ close }: { close: () => void }) {
 
         if (hover && data.data[hover - 1]?.slug) {
           close();
-          route.push(`/admin/products?slug=${data.data[hover - 1]?.slug}`);
+          route.push(`/products/${data.data[hover - 1]?.slug}`);
         }
         break;
       }
@@ -249,45 +279,32 @@ function ProductItem({
   index,
   ...props
 }: {
-  product: RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number];
+  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
   hover: number | null;
   index: number;
 } & React.ComponentProps<"li">) {
-  const CategoryIcon = iconsMap.get(product.category.icon);
-  const ParentIcon = iconsMap.get(product.category.parent?.icon ?? "KEYBOARDS");
-
   return (
-    <li {...props} className="relative h-16">
+    <li {...props} className="relative">
       <Link
-        href={`/admin/products?slug=${product.slug}`}
+        href={`/products/${product.slug}`}
         className="relative z-10 flex items-center gap-2 rounded-md p-2"
       >
         <ImageWithFallback
-          src={product.thumbnail?.url}
+          src={product.thumbnailUrl}
           alt={product.title}
-          className="size-12 rounded-sm"
+          className="size-16 shrink-0 rounded-sm"
           width={40}
           height={40}
         />
 
-        <div>
+        <div className="flex size-full flex-1 flex-col">
           <p className="text-primary-foreground text-sm font-medium">
             {product.title}
           </p>
 
-          <div className="flex items-center gap-1 [&_svg]:size-4">
-            <p className="text-muted-foreground flex items-center gap-1 text-sm">
-              {ParentIcon && <ParentIcon />}
-              {product.category.parent?.name}
-            </p>
-
-            <ChevronRightIcon className="mt-px" />
-
-            <p className="text-muted-foreground flex items-center gap-1 text-sm">
-              {CategoryIcon && <CategoryIcon />}
-              {product.category.name}
-            </p>
-          </div>
+          <p className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm">
+            {product.summary}
+          </p>
         </div>
       </Link>
 
