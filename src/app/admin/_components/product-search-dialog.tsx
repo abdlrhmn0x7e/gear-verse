@@ -110,7 +110,7 @@ export function ProductSearchIcon({ className }: { className?: string }) {
   return (
     <SearchIcon
       className={cn(
-        "transition-[opacity,transform] duration-200 group-data-[state=open]:translate-x-[16px] group-data-[state=open]:opacity-0",
+        "transition-all duration-200 group-data-[state=open]:translate-x-[16px] group-data-[state=open]:opacity-0",
         className,
       )}
     />
