@@ -69,7 +69,7 @@ export function ProductSearchDialog({
             <div
               className={cn(
                 "bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 rounded-lg border bg-clip-padding",
-                anchor === "navbar" ? "origin-left" : "origin-left",
+                "origin-left",
               )}
             />
           </div>
@@ -98,7 +98,7 @@ export function ProductSearchDialog({
             <div
               className={cn(
                 "bg-background group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
-                anchor === "navbar" ? "origin-center" : "origin-top-left",
+                "origin-top-left",
               )}
             />
           </div>
