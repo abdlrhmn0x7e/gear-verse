@@ -136,7 +136,7 @@ export function Navbar({
                 <Logo />
               </Link>
 
-              <ProductSearchDialog anchor="navbar" withOverlay={false}>
+              <ProductSearchDialog withOverlay={false}>
                 <div className="relative z-10 flex w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3">
                   <ProductSearchIcon className="size-4" />
                   <ProductSearchPlaceholder>

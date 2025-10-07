@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRightIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,6 @@ import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useDebounce } from "~/hooks/use-debounce";
-import { iconsMap } from "~/lib/icons-map";
 import { api, type RouterOutputs } from "~/trpc/react";
 import {
   Empty,
@@ -30,14 +29,13 @@ export function ProductSearchDialog({
   children,
   className,
   withOverlay = true,
-  anchor = "sidebar",
 }: {
   className?: string;
   children: React.ReactNode;
   withOverlay?: boolean;
-  anchor?: "navbar" | "sidebar";
 }) {
   const [open, setOpen] = useState(false);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [trigger, setTrigger] = useState<HTMLDivElement | null>(null);
@@ -57,7 +55,13 @@ export function ProductSearchDialog({
   }, []);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(value) => {
+        setOpen(value);
+        setShouldAnimate(true);
+      }}
+    >
       <div className="relative" ref={setTrigger}>
         <Dialog.Trigger asChild>
           <div
@@ -68,8 +72,10 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "bg-background group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out absolute inset-0 rounded-lg border bg-clip-padding",
-                "origin-left",
+                "bg-background absolute inset-0 rounded-lg border bg-clip-padding",
+                shouldAnimate &&
+                  "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
+                "origin-top-left",
               )}
             />
           </div>
@@ -84,7 +90,13 @@ export function ProductSearchDialog({
       <Dialog.Portal container={container}>
         {withOverlay && <DialogOverlay />}
 
-        <Dialog.Content className="group data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 relative z-50 flex w-fit flex-col gap-4 duration-200 focus-visible:outline-none">
+        <Dialog.Content
+          className={cn(
+            "group relative z-50 flex w-fit flex-col gap-4 duration-200 focus-visible:outline-none",
+            shouldAnimate &&
+              "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          )}
+        >
           <Dialog.Title className="sr-only">Search Products</Dialog.Title>
 
           <div
@@ -97,7 +109,9 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "bg-background group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
+                "bg-background absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
+                shouldAnimate &&
+                  "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
               )}
             />
