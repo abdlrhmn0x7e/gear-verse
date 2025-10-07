@@ -41,12 +41,16 @@ export function ProductCard({
                   width={16}
                   height={16}
                 />
-                <span className="text-md mb-1">{product.brand.name}</span>
+                <span className="lg:text-md mb-1 text-xs">
+                  {product.brand.name}
+                </span>
               </div>
 
               <Heading level={4}>{product.title}</Heading>
 
-              <p className="line-clamp-3">{product.summary}</p>
+              <p className="line-clamp-3 text-sm lg:text-base">
+                {product.summary}
+              </p>
             </div>
 
             <p className="flex items-end gap-3">

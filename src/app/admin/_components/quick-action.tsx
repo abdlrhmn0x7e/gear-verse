@@ -21,7 +21,7 @@ export function QuickAction({
         <div className="bg-background flex size-24 items-center justify-center overflow-hidden border-r">
           <div className="from-card to-primary/20 relative flex size-18 items-center justify-center overflow-hidden rounded-full border bg-gradient-to-t">
             <Icon className="text-accent-foreground size-12" />
-            <div className="bg-accent/80 absolute inset-x-0 inset-y-2/3 z-10 size-full -rotate-4" />
+            <div className="bg-accent/80 absolute inset-x-0 inset-y-2/3 z-1 size-full -rotate-4" />
           </div>
         </div>
 

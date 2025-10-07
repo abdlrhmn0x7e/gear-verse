@@ -24,6 +24,7 @@ import { IconShoppingBagX } from "@tabler/icons-react";
 import { Spinner } from "~/components/spinner";
 import { keepPreviousData } from "@tanstack/react-query";
 import { cn } from "~/lib/utils";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 export function ProductSearchDialog({
   children,
@@ -39,6 +40,8 @@ export function ProductSearchDialog({
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [trigger, setTrigger] = useState<HTMLDivElement | null>(null);
+
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -92,7 +95,7 @@ export function ProductSearchDialog({
 
         <Dialog.Content
           className={cn(
-            "group relative z-50 flex w-fit flex-col gap-4 duration-200 focus-visible:outline-none",
+            "group relative z-50 flex w-fit flex-col gap-4 duration-100 focus-visible:outline-none",
             shouldAnimate &&
               "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           )}
@@ -102,7 +105,13 @@ export function ProductSearchDialog({
           <div
             className={cn("h-[410px] rounded-lg", className)}
             style={{
-              width: trigger?.clientWidth ? trigger.clientWidth * 2 : 400,
+              width: trigger?.clientWidth
+                ? isMobile
+                  ? trigger.clientWidth * 1.25
+                  : trigger.clientWidth < 300
+                    ? 500
+                    : trigger.clientWidth * 2
+                : 400,
             }}
           >
             <Content close={() => setOpen(false)} />

@@ -24,7 +24,7 @@ import {
   ProductSearchDialog,
   ProductSearchIcon,
   ProductSearchPlaceholder,
-} from "./product-search-dialog";
+} from "../../../components/product-search-dialog";
 import { Kbd } from "~/components/ui/kbd";
 
 const DASHBOARD_ITEMS = [

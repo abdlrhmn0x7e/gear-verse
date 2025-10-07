@@ -73,7 +73,7 @@ import {
   ProductSearchPlaceholder,
   ProductSearchError,
   ProductSearchEmpty,
-} from "~/app/admin/_components/product-search-dialog";
+} from "~/components/product-search-dialog";
 import { Kbd, KbdGroup } from "./ui/kbd";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Separator } from "./ui/separator";
@@ -140,28 +140,28 @@ export function Navbar({
           onMouseLeave={() => setProductsMenuOpen(false)}
         >
           <nav className="flex items-center justify-between">
-            <div className="flex flex-1 items-center gap-2">
-              <Link href="/" className="lg:mr-4">
+            <div className="flex flex-1 items-center gap-4">
+              <Link href="/">
                 <Logo />
               </Link>
 
               <SearchDrawer />
 
-              <ProductSearchDialog withOverlay={false}>
-                <div className="relative z-10 hidden w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
-                  <ProductSearchIcon className="size-4" />
-                  <ProductSearchPlaceholder>
-                    Search Products
-                  </ProductSearchPlaceholder>
-                </div>
-
-                <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 pt-1 lg:block">
-                  <Kbd>⌘ + K</Kbd>
-                </KbdGroup>
-              </ProductSearchDialog>
-
               {/* Nav Items */}
               <div className="hidden w-full items-center gap-2 md:flex">
+                <ProductSearchDialog withOverlay={false}>
+                  <div className="relative z-10 hidden w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
+                    <ProductSearchIcon className="size-4" />
+                    <ProductSearchPlaceholder>
+                      Search Products
+                    </ProductSearchPlaceholder>
+                  </div>
+
+                  <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 pt-1 lg:block">
+                    <Kbd>⌘ + K</Kbd>
+                  </KbdGroup>
+                </ProductSearchDialog>
+
                 <Button
                   variant="ghost"
                   size="lg"
