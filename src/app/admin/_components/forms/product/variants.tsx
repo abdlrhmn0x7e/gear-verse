@@ -13,20 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 
 export function Variants({
-  variants,
-  onChange,
+  optionsDefaultValues,
 }: {
-  variants: ProductFormValues["variants"];
-  onChange: (variants: ProductFormValues["variants"]) => void;
+  optionsDefaultValues: ProductFormValues["options"];
 }) {
   const form = useFormContext<ProductFormValues>();
+  const { fields: variants, replace } = useFieldArray({
+    control: form.control,
+    name: "variants",
+  });
   const options = useWatch({
     control: form.control,
     name: "options",
+    defaultValue: optionsDefaultValues, // for some weird reason I had to pass it explicitly
   });
   const debouncedOptions = useDebounce(options, 500);
   const [groupByOption, setGroupByOption] = useState<string>(
@@ -75,7 +78,7 @@ export function Variants({
 
   useEffect(() => {
     if (valuesMap.size === 0) {
-      onChange([]);
+      replace([]);
       return;
     }
 
@@ -122,7 +125,7 @@ export function Variants({
       };
     });
 
-    onChange(merged);
+    replace(merged);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinations, valuesMap]);
 
