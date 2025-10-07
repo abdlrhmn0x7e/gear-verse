@@ -17,15 +17,15 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 
 export function Variants({
+  value,
+  onChange,
   optionsDefaultValues,
 }: {
+  value: ProductFormValues["variants"];
+  onChange: (value: ProductFormValues["variants"]) => void;
   optionsDefaultValues: ProductFormValues["options"];
 }) {
   const form = useFormContext<ProductFormValues>();
-  const { fields: variants, replace } = useFieldArray({
-    control: form.control,
-    name: "variants",
-  });
   const options = useWatch({
     control: form.control,
     name: "options",
@@ -78,7 +78,7 @@ export function Variants({
 
   useEffect(() => {
     if (valuesMap.size === 0) {
-      replace([]);
+      onChange([]);
       return;
     }
 
@@ -100,7 +100,7 @@ export function Variants({
     });
 
     const oldByKey = new Map(
-      variants?.map((variant) => {
+      value?.map((variant) => {
         const key = Object.values(variant.optionValues)
           .map((v) => v.id)
           .sort()
@@ -125,11 +125,11 @@ export function Variants({
       };
     });
 
-    replace(merged);
+    onChange(merged);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinations, valuesMap]);
 
-  if (!variants || variants.length === 0) return null;
+  if (!value || value.length === 0) return null;
 
   return (
     <div className="space-y-2">
@@ -152,7 +152,7 @@ export function Variants({
         </Select>
       </div>
 
-      <VariantsTable data={variants} groupByOption={groupByOption} />
+      <VariantsTable data={value} groupByOption={groupByOption} />
     </div>
   );
 }

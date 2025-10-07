@@ -14,7 +14,7 @@ export default async function CheckoutPage() {
 
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-32 xl:grid-cols-3">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
         <CompleteCheckout
           className="xl:col-span-2"
           hasCartItems={cart.items.length > 0}

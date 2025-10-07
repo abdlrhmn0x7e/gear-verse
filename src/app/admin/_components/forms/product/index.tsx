@@ -288,7 +288,21 @@ export function ProductForm({
                 />
               </div>
 
-              <Variants optionsDefaultValues={defaultValues?.options ?? []} />
+              <FormField
+                control={form.control}
+                name="variants"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Variants
+                        optionsDefaultValues={defaultValues?.options ?? []}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </CardContent>
             <TotalInventory />
           </Card>

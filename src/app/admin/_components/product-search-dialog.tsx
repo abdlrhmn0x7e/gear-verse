@@ -135,11 +135,18 @@ export function ProductSearchIcon({ className }: { className?: string }) {
 
 export function ProductSearchPlaceholder({
   children,
+  className,
 }: {
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <span className="truncate transition-transform duration-100 group-data-[state=open]:translate-x-[26px]">
+    <span
+      className={cn(
+        "truncate transition-transform duration-100 group-data-[state=open]:translate-x-[26px]",
+        className,
+      )}
+    >
       {children}
     </span>
   );
@@ -226,47 +233,16 @@ function Content({ close }: { close: () => void }) {
 
       <Separator />
 
-      {isPending && (
-        <ul className="flex flex-col gap-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <ProductItemSkeleton key={index} />
-          ))}
-        </ul>
-      )}
+      {isPending && <ProductSearchLoading />}
 
-      {isError && (
-        <Empty className="gap-0">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <IconShoppingBagX />
-            </EmptyMedia>
-            <EmptyTitle>An Error Occurred</EmptyTitle>
-            <EmptyDescription>
-              An error occurred while fetching the products. Please try again
-              later.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      )}
+      {isError && <ProductSearchError />}
 
-      {data && data.data.length === 0 && (
-        <Empty className="gap-0">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <IconShoppingBagX />
-            </EmptyMedia>
-          </EmptyHeader>
-          <EmptyTitle>No products found</EmptyTitle>
-          <EmptyDescription>
-            Try adjusting your search or check back later.
-          </EmptyDescription>
-        </Empty>
-      )}
+      {data && data.data.length === 0 && <ProductSearchEmpty />}
 
       {data && data.data.length > 0 && (
         <ul className="flex flex-col gap-2">
           {data.data.map((product, index) => (
-            <ProductItem
+            <ProductSearchItem
               key={`${product.id}-${product.title}-${index}`}
               product={product}
               hover={hover}
@@ -281,7 +257,49 @@ function Content({ close }: { close: () => void }) {
   );
 }
 
-function ProductItemSkeleton() {
+export function ProductSearchLoading() {
+  return (
+    <ul className="flex flex-col gap-2">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <ProductItemSkeleton key={index} />
+      ))}
+    </ul>
+  );
+}
+
+export function ProductSearchError() {
+  return (
+    <Empty className="gap-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconShoppingBagX />
+        </EmptyMedia>
+        <EmptyTitle>An Error Occurred</EmptyTitle>
+        <EmptyDescription>
+          An error occurred while fetching the products. Please try again later.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
+export function ProductSearchEmpty() {
+  return (
+    <Empty className="gap-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconShoppingBagX />
+        </EmptyMedia>
+      </EmptyHeader>
+      <EmptyTitle>No products found</EmptyTitle>
+      <EmptyDescription>
+        Try adjusting your search or check back later.
+      </EmptyDescription>
+    </Empty>
+  );
+}
+
+export function ProductItemSkeleton() {
   return (
     <li className="relative h-16 w-full">
       <Skeleton className="size-full" />
@@ -289,7 +307,7 @@ function ProductItemSkeleton() {
   );
 }
 
-function ProductItem({
+export function ProductSearchItem({
   product,
   hover,
   index,

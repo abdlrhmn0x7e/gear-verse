@@ -8,6 +8,7 @@ import {
   HomeIcon,
   MinusIcon,
   PlusIcon,
+  SearchIcon,
   ShieldUserIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -39,15 +40,14 @@ import {
 } from "@tabler/icons-react";
 import { AspectRatio } from "./ui/aspect-ratio";
 import {
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-} from "./ui/dropdown-menu";
-import type { CategoryTree } from "~/lib/schemas/entities/category";
-import { iconsMap } from "~/lib/icons-map";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "~/components/ui/input-group";
+
 import { ImageWithFallback } from "./image-with-fallback";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
@@ -59,22 +59,30 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
+  DrawerTrigger,
 } from "./ui/drawer";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { useRouter } from "next/navigation";
 import {
+  ProductSearchItem,
   ProductSearchDialog,
   ProductSearchIcon,
+  ProductSearchLoading,
   ProductSearchPlaceholder,
+  ProductSearchError,
+  ProductSearchEmpty,
 } from "~/app/admin/_components/product-search-dialog";
 import { Kbd, KbdGroup } from "./ui/kbd";
+import { useDebounce } from "~/hooks/use-debounce";
+import { Separator } from "./ui/separator";
 
 export interface NavigationLink {
   title: string;
   icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
   link: ComponentProps<typeof Link>;
+  order: number;
 }
 
 const NAV_ITEMS = [
@@ -83,6 +91,7 @@ const NAV_ITEMS = [
     link: {
       href: "/",
     },
+    order: 1,
     icon: HomeIcon,
   },
   {
@@ -90,6 +99,7 @@ const NAV_ITEMS = [
     link: {
       href: "/products",
     },
+    order: 3,
     icon: IconShoppingBag,
   },
 ] as const satisfies ReadonlyArray<NavigationLink>;
@@ -100,7 +110,6 @@ export function Navbar({
   user: (User & { role?: string | null | undefined }) | null;
 }) {
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
-  const [, setCategoriesMenuOpen] = useState(false);
 
   const utils = api.useUtils();
   const { data: cart, isPending: isPendingCart } =
@@ -123,7 +132,7 @@ export function Navbar({
     <>
       <header className="fixed top-0 left-0 z-50 w-full md:top-5 md:left-1/2 md:container md:-translate-x-1/2">
         <motion.div
-          className="bg-card/90 dark:bg-card/80 space-y-3 rounded-none border-b px-8 py-4 backdrop-blur md:rounded-[3rem] md:border"
+          className="bg-card/90 dark:bg-card/80 space-y-3 rounded-none border-b px-4 py-4 backdrop-blur md:rounded-[3rem] md:border md:px-8"
           style={{ height: "auto" }}
           transition={{
             duration: 0.3,
@@ -132,19 +141,21 @@ export function Navbar({
         >
           <nav className="flex items-center justify-between">
             <div className="flex flex-1 items-center gap-2">
-              <Link href="/" className="mr-4">
+              <Link href="/" className="lg:mr-4">
                 <Logo />
               </Link>
 
+              <SearchDrawer />
+
               <ProductSearchDialog withOverlay={false}>
-                <div className="relative z-10 flex w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3">
+                <div className="relative z-10 hidden w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
                   <ProductSearchIcon className="size-4" />
                   <ProductSearchPlaceholder>
                     Search Products
                   </ProductSearchPlaceholder>
                 </div>
 
-                <KbdGroup className="absolute top-1/2 right-3 z-10 -translate-y-1/2 pt-1 group-data-[sidebar-open=false]:hidden">
+                <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 pt-1 lg:block">
                   <Kbd>⌘ + K</Kbd>
                 </KbdGroup>
               </ProductSearchDialog>
@@ -156,7 +167,6 @@ export function Navbar({
                   size="lg"
                   onClick={() => {
                     setProductsMenuOpen((open) => !open);
-                    setCategoriesMenuOpen(false);
                   }}
                 >
                   {productsMenuOpen ? (
@@ -184,7 +194,7 @@ export function Navbar({
                     <Button variant="ghost" asChild>
                       <Link href="/admin">
                         <ShieldUserIcon />
-                        Admin
+                        <span className="hidden lg:block">Admin</span>
                       </Link>
                     </Button>
                   )}
@@ -194,7 +204,7 @@ export function Navbar({
                     disabled={isPendingCart}
                   >
                     <IconShoppingCart />
-                    Cart
+                    <span className="hidden lg:block">Cart</span>
                   </Button>
                   <ProfileDropdown user={user} />
                 </>
@@ -391,94 +401,13 @@ function ProductCardSkeleton() {
   );
 }
 
-// function CategoriesMenu({
-//   open,
-//   setOpen,
-// }: {
-//   open: boolean;
-//   setOpen: Dispatch<SetStateAction<boolean>>;
-// }) {
-//   const { data: categories, isPending: isPendingCategories } =
-//     api.public.categories.findAll.useQuery();
-
-//   if (isPendingCategories || !categories) {
-//     return (
-//       <DropdownMenu>
-//         <DropdownMenuTrigger asChild>
-//           <Button variant="ghost" size="lg" disabled>
-//             <ChevronDownIcon />
-//             Categories
-//           </Button>
-//         </DropdownMenuTrigger>
-//       </DropdownMenu>
-//     );
-//   }
-
-//   return (
-//     <DropdownMenu open={open} onOpenChange={setOpen}>
-//       <DropdownMenuTrigger asChild disabled>
-//         <Button variant="ghost" size="lg">
-//           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
-//           Categories
-//         </Button>
-//       </DropdownMenuTrigger>
-//       <DropdownMenuContent align="start">
-//         <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
-//           <ListTreeIcon className="size-4" />
-//           Our Verse Categories
-//         </DropdownMenuLabel>
-//         {categories.map((category) => (
-//           <CategoryDropdownMenuContent key={category.id} category={category} />
-//         ))}
-//       </DropdownMenuContent>
-//     </DropdownMenu>
-//   );
-// }
-
-function CategoryDropdownMenuContent({ category }: { category: CategoryTree }) {
-  const Icon = iconsMap.get(category.icon);
-
-  if (!category.children || category.children.length === 0) {
-    return (
-      <DropdownMenuItem asChild key={category.slug} className="h-10 min-w-3xs">
-        <Link href={`/categories/${category.slug}`}>
-          {Icon && <Icon className="size-6" />}
-          {category.name}
-        </Link>
-      </DropdownMenuItem>
-    );
-  }
-
-  return (
-    <DropdownMenuSub>
-      <Link href={`/categories/${category.slug}`}>
-        <DropdownMenuSubTrigger key={category.slug} className="h-10 min-w-3xs">
-          {Icon && <Icon className="text-muted-foreground mr-2 size-6" />}
-          {category.name}
-        </DropdownMenuSubTrigger>
-      </Link>
-
-      <DropdownMenuSubContent>
-        <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
-          {category.name}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {category.children?.map((child) => (
-          <CategoryDropdownMenuContent key={child.slug} category={child} />
-        ))}
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
-  );
-}
-
 function MobileMenu() {
   const pathname = usePathname();
-  const [params, setParams] = useCartSearchParams();
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
       <nav className="bg-card/95 border-t p-2 backdrop-blur">
-        <ul className="grid grid-cols-3">
+        <ul className="grid grid-cols-2">
           {NAV_ITEMS.map((item) => (
             <li key={item.title} className="flex items-center justify-center">
               <Button
@@ -498,21 +427,6 @@ function MobileMenu() {
               </Button>
             </li>
           ))}
-
-          <li className="flex items-center justify-center">
-            <Button
-              variant="ghost"
-              className={cn(
-                "min-w-24 flex-col items-center gap-0 py-8",
-                params.cart && "text-primary dark:text-accent-foreground",
-              )}
-              size="lg"
-              onClick={() => setParams({ cart: params.cart ? null : true })}
-            >
-              <IconShoppingCart />
-              Cart
-            </Button>
-          </li>
         </ul>
       </nav>
     </div>
@@ -649,6 +563,78 @@ function CartDrawer({
             </Link>
           </Button>
         </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function SearchDrawer() {
+  const [search, setSearch] = useState("");
+  const pathname = usePathname();
+  const debouncedSearch = useDebounce(search, 500);
+  const [open, setOpen] = useState(false);
+  const {
+    data: products,
+    isPending: productsPending,
+    isError: productsError,
+  } = api.public.products.queries.getPage.useQuery({
+    pageSize: 4,
+    filters: {
+      title: debouncedSearch,
+    },
+  });
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
+        <Button
+          variant="outline"
+          size="lg"
+          className="dark:bg-card bg-card w-1/2 justify-start md:w-1/3 lg:hidden"
+        >
+          <SearchIcon />
+          Search...
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent className="min-h-[75svh]">
+        <DrawerHeader>
+          <DrawerTitle>Search Products</DrawerTitle>
+        </DrawerHeader>
+        <div className="space-y-4 p-4">
+          <InputGroup>
+            <InputGroupInput
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
+
+          <Separator />
+
+          {productsPending && <ProductSearchLoading />}
+          {productsError && <ProductSearchError />}
+          {products && products.data.length === 0 && <ProductSearchEmpty />}
+
+          {products && products.data.length > 0 && (
+            <ul className="flex flex-col gap-2">
+              {products.data.map((product, idx) => (
+                <ProductSearchItem
+                  key={`product-${product.id}-${idx}`}
+                  product={product}
+                  hover={null}
+                  index={idx}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
       </DrawerContent>
     </Drawer>
   );

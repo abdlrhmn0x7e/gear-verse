@@ -29,7 +29,7 @@ export function CompleteCheckout({
   }
 
   return (
-    <div className={className}>
+    <div className={cn("flex flex-col", className)}>
       <div className="flex items-center gap-2">
         <SparklesIcon className="mb-1 size-6" />
 
@@ -38,7 +38,7 @@ export function CompleteCheckout({
         </Heading>
       </div>
 
-      <div className="flex h-full flex-col justify-between gap-4">
+      <div className="flex flex-1 flex-col justify-between gap-4">
         <div
           className={cn(
             "flex-1 space-y-4",

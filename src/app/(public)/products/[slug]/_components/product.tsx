@@ -11,7 +11,7 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
 import { BuyNowButton } from "./buy-now-button";
-import { XIcon, CheckCircleIcon } from "lucide-react";
+import { XIcon, CheckCircleIcon, AlertTriangleIcon } from "lucide-react";
 import { AddToCartButton } from "./add-to-cart-button";
 import { api } from "~/trpc/react";
 import { StarRating } from "./star-rating";
@@ -109,7 +109,7 @@ export function Product({
   return (
     <MaxWidthWrapper
       className={cn(
-        "relative space-y-8 lg:grid lg:grid-cols-2 lg:gap-12",
+        "relative space-y-4 lg:grid lg:grid-cols-2 lg:gap-12",
         className,
       )}
     >
@@ -118,34 +118,27 @@ export function Product({
           photos={[selectedVariant.thumbnailUrl, ...product.media]}
           className="w-full max-w-full"
         />
+
+        <ProductBrandBadge
+          brand={product.brand}
+          selectedVariantInStock={selectedVariantInStock}
+          stock={selectedVariant.stock}
+          className="absolute top-2 right-6 z-10 lg:hidden"
+        />
       </div>
 
       <div className="space-y-8 divide-y [&>*:not(:last-child)]:pb-8">
         <div className="space-y-8">
-          <div className="space-y-2">
-            <div className="flex flex-col justify-between gap-2 lg:flex-row">
+          <div className="space-y-2 text-center lg:text-left">
+            <div className="flex flex-col items-center justify-between gap-2 lg:flex-row lg:items-start">
               <Heading level={2}>{product.title}</Heading>
-              <Badge variant="outline" className="h-9 rounded-full pr-1.5">
-                <ImageWithFallback
-                  src={product.brand.logoUrl}
-                  alt={product.brand.name ?? "unknown brand"}
-                  className="size-6 rounded-full border-none"
-                  width={16}
-                  height={16}
-                />
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-md">{product.brand.name}</span>
-                  <Badge
-                    variant={selectedVariantInStock ? "success" : "error"}
-                    className="rounded-full"
-                  >
-                    {selectedVariantInStock ? <CheckCircleIcon /> : <XIcon />}
-                    <span>{selectedVariant.stock}</span>
-                    {selectedVariantInStock ? "In Stock" : "Out of Stock"}
-                  </Badge>
-                </div>
-              </Badge>
+              <ProductBrandBadge
+                brand={product.brand}
+                selectedVariantInStock={selectedVariantInStock}
+                stock={selectedVariant.stock}
+                className="hidden lg:flex"
+              />
             </div>
 
             <p className="text-muted-foreground text-pretty lg:text-lg">
@@ -289,5 +282,58 @@ export function Product({
         {children}
       </div>
     </MaxWidthWrapper>
+  );
+}
+
+function ProductBrandBadge({
+  brand,
+  selectedVariantInStock,
+  stock,
+  className,
+}: {
+  brand: { logoUrl: string | null; name: string | null };
+  selectedVariantInStock: boolean;
+  stock: number;
+  className?: string;
+}) {
+  return (
+    <Badge
+      variant="outline"
+      className={cn("bg-background pr-0.5 pl-px", className)}
+    >
+      <ImageWithFallback
+        src={brand.logoUrl}
+        alt={brand.name ?? "unknown brand"}
+        className="size-6 rounded-full border-none"
+        width={16}
+        height={16}
+      />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-md">{brand.name}</span>
+        <Badge
+          variant={
+            selectedVariantInStock
+              ? stock < 4
+                ? "warning"
+                : "success"
+              : "error"
+          }
+          className="rounded-full"
+        >
+          {selectedVariantInStock ? (
+            stock < 4 ? (
+              <AlertTriangleIcon />
+            ) : (
+              <CheckCircleIcon />
+            )
+          ) : (
+            <XIcon />
+          )}
+          <span>{stock}</span>
+          {selectedVariantInStock ? "In Stock" : "Out of Stock"}
+        </Badge>
+      </div>
+    </Badge>
   );
 }
