@@ -524,6 +524,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
+      data-sidebar-open={state === "expanded"}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
     />

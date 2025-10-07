@@ -162,6 +162,50 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
+@theme {
+  --animate-search-dialog-in: scale-search-in 0.2s ease-out forwards;
+  --animate-search-dialog-out: scale-search-out 0.1s ease-out forwards;
+
+  --animate-search-button-in: scale-button-in 0.2s ease-in-out forwards;
+  --animate-search-button-out: scale-button-out 0.2s ease-in-out forwards;
+
+  @keyframes scale-button-in {
+    from {
+      transform: scale(1, 1);
+    }
+    to {
+      transform: scale(1.5, 1.5);
+    }
+  }
+
+  @keyframes scale-button-out {
+    from {
+      transform: scale(1.5, 1.5);
+    }
+    to {
+      transform: scale(1, 1);
+    }
+  }
+
+  @keyframes scale-search-in {
+    from {
+      transform: scale(0.6, 0.15);
+    }
+    to {
+      transform: scale(1, 1);
+    }
+  }
+
+  @keyframes scale-search-out {
+    from {
+      transform: scale(1, 1);
+    }
+    to {
+      transform: scale(0.6, 0.15);
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

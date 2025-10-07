@@ -15,14 +15,17 @@ import {
   BadgeDollarSignIcon,
   HomeIcon,
   PackageIcon,
-  SearchIcon,
   SparklesIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
-import { Button } from "~/components/ui/button";
-import { CommandShortcut } from "~/components/ui/command";
-import { ProductSearchDialog } from "./product-search-dialog";
+import { KbdGroup } from "~/components/ui/kbd";
+import {
+  ProductSearchDialog,
+  ProductSearchIcon,
+  ProductSearchPlaceholder,
+} from "./product-search-dialog";
+import { Kbd } from "~/components/ui/kbd";
 
 const DASHBOARD_ITEMS = [
   {
@@ -64,9 +67,16 @@ export function AdminSidebar({
           </Link>
         </SidebarMenuButton>
 
-        <SidebarMenuButton asChild>
-          <ProductSearchDialog />
-        </SidebarMenuButton>
+        <ProductSearchDialog>
+          <SidebarMenuButton className="group relative z-10">
+            <ProductSearchIcon />
+            <ProductSearchPlaceholder>Search Products</ProductSearchPlaceholder>
+
+            <KbdGroup className="absolute top-1/2 right-3 z-10 -translate-y-1/2 pt-1 group-data-[sidebar-open=false]:hidden">
+              <Kbd>⌘ + K</Kbd>
+            </KbdGroup>
+          </SidebarMenuButton>
+        </ProductSearchDialog>
       </SidebarHeader>
 
       <SidebarContent>
