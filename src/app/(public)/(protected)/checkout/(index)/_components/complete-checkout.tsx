@@ -10,9 +10,11 @@ import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 
 export function CompleteCheckout({
+  children,
   hasCartItems,
   className,
 }: {
+  children: React.ReactNode;
   hasCartItems: boolean;
   className?: string;
 }) {
@@ -29,7 +31,7 @@ export function CompleteCheckout({
   }
 
   return (
-    <div className={cn("flex flex-col", className)}>
+    <div className={cn("relative flex flex-col", className)}>
       <div className="flex items-center gap-2">
         <SparklesIcon className="mb-1 size-6" />
 
@@ -38,20 +40,23 @@ export function CompleteCheckout({
         </Heading>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-4">
+      <div className="flex flex-1 flex-col gap-4">
         <div
           className={cn(
-            "flex-1 space-y-4",
+            "space-y-4",
             checkoutPending && "pointer-events-none opacity-50",
           )}
         >
           <Heading level={2}>Your Details</Heading>
 
           <CheckoutForm onSubmit={onSubmit} />
+
+          {/* Order Summary for Mobile */}
+          <div className="block lg:hidden">{children}</div>
         </div>
 
         <Button
-          className="w-full lg:w-auto"
+          className="sticky inset-x-0 bottom-24 min-w-48 lg:relative lg:inset-x-auto lg:bottom-auto lg:w-fit lg:justify-start lg:self-end"
           size="lg"
           form="checkout-form"
           disabled={!hasCartItems || checkoutPending}
