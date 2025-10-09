@@ -11,6 +11,8 @@ import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function AuthPage() {
   const session = await auth.api.getSession({
     headers: await headers(),

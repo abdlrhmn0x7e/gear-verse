@@ -7,6 +7,8 @@ import { FiltersSkeleton } from "./_components/filters-skeleton";
 import { Products } from "./_components/products";
 import { loadAllProductSearchParams } from "./_components/hooks";
 
+export const dynamic = "force-dynamic";
+
 export default function ProductsPage({
   searchParams,
 }: {

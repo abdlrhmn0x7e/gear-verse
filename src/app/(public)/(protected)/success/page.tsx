@@ -12,7 +12,7 @@ import {
 import { api } from "~/trpc/server";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { Separator } from "~/components/ui/separator";
-import { PaymentMethod } from "../../_components/payment-method";
+import { PaymentMethod } from "../_components/payment-method";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 
