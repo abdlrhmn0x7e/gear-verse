@@ -4,7 +4,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "../../trpc";
-import { TRPCError } from "@trpc/server";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { createReviewInputSchema } from "~/lib/schemas/entities/reviews";
@@ -40,6 +39,7 @@ export const userReviewsRouter = createTRPCRouter({
           input.productId,
         ),
       );
+
       if (error) {
         throw errorMap(error);
       }
@@ -57,19 +57,17 @@ export const userReviewsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...rest } = input;
-      const review = await ctx.db.user.reviews.mutations.update(
-        id,
-        Number(ctx.session.user.id),
-        rest,
+      const { data, error } = await tryCatch(
+        ctx.app.public.reviews.mutations.update(
+          id,
+          Number(ctx.session.user.id),
+          rest,
+        ),
       );
-
-      if (!review) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Failed to update review",
-        });
+      if (error) {
+        throw errorMap(error);
       }
 
-      return review;
+      return data;
     }),
 });

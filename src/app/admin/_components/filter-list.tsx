@@ -162,6 +162,7 @@ export function FilterList({
             ? value?.map((value) => (
                 <motion.li key={`${key}-${value}`} variants={itemVariant}>
                   <Button
+                    size="sm"
                     variant="outline"
                     className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
                     onClick={() => onRemove({ key, value })}
@@ -175,6 +176,7 @@ export function FilterList({
             : value && (
                 <motion.li key={`${key}-${value}`} variants={itemVariant}>
                   <Button
+                    size="sm"
                     variant="outline"
                     className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
                     onClick={() => onRemove({ key, value })}

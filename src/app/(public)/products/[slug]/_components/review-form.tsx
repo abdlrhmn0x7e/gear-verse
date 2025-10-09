@@ -10,9 +10,15 @@ import {
   FormControl,
   FormMessage,
 } from "~/components/ui/form";
-import { Textarea } from "~/components/ui/textarea";
 import { StarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import TextareaAutosize from "react-textarea-autosize";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "~/components/ui/input-group";
 
 const reviewFormSchema = z.object({
   rating: z
@@ -67,37 +73,41 @@ export function ReviewForm({
           form.resetField("comment");
         }}
       >
-        <div className="dark:bg-input/30 ring-ring/50 space-y-3 rounded-lg border px-2 pt-2 pb-4 transition-all duration-200 has-focus-visible:ring-2">
+        <InputGroup>
           <FormField
             control={form.control}
             name="comment"
             render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    className="h-24 resize-none border-transparent bg-transparent shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              <FormItem className="w-full">
+                <FormControl data-slot="input-group-control">
+                  <TextareaAutosize
+                    className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
                     placeholder="Write your review here..."
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="rating"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <RatingInput value={field.value} onChange={field.onChange} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          <InputGroupAddon align="block-end">
+            <FormField
+              control={form.control}
+              name="rating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RatingInput
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </InputGroupAddon>
+        </InputGroup>
       </form>
     </Form>
   );

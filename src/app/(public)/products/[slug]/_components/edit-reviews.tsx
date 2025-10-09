@@ -4,6 +4,7 @@ import { PencilIcon, SaveIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DrawerDialog,
+  DrawerDialogBody,
   DrawerDialogContent,
   DrawerDialogDescription,
   DrawerDialogFooter,
@@ -64,7 +65,13 @@ export function EditReview({
           <DrawerDialogDescription></DrawerDialogDescription>
         </DrawerDialogHeader>
 
-        <ReviewForm onSubmit={onSubmit} defaultValues={review} id={review.id} />
+        <DrawerDialogBody>
+          <ReviewForm
+            onSubmit={onSubmit}
+            defaultValues={review}
+            id={review.id}
+          />
+        </DrawerDialogBody>
 
         <DrawerDialogFooter>
           <Button

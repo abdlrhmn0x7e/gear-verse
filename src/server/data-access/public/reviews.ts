@@ -53,14 +53,15 @@ export const _reviews = {
   },
   mutations: {
     create: async (review: NewReview) => {
-      return db.insert(reviews).values(review).onConflictDoNothing();
+      return db.insert(reviews).values(review);
     },
 
     update: async (id: number, userId: number, review: UpdateReview) => {
       return db
         .update(reviews)
         .set(review)
-        .where(and(eq(reviews.userId, userId), eq(reviews.id, id)));
+        .where(and(eq(reviews.userId, userId), eq(reviews.id, id)))
+        .returning({ id: reviews.id });
     },
   },
 };
