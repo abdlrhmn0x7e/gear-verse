@@ -77,6 +77,7 @@ import {
 import { Kbd, KbdGroup } from "./ui/kbd";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Separator } from "./ui/separator";
+import { authClient } from "~/lib/auth-client";
 
 export interface NavigationLink {
   title: string;
@@ -104,11 +105,9 @@ const NAV_ITEMS = [
   },
 ] as const satisfies ReadonlyArray<NavigationLink>;
 
-export function Navbar({
-  user,
-}: {
-  user: (User & { role?: string | null | undefined }) | null;
-}) {
+export function Navbar() {
+  const { data } = authClient.useSession();
+  const user = data?.user ?? null;
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
 
   const utils = api.useUtils();
@@ -148,7 +147,7 @@ export function Navbar({
               <SearchDrawer />
 
               {/* Nav Items */}
-              <div className="hidden w-full items-center gap-2 md:flex">
+              <div className="hidden w-full items-center gap-2 lg:flex">
                 <ProductSearchDialog withOverlay={false}>
                   <div className="relative z-10 hidden w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
                     <ProductSearchIcon className="size-4" />

@@ -108,6 +108,7 @@ export const productColumns: ColumnDef<
       return (
         <ProductsTableActions
           id={row.original.id}
+          slug={row.original.slug}
           published={row.original.published}
         />
       );

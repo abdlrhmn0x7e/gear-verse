@@ -17,16 +17,18 @@ import { useState } from "react";
 
 export function ProductsTableActions({
   id,
+  slug,
   published,
 }: {
   id: number;
+  slug: string;
   published: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
   function handleCopyProductLink() {
     void navigator.clipboard.writeText(
-      `${window.location.origin}/products/${id}`,
+      `${window.location.origin}/products/${slug}`,
     );
     toast.success("Product link copied to clipboard");
     setOpen(false);
