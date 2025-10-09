@@ -230,7 +230,7 @@ export function ProductForm({
                 )}
               />
 
-              <MediaStoreProvider>
+              <MediaStoreProvider defaultMedia={defaultValues?.media}>
                 {mediaFields.length === 0 ? (
                   <FormField
                     control={form.control}

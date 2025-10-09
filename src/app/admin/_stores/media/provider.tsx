@@ -3,7 +3,7 @@
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
-import { type MediaStore, createMediaStore } from "./store";
+import { type MediaStore, type SelectedMedia, createMediaStore } from "./store";
 
 export type MediaStoreApi = ReturnType<typeof createMediaStore>;
 
@@ -11,18 +11,20 @@ export const MediaStoreContext = createContext<MediaStoreApi | null>(null);
 
 export interface MediaStoreProviderProps {
   children: ReactNode;
+  defaultMedia?: SelectedMedia[];
   maxFiles?: number;
 }
 
 export const MediaStoreProvider = ({
   children,
+  defaultMedia,
   maxFiles,
 }: MediaStoreProviderProps) => {
   const storeRef = useRef<MediaStoreApi | null>(null);
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
     storeRef.current = createMediaStore({
-      selectedMedia: [],
+      selectedMedia: defaultMedia ?? [],
       previewUrl: null,
       maxFiles,
     });

@@ -4,7 +4,7 @@ import { useFormContext, type UseFieldArraySwap } from "react-hook-form";
 
 import { ImageIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
@@ -154,7 +154,7 @@ export function MediaFields({
                 </div>
               ))}
 
-              <MediaDialog>
+              <MediaDialog onChange={() => setValue("media", selectedMedia)}>
                 <button
                   type="button"
                   className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"
