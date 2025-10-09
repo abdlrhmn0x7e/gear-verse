@@ -16,7 +16,7 @@ import {
 
 export const _products = {
   queries: {
-    getPage: async ({
+    async getPage({
       cursor,
       pageSize,
       filters,
@@ -28,7 +28,7 @@ export const _products = {
         brands?: number[] | null;
         categories?: number[] | null;
       };
-    }) => {
+    }) {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
@@ -42,31 +42,9 @@ export const _products = {
       if (filters?.categories) {
         const categoriesIds = new Set<number>([...filters.categories]);
         await Promise.all(
-          filters.categories.map((categoryId) => {
-            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
-            WITH RECURSIVE all_children_categories AS (
-              SELECT id 
-              FROM categories
-              WHERE parent_id = ${categoryId}
-
-              UNION ALL
-
-              SELECT categories.id
-              FROM categories
-              INNER JOIN all_children_categories
-                ON all_children_categories.id = categories.parent_id
-            )
-
-            SELECT id FROM all_children_categories
-          `;
-
-            return db
-              .execute<{ id: number }>(childrenCategoriesIdsQuery)
-              .then((result) =>
-                result.forEach((row) => {
-                  categoriesIds.add(row.id);
-                }),
-              );
+          filters.categories.map(async (categoryId) => {
+            const ids = await this.helpers.getCategoryIds(categoryId);
+            ids.forEach((id) => categoriesIds.add(id));
           }),
         );
 
@@ -369,6 +347,47 @@ export const _products = {
         .where(eq(products.slug, slug))
         .limit(1)
         .then(([product]) => product);
+    },
+
+    async findByCategoryId(categoryId: number) {
+      const categoriesIds = await this.helpers.getCategoryIds(categoryId);
+      return db
+        .select({
+          id: products.id,
+          slug: products.slug,
+          title: products.title,
+          price: products.price,
+          thumbnailUrl: media.url,
+          summary: products.summary,
+        })
+        .from(products)
+        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .where(inArray(products.categoryId, categoriesIds));
+    },
+
+    helpers: {
+      getCategoryIds(categoryId: number) {
+        const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+              WITH RECURSIVE all_children_categories AS (
+                SELECT id 
+                FROM categories
+                WHERE parent_id = ${categoryId}
+    
+                UNION ALL
+    
+                SELECT categories.id
+                FROM categories
+                INNER JOIN all_children_categories
+                  ON all_children_categories.id = categories.parent_id
+              )
+    
+              SELECT id FROM all_children_categories
+            `;
+
+        return db
+          .execute<{ id: number }>(childrenCategoriesIdsQuery)
+          .then((result) => result.map((row) => row.id));
+      },
     },
   },
 };

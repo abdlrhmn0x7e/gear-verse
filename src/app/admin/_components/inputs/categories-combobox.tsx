@@ -49,7 +49,7 @@ export function CategoriesCombobox({
 }) {
   const [open, setOpen] = React.useState(false);
   const { data: categories, isPending: categoriesPending } =
-    api.admin.categories.findAll.useQuery();
+    api.admin.categories.queries.findAll.useQuery();
 
   const flattenedCategories = useFlatCategories(categories ?? []);
 

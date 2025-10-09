@@ -7,8 +7,17 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
+import { cn } from "~/lib/utils";
 
-export function AddReview({ productId }: { productId: number }) {
+export function AddReview({
+  productId,
+  disabled,
+  className,
+}: {
+  productId: number;
+  disabled: boolean;
+  className?: string;
+}) {
   const utils = api.useUtils();
   const router = useRouter();
   const { mutate: createReview, isPending: isCreatingReview } =
@@ -28,14 +37,14 @@ export function AddReview({ productId }: { productId: number }) {
   }
 
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       <ReviewForm onSubmit={onSubmit} />
       <Button
         size="icon"
         className="absolute right-2 bottom-2"
         type="submit"
         form="review-form"
-        disabled={isCreatingReview}
+        disabled={isCreatingReview || disabled}
       >
         {isCreatingReview ? <Spinner /> : <SendIcon />}
       </Button>

@@ -13,6 +13,7 @@ import {
 import { NavMain } from "./nav-main";
 import {
   BadgeDollarSignIcon,
+  FoldersIcon,
   HomeIcon,
   PackageIcon,
   SparklesIcon,
@@ -37,6 +38,11 @@ const DASHBOARD_ITEMS = [
     title: "Products",
     url: "/admin/products",
     icon: PackageIcon,
+  },
+  {
+    title: "Categories",
+    url: "/admin/categories",
+    icon: FoldersIcon,
   },
   {
     title: "Orders",

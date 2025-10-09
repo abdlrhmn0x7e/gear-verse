@@ -9,8 +9,10 @@ import {
   useSensors,
   type UniqueIdentifier,
   KeyboardSensor,
-  closestCenter,
+  pointerWithin,
   DragOverlay,
+  useDraggable,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -19,20 +21,15 @@ import {
   type SortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVerticalIcon } from "lucide-react";
-import { useId } from "react";
+import { GripIcon, GripVerticalIcon } from "lucide-react";
+import { useEffect, useId } from "react";
 
 import { cn } from "~/lib/utils";
 
-export function SwapableContext({
-  items,
-  strategy,
+export function DragableContext({
   children,
   ...props
-}: {
-  items: UniqueIdentifier[];
-  strategy: SortingStrategy;
-} & React.ComponentProps<typeof DndContext>) {
+}: React.ComponentProps<typeof DndContext>) {
   // ssr fix
   const id = useId();
 
@@ -68,17 +65,15 @@ export function SwapableContext({
     <DndContext
       id={id}
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       {...props}
     >
-      <SortableContext items={items} strategy={strategy}>
-        {children}
-      </SortableContext>
+      {children}
     </DndContext>
   );
 }
 
-export function SwapableSortableContext({
+export function DragableSortableContext({
   items,
   strategy,
   children,
@@ -93,7 +88,37 @@ export function SwapableSortableContext({
   );
 }
 
-export function SwapableItem({
+export function DragableItem({
+  id,
+  className,
+  children,
+}: React.PropsWithChildren<{ id: number; className?: string }>) {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "group relative h-fit focus-within:outline-none",
+        className,
+      )}
+    >
+      <button
+        className="cursor-grab focus-within:outline-none active:cursor-grabbing"
+        {...listeners}
+        {...attributes}
+      >
+        <GripIcon className="size-4" />
+      </button>
+
+      {children}
+    </div>
+  );
+}
+
+export function SortableItem({
   id,
   className,
   children,
@@ -119,7 +144,7 @@ export function SwapableItem({
   );
 }
 
-export function SwapableItemWithHandle({
+export function SortableItemWithHandle({
   id,
   className,
   children,
@@ -161,16 +186,25 @@ export function SwapableItemWithHandle({
   );
 }
 
-export function SwapableDragOverlay({
+export function DragableOverlay({
   children,
   className,
+  vertical = false,
   withHandle = false,
-}: React.PropsWithChildren<{ className?: string; withHandle?: boolean }>) {
+  isDropping = false,
+}: React.PropsWithChildren<{
+  className?: string;
+  withHandle?: boolean;
+  vertical?: boolean;
+  isDropping?: boolean;
+}>) {
   return (
-    <DragOverlay>
+    <DragOverlay dropAnimation={null}>
       <div
+        data-overlay
+        data-dropping={isDropping ? "" : undefined}
         className={cn(
-          "group relative flex items-center gap-2 focus-within:outline-none",
+          "group relative flex items-center gap-2 transition duration-200 ease-out focus-within:outline-none data-[dropping]:scale-90 data-[dropping]:opacity-0",
           className,
         )}
       >
@@ -179,12 +213,48 @@ export function SwapableDragOverlay({
             type="button"
             className="cursor-grab focus-within:outline-none active:cursor-grabbing"
           >
-            <GripVerticalIcon className="size-4" />
+            {vertical ? (
+              <GripVerticalIcon className="size-4" />
+            ) : (
+              <GripIcon className="size-4" />
+            )}
           </button>
         )}
 
         <div className="flex-1">{children}</div>
       </div>
     </DragOverlay>
+  );
+}
+
+export function Droppable({
+  children,
+  id,
+  className,
+  classNameWhenOver = "bg-accent",
+  onOverChange,
+}: React.PropsWithChildren<{
+  id: string;
+  className?: string;
+  classNameWhenOver?: string;
+  onOverChange?: (isOver: boolean) => void;
+}>) {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+  });
+
+  useEffect(() => {
+    onOverChange?.(isOver);
+  }, [isOver, onOverChange]);
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(className, isOver && classNameWhenOver)}
+      data-over={isOver ? "" : undefined}
+      data-droppable-id={id}
+    >
+      {children}
+    </div>
   );
 }

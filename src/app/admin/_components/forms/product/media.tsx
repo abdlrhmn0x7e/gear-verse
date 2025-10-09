@@ -22,7 +22,11 @@ import { rectSwappingStrategy } from "@dnd-kit/sortable";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import type { ProductFormValues } from ".";
-import { SwapableContext, SwapableItem } from "../../swapable-context";
+import {
+  DragableContext,
+  DragableSortableContext,
+  SortableItem,
+} from "../../dragable-context";
 
 export function MediaFields({
   media,
@@ -118,57 +122,60 @@ export function MediaFields({
       )}
 
       <div suppressHydrationWarning>
-        <SwapableContext
-          items={media.map((m) => m.mediaId)}
-          strategy={rectSwappingStrategy}
+        <DragableContext
           onDragEnd={handleDragEnd}
           onDragStart={handleDragStart}
         >
-          <div className="relative flex flex-wrap gap-2">
-            {media.map((m, index) => (
-              <div
-                key={`${m.mediaId}-${index}-container`}
-                className="peer group relative"
-              >
-                <SwapableItem id={m.mediaId} className="size-32 rounded-lg">
-                  <MediaItem
-                    media={m}
-                    className="transition-opacity duration-1000 group-active:opacity-20"
-                  />
+          <DragableSortableContext
+            items={media.map((m) => m.mediaId)}
+            strategy={rectSwappingStrategy}
+          >
+            <div className="relative flex flex-wrap gap-2">
+              {media.map((m, index) => (
+                <div
+                  key={`${m.mediaId}-${index}-container`}
+                  className="peer group relative"
+                >
+                  <SortableItem id={m.mediaId} className="size-32 rounded-lg">
+                    <MediaItem
+                      media={m}
+                      className="transition-opacity duration-1000 group-active:opacity-20"
+                    />
 
-                  <Checkbox
-                    className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-[state=checked]:opacity-100"
-                    checked={checkedMedia.some(
-                      (m2) => m2.mediaId === m.mediaId,
-                    )}
-                    onCheckedChange={handleCheckboxChange(m)}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  />
-                </SwapableItem>
-              </div>
-            ))}
+                    <Checkbox
+                      className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-[state=checked]:opacity-100"
+                      checked={checkedMedia.some(
+                        (m2) => m2.mediaId === m.mediaId,
+                      )}
+                      onCheckedChange={handleCheckboxChange(m)}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    />
+                  </SortableItem>
+                </div>
+              ))}
 
-            <MediaDialog>
-              <button
-                type="button"
-                className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"
-              >
-                <PlusIcon />
-              </button>
-            </MediaDialog>
+              <MediaDialog>
+                <button
+                  type="button"
+                  className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"
+                >
+                  <PlusIcon />
+                </button>
+              </MediaDialog>
 
-            <Badge className="absolute top-24 left-6 z-10 peer-has-active:z-[9999]">
-              <ImageIcon />
-              Thumbnail
-            </Badge>
-          </div>
+              <Badge className="absolute top-24 left-6 z-10 peer-has-active:z-[9999]">
+                <ImageIcon />
+                Thumbnail
+              </Badge>
+            </div>
+          </DragableSortableContext>
 
           <DragOverlay>
             {activeId ? (
               <MediaItem media={media.find((m) => m.mediaId === activeId)!} />
             ) : null}
           </DragOverlay>
-        </SwapableContext>
+        </DragableContext>
       </div>
 
       <p className="text-muted-foreground text-sm">

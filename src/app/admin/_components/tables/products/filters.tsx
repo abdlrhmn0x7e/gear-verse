@@ -27,7 +27,7 @@ export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useProductSearchParams();
   const { data: categories, isPending: categoriesPending } =
-    api.admin.categories.findAll.useQuery();
+    api.admin.categories.queries.findAll.useQuery();
   const [brands, { fetchNextPage, hasNextPage, isPending: brandsPending }] =
     api.admin.brands.getPage.useSuspenseInfiniteQuery(
       {

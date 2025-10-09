@@ -14,10 +14,15 @@ export async function Reviews({ productId }: { productId: number }) {
   const data = await auth.api.getSession({
     headers: await headers(),
   });
+  const userHasReviewed = reviews.some(
+    (review) => review.user?.id === Number(data?.user.id),
+  );
 
   return (
     <div className="space-y-4">
-      <AddReview productId={productId} />
+      {!userHasReviewed && (
+        <AddReview productId={productId} disabled={userHasReviewed} />
+      )}
       <Heading level={2}>User Reviews ({reviews.length})</Heading>
       <div>
         {reviews.length > 0 ? (
