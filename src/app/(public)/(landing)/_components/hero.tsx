@@ -28,7 +28,7 @@ export function Hero() {
               <Heading className="text-accent-foreground relative text-pretty">
                 Level up your gaming setup with rare gaming gear that isn&apos;t
                 available in Egypt.
-                <span className="absolute bottom-10 size-6 rotate-16 sm:bottom-12 md:bottom-16 lg:-right-2 lg:bottom-20">
+                <span className="absolute hidden rotate-16 sm:right-24 sm:bottom-4 sm:block md:right-32 md:bottom-4 lg:right-32">
                   🇪🇬
                 </span>
               </Heading>
@@ -47,9 +47,14 @@ export function Hero() {
                 Browse Available Gear
               </Link>
             </Button>
-            <Button className="w-full sm:flex-1" variant="outline" size="lg">
+            <Button
+              className="w-full sm:flex-1"
+              variant="outline"
+              size="lg"
+              disabled
+            >
               <Sparkles />
-              Request Custom Gear
+              Request Custom Gear (Soon)
             </Button>
           </div>
         </div>

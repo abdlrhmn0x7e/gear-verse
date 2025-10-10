@@ -49,7 +49,7 @@ export function ProblemSolutions() {
 
   return (
     <section className="relative py-24">
-      <MaxWidthWrapper className="flex flex-col items-center gap-6">
+      <MaxWidthWrapper className="flex max-w-screen-xl flex-col items-center gap-6">
         <div className="max-w-4xl flex-1 text-center">
           <Heading level={1}>Tired of the limited options?</Heading>
 
@@ -62,16 +62,16 @@ export function ProblemSolutions() {
           </p>
         </div>
 
-        <div className="grid w-full flex-1 grid-cols-1 gap-5 p-1 lg:grid-cols-6">
+        <div className="grid w-full flex-1 grid-cols-1 grid-rows-[repeat(2,400px)] gap-5 p-1 lg:grid-cols-6">
           {solutions.map((solution, index) => (
             <div
               key={solution.title}
               className={cn(
                 "from-primary/60 to-border dark:from-primary/10 dark:to-border/50 my-1 size-full overflow-hidden rounded-lg bg-gradient-to-b p-px",
-                index === 0 && "lg:col-span-2",
+                index === 0 && "row-span-2 lg:col-span-2",
                 index === 1 && "lg:col-span-4",
-                index === 2 && "lg:col-span-3",
-                index === 3 && "lg:col-span-3",
+                index === 2 && "lg:col-span-2",
+                index === 3 && "lg:col-span-2",
               )}
             >
               <div className="group relative size-full">
@@ -80,7 +80,7 @@ export function ProblemSolutions() {
                     <solution.Illustration />
                   </div>
 
-                  <div className="relative z-12 shrink-0">
+                  <div className="from-card/90 via-card/80 absolute inset-x-0 bottom-0 z-12 shrink-0 rounded-lg bg-gradient-to-t to-transparent p-4">
                     <Heading level={2}>{solution.title}</Heading>
                     <p>{solution.description}</p>
                   </div>
@@ -101,7 +101,7 @@ export function ProblemSolutions() {
 
 function RequestIllustration() {
   return (
-    <MockPhone className="group relative z-10 max-h-[34rem] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_0%,black_70%,transparent)]">
+    <MockPhone className="group relative z-10 [mask-image:linear-gradient(to_bottom,transparent,black_0%,black_70%,transparent)]">
       <div className="absolute inset-0 z-10 -translate-y-48 p-8 opacity-0 transition-all duration-500 group-hover:-translate-y-0 group-hover:opacity-100">
         <div className="bg-card flex flex-col gap-2 rounded-xl border p-1">
           <div className="flex items-center gap-2">
@@ -206,15 +206,15 @@ function MockPhone({
 function SourceRareGearsIllustration() {
   return (
     <div className="group relative z-10">
-      <Earth className="text-foreground stroke-foreground max-h-[12rem] w-full scale-200 [mask-image:linear-gradient(to_bottom,transparent,black_50%,black_60%,transparent)] lg:max-h-[34rem]" />
+      <Earth className="text-foreground stroke-foreground max-h-[8rem] w-full scale-200 [mask-image:linear-gradient(to_bottom,transparent,black_50%,black_60%,transparent)] lg:max-h-[16rem]" />
 
       <div className="scan-orbit-center animate-scan-orbit scan-radius-sm lg:scan-radius-md scan-speed-slow">
         <div className="absolute top-0 left-0">
-          <div className="border-secondary ring-primary bg-background/80 flex size-24 items-center justify-center rounded-full border-8 ring-4 transition-all duration-300 lg:size-48 lg:border-[1rem]">
-            <Gamepad2Icon className="text-primary dark:text-primary-foreground size-12 lg:size-24" />
+          <div className="border-secondary ring-primary bg-background/80 flex size-16 items-center justify-center rounded-full border-8 ring-4 transition-all duration-300 lg:size-48 lg:border-[1rem]">
+            <Gamepad2Icon className="text-primary dark:text-primary-foreground size-8 lg:size-24" />
           </div>
 
-          <div className="border-primary from-muted to-accent secondary absolute -right-3 -bottom-8 h-12 w-4 -rotate-45 rounded-full border-4 bg-gradient-to-b lg:-right-6 lg:-bottom-16 lg:h-24 lg:w-8" />
+          <div className="border-primary from-muted to-accent secondary absolute -right-3 -bottom-8 h-8 w-4 -rotate-45 rounded-full border-4 bg-gradient-to-b lg:-right-6 lg:-bottom-16 lg:h-24 lg:w-8" />
         </div>
       </div>
     </div>
