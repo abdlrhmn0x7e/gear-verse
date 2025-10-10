@@ -42,7 +42,7 @@ export function BrandsCarousel() {
     });
   }, [carouselApi]);
 
-  if (true) {
+  if (!brands || brands.length === 0) {
     return (
       <Empty className="gap-3">
         <EmptyHeader>
@@ -89,8 +89,8 @@ function BrandCard({
 }) {
   return (
     <Link href={`/brands/${brand.slug}`}>
-      <div className="group bg-card flex h-full flex-col overflow-hidden rounded-lg border">
-        <AspectRatio ratio={1} className="overflow-hidden p-8">
+      <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
+        <AspectRatio ratio={1} className="overflow-hidden">
           <ImageWithFallback
             src={brand.logo}
             alt={brand.name}
