@@ -89,7 +89,7 @@ export function ProductSearchDialog({
         <div
           ref={setContainer}
           className={cn(
-            "peer pointer-events-none absolute -inset-x-6 inset-y-0 has-[data-state=open]:pointer-events-auto",
+            "peer pointer-events-none absolute -inset-x-5 inset-y-0 has-[data-state=open]:pointer-events-auto",
             dialogClassName,
           )}
         />
