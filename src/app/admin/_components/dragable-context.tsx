@@ -22,7 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripIcon, GripVerticalIcon } from "lucide-react";
-import { useEffect, useId } from "react";
+import { useId } from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -91,11 +91,23 @@ export function DragableSortableContext({
 export function DragableItem({
   id,
   className,
+  withHandle = false,
   children,
-}: React.PropsWithChildren<{ id: number; className?: string }>) {
+}: React.PropsWithChildren<{
+  id: UniqueIdentifier;
+  className?: string;
+  withHandle?: boolean;
+}>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id,
   });
+
+  const divProps = !withHandle
+    ? {
+        ...listeners,
+        ...attributes,
+      }
+    : {};
 
   return (
     <div
@@ -104,14 +116,17 @@ export function DragableItem({
         "group relative h-fit focus-within:outline-none",
         className,
       )}
+      {...divProps}
     >
-      <button
-        className="cursor-grab focus-within:outline-none active:cursor-grabbing"
-        {...listeners}
-        {...attributes}
-      >
-        <GripIcon className="size-4" />
-      </button>
+      {withHandle && (
+        <button
+          className="cursor-grab focus-within:outline-none active:cursor-grabbing"
+          {...listeners}
+          {...attributes}
+        >
+          <GripIcon className="size-4" />
+        </button>
+      )}
 
       {children}
     </div>

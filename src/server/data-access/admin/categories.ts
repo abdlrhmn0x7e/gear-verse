@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { categories } from "../../db/schema";
 
 type NewCategory = typeof categories.$inferInsert;
+type UpdateCategory = Partial<NewCategory>;
 
 export const _categories = {
   queries: {
@@ -81,6 +82,15 @@ export const _categories = {
   mutations: {
     create(data: NewCategory) {
       return db.insert(categories).values(data);
+    },
+
+    update(id: number, data: UpdateCategory) {
+      return db
+        .update(categories)
+        .set(data)
+        .where(eq(categories.id, id))
+        .returning({ id: categories.id })
+        .then((result) => result[0]);
     },
 
     delete(id: number) {

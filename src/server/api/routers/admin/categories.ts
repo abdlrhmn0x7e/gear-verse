@@ -1,4 +1,7 @@
-import { categoryEntitySchema } from "~/lib/schemas/entities/category";
+import {
+  categoryEntitySchema,
+  updateCategoryInputSchema,
+} from "~/lib/schemas/entities/category";
 import { adminProcedure, createTRPCRouter, publicProcedure } from "../../trpc";
 import { errorMap } from "../../error-map";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -43,6 +46,19 @@ export const categoriesRouter = createTRPCRouter({
         }
         return data;
       }),
+
+    update: adminProcedure
+      .input(updateCategoryInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.categories.mutations.update(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
     delete: adminProcedure
       .input(deleteCategoryInputSchema)
       .mutation(async ({ ctx, input }) => {

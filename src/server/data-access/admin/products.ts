@@ -131,12 +131,14 @@ export const _products = {
 
           category: {
             columns: {
+              id: true,
               name: true,
               icon: true,
             },
             with: {
               parent: {
                 columns: {
+                  id: true,
                   name: true,
                   icon: true,
                 },

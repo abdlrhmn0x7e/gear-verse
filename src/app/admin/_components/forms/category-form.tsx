@@ -100,7 +100,7 @@ export function CategoryForm({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <Input placeholder="Category Name" {...field} />
+                  <Input placeholder="Category Name" {...field} autoFocus />
                 </FormControl>
                 <FormMessage />
               </FormItem>

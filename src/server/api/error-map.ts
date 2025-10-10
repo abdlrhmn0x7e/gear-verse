@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import { isAppError } from "~/lib/errors/app-error";
 
 export function errorMap(error: unknown) {
-  console.error("error", error);
   if (isAppError(error)) {
     switch (error.kind) {
       case "NOT_FOUND":

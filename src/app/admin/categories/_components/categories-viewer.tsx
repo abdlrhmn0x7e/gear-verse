@@ -5,65 +5,34 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
-import { IconShoppingBagX } from "@tabler/icons-react";
 import {
   ChevronRight,
-  EllipsisVerticalIcon,
   FolderIcon,
   FolderOpenIcon,
-  FolderPlusIcon,
-  GripIcon,
-  PencilIcon,
   PlusCircleIcon,
-  PlusIcon,
-  TrashIcon,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import { Heading } from "~/components/heading";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import { Button, buttonVariants } from "~/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
+import { LoadMore } from "~/components/load-more";
+import { Button } from "~/components/ui/button";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { Skeleton } from "~/components/ui/skeleton";
-import { iconsMap } from "~/lib/icons-map";
-import { cn } from "~/lib/utils";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { api } from "~/trpc/react";
 import {
   DragableContext,
-  DragableItem,
   DragableOverlay,
   Droppable,
 } from "../../_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Spinner } from "~/components/spinner";
-import { createPortal } from "react-dom";
-
-type CategoryTree =
-  RouterOutputs["admin"]["categories"]["queries"]["findAll"][number];
+import { CategoryTree } from "./category-tree";
+import { CategoryProductList, ProductListItem } from "./products-grid";
+import { iconsMap } from "~/lib/icons-map";
+import { cn } from "~/lib/utils";
 
 export function CategoriesViewer() {
   const { data: categories } = api.admin.categories.queries.findAll.useQuery();
@@ -71,6 +40,7 @@ export function CategoriesViewer() {
   const parentCategory = useCategoryStore((state) => state.parentCategory);
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
   const queryParams = useMemo(() => {
     return {
@@ -80,11 +50,60 @@ export function CategoriesViewer() {
       pageSize: 10,
     };
   }, [selectedCategory]);
-  const { data: products } =
-    api.admin.products.queries.getPage.useQuery(queryParams);
+  const {
+    data,
+    isLoading: isLoadingProducts,
+    hasNextPage,
+    fetchNextPage,
+  } = api.admin.products.queries.getPage.useInfiniteQuery(queryParams, {
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+
+  const { ref, inView } = useInView();
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      void fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
+  const products = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data);
+  }, [data]);
   const activeProduct = useMemo(() => {
-    return products?.data.find((p) => p.id === activeId);
+    if (!activeId || typeof activeId !== "string") return undefined;
+    const [type, raw] = activeId.split(":");
+    if (type !== "product") return undefined;
+    const pid = Number(raw);
+    if (isNaN(pid)) return undefined;
+    return products?.find((p) => p.id === pid);
   }, [products, activeId]);
+
+  const activeCategory = useMemo(() => {
+    if (!activeId || typeof activeId !== "string") return undefined;
+
+    const [type, raw] = activeId.split(":");
+    if (type !== "category") return undefined;
+
+    const cid = Number(raw);
+    if (isNaN(cid)) return undefined;
+
+    // recursively find the category by id
+    const findById = (
+      nodes: NonNullable<typeof categories>,
+      id: number,
+    ): (typeof nodes)[number] | undefined => {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+
+        const inChild = node.children ? findById(node.children, id) : undefined;
+
+        if (inChild) return inChild;
+      }
+      return undefined;
+    };
+
+    return categories ? findById(categories, cid) : undefined;
+  }, [categories, activeId]);
 
   const utils = api.useUtils();
   const { mutate: updateProductCategory } =
@@ -93,6 +112,7 @@ export function CategoriesViewer() {
         void utils.admin.products.queries.getPage.invalidate();
       },
 
+      // Optimistic updates
       onMutate: async (data) => {
         await utils.admin.products.queries.getPage.cancel();
         const oldProducts =
@@ -120,28 +140,75 @@ export function CategoriesViewer() {
       },
     });
 
+  const { mutate: updateCategoryParent } =
+    api.admin.categories.mutations.update.useMutation({
+      onSuccess: () => {
+        void utils.admin.categories.queries.findAll.invalidate();
+      },
+    });
+
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id);
   }
+
+  function parseDndId(id: UniqueIdentifier | undefined) {
+    if (!id || typeof id !== "string") return null;
+    const [type, raw] = id.split(":");
+    const numeric = Number(raw);
+    if (!type || isNaN(numeric)) return null;
+    return { type, id: numeric } as const;
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (active.id !== over?.id) {
-      const parsedActiveId = Number(active.id);
-      const parsedOverId = Number(over?.id);
+    if (active.id === over?.id) {
+      setActiveId(null);
+      return;
+    }
 
-      if (isNaN(parsedActiveId) || isNaN(parsedOverId)) {
-        setActiveId(null);
+    const activeInfo = parseDndId(active.id as string);
+    const overInfo = parseDndId(over?.id as string | undefined);
+
+    if (!activeInfo || !overInfo) {
+      setActiveId(null);
+      return;
+    }
+
+    // Product -> Category: move product to target category
+    if (activeInfo.type === "product" && overInfo.type === "category") {
+      // if the target is the root, don't move the product
+      if (overInfo.id === 0) {
         return;
       }
 
       updateProductCategory({
-        id: parsedActiveId,
-        data: { categoryId: parsedOverId },
+        id: activeInfo.id,
+        data: { categoryId: overInfo.id },
       });
-
-      // Delay clearing activeId slightly so the overlay can fade/scale near target
       setTimeout(() => setActiveId(null), 180);
+      return;
     }
+
+    // Category -> Category: make dragged category a child of the target
+    if (activeInfo.type === "category" && overInfo.type === "category") {
+      // if the target is the same as the source, don't move the category
+      if (activeInfo.id === overInfo.id) {
+        setTimeout(() => setActiveId(null), 180);
+        return;
+      }
+
+      // if the target is the root, move the category to the root
+      if (overInfo.id === 0) {
+        updateCategoryParent({ id: activeInfo.id, parent_id: null });
+      } else {
+        updateCategoryParent({ id: activeInfo.id, parent_id: overInfo.id });
+      }
+
+      setTimeout(() => setActiveId(null), 180);
+      return;
+    }
+
+    setActiveId(null);
   }
 
   return (
@@ -152,36 +219,57 @@ export function CategoriesViewer() {
       >
         {/* Category Tree */}
         <ResizablePanel
-          className="bg-sidebar flex h-full flex-col gap-2 p-4"
+          className="bg-sidebar relative flex h-full flex-col gap-2 p-4"
           defaultSize={25}
           minSize={15}
         >
-          <div className="flex items-center justify-between gap-2">
-            <Heading level={5} className="font-medium">
-              Categories (
-              {categories?.reduce(
-                (acc, curr) => acc + (curr.children?.length ?? 0),
-                categories?.length ?? 0,
-              )}
-              )
-            </Heading>
+          <div className="h-fit space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <Heading level={5} className="font-medium">
+                Categories (
+                {categories?.reduce(
+                  (acc, curr) => acc + (curr.children?.length ?? 0),
+                  categories?.length ?? 0,
+                )}
+                )
+              </Heading>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="cursor-pointer rounded-full"
-            >
-              <PlusCircleIcon />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="cursor-pointer rounded-full"
+                onClick={() => setShowAddCategory(true)}
+              >
+                <PlusCircleIcon />
+              </Button>
+            </div>
+
+            {categories?.map((category) => (
+              <CategoryTree
+                key={category.id}
+                categories={category}
+                isDragging={!!activeId}
+              />
+            ))}
+
+            {showAddCategory && (
+              <div className="mt-2 ml-2">
+                <AddCategory
+                  parentCategoryId={null}
+                  onSuccess={() => setShowAddCategory(false)}
+                  cancel={() => setShowAddCategory(false)}
+                />
+              </div>
+            )}
           </div>
 
-          {categories?.map((category) => (
-            <CategoryTree
-              key={category.id}
-              categories={category}
-              isDragging={!!activeId}
-            />
-          ))}
+          <Droppable
+            id="category:0"
+            className="flex flex-1 items-center justify-center rounded-lg opacity-0 transition-opacity"
+            classNameWhenOver="bg-accent/40 border-2 border-dashed opacity-100"
+          >
+            <p>Move to the root</p>
+          </Droppable>
         </ResizablePanel>
 
         <ResizableHandle withHandle />
@@ -199,374 +287,51 @@ export function CategoriesViewer() {
               {selectedCategory?.name ?? "No Category Selected"}{" "}
             </Heading>
 
-            <Button
-              variant="ghost"
-              className="cursor-pointer rounded-full"
-              disabled={!selectedCategory}
-            >
-              <FolderPlusIcon />
-              Add a Sub-Category
-            </Button>
+            <p className="text-muted-foreground text-sm font-medium">
+              {products?.length ?? 0} Products
+            </p>
           </div>
 
           <div className="h-full overflow-y-auto p-4">
-            <CategoryProductList activeId={activeId} />
+            <CategoryProductList
+              activeId={activeId}
+              products={products}
+              isLoadingProducts={isLoadingProducts}
+            />
+
+            <LoadMore hasNextPage={hasNextPage} ref={ref} />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
 
       <DragableOverlay
-        withHandle
-        className="bg-secondary/95 border-accent/80 flex origin-left scale-50 gap-3 rounded-lg border px-3 py-1 shadow-xl shadow-black/10 backdrop-blur-sm transition-all select-none"
+        className={cn(
+          "bg-secondary/95 border-accent/80 flex max-w-fit origin-top-left scale-70 gap-3 rounded-lg border px-3 py-1 shadow-xl shadow-black/10 backdrop-blur-sm transition-all select-none",
+          activeId &&
+            activeId.toString().startsWith("category:") &&
+            "bg-sidebar border-sidebar-accent origin-bottom-right translate-x-full scale-90",
+        )}
         isDropping={!activeId}
+        withHandle
       >
-        {activeId && <ProductListItem product={activeProduct} />}
+        {typeof activeId === "string" && activeId.startsWith("product:") && (
+          <ProductListItem product={activeProduct} />
+        )}
+
+        {typeof activeId === "string" && activeId.startsWith("category:") && (
+          <div className="flex w-32 items-center gap-3">
+            {(() => {
+              const Icon = activeCategory
+                ? (iconsMap.get(activeCategory.icon) ?? FolderIcon)
+                : FolderIcon;
+              return <Icon />;
+            })()}
+            <span className="font-medium">
+              {activeCategory?.name ?? "Category"}
+            </span>
+          </div>
+        )}
       </DragableOverlay>
     </DragableContext>
-  );
-}
-
-function CategoryProductList({
-  activeId,
-}: {
-  activeId: UniqueIdentifier | null;
-}) {
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
-
-  const { data: products, isPending: isLoadingProducts } =
-    api.admin.products.queries.getPage.useQuery(
-      {
-        filters: {
-          categories: selectedCategory?.id ? [selectedCategory.id] : undefined,
-        },
-        pageSize: 10,
-      },
-      {
-        enabled: !!selectedCategory,
-      },
-    );
-
-  if (!selectedCategory) {
-    return (
-      <div className="flex size-full items-center justify-center">
-        <ProductsEmptyState />
-      </div>
-    );
-  }
-
-  if (isLoadingProducts) {
-    return (
-      <div className="grid grid-cols-2 gap-3 p-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <ProductListItemSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!products || products.data.length === 0) {
-    return <ProductsEmptyState />;
-  }
-
-  return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3">
-      {products.data.map((product) => (
-        <DragableItem
-          id={product.id}
-          key={`product-${product.id}`}
-          className={cn(
-            "bg-secondary border-accent flex gap-3 rounded-lg border px-3 py-1 transition select-none",
-            activeId === product.id &&
-              "ring-primary/40 scale-[0.98] opacity-40 ring-2",
-          )}
-        >
-          <ProductListItem product={product} />
-        </DragableItem>
-      ))}
-    </div>
-  );
-}
-
-function ProductsEmptyState() {
-  return (
-    <div className="flex size-full items-center justify-center">
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <IconShoppingBagX />
-          </EmptyMedia>
-          <EmptyTitle>No products in this category</EmptyTitle>
-          <EmptyDescription>
-            Try another category or create a new product.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    </div>
-  );
-}
-
-type ProductListItem =
-  RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number];
-
-function ProductListItem({
-  product,
-  className,
-}: {
-  product: ProductListItem | undefined;
-  className?: string;
-}) {
-  if (!product) {
-    return null;
-  }
-
-  return (
-    <div className={cn("flex items-center gap-3", className)}>
-      <ImageWithFallback
-        key={`product-thumbnail-${product.id}`}
-        src={product.thumbnail.url}
-        alt={product.title}
-        width={128}
-        height={128}
-        className="size-16"
-      />
-
-      <div className="flex-1 space-y-1">
-        <Heading level={5} className="font-medium">
-          {product.title}
-        </Heading>
-
-        <div className="flex items-center gap-2">
-          <ImageWithFallback
-            src={product.brand.logo?.url ?? ""}
-            alt={product.brand.name ?? "unknown brand"}
-            className="size-4 rounded-full"
-            width={16}
-            height={16}
-          />
-
-          <span className="lg:text-md text-xs">{product.brand.name}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProductListItemSkeleton() {
-  return (
-    <div className="bg-secondary border-accent flex cursor-grab gap-3 rounded-lg border px-3 py-1 select-none">
-      <div className="flex items-center gap-3">
-        <GripIcon className="size-4" />
-
-        <Skeleton className="size-16" />
-      </div>
-
-      <div className="mt-1 flex-1 space-y-1">
-        <Skeleton className="h-6 w-2/3" />
-
-        <div className="flex items-center gap-2">
-          <Skeleton className="size-4 rounded-full" />
-
-          <Skeleton className="h-4 w-16" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CategoryTree({
-  categories,
-  parentCategory,
-  isDragging = false,
-}: {
-  categories: CategoryTree;
-  parentCategory?: CategoryTree;
-  isDragging?: boolean;
-}) {
-  const { children, ...category } = categories;
-  const hasChildren = children && children.length > 0;
-
-  const addCategoryPortalRef = useRef<HTMLDivElement>(null);
-  const AddCategoryPortal = () => <div ref={addCategoryPortalRef} />;
-
-  if (!category) {
-    return null;
-  }
-
-  if (!hasChildren) {
-    return (
-      <>
-        <CategoryTreeItem
-          categories={categories}
-          parentCategory={parentCategory}
-          addCategoryPortalRef={addCategoryPortalRef}
-        />
-
-        <AddCategoryPortal />
-      </>
-    );
-  }
-
-  return (
-    <Collapsible className="group/collapsible [&[data-state=open]>div>div>button:first-child>svg:first-child]:rotate-90">
-      <CategoryTreeItem
-        categories={categories}
-        parentCategory={parentCategory}
-        addCategoryPortalRef={addCategoryPortalRef}
-      />
-
-      <CollapsibleContent>
-        {children?.map((subCategories, index) => (
-          <div
-            key={`category-tree-${category.id}-${index}`}
-            className="mt-1 ml-2"
-          >
-            <CategoryTree
-              categories={subCategories}
-              parentCategory={category}
-              isDragging={isDragging}
-            />
-          </div>
-        ))}
-      </CollapsibleContent>
-
-      {/* Add Category Form Portal */}
-      <AddCategoryPortal />
-    </Collapsible>
-  );
-}
-
-function CategoryTreeItem({
-  categories,
-  parentCategory,
-  addCategoryPortalRef,
-}: {
-  categories: CategoryTree;
-  parentCategory?: CategoryTree;
-  addCategoryPortalRef: React.RefObject<HTMLDivElement | null>;
-}) {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
-  const setSelectedCategory = useCategoryStore(
-    (state) => state.setSelectedCategory,
-  );
-  const setParentCategory = useCategoryStore(
-    (state) => state.setParentCategory,
-  );
-
-  const { children, ...category } = categories;
-  const Icon = iconsMap.get(category.icon) ?? FolderIcon;
-  const isActive = selectedCategory?.id === category.id;
-  const hasChildren = children && children.length > 0;
-
-  function handleCategorySelect() {
-    setSelectedCategory(category);
-    if (parentCategory) {
-      setParentCategory(parentCategory);
-    }
-  }
-
-  return (
-    <Droppable
-      id={category.id.toString()}
-      className="rounded-md"
-      classNameWhenOver="ring-2 ring-primary/40 bg-accent/40 rounded-md"
-    >
-      <div
-        className={buttonVariants({
-          variant: "ghost",
-          className: cn(
-            "group w-full justify-between border border-transparent py-0 focus-visible:ring-0",
-            isActive &&
-              "border-border from-sidebar-accent bg-gradient-to-t to-transparent",
-            hasChildren && "has-[button>svg]:px-3",
-          ),
-        })}
-      >
-        {hasChildren ? (
-          <CollapsibleTrigger className="focus-visible:outline-none">
-            <ChevronRight className="transition-transform" />
-          </CollapsibleTrigger>
-        ) : (
-          <ChevronRight
-            className={cn(
-              "opacity-0 transition-all",
-              showAddForm && "rotate-90 opacity-100",
-            )}
-          />
-        )}
-
-        <button
-          onClick={handleCategorySelect}
-          className="flex size-full cursor-pointer items-center gap-2 py-2 focus-visible:outline-none"
-        >
-          <Icon />
-          {category.name}
-        </button>
-
-        <CategoryTreeActions
-          categoryId={category.id}
-          setShowAddForm={setShowAddForm}
-        />
-      </div>
-
-      {showAddForm &&
-        addCategoryPortalRef.current &&
-        createPortal(
-          <div className="mt-1 ml-7 p-1">
-            <AddCategory
-              parentCategoryId={category.id}
-              onSuccess={() => setShowAddForm(false)}
-              cancel={() => setShowAddForm(false)}
-            />
-          </div>,
-          addCategoryPortalRef.current,
-        )}
-    </Droppable>
-  );
-}
-
-function CategoryTreeActions({
-  categoryId,
-  setShowAddForm,
-}: {
-  categoryId: number;
-  setShowAddForm: (show: boolean) => void;
-}) {
-  const utils = api.useUtils();
-  const { mutate: deleteCategory, isPending: isDeletingCategory } =
-    api.admin.categories.mutations.delete.useMutation({
-      onSuccess: () => {
-        void utils.admin.categories.queries.findAll.invalidate();
-      },
-    });
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="ml-auto cursor-pointer p-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:outline-none">
-        <EllipsisVerticalIcon className="size-4" />
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent side="right" align="start" sideOffset={20}>
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setShowAddForm(true)}>
-          <PlusIcon />
-          Add a Sub-Category
-        </DropdownMenuItem>
-
-        <DropdownMenuItem>
-          <PencilIcon />
-          Edit Category
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => deleteCategory({ id: categoryId })}
-        >
-          {isDeletingCategory ? <Spinner /> : <TrashIcon />}
-          Remove Category
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

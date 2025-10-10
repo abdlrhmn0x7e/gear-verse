@@ -1,27 +1,29 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
-import { useEffect } from "react";
-import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
 import {
   CategoryForm,
   type CategoryFormValues,
 } from "../../_components/forms/category-form";
+import { SaveIcon } from "lucide-react";
+import { api } from "~/trpc/react";
+import { Spinner } from "~/components/spinner";
+import { useEffect } from "react";
 
-export function AddCategory({
-  parentCategoryId,
+export function EditCategory({
+  id,
+  defaultValues,
   onSuccess,
   cancel,
 }: {
-  parentCategoryId: number | null;
+  id: number;
+  defaultValues: CategoryFormValues;
   onSuccess: () => void;
   cancel: () => void;
 }) {
   const utils = api.useUtils();
-  const { mutate: createCategory, isPending: isCreatingCategory } =
-    api.admin.categories.mutations.create.useMutation({
+  const { mutate: updateCategory, isPending: isUpdatingCategory } =
+    api.admin.categories.mutations.update.useMutation({
       onSuccess: () => {
         void utils.admin.categories.queries.findAll.invalidate();
         onSuccess();
@@ -29,7 +31,8 @@ export function AddCategory({
     });
 
   function onSubmit(data: CategoryFormValues) {
-    createCategory(data);
+    console.log(data);
+    updateCategory({ id, ...data });
   }
 
   useEffect(() => {
@@ -47,9 +50,9 @@ export function AddCategory({
   }, [cancel]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex h-full w-full flex-col gap-2">
       <CategoryForm
-        defaultValues={{ parent_id: parentCategoryId }}
+        defaultValues={defaultValues}
         onSubmit={onSubmit}
         showParentCombobox={false}
       />
@@ -62,10 +65,10 @@ export function AddCategory({
         <Button
           type="submit"
           form="category-form"
-          disabled={isCreatingCategory}
+          disabled={isUpdatingCategory}
         >
-          {isCreatingCategory ? <Spinner /> : <PlusIcon />}
-          Add
+          {isUpdatingCategory ? <Spinner /> : <SaveIcon />}
+          Save
         </Button>
       </div>
     </div>

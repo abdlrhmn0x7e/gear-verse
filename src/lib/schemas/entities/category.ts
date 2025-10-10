@@ -59,8 +59,14 @@ export type CreateCategoryInput = z.infer<typeof createCategoryInputSchema>;
 
 export const updateCategoryInputSchema = categoryEntitySchema
   .omit({
+    id: true,
     created_at: true,
     updated_at: true,
   })
-  .partial();
+  .partial()
+  .and(
+    z.object({
+      id: z.number("ID is required").positive("ID must be positive"),
+    }),
+  );
 export type UpdateCategoryInput = z.infer<typeof updateCategoryInputSchema>;

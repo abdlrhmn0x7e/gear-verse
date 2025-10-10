@@ -3,8 +3,10 @@ import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categori
 import {
   categoryTreeSchema,
   type CreateCategoryInput,
+  type UpdateCategoryInput,
 } from "~/lib/schemas/entities";
 import { generateSlug } from "~/lib/utils/slugs";
+import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
 
 export const _categories = {
@@ -43,6 +45,28 @@ export const _categories = {
         ...input,
         slug,
       });
+    },
+
+    update: async (input: UpdateCategoryInput) => {
+      const { id, ...updatedData } = input;
+
+      const { data: updatedCategory, error } = await tryCatch(
+        data.admin.categories.mutations.update(id, updatedData),
+      );
+
+      if (error) {
+        throw new AppError("Failed to update category", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      if (!updatedCategory) {
+        throw new AppError("Category not found", "NOT_FOUND", {
+          cause: error,
+        });
+      }
+
+      return updatedCategory;
     },
 
     delete: async (input: DeleteCategoryInput) => {
