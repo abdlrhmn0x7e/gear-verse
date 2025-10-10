@@ -17,6 +17,17 @@ import { createPortal } from "react-dom";
 import { EditCategory } from "./edit-category";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { CategoryTreeActions } from "./category-tree-actions";
+import { Skeleton } from "~/components/ui/skeleton";
+
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { IconFolderX } from "@tabler/icons-react";
 
 export function CategoryTree({
   categories,
@@ -196,5 +207,33 @@ function CategoryTreeItem({
           )}
       </DragableItem>
     </Droppable>
+  );
+}
+
+export function CategoryTreeSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Skeleton key={index} className="h-8 w-full" />
+      ))}
+    </div>
+  );
+}
+
+export function CategoryTreeEmptyState() {
+  return (
+    <div className="flex flex-col gap-2">
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <IconFolderX />
+          </EmptyMedia>
+          <EmptyTitle>No categories found</EmptyTitle>
+          <EmptyDescription>
+            Get started by adding your first category.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    </div>
   );
 }

@@ -8,30 +8,31 @@ export function errorMap(error: unknown) {
         return new TRPCError({
           code: "NOT_FOUND",
           cause: error.cause,
-          ...error,
+          message: error.message,
         });
       case "BAD_REQUEST":
         return new TRPCError({
           code: "BAD_REQUEST",
           cause: error.cause,
-          ...error,
+          message: error.message,
         });
       case "CONFLICT":
         return new TRPCError({
           code: "CONFLICT",
           cause: error.cause,
-          ...error,
+          message: error.message,
         });
       case "INTERNAL":
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           cause: error.cause,
+          message: error.message,
         });
       default:
         return new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           cause: error.cause,
-          ...error,
+          message: error.message,
         });
     }
   }

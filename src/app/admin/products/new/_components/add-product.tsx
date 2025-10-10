@@ -24,6 +24,7 @@ export function AddProduct() {
         router.push("/admin/products");
       },
       onError: (error) => {
+        console.error(error);
         toast.error(error.message);
       },
     });
@@ -44,7 +45,7 @@ export function AddProduct() {
           <motion.div
             className={cn(
               "bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm",
-              false && "scale-95 opacity-50",
+              isCreatingProduct && "scale-95 opacity-50",
             )}
             layout
           >

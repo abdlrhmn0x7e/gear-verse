@@ -411,6 +411,15 @@ export const _products = {
         ),
       }));
     },
+
+    findBySlug: async (slug: string) => {
+      return db.query.products.findFirst({
+        where: eq(products.slug, slug),
+        columns: {
+          id: true,
+        },
+      });
+    },
   },
 
   mutations: {
@@ -427,6 +436,7 @@ export const _products = {
       newVariants: NewProductVariant[];
       newSeo?: NewSeo;
     }) {
+      console.log("newProduct", newProduct);
       return db.transaction(async (tx) => {
         const [product] = await tx
           .insert(products)

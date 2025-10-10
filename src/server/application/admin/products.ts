@@ -23,7 +23,7 @@ export const _products = {
   },
 
   mutations: {
-    createDeep(input: CreateProductInput) {
+    async createDeep(input: CreateProductInput) {
       const { options, variants, seo, media, ...product } = input;
 
       const [thumbnail, ...restMedia] = media;
@@ -31,12 +31,24 @@ export const _products = {
         throw new AppError("Thumbnail media ID is required", "BAD_REQUEST");
       }
 
+      const slug = !!seo?.urlHandler
+        ? seo?.urlHandler
+        : generateSlug(product.title);
+
+      const existingProduct =
+        await data.admin.products.queries.findBySlug(slug);
+
+      if (existingProduct) {
+        throw new AppError(
+          "This Product already exists, please use a different title or provide a Url Handler",
+          "CONFLICT",
+        );
+      }
+
       return data.admin.products.mutations.createDeep({
         newProduct: {
           ...product,
-          slug: !!seo?.urlHandler
-            ? seo?.urlHandler
-            : generateSlug(product.title),
+          slug,
           thumbnailMediaId: thumbnail.mediaId,
         },
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),

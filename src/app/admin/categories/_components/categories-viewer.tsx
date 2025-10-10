@@ -29,13 +29,27 @@ import {
 } from "../../_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
-import { CategoryTree } from "./category-tree";
+import {
+  CategoryTree,
+  CategoryTreeEmptyState,
+  CategoryTreeSkeleton,
+} from "./category-tree";
 import { CategoryProductList, ProductListItem } from "./products-grid";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
 
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+
 export function CategoriesViewer() {
-  const { data: categories } = api.admin.categories.queries.findAll.useQuery();
+  const { data: categories, isPending: isPendingCategories } =
+    api.admin.categories.queries.findAll.useQuery();
   const selectedCategory = useCategoryStore((state) => state.selectedCategory);
   const parentCategory = useCategoryStore((state) => state.parentCategory);
 
@@ -52,7 +66,7 @@ export function CategoriesViewer() {
   }, [selectedCategory]);
   const {
     data,
-    isLoading: isLoadingProducts,
+    isPending: isLoadingProducts,
     hasNextPage,
     fetchNextPage,
   } = api.admin.products.queries.getPage.useInfiniteQuery(queryParams, {
@@ -244,13 +258,19 @@ export function CategoriesViewer() {
               </Button>
             </div>
 
-            {categories?.map((category) => (
-              <CategoryTree
-                key={category.id}
-                categories={category}
-                isDragging={!!activeId}
-              />
-            ))}
+            {isPendingCategories ? (
+              <CategoryTreeSkeleton />
+            ) : categories?.length === 0 ? (
+              <CategoryTreeEmptyState />
+            ) : (
+              categories?.map((category) => (
+                <CategoryTree
+                  key={category.id}
+                  categories={category}
+                  isDragging={!!activeId}
+                />
+              ))
+            )}
 
             {showAddCategory && (
               <div className="mt-2 ml-2">
