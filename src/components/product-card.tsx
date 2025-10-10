@@ -48,13 +48,13 @@ export function ProductCard({
 
               <Heading level={4}>{product.title}</Heading>
 
-              <p className="line-clamp-3 text-sm lg:text-base">
+              <p className="text-muted-foreground line-clamp-3 text-sm lg:text-base">
                 {product.summary}
               </p>
             </div>
 
             <p className="flex items-end gap-3">
-              <span className="text-primary-foreground text-xl font-semibold">
+              <span className="text-foreground dark:text-primary-foreground text-xl font-semibold">
                 {formatCurrency(product.price)}
               </span>
               {product.strikeThroughPrice && (

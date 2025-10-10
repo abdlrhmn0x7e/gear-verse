@@ -1,15 +1,22 @@
 import {
   SidebarInset,
+  SidebarMenuButton,
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
 import { AdminSidebar } from "./_components/admin-sidebar";
 import { Separator } from "~/components/ui/separator";
 import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
-import { ModeToggle } from "~/components/mode-toggle";
+import { ModeDropdown } from "~/components/mode-toggle";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { notFound } from "next/navigation";
+import {
+  ProductSearchDialog,
+  ProductSearchIcon,
+  ProductSearchPlaceholder,
+} from "~/components/product-search-dialog";
 
 export default async function AdminLayout({
   children,
@@ -39,7 +46,7 @@ export default async function AdminLayout({
             <AdminBreadcrumb />
           </div>
 
-          <ModeToggle />
+          <ModeDropdown />
         </header>
 
         <main className="flex-1 p-4">{children}</main>

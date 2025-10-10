@@ -73,7 +73,7 @@ export function AdminSidebar({
           </Link>
         </SidebarMenuButton>
 
-        <ProductSearchDialog>
+        <ProductSearchDialog dialogClassName="inset-x-0">
           <SidebarMenuButton className="group relative z-10 w-full cursor-text border-none hover:bg-transparent">
             <ProductSearchIcon />
             <ProductSearchPlaceholder>Search Products</ProductSearchPlaceholder>

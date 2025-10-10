@@ -78,6 +78,8 @@ import { Kbd, KbdGroup } from "./ui/kbd";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Separator } from "./ui/separator";
 import { authClient } from "~/lib/auth-client";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { ModeToggle } from "./mode-toggle";
 
 export interface NavigationLink {
   title: string;
@@ -129,9 +131,9 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 z-50 w-full md:top-5 md:left-1/2 md:container md:-translate-x-1/2">
+      <header className="bg-background/90 fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur">
         <motion.div
-          className="bg-card/90 dark:bg-card/80 space-y-3 rounded-none border-b px-4 py-4 backdrop-blur md:rounded-[3rem] md:border md:px-8"
+          className="mx-auto space-y-3 px-4 py-4 md:container md:px-8"
           style={{ height: "auto" }}
           transition={{
             duration: 0.3,
@@ -148,19 +150,6 @@ export function Navbar() {
 
               {/* Nav Items */}
               <div className="hidden w-full items-center gap-2 lg:flex">
-                <ProductSearchDialog withOverlay={false}>
-                  <div className="relative z-10 hidden w-full min-w-48 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
-                    <ProductSearchIcon className="size-4" />
-                    <ProductSearchPlaceholder>
-                      Search Products
-                    </ProductSearchPlaceholder>
-                  </div>
-
-                  <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 pt-1 lg:block">
-                    <Kbd>⌘ + K</Kbd>
-                  </KbdGroup>
-                </ProductSearchDialog>
-
                 <Button
                   variant="ghost"
                   size="lg"
@@ -175,45 +164,61 @@ export function Navbar() {
                   )}
                   <span>Explore Our Store</span>
                 </Button>
-
-                {/* <CategoriesMenu
-                  open={categoriesMenuOpen}
-                  setOpen={(open) => {
-                    setProductsMenuOpen(false);
-                    setCategoriesMenuOpen(open);
-                  }}
-                /> */}
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-2">
+              <ProductSearchDialog withOverlay={false}>
+                <div className="relative z-10 hidden w-full min-w-64 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
+                  <ProductSearchIcon className="size-4" />
+                  <ProductSearchPlaceholder>
+                    Search Products
+                  </ProductSearchPlaceholder>
+                </div>
+
+                <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 lg:block">
+                  <Kbd>ctrl + K</Kbd>
+                </KbdGroup>
+              </ProductSearchDialog>
+
               {user ? (
-                <>
+                <div className="flex items-center gap-1">
                   {user.role === "admin" && (
-                    <Button variant="ghost" asChild>
+                    <Button
+                      variant="outline"
+                      className="size-9 rounded-full"
+                      asChild
+                    >
                       <Link href="/admin">
                         <ShieldUserIcon />
-                        <span className="hidden lg:block">Admin</span>
+                        <span className="sr-only">Admin</span>
                       </Link>
                     </Button>
                   )}
+
                   <Button
-                    variant="ghost"
+                    variant="outline"
+                    className="size-9 rounded-full"
                     onClick={() => setParams({ cart: true })}
                     disabled={isPendingCart}
                   >
                     <IconShoppingCart />
-                    <span className="hidden lg:block">Cart</span>
+                    <span className="sr-only">Cart</span>
                   </Button>
-                  <ProfileDropdown user={user} />
-                </>
+
+                  <ProfileDropdown className="ml-1" user={user} />
+                </div>
               ) : (
-                <Button asChild>
-                  <Link href="/auth">
-                    <DoorOpenIcon />
-                    Login
-                  </Link>
-                </Button>
+                <>
+                  <ModeToggle />
+
+                  <Button asChild>
+                    <Link href="/auth">
+                      <DoorOpenIcon />
+                      Login
+                    </Link>
+                  </Button>
+                </>
               )}
             </div>
           </nav>

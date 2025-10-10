@@ -25,13 +25,16 @@ import { Spinner } from "~/components/spinner";
 import { keepPreviousData } from "@tanstack/react-query";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { createPortal } from "react-dom";
 
 export function ProductSearchDialog({
   children,
   className,
+  dialogClassName,
   withOverlay = true,
 }: {
   className?: string;
+  dialogClassName?: string;
   children: React.ReactNode;
   withOverlay?: boolean;
 }) {
@@ -78,7 +81,6 @@ export function ProductSearchDialog({
                 "bg-background absolute inset-0 rounded-lg border bg-clip-padding",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
-                "origin-top-left",
               )}
             />
           </div>
@@ -86,7 +88,10 @@ export function ProductSearchDialog({
 
         <div
           ref={setContainer}
-          className="peer pointer-events-none absolute -inset-0 has-[data-state=open]:pointer-events-auto"
+          className={cn(
+            "peer pointer-events-none absolute -inset-x-6 inset-y-0 has-[data-state=open]:pointer-events-auto",
+            dialogClassName,
+          )}
         />
       </div>
 
@@ -103,7 +108,7 @@ export function ProductSearchDialog({
           <Dialog.Title className="sr-only">Search Products</Dialog.Title>
 
           <div
-            className={cn("h-[410px] rounded-lg", className)}
+            className={cn("h-[350px] rounded-lg", className)}
             style={{
               width: trigger?.clientWidth
                 ? isMobile
@@ -135,7 +140,7 @@ export function ProductSearchIcon({ className }: { className?: string }) {
   return (
     <SearchIcon
       className={cn(
-        "transition-all duration-200 group-data-[state=open]:translate-x-[16px] group-data-[state=open]:opacity-0",
+        "transition-all duration-200 group-data-[state=open]:-translate-x-[8px] group-data-[state=open]:opacity-0",
         className,
       )}
     />
@@ -151,10 +156,7 @@ export function ProductSearchPlaceholder({
 }) {
   return (
     <span
-      className={cn(
-        "truncate transition-transform duration-100 group-data-[state=open]:translate-x-[26px]",
-        className,
-      )}
+      className={cn("text-muted-foreground truncate duration-100", className)}
     >
       {children}
     </span>
@@ -220,7 +222,7 @@ function Content({ close }: { close: () => void }) {
   return (
     <div className="relative z-10 flex h-full flex-col gap-2 pl-2">
       <div className="relative z-10 flex w-full origin-top-left items-center gap-4 px-4 py-2">
-        <SearchIcon className="size-[17px]" />
+        <SearchIcon className="group-data-[state=closed]:animate-search-icon-out group-data-[state=open]:animate-search-icon-in size-[17px] transition-transform" />
 
         <input
           type="text"
@@ -341,7 +343,7 @@ export function ProductSearchItem({
         />
 
         <div className="flex size-full flex-1 flex-col">
-          <p className="text-primary-foreground text-sm font-medium">
+          <p className="text-foreground dark:text-primary-foreground text-sm font-medium">
             {product.title}
           </p>
 

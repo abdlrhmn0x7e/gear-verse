@@ -169,18 +169,39 @@
   --animate-search-button-in: scale-button-in 0.2s ease-in-out forwards;
   --animate-search-button-out: scale-button-out 0.2s ease-in-out forwards;
 
+  --animate-search-icon-in: animate-search-icon-in 0.1s ease-in-out forwards;
+  --animate-search-icon-out: animate-search-icon-out 0.1s ease-in-out forwards;
+
   @keyframes scale-button-in {
     from {
       transform: scale(1, 1);
     }
     to {
-      transform: scale(1.5, 1.5);
+      transform: scale(1.1, 1.1);
+    }
+  }
+
+  @keyframes animate-search-icon-in {
+    from {
+      transform: translateX(8px);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes animate-search-icon-out {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(8px);
     }
   }
 
   @keyframes scale-button-out {
     from {
-      transform: scale(1.5, 2);
+      transform: scale(1.1, 1.1);
     }
     to {
       transform: scale(1, 1);
