@@ -29,9 +29,10 @@ export const categoryEntitySchema = z.object({
   icon: categoryIconEnum,
   slug: z.string("Slug is required").min(1, "Slug is required"),
 
-  parentId: z.number("Parent ID must be a number").nullish(),
+  parent_id: z.number("Parent ID must be a number").nullish(),
 
-  createdAt: z.coerce.date<Date>("Created at must be a date"),
+  created_at: z.coerce.date<Date>("Created at must be a date"),
+  updated_at: z.coerce.date<Date>("Updated at must be a date"),
 });
 export type Category = z.infer<typeof categoryEntitySchema>;
 
@@ -51,15 +52,15 @@ export type CategoryTree = z.infer<typeof categoryTreeSchema>;
 export const createCategoryInputSchema = categoryEntitySchema.omit({
   id: true,
   slug: true,
-  createdAt: true,
-  updatedAt: true,
+  created_at: true,
+  updated_at: true,
 });
 export type CreateCategoryInput = z.infer<typeof createCategoryInputSchema>;
 
 export const updateCategoryInputSchema = categoryEntitySchema
   .omit({
-    createdAt: true,
-    updatedAt: true,
+    created_at: true,
+    updated_at: true,
   })
   .partial();
 export type UpdateCategoryInput = z.infer<typeof updateCategoryInputSchema>;

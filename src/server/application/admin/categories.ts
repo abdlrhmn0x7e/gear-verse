@@ -1,4 +1,5 @@
 import { AppError } from "~/lib/errors/app-error";
+import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categories";
 import {
   categoryTreeSchema,
   type CreateCategoryInput,
@@ -27,9 +28,10 @@ export const _categories = {
 
   mutations: {
     create: async (input: CreateCategoryInput) => {
-      const parentCategory = input.parentId
-        ? await data.admin.categories.queries.findById(input.parentId)
+      const parentCategory = input.parent_id
+        ? await data.admin.categories.queries.findById(input.parent_id)
         : undefined;
+
       let slug;
       if (parentCategory) {
         slug = generateSlug(parentCategory.slug + "-" + input.name);
@@ -41,6 +43,10 @@ export const _categories = {
         ...input,
         slug,
       });
+    },
+
+    delete: async (input: DeleteCategoryInput) => {
+      return data.admin.categories.mutations.delete(input.id);
     },
   },
 };

@@ -52,7 +52,7 @@ export const categories = pgTable(
       columns: [table.parent_id],
       foreignColumns: [table.id],
       name: "categories_parent_id_fkey",
-    }),
+    }).onDelete("cascade"),
     index("categories_parent_id_idx").on(table.parent_id),
     uniqueIndex("categories_slug_unique").on(table.slug),
   ],

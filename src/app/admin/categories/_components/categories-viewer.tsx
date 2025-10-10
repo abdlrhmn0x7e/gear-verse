@@ -8,11 +8,15 @@ import {
 import { IconShoppingBagX } from "@tabler/icons-react";
 import {
   ChevronRight,
+  EllipsisVerticalIcon,
   FolderIcon,
   FolderOpenIcon,
   FolderPlusIcon,
   GripIcon,
+  PencilIcon,
   PlusCircleIcon,
+  PlusIcon,
+  TrashIcon,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Heading } from "~/components/heading";
@@ -46,6 +50,17 @@ import {
   Droppable,
 } from "../../_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
+import { AddCategory } from "./add-category";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Spinner } from "~/components/spinner";
+import { createPortal } from "react-dom";
 
 type CategoryTree =
   RouterOutputs["admin"]["categories"]["queries"]["findAll"][number];
@@ -368,101 +383,42 @@ function CategoryTree({
   isDragging?: boolean;
 }) {
   const { children, ...category } = categories;
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
-  const setSelectedCategory = useCategoryStore(
-    (state) => state.setSelectedCategory,
-  );
-  const setParentCategory = useCategoryStore(
-    (state) => state.setParentCategory,
-  );
-  const [open, setOpen] = useState(false);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasChildren = children && children.length > 0;
+
+  const addCategoryPortalRef = useRef<HTMLDivElement>(null);
+  const AddCategoryPortal = () => <div ref={addCategoryPortalRef} />;
 
   if (!category) {
     return null;
   }
 
-  const Icon = iconsMap.get(category.icon) ?? FolderIcon;
-  const isActive = selectedCategory?.id === category.id;
-
-  if (!children || children?.length === 0) {
+  if (!hasChildren) {
     return (
-      <Droppable
-        id={category.id.toString()}
-        className="rounded-md"
-        classNameWhenOver="ring-2 ring-primary/40 bg-accent/40 rounded-md"
-      >
-        <Button
-          className={cn(
-            "size-full cursor-pointer justify-start border border-transparent focus-visible:ring-0",
-            isActive &&
-              "border-border from-sidebar-accent bg-gradient-to-t to-transparent",
-          )}
-          variant="ghost"
-          onClick={() => {
-            setSelectedCategory(category);
-            if (parentCategory) {
-              setParentCategory(parentCategory);
-            }
-          }}
-        >
-          <Icon />
-          {category.name}
-        </Button>
-      </Droppable>
+      <>
+        <CategoryTreeItem
+          categories={categories}
+          parentCategory={parentCategory}
+          addCategoryPortalRef={addCategoryPortalRef}
+        />
+
+        <AddCategoryPortal />
+      </>
     );
   }
 
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={setOpen}
-      className="group/collapsible [&[data-state=open]>div>div>button:first-child>svg:first-child]:rotate-90"
-    >
-      <Droppable
-        id={category.id.toString()}
-        className="rounded-md"
-        classNameWhenOver="ring-2 ring-primary/40 bg-accent/40 rounded-md"
-        onOverChange={(over) => {
-          if (!isDragging) return;
-          if (over) {
-            if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-            hoverTimerRef.current = setTimeout(() => setOpen(true), 150);
-          } else if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-            hoverTimerRef.current = null;
-          }
-        }}
-      >
-        <div
-          className={buttonVariants({
-            variant: "ghost",
-            className: cn(
-              "w-full cursor-pointer justify-start border border-transparent focus-visible:ring-0",
-              isActive &&
-                "border-border from-sidebar-accent bg-gradient-to-t to-transparent",
-            ),
-          })}
-        >
-          <CollapsibleTrigger className="focus-visible:outline-none">
-            <ChevronRight className="transition-transform" />
-          </CollapsibleTrigger>
-
-          <button
-            className="flex size-full cursor-pointer items-center gap-2 focus-visible:outline-none"
-            onClick={() => setSelectedCategory(category)}
-          >
-            <Icon />
-            {category.name}
-          </button>
-        </div>
-      </Droppable>
+    <Collapsible className="group/collapsible [&[data-state=open]>div>div>button:first-child>svg:first-child]:rotate-90">
+      <CategoryTreeItem
+        categories={categories}
+        parentCategory={parentCategory}
+        addCategoryPortalRef={addCategoryPortalRef}
+      />
 
       <CollapsibleContent>
         {children?.map((subCategories, index) => (
           <div
             key={`category-tree-${category.id}-${index}`}
-            className="mt-1 ml-7"
+            className="mt-1 ml-2"
           >
             <CategoryTree
               categories={subCategories}
@@ -472,6 +428,145 @@ function CategoryTree({
           </div>
         ))}
       </CollapsibleContent>
+
+      {/* Add Category Form Portal */}
+      <AddCategoryPortal />
     </Collapsible>
+  );
+}
+
+function CategoryTreeItem({
+  categories,
+  parentCategory,
+  addCategoryPortalRef,
+}: {
+  categories: CategoryTree;
+  parentCategory?: CategoryTree;
+  addCategoryPortalRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
+  const setSelectedCategory = useCategoryStore(
+    (state) => state.setSelectedCategory,
+  );
+  const setParentCategory = useCategoryStore(
+    (state) => state.setParentCategory,
+  );
+
+  const { children, ...category } = categories;
+  const Icon = iconsMap.get(category.icon) ?? FolderIcon;
+  const isActive = selectedCategory?.id === category.id;
+  const hasChildren = children && children.length > 0;
+
+  function handleCategorySelect() {
+    setSelectedCategory(category);
+    if (parentCategory) {
+      setParentCategory(parentCategory);
+    }
+  }
+
+  return (
+    <Droppable
+      id={category.id.toString()}
+      className="rounded-md"
+      classNameWhenOver="ring-2 ring-primary/40 bg-accent/40 rounded-md"
+    >
+      <div
+        className={buttonVariants({
+          variant: "ghost",
+          className: cn(
+            "group w-full justify-between border border-transparent py-0 focus-visible:ring-0",
+            isActive &&
+              "border-border from-sidebar-accent bg-gradient-to-t to-transparent",
+            hasChildren && "has-[button>svg]:px-3",
+          ),
+        })}
+      >
+        {hasChildren ? (
+          <CollapsibleTrigger className="focus-visible:outline-none">
+            <ChevronRight className="transition-transform" />
+          </CollapsibleTrigger>
+        ) : (
+          <ChevronRight
+            className={cn(
+              "opacity-0 transition-all",
+              showAddForm && "rotate-90 opacity-100",
+            )}
+          />
+        )}
+
+        <button
+          onClick={handleCategorySelect}
+          className="flex size-full cursor-pointer items-center gap-2 py-2 focus-visible:outline-none"
+        >
+          <Icon />
+          {category.name}
+        </button>
+
+        <CategoryTreeActions
+          categoryId={category.id}
+          setShowAddForm={setShowAddForm}
+        />
+      </div>
+
+      {showAddForm &&
+        addCategoryPortalRef.current &&
+        createPortal(
+          <div className="mt-1 ml-7 p-1">
+            <AddCategory
+              parentCategoryId={category.id}
+              onSuccess={() => setShowAddForm(false)}
+              cancel={() => setShowAddForm(false)}
+            />
+          </div>,
+          addCategoryPortalRef.current,
+        )}
+    </Droppable>
+  );
+}
+
+function CategoryTreeActions({
+  categoryId,
+  setShowAddForm,
+}: {
+  categoryId: number;
+  setShowAddForm: (show: boolean) => void;
+}) {
+  const utils = api.useUtils();
+  const { mutate: deleteCategory, isPending: isDeletingCategory } =
+    api.admin.categories.mutations.delete.useMutation({
+      onSuccess: () => {
+        void utils.admin.categories.queries.findAll.invalidate();
+      },
+    });
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="ml-auto cursor-pointer p-2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:outline-none">
+        <EllipsisVerticalIcon className="size-4" />
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent side="right" align="start" sideOffset={20}>
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setShowAddForm(true)}>
+          <PlusIcon />
+          Add a Sub-Category
+        </DropdownMenuItem>
+
+        <DropdownMenuItem>
+          <PencilIcon />
+          Edit Category
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => deleteCategory({ id: categoryId })}
+        >
+          {isDeletingCategory ? <Spinner /> : <TrashIcon />}
+          Remove Category
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

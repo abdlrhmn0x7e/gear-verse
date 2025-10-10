@@ -27,20 +27,26 @@ import { iconsMap } from "~/lib/icons-map";
 const categoryFormSchema = categoryEntitySchema.omit({
   id: true,
   created_at: true,
+  updated_at: true,
   slug: true,
 });
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export function CategoryForm({
+  defaultValues,
+  showParentCombobox = true,
   onSubmit,
 }: {
+  defaultValues: Partial<CategoryFormValues>;
+  showParentCombobox?: boolean;
   onSubmit: (data: CategoryFormValues) => void;
 }) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
-      name: "",
-      parentId: null,
+      name: defaultValues.name ?? "",
+      icon: defaultValues.icon ?? "CABLES",
+      parent_id: defaultValues.parent_id ?? null,
     },
   });
 
@@ -54,22 +60,22 @@ export function CategoryForm({
         className="space-y-4"
         id="category-form"
       >
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <FormField
             control={form.control}
             name="icon"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Icon</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-36">
+                    <SelectTrigger className="w-17">
                       <SelectValue placeholder="Select an icon" />
                     </SelectTrigger>
                   </FormControl>
+
                   <SelectContent className="max-h-[200px] overflow-y-auto">
                     <SelectGroup>
                       {Array.from(iconsMap.entries()).map(([key, Icon]) => (
@@ -93,34 +99,32 @@ export function CategoryForm({
             name="name"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="This will show up in the category list outside"
-                    {...field}
-                  />
+                  <Input placeholder="Category Name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="parentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Parent Category (optional)</FormLabel>
-              <FormControl>
-                <CategoriesCombobox
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {showParentCombobox && (
+          <FormField
+            control={form.control}
+            name="parent_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Parent Category (optional)</FormLabel>
+                <FormControl>
+                  <CategoriesCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </form>
     </Form>
   );

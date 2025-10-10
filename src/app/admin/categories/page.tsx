@@ -1,6 +1,6 @@
 import { FoldersIcon } from "lucide-react";
 import Header from "~/components/header";
-import { CategoriesViewer } from "./_components/category-viewer";
+import { CategoriesViewer } from "./_components/categories-viewer";
 import { CategoryStoreProvider } from "./_store/provider";
 
 export default function AdminCategoriesPage() {

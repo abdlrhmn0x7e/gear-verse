@@ -232,20 +232,14 @@ export function Droppable({
   id,
   className,
   classNameWhenOver = "bg-accent",
-  onOverChange,
 }: React.PropsWithChildren<{
   id: string;
   className?: string;
   classNameWhenOver?: string;
-  onOverChange?: (isOver: boolean) => void;
 }>) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   });
-
-  useEffect(() => {
-    onOverChange?.(isOver);
-  }, [isOver, onOverChange]);
 
   return (
     <div

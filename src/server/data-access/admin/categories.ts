@@ -82,5 +82,9 @@ export const _categories = {
     create(data: NewCategory) {
       return db.insert(categories).values(data);
     },
+
+    delete(id: number) {
+      return db.delete(categories).where(eq(categories.id, id));
+    },
   },
 };
