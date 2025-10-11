@@ -30,7 +30,7 @@ export function Filters({ className }: { className?: string }) {
 }
 
 function CategoryFilter() {
-  const [categories] = api.public.categories.findAll.useSuspenseQuery({
+  const [categories] = api.public.categories.queries.findAll.useSuspenseQuery({
     filters: { root: true },
   });
   const [filters, setFilters] = useAllProductSearchParams();
@@ -79,7 +79,7 @@ function CategoryFilter() {
 }
 
 function BrandFilter() {
-  const [brands] = api.public.brands.findAll.useSuspenseQuery();
+  const [brands] = api.public.brands.queries.findAll.useSuspenseQuery();
   const [filters, setFilters] = useAllProductSearchParams();
 
   function handleBrandChange(value: number) {

@@ -9,7 +9,9 @@ export function useFlatCategories(categories: CategoryTree[]) {
       categories: CategoryTree[],
       parentPath: { icon: CategoryIconEnum; name: string }[] = [],
       flat: Array<
-        Category & { path: { icon: CategoryIconEnum; name: string }[] }
+        Omit<Category, "updated_at"> & {
+          path: { icon: CategoryIconEnum; name: string }[];
+        }
       > = [],
     ) => {
       for (const category of categories) {

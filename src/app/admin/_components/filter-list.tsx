@@ -48,7 +48,7 @@ interface FilterListProps {
   filters: FilterValueProp[];
   loading: boolean;
   brands?: RouterOutputs["admin"]["brands"]["getPage"]["data"];
-  categories?: RouterOutputs["admin"]["categories"]["findAll"];
+  categories?: RouterOutputs["admin"]["categories"]["queries"]["findAll"];
   onRemove: ({
     key,
     value,

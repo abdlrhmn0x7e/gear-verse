@@ -4,6 +4,8 @@ import { createAddressInputSchema } from "~/lib/schemas/entities/address";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
+import { cookies } from "next/headers";
+import { CART_COOKIE_NAME } from "~/lib/constants";
 
 export const userCheckoutRouter = createTRPCRouter({
   queries: {
@@ -40,10 +42,25 @@ export const userCheckoutRouter = createTRPCRouter({
     complete: protectedProcedure
       .input(checkoutInputSchema)
       .mutation(async ({ ctx, input }) => {
+        const cookieStore = await cookies();
+        const cartId = cookieStore.get(CART_COOKIE_NAME)?.value;
+        const userId = ctx.session.user.id;
+
+        const parsedCartId = isNaN(Number(cartId)) ? undefined : Number(cartId);
+        const parsedUserId = isNaN(Number(userId)) ? undefined : Number(userId);
+
+        if (!parsedCartId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Cart not found",
+          });
+        }
+
         // validate cart
-        const cart = await ctx.app.public.carts.queries.find(
-          Number(ctx.session.user.id),
-        );
+        const cart = await ctx.app.public.carts.queries.find({
+          cartId: parsedCartId,
+          userId: parsedUserId,
+        });
         if (!cart) {
           throw new TRPCError({
             code: "NOT_FOUND",

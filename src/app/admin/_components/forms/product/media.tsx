@@ -104,8 +104,6 @@ export function MediaFields({
             size="sm"
             type="button"
             onClick={() => {
-              console.log(checkedMedia);
-              console.log(selectedMedia);
               const newMedia = selectedMedia.filter(
                 (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
               );

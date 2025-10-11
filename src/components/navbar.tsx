@@ -212,6 +212,16 @@ export function Navbar() {
                 <>
                   <ModeToggle />
 
+                  <Button
+                    variant="outline"
+                    className="size-9 rounded-full"
+                    onClick={() => setParams({ cart: true })}
+                    disabled={isPendingCart}
+                  >
+                    <IconShoppingCart />
+                    <span className="sr-only">Cart</span>
+                  </Button>
+
                   <Button asChild>
                     <Link href="/auth">
                       <DoorOpenIcon />

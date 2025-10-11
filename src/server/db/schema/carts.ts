@@ -16,9 +16,7 @@ export const carts = pgTable(
     id: bigint("id", { mode: "number" })
       .primaryKey()
       .generatedAlwaysAsIdentity(),
-    userId: bigint("user_id", { mode: "number" })
-      .references(() => users.id)
-      .notNull(),
+    userId: bigint("user_id", { mode: "number" }).references(() => users.id),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

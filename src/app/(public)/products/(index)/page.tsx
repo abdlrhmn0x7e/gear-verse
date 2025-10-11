@@ -15,8 +15,10 @@ export default function ProductsPage({
   searchParams: Promise<SearchParams>;
 }) {
   void loadAllProductSearchParams(searchParams);
-  void api.public.categories.findAll.prefetch();
-  void api.public.brands.findAll.prefetch();
+  void api.public.categories.queries.findAll.prefetch({
+    filters: { root: true },
+  });
+  void api.public.brands.queries.findAll.prefetch();
 
   return (
     <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">

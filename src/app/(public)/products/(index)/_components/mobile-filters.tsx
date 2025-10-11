@@ -52,7 +52,7 @@ export function MobileFilters() {
 
 function CategoryFilter() {
   const [filters, setFilters] = useAllProductSearchParams();
-  const { data: categories } = api.public.categories.findAll.useQuery({
+  const { data: categories } = api.public.categories.queries.findAll.useQuery({
     filters: { root: true },
   });
 
@@ -125,7 +125,7 @@ function CategoryFilter() {
 
 function BrandFilter() {
   const [filters, setFilters] = useAllProductSearchParams();
-  const { data: brands } = api.public.brands.findAll.useQuery();
+  const { data: brands } = api.public.brands.queries.findAll.useQuery();
 
   function handleBrandChange(value: number) {
     void setFilters((prev) => {

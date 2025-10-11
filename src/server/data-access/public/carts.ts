@@ -26,7 +26,7 @@ export const _carts = {
         .then(([res]) => res);
     },
 
-    find: async (userId: number) => {
+    find: async (cartId: number, userId?: number) => {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
@@ -116,7 +116,12 @@ export const _carts = {
         })
         .from(carts)
         .leftJoin(cartVariantsJson, eq(carts.id, cartVariantsJson.id))
-        .where(eq(carts.userId, userId))
+        .where(
+          and(
+            eq(carts.id, cartId),
+            userId ? eq(carts.userId, userId) : undefined,
+          ),
+        )
         .limit(1)
         .then(([res]) => res);
     },
@@ -127,6 +132,11 @@ export const _carts = {
       return db
         .insert(carts)
         .values(cart)
+        .onConflictDoUpdate({
+          target: [carts.userId],
+          set: cart,
+          setWhere: eq(carts.userId, cart.userId ?? 0), //  to avoid claiming a cart that doesn't belong to the user
+        })
         .returning({ id: carts.id })
         .then(([res]) => res);
     },
@@ -193,6 +203,14 @@ export const _carts = {
             ),
           );
       });
+    },
+
+    associateWithUser: async (cartId: number, userId: number) => {
+      return db
+        .update(carts)
+        .set({ userId })
+        .where(eq(carts.id, cartId))
+        .returning({ id: carts.id });
     },
   },
 };

@@ -436,7 +436,6 @@ export const _products = {
       newVariants: NewProductVariant[];
       newSeo?: NewSeo;
     }) {
-      console.log("newProduct", newProduct);
       return db.transaction(async (tx) => {
         const [product] = await tx
           .insert(products)

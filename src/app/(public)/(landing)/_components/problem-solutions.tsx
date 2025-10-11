@@ -68,14 +68,14 @@ export function ProblemSolutions() {
               key={solution.title}
               className={cn(
                 "from-primary/60 to-border dark:from-primary/10 dark:to-border/50 my-1 size-full overflow-hidden rounded-lg bg-gradient-to-b p-px",
-                index === 0 && "row-span-2 lg:col-span-2",
+                index === 0 && "sm:row-span-2 lg:col-span-2",
                 index === 1 && "lg:col-span-4",
                 index === 2 && "lg:col-span-2",
                 index === 3 && "lg:col-span-2",
               )}
             >
               <div className="group relative size-full">
-                <div className="from-card to-background relative flex size-full flex-col gap-8 overflow-hidden rounded-lg bg-gradient-to-b p-8">
+                <div className="from-card to-background relative flex size-full flex-col justify-start gap-8 overflow-hidden rounded-lg bg-gradient-to-b p-8">
                   <div className="flex-1">
                     <solution.Illustration />
                   </div>
@@ -224,7 +224,7 @@ function SourceRareGearsIllustration() {
 function CustomsIllustration() {
   return (
     <div className="group relative z-10 mx-auto max-w-xs">
-      <div className="mr-4 ml-8 flex -space-x-36 overflow-y-clip pt-12">
+      <div className="mr-4 ml-8 flex -space-x-36 overflow-y-clip pt-4">
         {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={`paper-${index}`}

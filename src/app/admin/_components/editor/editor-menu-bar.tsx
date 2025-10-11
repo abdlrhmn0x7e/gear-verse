@@ -63,6 +63,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { MediaDialog } from "../dialogs/media";
+import type { SelectedMedia } from "../../_stores/media/store";
 
 export function EditorMenuBar({
   editor,
@@ -374,33 +376,18 @@ function ImageDrawerDialog({
   onImageUpload: (urls: string[]) => void;
   disableTooltips?: boolean;
 }) {
-  const [imageDialogOpen, setImageDialogOpen] = React.useState(false);
-  const { mutate: uploadFiles, isPending: isUploading } =
-    useUploadFilesMutation();
-  function handleAddImage(files: File[]) {
+  function handleAddImage(files: SelectedMedia[]) {
     if (!files.length) return;
 
-    uploadFiles(files, {
-      onSuccess: (data) => {
-        onImageUpload(data.map((item) => item.url));
-        setImageDialogOpen(false);
-      },
-      onError: (error) => {
-        toast.error("Failed to upload file", {
-          description: error.message,
-        });
-      },
-    });
+    onImageUpload(files.map((file) => file.url));
   }
 
   return (
-    <DrawerDialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+    <MediaDialog onChange={handleAddImage}>
       {disableTooltips ? (
-        <DrawerDialogTrigger asChild>
-          <Button variant="ghost" type="button">
-            <ImagePlusIcon />
-          </Button>
-        </DrawerDialogTrigger>
+        <Button variant="ghost" type="button">
+          <ImagePlusIcon />
+        </Button>
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -413,47 +400,7 @@ function ImageDrawerDialog({
           <TooltipContent>Add image</TooltipContent>
         </Tooltip>
       )}
-      <DrawerDialogContent className="sm:max-w-2xl">
-        <DrawerDialogHeader>
-          <div className="flex items-center gap-2">
-            <ImagePlusIcon />
-            <DrawerDialogTitle>Add Image</DrawerDialogTitle>
-          </div>
-          <DrawerDialogDescription>
-            Add an image to the editor
-          </DrawerDialogDescription>
-        </DrawerDialogHeader>
-
-        <Tabs defaultValue="upload-media">
-          <TabsList>
-            <TabsTrigger value="upload-media">
-              <ImagePlusIcon />
-              Upload Media
-            </TabsTrigger>
-            <TabsTrigger value="gallery">
-              <ImageIcon />
-              Gallery
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="gallery">
-            <ImageGallery
-              addImage={(url) => {
-                onImageUpload([url]);
-                setImageDialogOpen(false);
-              }}
-            />
-          </TabsContent>
-          <TabsContent value="upload-media">
-            <FileDropzone
-              onChange={handleAddImage}
-              isLoading={isUploading}
-              className="min-h-[24rem]"
-              maxFiles={1}
-            />
-          </TabsContent>
-        </Tabs>
-      </DrawerDialogContent>
-    </DrawerDialog>
+    </MediaDialog>
   );
 }
 

@@ -31,7 +31,6 @@ export function EditCategory({
     });
 
   function onSubmit(data: CategoryFormValues) {
-    console.log(data);
     updateCategory({ id, ...data });
   }
 

@@ -25,7 +25,7 @@ import { Progress } from "~/components/ui/progress";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 export function BrandsCarousel() {
-  const [brands] = api.public.brands.findAll.useSuspenseQuery();
+  const [brands] = api.public.brands.queries.findAll.useSuspenseQuery();
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -85,7 +85,7 @@ export function BrandsCarousel() {
 function BrandCard({
   brand,
 }: {
-  brand: RouterOutputs["public"]["brands"]["findAll"][number];
+  brand: RouterOutputs["public"]["brands"]["queries"]["findAll"][number];
 }) {
   return (
     <Link href={`/brands/${brand.slug}`}>

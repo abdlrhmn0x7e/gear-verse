@@ -6,7 +6,7 @@ import { api } from "~/trpc/server";
 import { Suspense } from "react";
 
 export function ShopByBrand() {
-  void api.public.brands.findAll.prefetch();
+  void api.public.brands.queries.findAll.prefetch();
 
   return (
     <section className="relative py-24">
