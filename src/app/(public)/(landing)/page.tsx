@@ -4,11 +4,8 @@ import { Hero } from "./_components/hero";
 import { ProblemSolutions } from "./_components/problem-solutions";
 import { RecentProducts } from "./_components/recent-products";
 import { ShopByBrand } from "./_components/shop-by-brand";
-import type { TestimonialItem } from "./_components/testimonials";
-import Testimonials from "./_components/testimonials";
+import Testimonials, { type TestimonialItem } from "./_components/testimonials";
 
-// FIX: the hydrate client is not working unless the page is dynamic
-// export const dynamic = "force-dynamic";
 const testimonials: TestimonialItem[] = [
   {
     name: "Omar Magdy",

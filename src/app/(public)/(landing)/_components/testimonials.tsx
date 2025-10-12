@@ -71,7 +71,7 @@ const Testimonials = ({ testimonials }: TestimonialsProps) => {
           </div>
 
           {/* Right Testimonial Carousel */}
-          <div className="relative max-w-196 [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] select-none sm:w-1/2 lg:w-2/3">
+          <div className="relative max-w-196 select-none sm:w-1/2 lg:w-2/3 lg:[mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
             <CarouselContent className="sm:mr-5 sm:ml-3">
               {testimonials.map((testimonial, index) => (
                 <CarouselItem

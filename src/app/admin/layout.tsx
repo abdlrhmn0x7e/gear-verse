@@ -1,6 +1,5 @@
 import {
   SidebarInset,
-  SidebarMenuButton,
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
@@ -10,13 +9,7 @@ import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
 import { ModeDropdown } from "~/components/mode-toggle";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { notFound } from "next/navigation";
-import {
-  ProductSearchDialog,
-  ProductSearchIcon,
-  ProductSearchPlaceholder,
-} from "~/components/product-search-dialog";
 
 export default async function AdminLayout({
   children,

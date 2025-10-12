@@ -1,5 +1,5 @@
-import { createLoader, useQueryStates } from "nuqs";
-import { parseAsBoolean } from "nuqs/server";
+import { useQueryStates } from "nuqs";
+import { createLoader, parseAsBoolean } from "nuqs/server";
 
 export const cartSearchParams = {
   cart: parseAsBoolean,

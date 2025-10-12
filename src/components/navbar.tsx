@@ -55,7 +55,6 @@ import {
   ProductSearchLoading,
   ProductSearchPlaceholder,
 } from "~/components/product-search-dialog";
-import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { authClient } from "~/lib/auth-client";
@@ -106,11 +105,11 @@ export function Navbar() {
   const { data } = authClient.useSession();
   const user = data?.user ?? null;
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
+  const [openCart, setOpenCart] = useState(false);
 
   const utils = api.useUtils();
   const { data: cart, isPending: isPendingCart } =
     api.public.carts.queries.find.useQuery();
-  const [, setParams] = useCartSearchParams();
   const pathname = usePathname();
 
   // prefetch products
@@ -191,15 +190,10 @@ export function Navbar() {
                     </Button>
                   )}
 
-                  <Button
-                    variant="outline"
-                    className="size-9 rounded-full"
-                    onClick={() => setParams({ cart: true })}
-                    disabled={isPendingCart}
-                  >
-                    <IconShoppingCart />
-                    <span className="sr-only">Cart</span>
-                  </Button>
+                  <CartButton
+                    isPendingCart={isPendingCart}
+                    openCart={() => setOpenCart(true)}
+                  />
 
                   <ProfileDropdown className="ml-1" user={user} />
                 </div>
@@ -207,15 +201,10 @@ export function Navbar() {
                 <>
                   <ModeToggle />
 
-                  <Button
-                    variant="outline"
-                    className="size-9 rounded-full"
-                    onClick={() => setParams({ cart: true })}
-                    disabled={isPendingCart}
-                  >
-                    <IconShoppingCart />
-                    <span className="sr-only">Cart</span>
-                  </Button>
+                  <CartButton
+                    isPendingCart={isPendingCart}
+                    openCart={() => setOpenCart(true)}
+                  />
 
                   <Button
                     className="size-9 rounded-full sm:size-auto sm:rounded-md"
@@ -237,7 +226,9 @@ export function Navbar() {
         </motion.div>
       </header>
 
-      {cart && <CartDrawer cart={cart} />}
+      {cart && (
+        <CartDrawer cart={cart} open={openCart} onOpenChange={setOpenCart} />
+      )}
       <MobileMenu />
     </>
   );
@@ -445,9 +436,33 @@ function MobileMenu() {
   );
 }
 
+function CartButton({
+  isPendingCart,
+  openCart,
+}: {
+  isPendingCart: boolean;
+  openCart: () => void;
+}) {
+  return (
+    <Button
+      variant="outline"
+      className="size-9 rounded-full"
+      onClick={openCart}
+      disabled={isPendingCart}
+    >
+      <IconShoppingCart />
+      <span className="sr-only">Cart</span>
+    </Button>
+  );
+}
+
 function CartDrawer({
+  open,
+  onOpenChange,
   cart,
 }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   cart: RouterOutputs["public"]["carts"]["queries"]["find"];
 }) {
   const utils = api.useUtils();
@@ -466,18 +481,13 @@ function CartDrawer({
         router.refresh();
       },
     });
-  const [params, setParams] = useCartSearchParams();
   const isMobile = useIsMobile();
-
-  function handleOpenChange(open: boolean) {
-    void setParams({ cart: open ? open : null });
-  }
 
   return (
     <Drawer
       direction={isMobile ? "bottom" : "right"}
-      open={params.cart ?? false}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <DrawerContent className="sm:h-auto">
         <DrawerHeader>
