@@ -1,18 +1,17 @@
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { api } from "~/trpc/server";
 import { ProductCardSkeleton, ProductsCarousel } from "./products-carousel";
 import Glow from "~/components/ui/glow";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { PackageIcon } from "lucide-react";
 import { Suspense } from "react";
+import { api } from "~/trpc/server";
 
 export function RecentProducts() {
   void api.public.products.queries.getPage.prefetch({
     pageSize: 10,
   });
-
   return (
     <section className="relative py-24">
       <MaxWidthWrapper className="space-y-12">
