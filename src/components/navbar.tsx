@@ -3,6 +3,7 @@
 import {
   IconBrandDiscord,
   IconBrandFacebook,
+  IconBrandGoogle,
   IconBrandTiktok,
   IconShoppingBag,
   IconShoppingBagMinus,
@@ -74,6 +75,18 @@ import {
 import { Kbd, KbdGroup } from "./ui/kbd";
 import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
+import {
+  DrawerDialog,
+  DrawerDialogContent,
+  DrawerDialogHeader,
+  DrawerDialogTrigger,
+  DrawerDialogTitle,
+  DrawerDialogBody,
+  DrawerDialogDescription,
+  DrawerDialogFooter,
+} from "./ui/drawer-dialog";
+import { useMutation } from "@tanstack/react-query";
+import { Spinner } from "./spinner";
 
 export interface NavigationLink {
   title: string;
@@ -206,15 +219,7 @@ export function Navbar() {
                     openCart={() => setOpenCart(true)}
                   />
 
-                  <Button
-                    className="size-9 rounded-full sm:size-auto sm:rounded-md"
-                    asChild
-                  >
-                    <Link href="/auth">
-                      <DoorOpenIcon />
-                      <span className="hidden sm:block">Login</span>
-                    </Link>
-                  </Button>
+                  <LoginDrawerDialog />
                 </>
               )}
             </div>
@@ -231,6 +236,53 @@ export function Navbar() {
       )}
       <MobileMenu />
     </>
+  );
+}
+
+function LoginDrawerDialog() {
+  const { mutate: signInWithGoogle, isPending: isSigningIn } = useMutation({
+    mutationFn: () =>
+      authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      }),
+  });
+
+  return (
+    <DrawerDialog>
+      <DrawerDialogTrigger asChild>
+        <Button className="size-9 rounded-full sm:size-auto sm:rounded-md">
+          <DoorOpenIcon />
+          <span className="hidden sm:block">Login</span>
+        </Button>
+      </DrawerDialogTrigger>
+      <DrawerDialogContent>
+        <DrawerDialogHeader className="gap-1">
+          <Logo className="mx-auto" />
+          <DrawerDialogTitle className="text-center text-2xl">
+            Welcome to GearVerse
+          </DrawerDialogTitle>
+          <DrawerDialogDescription className="text-center">
+            Sign in/up to your account
+          </DrawerDialogDescription>
+        </DrawerDialogHeader>
+
+        <DrawerDialogBody className="flex flex-col items-center gap-3">
+          <Button
+            onClick={() => signInWithGoogle()}
+            disabled={isSigningIn}
+            className="w-full"
+          >
+            {isSigningIn ? <Spinner /> : <IconBrandGoogle />}
+            Continue with Google
+          </Button>
+          <p className="text-muted-foreground text-center text-sm">
+            Don&apos;t have an account? No problem—one will be created
+            automatically when you sign in for the first time.
+          </p>
+        </DrawerDialogBody>
+      </DrawerDialogContent>
+    </DrawerDialog>
   );
 }
 
