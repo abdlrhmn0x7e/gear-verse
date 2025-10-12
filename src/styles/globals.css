@@ -172,6 +172,41 @@
   --animate-search-icon-in: animate-search-icon-in 0.1s ease-in-out forwards;
   --animate-search-icon-out: animate-search-icon-out 0.1s ease-in-out forwards;
 
+  --animate-float: floating 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+
+  --animate-blur-in: blur-in 0.4s ease-in-out forwards;
+
+  @keyframes blur-in {
+    from {
+      filter: blur(10px);
+    }
+    to {
+      filter: blur(0);
+    }
+  }
+
+  @keyframes floating {
+    0%,
+    100% {
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+    }
+    16% {
+      transform: translateY(-4px) translateX(2px) rotate(0.5deg);
+    }
+    33% {
+      transform: translateY(-10px) translateX(3px) rotate(0.8deg);
+    }
+    50% {
+      transform: translateY(-12px) translateX(-2px) rotate(-0.8deg);
+    }
+    66% {
+      transform: translateY(-8px) translateX(-3px) rotate(-0.5deg);
+    }
+    83% {
+      transform: translateY(-3px) translateX(1px) rotate(0.3deg);
+    }
+  }
+
   @keyframes scale-button-in {
     from {
       transform: scale(1, 1);
@@ -288,7 +323,7 @@ html body[data-scroll-locked] {
 }
 
 .hero-ring {
-  @apply border-primary/10 shadow-primary/10 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
+  @apply border-primary/20 shadow-primary/20 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
 }
 
 @supports not selector(::-webkit-scrollbar) {
@@ -439,24 +474,6 @@ input:-webkit-autofill:active {
 
 @utility animate-magnifying-focus {
   animation: magnifying-glass-focus 0.3s ease-out forwards;
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0) scale(1) rotate(-8deg);
-  }
-  50% {
-    transform: translateY(-18px) scale(1.08) rotate(8deg);
-  }
-  100% {
-    transform: translateY(0) scale(1) rotate(-8deg);
-  }
-}
-
-@utility animate-float {
-  animation-name: float;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
 }
 
 @keyframes twinkle {

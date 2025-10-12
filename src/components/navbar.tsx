@@ -1,30 +1,5 @@
 "use client";
 
-import { Logo } from "./logo";
-import { Button } from "./ui/button";
-import {
-  ArrowRightCircleIcon,
-  DoorOpenIcon,
-  HomeIcon,
-  MinusIcon,
-  PlusIcon,
-  SearchIcon,
-  ShieldUserIcon,
-  type LucideIcon,
-} from "lucide-react";
-import {
-  useEffect,
-  useState,
-  type ComponentProps,
-  type ForwardRefExoticComponent,
-  type RefAttributes,
-} from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ProfileDropdown } from "./profile-dropdown";
-import { AnimatePresence, motion } from "motion/react";
-import Header from "~/components/header";
-import { api, type RouterOutputs } from "~/trpc/react";
 import {
   IconBrandDiscord,
   IconBrandFacebook,
@@ -38,20 +13,56 @@ import {
   type Icon,
   type IconProps,
 } from "@tabler/icons-react";
-import { AspectRatio } from "./ui/aspect-ratio";
+import {
+  ArrowRightCircleIcon,
+  DoorOpenIcon,
+  HomeIcon,
+  MinusIcon,
+  PlusIcon,
+  SearchIcon,
+  ShieldUserIcon,
+  type LucideIcon,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
+} from "react";
+import Header from "~/components/header";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
 } from "~/components/ui/input-group";
+import { api, type RouterOutputs } from "~/trpc/react";
+import { Logo } from "./logo";
+import { ProfileDropdown } from "./profile-dropdown";
+import { AspectRatio } from "./ui/aspect-ratio";
+import { Button } from "./ui/button";
 
-import { ImageWithFallback } from "./image-with-fallback";
+import { useRouter } from "next/navigation";
+import {
+  ProductSearchDialog,
+  ProductSearchEmpty,
+  ProductSearchError,
+  ProductSearchIcon,
+  ProductSearchItem,
+  ProductSearchLoading,
+  ProductSearchPlaceholder,
+} from "~/components/product-search-dialog";
+import { useCartSearchParams } from "~/hooks/use-cart-search-params";
+import { useDebounce } from "~/hooks/use-debounce";
+import { useIsMobile } from "~/hooks/use-mobile";
+import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
-import { Skeleton } from "./ui/skeleton";
-import type { User } from "better-auth";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { ImageWithFallback } from "./image-with-fallback";
+import { ModeToggle } from "./mode-toggle";
 import {
   Drawer,
   DrawerContent,
@@ -61,25 +72,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
-import { useIsMobile } from "~/hooks/use-mobile";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { useCartSearchParams } from "~/hooks/use-cart-search-params";
-import { useRouter } from "next/navigation";
-import {
-  ProductSearchItem,
-  ProductSearchDialog,
-  ProductSearchIcon,
-  ProductSearchLoading,
-  ProductSearchPlaceholder,
-  ProductSearchError,
-  ProductSearchEmpty,
-} from "~/components/product-search-dialog";
 import { Kbd, KbdGroup } from "./ui/kbd";
-import { useDebounce } from "~/hooks/use-debounce";
 import { Separator } from "./ui/separator";
-import { authClient } from "~/lib/auth-client";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { ModeToggle } from "./mode-toggle";
+import { Skeleton } from "./ui/skeleton";
 
 export interface NavigationLink {
   title: string;
@@ -222,10 +217,13 @@ export function Navbar() {
                     <span className="sr-only">Cart</span>
                   </Button>
 
-                  <Button asChild>
+                  <Button
+                    className="size-9 rounded-full sm:size-auto sm:rounded-md"
+                    asChild
+                  >
                     <Link href="/auth">
                       <DoorOpenIcon />
-                      Login
+                      <span className="hidden sm:block">Login</span>
                     </Link>
                   </Button>
                 </>

@@ -192,6 +192,7 @@ export function CategoriesViewer() {
     if (activeInfo.type === "product" && overInfo.type === "category") {
       // if the target is the root, don't move the product
       if (overInfo.id === 0) {
+        setActiveId(null);
         return;
       }
 

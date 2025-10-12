@@ -67,7 +67,7 @@ export function BrandsCarousel() {
           {brands.map((brand, index) => (
             <CarouselItem
               key={`${brand.id}-${index}`}
-              className="basis-3/5 sm:basis-2/5 lg:basis-2/12"
+              className="basis-2/5 lg:basis-2/12"
             >
               <BrandCard brand={brand} />
             </CarouselItem>

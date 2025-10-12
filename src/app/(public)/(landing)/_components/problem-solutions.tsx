@@ -62,16 +62,16 @@ export function ProblemSolutions() {
           </p>
         </div>
 
-        <div className="grid w-full flex-1 grid-cols-1 grid-rows-[repeat(2,400px)] gap-5 p-1 lg:grid-cols-6">
+        <div className="grid w-full flex-1 grid-cols-1 grid-rows-[repeat(2,400px)] gap-5 p-1 lg:grid-cols-10">
           {solutions.map((solution, index) => (
             <div
               key={solution.title}
               className={cn(
                 "from-primary/60 to-border dark:from-primary/10 dark:to-border/50 my-1 size-full overflow-hidden rounded-lg bg-gradient-to-b p-px",
-                index === 0 && "sm:row-span-2 lg:col-span-2",
-                index === 1 && "lg:col-span-4",
-                index === 2 && "lg:col-span-2",
-                index === 3 && "lg:col-span-2",
+                index === 0 && "row-span-2 lg:col-span-4",
+                index === 1 && "lg:col-span-6",
+                index === 2 && "lg:col-span-3",
+                index === 3 && "lg:col-span-3",
               )}
             >
               <div className="group relative size-full">

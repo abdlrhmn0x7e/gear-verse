@@ -37,8 +37,14 @@ export function AddReview({
   }
 
   return (
-    <div className={cn("relative", className)}>
-      <ReviewForm onSubmit={onSubmit} />
+    <div
+      className={cn(
+        "relative",
+        disabled && "pointer-events-none opacity-50",
+        className,
+      )}
+    >
+      <ReviewForm onSubmit={onSubmit} disabled={disabled} />
       <Button
         size="icon"
         className="absolute right-2 bottom-2"

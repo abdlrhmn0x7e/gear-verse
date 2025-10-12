@@ -1,13 +1,14 @@
 import { api } from "~/trpc/server";
 import { AddReview } from "./add-review";
 import { Heading } from "~/components/heading";
-import { CheckCircleIcon, MessageCircleOffIcon } from "lucide-react";
+import { CheckCircleIcon, MessageCircleOffIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { StarRating } from "./star-rating";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { EditReview } from "./edit-reviews";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await api.public.reviews.findAll({ productId });
@@ -20,8 +21,18 @@ export async function Reviews({ productId }: { productId: number }) {
 
   return (
     <div className="space-y-4">
+      {!data && (
+        <Alert>
+          <UserIcon />
+          <AlertTitle>You can&apos;t review this product</AlertTitle>
+          <AlertDescription>
+            You must be logged in to review this product
+          </AlertDescription>
+        </Alert>
+      )}
+
       {!userHasReviewed && (
-        <AddReview productId={productId} disabled={userHasReviewed} />
+        <AddReview productId={productId} disabled={userHasReviewed || !data} />
       )}
       <Heading level={2}>User Reviews ({reviews.length})</Heading>
       <div>

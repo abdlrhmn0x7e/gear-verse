@@ -44,15 +44,15 @@ export function VerseCarousel({
       >
         <CarouselContent>
           {photos.map((photo, index) => (
-            <CarouselItem key={index} className="lg:basis-4/5">
+            <CarouselItem key={index}>
               <AspectRatio ratio={1 / 1}>
                 <SuspendableImage
                   src={photo}
                   alt={`Product Image ${index + 1}`}
                   isPriority={index === currentSlide}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  fill
                   className="rounded-lg"
+                  fill
                 />
               </AspectRatio>
             </CarouselItem>
