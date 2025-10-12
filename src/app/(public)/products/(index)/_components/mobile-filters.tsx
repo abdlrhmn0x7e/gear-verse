@@ -16,7 +16,7 @@ import {
 import { Label } from "~/components/ui/label";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
+import { api, type RouterOutputs } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { formatCurrency } from "~/lib/utils/format-currency";
@@ -65,22 +65,6 @@ function CategoryFilter() {
     });
   }
 
-  function handleCategoryChange(value: number) {
-    void setFilters((prev) => {
-      if (prev.categories?.includes(value)) {
-        const filteredCategories = prev.categories.filter(
-          (category) => category !== value,
-        );
-        return {
-          ...prev,
-          categories: filteredCategories.length > 0 ? filteredCategories : null,
-        };
-      }
-
-      return { ...prev, categories: [...(prev.categories ?? []), value] };
-    });
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -98,23 +82,12 @@ function CategoryFilter() {
 
       {categories && categories.length > 0 ? (
         <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const Icon = iconsMap.get(category.icon);
-
-            return (
-              <CustomCheckbox
-                key={`category-${category.id}`}
-                id={`category-${category.id}`}
-                checked={Boolean(filters.categories?.includes(category.id))}
-                handleCheckChange={() => handleCategoryChange(category.id)}
-              >
-                <div className="flex w-full items-center justify-center gap-2">
-                  {Icon && <Icon className="size-6" />}
-                  <p>{category.name}</p>
-                </div>
-              </CustomCheckbox>
-            );
-          })}
+          {categories.map((category) => (
+            <CategoryFilterItem
+              key={`category-${category.slug}`}
+              category={category}
+            />
+          ))}
         </div>
       ) : (
         <div>No categories found</div>
@@ -123,23 +96,47 @@ function CategoryFilter() {
   );
 }
 
-function BrandFilter() {
+function CategoryFilterItem({
+  category,
+}: {
+  category: RouterOutputs["public"]["categories"]["queries"]["findAll"][number];
+}) {
+  const Icon = iconsMap.get(category.icon);
   const [filters, setFilters] = useAllProductSearchParams();
-  const { data: brands } = api.public.brands.queries.findAll.useQuery();
 
-  function handleBrandChange(value: number) {
+  function handleCategoryChange(slug: string) {
     void setFilters((prev) => {
-      if (prev.brands?.includes(value)) {
-        const filteredBrands = prev.brands.filter((brand) => brand !== value);
+      if (prev.categories?.includes(slug)) {
+        const filteredCategories = prev.categories.filter(
+          (category) => category !== slug,
+        );
         return {
           ...prev,
-          brands: filteredBrands.length > 0 ? filteredBrands : null,
+          categories: filteredCategories.length > 0 ? filteredCategories : null,
         };
       }
 
-      return { ...prev, brands: [...(prev.brands ?? []), value] };
+      return { ...prev, categories: [...(prev.categories ?? []), slug] };
     });
   }
+
+  return (
+    <CustomCheckbox
+      id={`category-${category.slug}`}
+      defaultChecked={Boolean(filters.categories?.includes(category.slug))}
+      onCheckedChange={() => handleCategoryChange(category.slug)}
+    >
+      <div className="flex w-full items-center justify-center gap-2">
+        {Icon && <Icon className="size-6" />}
+        <p>{category.name}</p>
+      </div>
+    </CustomCheckbox>
+  );
+}
+
+function BrandFilter() {
+  const [filters, setFilters] = useAllProductSearchParams();
+  const { data: brands } = api.public.brands.queries.findAll.useQuery();
 
   function handleClearAll() {
     void setFilters((prev) => {
@@ -164,23 +161,7 @@ function BrandFilter() {
       <div className="flex flex-wrap gap-2">
         {brands && brands.length > 0 ? (
           brands.map((brand) => (
-            <CustomCheckbox
-              key={`brand-${brand.id}`}
-              id={`brand-${brand.id}`}
-              checked={Boolean(filters.brands?.includes(brand.id))}
-              handleCheckChange={() => handleBrandChange(brand.id)}
-            >
-              <div className="flex w-full items-center justify-center gap-2">
-                <ImageWithFallback
-                  src={brand.logo}
-                  alt={brand.name}
-                  width={16}
-                  height={16}
-                  className="size-6 rounded-full"
-                />
-                <p>{brand.name}</p>
-              </div>
-            </CustomCheckbox>
+            <BrandFilterItem key={`brand-${brand.slug}`} brand={brand} />
           ))
         ) : (
           <div>No brands found</div>
@@ -190,39 +171,63 @@ function BrandFilter() {
   );
 }
 
+function BrandFilterItem({
+  brand,
+}: {
+  brand: RouterOutputs["public"]["brands"]["queries"]["findAll"][number];
+}) {
+  const [filters, setFilters] = useAllProductSearchParams();
+
+  function handleBrandChange(slug: string) {
+    void setFilters((prev) => {
+      if (prev.brands?.includes(slug)) {
+        const filteredBrands = prev.brands.filter((brand) => brand !== slug);
+        return {
+          ...prev,
+          brands: filteredBrands.length > 0 ? filteredBrands : null,
+        };
+      }
+      return { ...prev, brands: [...(prev.brands ?? []), slug] };
+    });
+  }
+
+  return (
+    <CustomCheckbox
+      id={`brand-${brand.slug}`}
+      defaultChecked={Boolean(filters.brands?.includes(brand.slug))}
+      onCheckedChange={() => handleBrandChange(brand.slug)}
+    >
+      <div className="flex w-full items-center justify-center gap-2">
+        <ImageWithFallback
+          src={brand.logo}
+          alt={brand.name}
+          width={16}
+          height={16}
+          className="size-6 rounded-full"
+        />
+        <p>{brand.name}</p>
+      </div>
+    </CustomCheckbox>
+  );
+}
+
 function CustomCheckbox({
   id,
   children,
   className,
-  handleCheckChange,
   ...props
-}: PropsWithChildren<
-  ComponentProps<typeof Checkbox> & {
-    handleCheckChange: () => void;
-  }
->) {
+}: PropsWithChildren<ComponentProps<typeof Checkbox>>) {
   return (
-    <div className="relative flex items-center gap-2">
-      <Checkbox
-        id={id}
-        className="peer hidden"
-        onCheckedChange={(checked) => {
-          props.onCheckedChange?.(checked);
-          handleCheckChange();
-        }}
-        {...props}
-      />
-
-      <Label
-        htmlFor={id}
-        className={cn(
-          "ring-primary peer-data-[state=checked]:text-primary-foreground peer-data-[state=checked]:bg-primary/50 cursor-pointer rounded-lg border p-2 px-4 transition-all peer-data-[state=checked]:ring-2",
-          className,
-        )}
-      >
-        {children}
-      </Label>
-    </div>
+    <Label
+      htmlFor={`${id}-checkbox`}
+      className={cn(
+        "has-data[state=checked]:text-primary-foreground has-data-[state=checked]:bg-primary/50 has-data-[state=checked]:border-primary cursor-pointer rounded-lg border p-2 px-4 transition-all",
+        className,
+      )}
+    >
+      <Checkbox className="hidden" id={`${id}-checkbox`} {...props} />
+      {children}
+    </Label>
   );
 }
 

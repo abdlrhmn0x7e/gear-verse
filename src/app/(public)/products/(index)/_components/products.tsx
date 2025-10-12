@@ -1,7 +1,7 @@
 import { Heading } from "~/components/heading";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
-import { ProductList } from "./product-list";
+import { ProductList, ProductListSkeleton } from "./product-list";
 import { Suspense } from "react";
 import type { SearchParams } from "nuqs/server";
 import { loadAllProductSearchParams } from "./hooks";
@@ -28,16 +28,14 @@ export async function Products({
   });
 
   return (
-    <section id="products" className={cn("mt-2 space-y-8", className)}>
+    <section id="products" className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
-        <Heading level={3} font="default">
-          All Products
-        </Heading>
+        <Heading level={3}>All Products</Heading>
 
         <ProductsSort />
       </div>
 
-      <Suspense fallback={<div>loading...</div>}>
+      <Suspense fallback={<ProductListSkeleton />}>
         <ProductList />
       </Suspense>
     </section>

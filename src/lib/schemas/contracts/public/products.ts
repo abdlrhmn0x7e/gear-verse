@@ -4,8 +4,8 @@ import { paginationSchema } from "../pagination";
 export const productsFilterSchema = z
   .object({
     title: z.string(),
-    categories: z.array(z.number()),
-    brands: z.array(z.number()),
+    categories: z.array(z.string()),
+    brands: z.array(z.string()),
     price: z.object({
       min: z.number(),
       max: z.number(),

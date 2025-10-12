@@ -1,3 +1,4 @@
+import { Checkbox } from "~/components/ui/checkbox";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 
@@ -6,7 +7,7 @@ export function FiltersSkeleton({ className }: { className?: string }) {
     <aside
       id="filters-skeleton"
       className={cn(
-        "sticky top-32 hidden h-full max-h-[calc(100vh-8rem)] overflow-y-scroll border-r px-1 lg:block",
+        "bg-card sticky top-32 hidden h-fit max-h-[calc(100vh-8rem)] overflow-y-scroll rounded-lg border p-4 pb-12 lg:block",
         className,
       )}
     >
@@ -26,9 +27,9 @@ function CategoryFilterSkeleton() {
       <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded" />
+            <Checkbox disabled />
             <div className="flex items-center gap-2">
-              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="size-4 rounded" />
               <Skeleton className="h-4 w-16" />
             </div>
           </div>
@@ -40,12 +41,12 @@ function CategoryFilterSkeleton() {
 
 function BrandFilterSkeleton() {
   return (
-    <div className="flex flex-col gap-4 pt-8">
+    <div className="flex flex-col gap-4">
       <Skeleton className="h-6 w-16" />
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <div key={index} className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded" />
+            <Checkbox disabled />
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-20" />
@@ -59,15 +60,14 @@ function BrandFilterSkeleton() {
 
 function PriceFilterSkeleton() {
   return (
-    <div className="flex flex-col gap-4 pt-8">
+    <div className="flex flex-col gap-4">
       <Skeleton className="h-6 w-12" />
-      <Skeleton className="h-4 w-24" />
-      <div className="space-y-2">
+      <Skeleton className="h-4 w-48" />
+      <div className="relative">
         <Skeleton className="h-2 w-full rounded-full" />
-        <div className="flex justify-between">
-          <Skeleton className="h-3 w-8" />
-          <Skeleton className="h-3 w-8" />
-        </div>
+
+        <Skeleton className="absolute top-1/2 left-0 size-4 -translate-y-1/2 rounded-full" />
+        <Skeleton className="absolute top-1/2 right-0 size-4 -translate-y-1/2 rounded-full" />
       </div>
     </div>
   );

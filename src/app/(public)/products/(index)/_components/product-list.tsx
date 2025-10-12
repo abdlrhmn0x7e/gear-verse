@@ -17,7 +17,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
-import { ProductCard } from "~/components/product-card";
+import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
 
 export function ProductList() {
   const [filters] = useAllProductSearchParams();
@@ -51,35 +51,7 @@ export function ProductList() {
   }, [inView, fetchNextPage]);
 
   if (products.length === 0) {
-    return (
-      <Empty className="h-2/3">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <IconShoppingBagX />
-          </EmptyMedia>
-          <EmptyTitle>No Products Found</EmptyTitle>
-          <EmptyDescription>
-            We couldn&apos;t find any products to display at the moment. Please
-            check back later!
-          </EmptyDescription>
-        </EmptyHeader>
-
-        <EmptyContent className="flex-row items-center justify-center gap-0">
-          <p className="text-muted-foreground">Need Something Specific?</p>
-          <Button
-            variant="link"
-            asChild
-            className="text-muted-foreground"
-            size="sm"
-          >
-            <a href="/contact">
-              Contact Us
-              <ArrowUpRightIcon />
-            </a>
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
+    return <ProductListEmptyState />;
   }
 
   return (
@@ -92,5 +64,47 @@ export function ProductList() {
 
       <LoadMore hasNextPage={hasNextPage} ref={ref} />
     </>
+  );
+}
+
+export function ProductListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <ProductCardSkeleton key={`product-card-skeleton-${index}`} />
+      ))}
+    </div>
+  );
+}
+
+function ProductListEmptyState() {
+  return (
+    <Empty className="h-2/3">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconShoppingBagX />
+        </EmptyMedia>
+        <EmptyTitle>No Products Found</EmptyTitle>
+        <EmptyDescription>
+          We couldn&apos;t find any products to display at the moment. Please
+          check back later!
+        </EmptyDescription>
+      </EmptyHeader>
+
+      <EmptyContent className="flex-row items-center justify-center gap-0">
+        <p className="text-muted-foreground">Need Something Specific?</p>
+        <Button
+          variant="link"
+          asChild
+          className="text-muted-foreground"
+          size="sm"
+        >
+          <a href="/contact">
+            Contact Us
+            <ArrowUpRightIcon />
+          </a>
+        </Button>
+      </EmptyContent>
+    </Empty>
   );
 }

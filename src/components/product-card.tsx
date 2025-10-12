@@ -27,6 +27,7 @@ export function ProductCard({
             width={512}
             height={512}
             className="size-full rounded-none border-none"
+            priority
           />
         </AspectRatio>
 

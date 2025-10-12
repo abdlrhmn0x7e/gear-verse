@@ -25,6 +25,11 @@ export function SuspendableImage({
     setHasError(false);
   }, [src]);
 
+  // if the component is remounted and loading is set to true, and src didn't change, set it to false
+  useEffect(() => {
+    setIsLoading((prev) => !prev);
+  }, []);
+
   if (hasError) {
     return (
       <div className="bg-muted flex size-full flex-col items-center justify-center gap-3 rounded-lg">
@@ -48,7 +53,9 @@ export function SuspendableImage({
           "size-full object-cover transition-opacity duration-300",
           isLoading ? "opacity-0" : "opacity-100",
         )}
-        onLoad={() => {
+        onLoadingComplete={() => {
+          // Handles cached images where onLoad might not fire
+          console.log("onLoadingComplete");
           setIsLoading(false);
         }}
         onError={() => {

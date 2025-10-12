@@ -3,6 +3,7 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
   brands,
+  categories,
   inventoryItems,
   media,
   productOptions,
@@ -25,8 +26,8 @@ export const _products = {
       pageSize: number;
       filters?: {
         title?: string | null;
-        brands?: number[] | null;
-        categories?: number[] | null;
+        brands?: string[] | null;
+        categories?: string[] | null;
       };
     }) {
       const whereClause = [
@@ -37,20 +38,19 @@ export const _products = {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
       }
       if (filters?.brands) {
-        whereClause.push(inArray(products.brandId, filters.brands));
+        whereClause.push(inArray(brands.slug, filters.brands));
       }
       if (filters?.categories) {
-        const categoriesIds = new Set<number>([...filters.categories]);
+        const categoriesSlugs = new Set<string>([...filters.categories]);
         await Promise.all(
-          filters.categories.map(async (categoryId) => {
-            const ids = await this.helpers.getCategoryIds(categoryId);
-            ids.forEach((id) => categoriesIds.add(id));
+          filters.categories.map(async (categorySlug) => {
+            const slugs =
+              await _products.queries.helpers.getCategorySlugs(categorySlug);
+            slugs.forEach((slug) => categoriesSlugs.add(slug));
           }),
         );
 
-        whereClause.push(
-          inArray(products.categoryId, Array.from(categoriesIds)),
-        );
+        whereClause.push(inArray(categories.slug, Array.from(categoriesSlugs)));
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -134,6 +134,10 @@ export const _products = {
           strikeThroughPrice: products.strikeThroughPrice,
           summary: products.summary,
           thumbnailUrl: media.url,
+          category: {
+            name: categories.name,
+            slug: categories.slug,
+          },
           brand: {
             name: brands.name,
             logoUrl: brandsMedia.url,
@@ -142,6 +146,7 @@ export const _products = {
         })
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
+        .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoin(variantsJson, eq(variantsJson.productId, products.id))
@@ -349,44 +354,28 @@ export const _products = {
         .then(([product]) => product);
     },
 
-    async findByCategoryId(categoryId: number) {
-      const categoriesIds = await this.helpers.getCategoryIds(categoryId);
-      return db
-        .select({
-          id: products.id,
-          slug: products.slug,
-          title: products.title,
-          price: products.price,
-          thumbnailUrl: media.url,
-          summary: products.summary,
-        })
-        .from(products)
-        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
-        .where(inArray(products.categoryId, categoriesIds));
-    },
-
     helpers: {
-      getCategoryIds(categoryId: number) {
-        const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+      async getCategorySlugs(categorySlug: string) {
+        const childrenCategoriesIdsQuery = sql<{ slug: string }[]>`
               WITH RECURSIVE all_children_categories AS (
-                SELECT id 
+                SELECT categories.id, categories.slug 
                 FROM categories
-                WHERE parent_id = ${categoryId}
-    
+                WHERE slug = ${categorySlug}
+
                 UNION ALL
-    
-                SELECT categories.id
+
+                SELECT categories.id, categories.slug
                 FROM categories
                 INNER JOIN all_children_categories
                   ON all_children_categories.id = categories.parent_id
               )
-    
-              SELECT id FROM all_children_categories
+
+              SELECT slug FROM all_children_categories
             `;
 
         return db
-          .execute<{ id: number }>(childrenCategoriesIdsQuery)
-          .then((result) => result.map((row) => row.id));
+          .execute<{ slug: string }>(childrenCategoriesIdsQuery)
+          .then((result) => result.map((row) => row.slug));
       },
     },
   },
