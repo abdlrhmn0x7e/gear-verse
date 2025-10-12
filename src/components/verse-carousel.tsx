@@ -51,7 +51,7 @@ export function VerseCarousel({
                   alt={`Product Image ${index + 1}`}
                   isPriority={index === currentSlide}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="rounded-lg"
+                  className="rounded-lg object-cover object-center"
                   fill
                 />
               </AspectRatio>

@@ -29,6 +29,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagPlus, IconShoppingBagX } from "@tabler/icons-react";
+import { DeleteProductDialog } from "../dialogs/delete-product";
 
 export function ProductDrawer() {
   const isMobile = useIsMobile();
@@ -48,7 +49,7 @@ export function ProductDrawer() {
       direction={isMobile ? "bottom" : "right"}
       handleOnly={!isMobile}
     >
-      <DrawerContent className="pb-24 data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-2xl">
         <ProductDrawerContent />
       </DrawerContent>
     </Drawer>
@@ -207,20 +208,21 @@ function ProductDrawerContent() {
           </DrawerDescription>
         </div>
 
-        <div>
+        <div className="flex gap-2">
           <Button variant="outline" asChild>
             <Link href={`/admin/products/${product.id}/edit`}>
               <PencilIcon />
               Edit
             </Link>
           </Button>
+          <DeleteProductDialog id={product.id} className="px-0" />
         </div>
       </DrawerHeader>
 
-      <ScrollArea className="h-full">
+      <div className="mr-2 overflow-y-auto">
         <Product
           product={product}
-          className="grid-cols-1 p-0 lg:grid-cols-1 [&>div:first-child]:relative [&>div:first-child]:top-6"
+          className="grid-cols-1 p-4 pb-24 lg:grid-cols-1 lg:p-4 [&>div:first-child]:relative [&>div:first-child]:top-6"
           hideActions
         >
           <div>
@@ -232,7 +234,7 @@ function ProductDrawerContent() {
             />
           </div>
         </Product>
-      </ScrollArea>
+      </div>
     </>
   );
 }
