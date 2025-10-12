@@ -72,7 +72,7 @@ export default function Home() {
     <>
       <Hero />
 
-      <div className="via-background absolute -inset-x-0 -bottom-24 -z-10 h-64 bg-gradient-to-b from-transparent from-0% via-50% to-transparent to-100%" />
+      <div className="via-background absolute -inset-x-0 -bottom-24 z-0 h-64 bg-gradient-to-b from-transparent from-0% via-50% to-transparent to-100%" />
 
       <RecentProducts />
 
