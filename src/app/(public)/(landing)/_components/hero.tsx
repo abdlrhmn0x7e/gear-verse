@@ -18,7 +18,6 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { api } from "~/trpc/server";
-import Image from "next/image";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 
 const FEATURES = [
@@ -96,11 +95,10 @@ export function Hero() {
               ratio={1}
               className="flex items-center justify-center rounded-full"
             >
-              <Image
-                src="/images/1.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/test.webp"
                 alt="Hero"
-                width={1024}
-                height={1024}
                 className="animate-blur-in scale-150 rounded-3xl object-cover object-center"
               />
             </AspectRatio>
