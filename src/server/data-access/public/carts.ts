@@ -132,10 +132,8 @@ export const _carts = {
       return db
         .insert(carts)
         .values(cart)
-        .onConflictDoUpdate({
+        .onConflictDoNothing({
           target: [carts.userId],
-          set: cart,
-          setWhere: eq(carts.userId, cart.userId ?? 0), //  to avoid claiming a cart that doesn't belong to the user
         })
         .returning({ id: carts.id })
         .then(([res]) => res);
@@ -210,7 +208,8 @@ export const _carts = {
         .update(carts)
         .set({ userId })
         .where(eq(carts.id, cartId))
-        .returning({ id: carts.id });
+        .returning({ id: carts.id })
+        .then(([res]) => res);
     },
   },
 };

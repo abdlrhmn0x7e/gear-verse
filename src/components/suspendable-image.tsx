@@ -53,7 +53,7 @@ export function SuspendableImage({
           "size-full object-cover transition-opacity duration-300",
           isLoading ? "opacity-0" : "opacity-100",
         )}
-        onLoadingComplete={() => {
+        onLoad={() => {
           // Handles cached images where onLoad might not fire
           console.log("onLoadingComplete");
           setIsLoading(false);

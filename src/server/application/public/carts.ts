@@ -14,6 +14,7 @@ export const _carts = {
         );
 
         if (error || !cart) {
+          console.error("create cart error", error);
           throw new AppError("Failed to create cart", "INTERNAL", {
             cause: error,
           });
@@ -25,10 +26,26 @@ export const _carts = {
       const { data: cart, error } = await tryCatch(
         data.public.carts.queries.find(cartId, userId),
       );
-      if (error || !cart) {
+      if (error) {
         throw new AppError("Cart not found", "NOT_FOUND", {
           cause: error,
         });
+      }
+
+      // the user had a guest cart and logged in
+      // the guest cart must be claimed
+      if (!cart && userId) {
+        const { data: cart, error } = await tryCatch(
+          data.public.carts.mutations.associateWithUser(cartId, userId),
+        );
+
+        if (error || !cart) {
+          throw new AppError("Failed to associate cart with user", "INTERNAL", {
+            cause: error,
+          });
+        }
+
+        return { id: cart.id, items: [] };
       }
 
       return cart;
