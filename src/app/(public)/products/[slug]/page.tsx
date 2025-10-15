@@ -20,7 +20,7 @@ export default async function ProductPage({
   }
 
   return (
-    <section className="py-24 lg:py-32">
+    <section className="py-24 xl:py-32">
       <Product product={product}>
         <Tabs defaultValue="details" className="space-y-4">
           <TabsList className="w-full">

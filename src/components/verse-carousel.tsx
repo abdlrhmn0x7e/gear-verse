@@ -38,14 +38,11 @@ export function VerseCarousel({
   return (
     <div className={cn("space-y-4", className)} dir="ltr">
       {/* Main Carousel */}
-      <Carousel
-        className="relative size-full overflow-hidden rounded-lg"
-        setApi={setApi}
-      >
+      <Carousel className="relative overflow-hidden rounded-lg" setApi={setApi}>
         <CarouselContent>
           {photos.map((photo, index) => (
             <CarouselItem key={index}>
-              <AspectRatio ratio={1 / 1}>
+              <AspectRatio ratio={1 / 1} className="h-full">
                 <SuspendableImage
                   src={photo}
                   alt={`Product Image ${index + 1}`}

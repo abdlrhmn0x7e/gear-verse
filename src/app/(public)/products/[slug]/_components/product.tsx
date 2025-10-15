@@ -108,22 +108,19 @@ export function Product({
 
   return (
     <MaxWidthWrapper
-      className={cn(
-        "relative space-y-4 lg:grid lg:grid-cols-2 lg:gap-12",
-        className,
-      )}
+      className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
     >
-      <div className="h-fit w-full max-w-full lg:sticky lg:top-32">
+      <div className="h-full lg:sticky lg:top-32">
         <VerseCarousel
           photos={[selectedVariant.thumbnailUrl, ...product.media]}
-          className="w-full max-w-full"
+          className="mx-auto lg:max-w-4/5"
         />
 
         <ProductBrandBadge
           brand={product.brand}
           selectedVariantInStock={selectedVariantInStock}
           stock={selectedVariant.stock}
-          className="absolute top-2 right-6 z-10 lg:hidden"
+          className="absolute top-2 right-6 z-10 md:right-14 lg:hidden"
         />
       </div>
 
