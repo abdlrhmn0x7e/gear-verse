@@ -4,8 +4,8 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { admin, anonymous } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { data } from "./data-access";
-import { tryCatch } from "~/lib/utils/try-catch";
+import { addresses, carts, orders, users } from "./db/schema";
+import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -53,30 +53,27 @@ export const auth = betterAuth({
         const parsedNewUserId = Number(newUser.user.id);
 
         // move ownerships
-        const ownershipPromises = [
-          data.admin.carts.mutations.moveOwnership(
-            parsedAnonymousUserId,
-            parsedNewUserId,
-          ),
-          data.admin.addresses.mutations.moveOwnership(
-            parsedAnonymousUserId,
-            parsedNewUserId,
-          ),
-          data.admin.orders.mutations.moveOwnership(
-            parsedAnonymousUserId,
-            parsedNewUserId,
-          ),
-        ];
+        await db.transaction(async (tx) => {
+          // delete existing cart for the new user
+          await tx.delete(carts).where(eq(carts.userId, parsedNewUserId));
 
-        const { error } = await tryCatch(Promise.all(ownershipPromises));
-        if (error) {
-          console.error("Error moving ownership", error);
-        }
+          // move ownerships
+          await tx
+            .update(carts)
+            .set({ userId: parsedNewUserId })
+            .where(eq(carts.userId, parsedAnonymousUserId));
+          await tx
+            .update(addresses)
+            .set({ userId: parsedNewUserId })
+            .where(eq(addresses.userId, parsedAnonymousUserId));
+          await tx
+            .update(orders)
+            .set({ userId: parsedNewUserId })
+            .where(eq(orders.userId, parsedAnonymousUserId));
 
-        // delete the anonymous user
-        // I can't let better-auth handle this because the deletion happens
-        // before the account is linked
-        await data.admin.users.mutations.delete(parsedAnonymousUserId);
+          // delete the anonymous user
+          await tx.delete(users).where(eq(users.id, parsedAnonymousUserId));
+        });
       },
 
       disableDeleteAnonymousUser: true,
