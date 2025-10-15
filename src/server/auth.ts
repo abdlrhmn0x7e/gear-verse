@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { data } from "./data-access";
 import { cookies } from "next/headers";
 import { CART_COOKIE_NAME } from "~/lib/constants";
+import { tryCatch } from "~/lib/utils/try-catch";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -45,5 +46,36 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [nextCookies(), admin(), anonymous()],
+  plugins: [
+    nextCookies(),
+    admin(),
+    anonymous({
+      onLinkAccount: async ({ anonymousUser, newUser }) => {
+        const parsedAnonymousUserId = Number(anonymousUser.user.id);
+        const parsedNewUserId = Number(newUser.user.id);
+
+        // move cart ownership
+        const ownershipPromises = [
+          data.public.carts.mutations.moveOwnership(
+            parsedAnonymousUserId,
+            parsedNewUserId,
+          ),
+          data.public.addresses.mutations.moveOwnership(
+            parsedAnonymousUserId,
+            parsedNewUserId,
+          ),
+
+          data.public.orders.mutations.moveOwnership(
+            parsedAnonymousUserId,
+            parsedNewUserId,
+          ),
+        ];
+
+        const { error } = await tryCatch(Promise.all(ownershipPromises));
+        if (error) {
+          console.error("Error moving ownership", error);
+        }
+      },
+    }),
+  ],
 });

@@ -205,5 +205,28 @@ export const _carts = {
         .returning({ id: carts.id })
         .then(([res]) => res);
     },
+
+    moveOwnership: async (oldUserId: number, newUserId: number) => {
+      // Check if a cart already exists for the new user.
+      const existing = await db
+        .select({ id: carts.id })
+        .from(carts)
+        .where(eq(carts.userId, newUserId))
+        .limit(1)
+        .then(([res]) => res);
+
+      // If new user already has a cart, do nothing.
+      if (existing) {
+        return null;
+      }
+
+      // Otherwise, move the ownership.
+      return db
+        .update(carts)
+        .set({ userId: newUserId })
+        .where(eq(carts.userId, oldUserId))
+        .returning({ id: carts.id })
+        .then(([res]) => res);
+    },
   },
 };

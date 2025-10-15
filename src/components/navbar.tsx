@@ -133,7 +133,7 @@ export function Navbar() {
     <>
       <header className="bg-background/90 fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur">
         <motion.div
-          className="mx-auto space-y-3 px-4 py-4 md:container md:px-8"
+          className="mx-auto space-y-3 px-4 py-4 md:max-w-screen-lg md:px-8 lg:max-w-screen-xl"
           style={{ height: "auto" }}
           transition={{
             duration: 0.3,
