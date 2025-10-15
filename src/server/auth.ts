@@ -52,7 +52,7 @@ export const auth = betterAuth({
         const parsedAnonymousUserId = Number(anonymousUser.user.id);
         const parsedNewUserId = Number(newUser.user.id);
 
-        // move cart ownership
+        // move ownerships
         const ownershipPromises = [
           data.admin.carts.mutations.moveOwnership(
             parsedAnonymousUserId,
@@ -62,7 +62,6 @@ export const auth = betterAuth({
             parsedAnonymousUserId,
             parsedNewUserId,
           ),
-
           data.admin.orders.mutations.moveOwnership(
             parsedAnonymousUserId,
             parsedNewUserId,

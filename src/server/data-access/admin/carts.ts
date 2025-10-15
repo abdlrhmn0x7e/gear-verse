@@ -22,7 +22,6 @@ export const _carts = {
         .update(carts)
         .set({ userId: newUserId })
         .where(eq(carts.userId, oldUserId))
-        .returning({ id: carts.id })
         .then(([res]) => res);
     },
   },
