@@ -29,8 +29,8 @@ export const orders = pgTable(
       .generatedAlwaysAsIdentity(),
 
     userId: bigint("user_id", { mode: "number" })
-      .notNull()
-      .references(() => users.id),
+      .references(() => users.id)
+      .notNull(),
     addressId: bigint("address_id", { mode: "number" })
       .notNull()
       .references(() => addresses.id),

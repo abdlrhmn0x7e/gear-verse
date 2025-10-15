@@ -5,18 +5,23 @@ import { errorMap } from "../../error-map";
 
 export const userOrdersRouter = createTRPCRouter({
   queries: {
-    findAll: protectedProcedure.query(({ ctx }) => {
-      return ctx.app.public.orders.queries.findAll(Number(ctx.session.user.id));
+    findAll: protectedProcedure.query(async ({ ctx }) => {
+      const parsedUserId = Number(ctx.session.user.id);
+      const { data, error } = await tryCatch(
+        ctx.app.public.orders.queries.findAll(parsedUserId),
+      );
+      if (error) {
+        throw errorMap(error);
+      }
+      return data;
     }),
 
     findById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
+        const parsedUserId = Number(ctx.session.user.id);
         const { data: order, error } = await tryCatch(
-          ctx.app.public.orders.queries.findById(
-            input.id,
-            Number(ctx.session.user.id),
-          ),
+          ctx.app.public.orders.queries.findById(input.id, parsedUserId),
         );
 
         if (error) {

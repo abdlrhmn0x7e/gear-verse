@@ -3,7 +3,6 @@
 import {
   IconBrandDiscord,
   IconBrandFacebook,
-  IconBrandGoogle,
   IconBrandTiktok,
   IconShoppingBag,
   IconShoppingBagMinus,
@@ -16,7 +15,6 @@ import {
 } from "@tabler/icons-react";
 import {
   ArrowRightCircleIcon,
-  DoorOpenIcon,
   HomeIcon,
   MinusIcon,
   PlusIcon,
@@ -62,7 +60,6 @@ import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { ImageWithFallback } from "./image-with-fallback";
-import { ModeToggle } from "./mode-toggle";
 import {
   Drawer,
   DrawerContent,
@@ -75,19 +72,6 @@ import {
 import { Kbd, KbdGroup } from "./ui/kbd";
 import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
-import {
-  DrawerDialog,
-  DrawerDialogContent,
-  DrawerDialogHeader,
-  DrawerDialogTrigger,
-  DrawerDialogTitle,
-  DrawerDialogBody,
-  DrawerDialogDescription,
-  DrawerDialogFooter,
-} from "./ui/drawer-dialog";
-import { useMutation } from "@tanstack/react-query";
-import { Spinner } from "./spinner";
-
 export interface NavigationLink {
   title: string;
   icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
@@ -115,14 +99,16 @@ const NAV_ITEMS = [
 ] as const satisfies ReadonlyArray<NavigationLink>;
 
 export function Navbar() {
-  const { data } = authClient.useSession();
+  const { data, isPending: isPendingSession } = authClient.useSession();
   const user = data?.user ?? null;
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [openCart, setOpenCart] = useState(false);
 
   const utils = api.useUtils();
   const { data: cart, isPending: isPendingCart } =
-    api.public.carts.queries.find.useQuery();
+    api.public.carts.queries.find.useQuery(undefined, {
+      enabled: !!user,
+    });
   const pathname = usePathname();
 
   // prefetch products
@@ -131,6 +117,13 @@ export function Navbar() {
       pageSize: 6,
     });
   }, [utils]);
+
+  // login anonymously if the user is not authenticated
+  useEffect(() => {
+    if (!user && !isPendingSession) {
+      void authClient.signIn.anonymous();
+    }
+  }, [user, isPendingSession]);
 
   useEffect(() => {
     setProductsMenuOpen(false);
@@ -188,40 +181,31 @@ export function Navbar() {
                 </KbdGroup>
               </ProductSearchDialog>
 
-              {user ? (
-                <div className="flex items-center gap-1">
-                  {user.role === "admin" && (
-                    <Button
-                      variant="outline"
-                      className="size-9 rounded-full"
-                      asChild
-                    >
-                      <Link href="/admin">
-                        <ShieldUserIcon />
-                        <span className="sr-only">Admin</span>
-                      </Link>
-                    </Button>
-                  )}
+              <div className="flex items-center gap-1">
+                {user?.role === "admin" && (
+                  <Button
+                    variant="outline"
+                    className="size-9 rounded-full"
+                    asChild
+                  >
+                    <Link href="/admin">
+                      <ShieldUserIcon />
+                      <span className="sr-only">Admin</span>
+                    </Link>
+                  </Button>
+                )}
 
-                  <CartButton
-                    isPendingCart={isPendingCart}
-                    openCart={() => setOpenCart(true)}
-                  />
+                <CartButton
+                  isPendingCart={isPendingCart}
+                  openCart={() => setOpenCart(true)}
+                />
 
-                  <ProfileDropdown className="ml-1" user={user} />
-                </div>
-              ) : (
-                <>
-                  <ModeToggle />
-
-                  <CartButton
-                    isPendingCart={isPendingCart}
-                    openCart={() => setOpenCart(true)}
-                  />
-
-                  <LoginDrawerDialog />
-                </>
-              )}
+                {isPendingSession || !user ? (
+                  <Skeleton className="size-9 rounded-full" />
+                ) : (
+                  <ProfileDropdown className="ml-1 border" user={user} />
+                )}
+              </div>
             </div>
           </nav>
 
@@ -236,53 +220,6 @@ export function Navbar() {
       )}
       <MobileMenu />
     </>
-  );
-}
-
-function LoginDrawerDialog() {
-  const { mutate: signInWithGoogle, isPending: isSigningIn } = useMutation({
-    mutationFn: () =>
-      authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      }),
-  });
-
-  return (
-    <DrawerDialog>
-      <DrawerDialogTrigger asChild>
-        <Button className="size-9 rounded-full sm:size-auto sm:rounded-md">
-          <DoorOpenIcon />
-          <span className="hidden sm:block">Login</span>
-        </Button>
-      </DrawerDialogTrigger>
-      <DrawerDialogContent>
-        <DrawerDialogHeader className="gap-1">
-          <Logo className="mx-auto" />
-          <DrawerDialogTitle className="text-center text-2xl">
-            Welcome to GearVerse
-          </DrawerDialogTitle>
-          <DrawerDialogDescription className="text-center">
-            Sign in/up to your account
-          </DrawerDialogDescription>
-        </DrawerDialogHeader>
-
-        <DrawerDialogBody className="flex flex-col items-center gap-3">
-          <Button
-            onClick={() => signInWithGoogle()}
-            disabled={isSigningIn}
-            className="w-full"
-          >
-            {isSigningIn ? <Spinner /> : <IconBrandGoogle />}
-            Continue with Google
-          </Button>
-          <p className="text-muted-foreground text-center text-sm">
-            Don&apos;t have an account? No problem—one will be created
-            automatically when you sign in for the first time.
-          </p>
-        </DrawerDialogBody>
-      </DrawerDialogContent>
-    </DrawerDialog>
   );
 }
 

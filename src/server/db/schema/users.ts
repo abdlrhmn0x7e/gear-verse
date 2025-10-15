@@ -26,6 +26,8 @@ export const users = pgTable(
     banned: boolean("banned").default(false),
     banReason: text("ban_reason"),
     banExpiresAt: timestamp("ban_expires_at"),
+
+    isAnonymous: boolean("is_anonymous").default(false),
   },
   (table) => [uniqueIndex("user_email_unique_idx").on(table.email)],
 );

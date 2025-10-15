@@ -6,7 +6,7 @@ type NewAddress = typeof addresses.$inferInsert;
 
 export const _addresses = {
   queries: {
-    findAll: async (userId: number) => {
+    findAll: async ({ userId }: { userId: number }) => {
       return db
         .select({
           id: addresses.id,

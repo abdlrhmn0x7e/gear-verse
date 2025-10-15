@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BanknoteIcon, CreditCardIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import type z from "zod";
 import {
   Empty,
@@ -16,8 +16,9 @@ import {
   Field,
   FieldContent,
   FieldDescription,
-  FieldGroup,
+  FieldError,
   FieldLabel,
+  FieldLegend,
   FieldSet,
   FieldTitle,
 } from "~/components/ui/field";
@@ -116,88 +117,78 @@ export function CheckoutForm({
           )}
         />
 
-        <FormField
-          control={form.control}
+        <Controller
           name="addressId"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <FieldGroup>
-                  <FieldSet>
-                    <FieldLabel htmlFor="compute-environment-p8w">
-                      Address
-                    </FieldLabel>
-                    <FieldDescription>
-                      Select the address for your order.
-                    </FieldDescription>
-
-                    <RadioGroup
-                      value={field.value.toString()}
-                      onValueChange={field.onChange}
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <FieldSet>
+              <FieldLegend>Address</FieldLegend>
+              {addresses?.length === 0 ? (
+                <Empty className="gap-2">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <IconHomeOff />
+                    </EmptyMedia>
+                  </EmptyHeader>
+                  <EmptyTitle className="text-lg font-medium tracking-tight">
+                    No addresses found
+                  </EmptyTitle>
+                  <EmptyDescription className="max-w-sm">
+                    You haven&apos;t added any addresses yet. Please add an
+                    address to proceed with your order.
+                  </EmptyDescription>
+                  <EmptyContent>
+                    <AddAddressDrawerDialog
+                      onSuccess={(id: number) => {
+                        form.setValue("addressId", id);
+                      }}
                     >
-                      {addresses?.length === 0 ? (
-                        <Empty className="gap-2">
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                              <IconHomeOff />
-                            </EmptyMedia>
-                          </EmptyHeader>
-                          <EmptyTitle className="text-lg font-medium tracking-tight">
-                            No addresses found
-                          </EmptyTitle>
-                          <EmptyDescription className="max-w-sm">
-                            You haven&apos;t added any addresses yet. Please add
-                            an address to proceed with your order.
-                          </EmptyDescription>
-                          <EmptyContent>
-                            <AddAddressDrawerDialog>
-                              <Button variant="ghost" type="button">
-                                <IconHomePlus />
-                                Add Address
-                              </Button>
-                            </AddAddressDrawerDialog>
-                          </EmptyContent>
-                        </Empty>
-                      ) : (
-                        <div className="space-y-4">
-                          {addresses?.map((address) => (
-                            <FieldLabel
-                              htmlFor={address.id.toString()}
-                              key={address.id}
-                            >
-                              <Field orientation="horizontal">
-                                <FieldContent>
-                                  <FieldTitle>
-                                    {address.fullName} - {address.phoneNumber}
-                                  </FieldTitle>
-                                  <FieldDescription>
-                                    {address.address}
-                                  </FieldDescription>
-                                </FieldContent>
-                                <RadioGroupItem
-                                  value={address.id.toString()}
-                                  id={address.id.toString()}
-                                />
-                              </Field>
-                            </FieldLabel>
-                          ))}
-
-                          <div className="ml-auto w-fit">
-                            <AddAddressDrawerDialog>
-                              <Button variant="ghost" type="button">
-                                <IconHomePlus />
-                                Add Address
-                              </Button>
-                            </AddAddressDrawerDialog>
-                          </div>
-                        </div>
-                      )}
-                    </RadioGroup>
-                  </FieldSet>
-                </FieldGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+                      <Button variant="ghost" type="button">
+                        <IconHomePlus />
+                        Add Address
+                      </Button>
+                    </AddAddressDrawerDialog>
+                  </EmptyContent>
+                </Empty>
+              ) : (
+                <>
+                  <RadioGroup
+                    name={field.name}
+                    value={field.value.toString()}
+                    onValueChange={field.onChange}
+                  >
+                    {addresses?.map((address) => (
+                      <FieldLabel
+                        key={address.id}
+                        htmlFor={`form-rhf-radiogroup-${address.id}`}
+                      >
+                        <Field
+                          orientation="horizontal"
+                          data-invalid={fieldState.invalid}
+                        >
+                          <FieldContent>
+                            <FieldTitle>
+                              {address.fullName} - {address.phoneNumber}
+                            </FieldTitle>
+                            <FieldDescription>
+                              {address.address}
+                            </FieldDescription>
+                          </FieldContent>
+                          <RadioGroupItem
+                            value={address.id.toString()}
+                            id={`form-rhf-radiogroup-${address.id}`}
+                            aria-invalid={fieldState.invalid}
+                          />
+                        </Field>
+                      </FieldLabel>
+                    ))}
+                  </RadioGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </>
+              )}
+            </FieldSet>
           )}
         />
       </form>

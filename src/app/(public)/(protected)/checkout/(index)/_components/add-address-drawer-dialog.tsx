@@ -18,14 +18,19 @@ import { Spinner } from "~/components/spinner";
 
 export function AddAddressDrawerDialog({
   children,
+  onSuccess,
   className,
-}: PropsWithChildren<{ className?: string }>) {
+}: PropsWithChildren<{
+  className?: string;
+  onSuccess?: (id: number) => void;
+}>) {
   const [open, setOpen] = useState(false);
   const utils = api.useUtils();
   const { mutate: addAddress, isPending: isAddingAddress } =
     api.public.checkout.mutations.addAddress.useMutation({
-      onSuccess: () => {
+      onSuccess: (data) => {
         void utils.public.checkout.queries.getAddresses.invalidate();
+        onSuccess?.(data.id);
         setOpen(false);
       },
     });

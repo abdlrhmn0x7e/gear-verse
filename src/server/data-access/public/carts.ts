@@ -26,7 +26,7 @@ export const _carts = {
         .then(([res]) => res);
     },
 
-    find: async (cartId: number, userId?: number) => {
+    find: async (userId: number) => {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
@@ -116,14 +116,8 @@ export const _carts = {
         })
         .from(carts)
         .leftJoin(cartVariantsJson, eq(carts.id, cartVariantsJson.id))
-        .where(
-          and(
-            eq(carts.id, cartId),
-            userId ? eq(carts.userId, userId) : undefined,
-          ),
-        )
-        .limit(1)
-        .then(([res]) => res);
+        .where(eq(carts.userId, userId))
+        .then(([res]) => res ?? null);
     },
   },
 

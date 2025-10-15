@@ -47,8 +47,8 @@ export const addresses = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
     userId: bigint("user_id", { mode: "number" })
-      .notNull()
-      .references(() => users.id),
+      .references(() => users.id)
+      .notNull(),
 
     fullName: text("full_name").notNull(),
     phoneNumber: text("phone_number").notNull(),

@@ -2,9 +2,7 @@ import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function UserLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,7 +11,7 @@ export default async function UserLayout({
     headers: await headers(),
   });
 
-  if (!session?.user) {
+  if (!session) {
     return notFound();
   }
 

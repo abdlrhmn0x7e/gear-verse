@@ -69,7 +69,7 @@ export function AddressForm({
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="Mohammed Khamis" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

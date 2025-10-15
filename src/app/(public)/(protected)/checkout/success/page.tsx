@@ -12,7 +12,7 @@ import {
 import { api } from "~/trpc/server";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { Separator } from "~/components/ui/separator";
-import { PaymentMethod } from "../_components/payment-method";
+import { PaymentMethod } from "../../_components/payment-method";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 
@@ -22,7 +22,7 @@ export default async function SuccessPage({
   searchParams: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await searchParams;
-  const parsedOrderId = parseInt(orderId);
+  const parsedOrderId = Number(orderId);
   if (isNaN(parsedOrderId)) {
     return notFound();
   }
@@ -34,7 +34,7 @@ export default async function SuccessPage({
 
   return (
     <section>
-      <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32 sm:py-48">
+      <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32">
         <div className="flex flex-col items-center gap-4">
           <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
           <div className="text-center">

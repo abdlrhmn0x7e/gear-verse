@@ -31,11 +31,11 @@ export function CompleteCheckout({
   }
 
   return (
-    <div className={cn("relative flex flex-col", className)}>
+    <div className={cn("relative flex flex-col gap-4", className)}>
       <div className="flex items-center gap-2">
         <SparklesIcon className="mb-1 size-6" />
 
-        <Heading level={1} className="text-lg md:text-xl">
+        <Heading level={3} font="default" className="text-lg md:text-xl">
           Gear Verse
         </Heading>
       </div>

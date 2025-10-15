@@ -5,68 +5,59 @@ import { data } from "~/server/data-access";
 
 export const _carts = {
   queries: {
-    find: async ({ cartId, userId }: { cartId?: number; userId?: number }) => {
-      if (!cartId) {
-        const { data: cart, error } = await tryCatch(
-          data.public.carts.mutations.create({
-            userId,
-          }),
-        );
-
-        if (error || !cart) {
-          console.error("create cart error", error);
-          throw new AppError("Failed to create cart", "INTERNAL", {
-            cause: error,
-          });
-        }
-
-        return { id: cart.id, items: [] };
-      }
-
+    find: async (userId: number) => {
       const { data: cart, error } = await tryCatch(
-        data.public.carts.queries.find(cartId, userId),
+        data.public.carts.queries.find(userId),
       );
-      if (error) {
-        throw new AppError("Cart not found", "NOT_FOUND", {
+      if (error || !cart) {
+        throw new AppError("Failed to find cart", "INTERNAL", {
           cause: error,
         });
-      }
-
-      // the user had a guest cart and logged in
-      // the guest cart must be claimed
-      if (!cart && userId) {
-        const { data: cart, error } = await tryCatch(
-          data.public.carts.mutations.associateWithUser(cartId, userId),
-        );
-
-        if (error || !cart) {
-          throw new AppError("Failed to associate cart with user", "INTERNAL", {
-            cause: error,
-          });
-        }
-
-        return { id: cart.id, items: [] };
       }
 
       return cart;
     },
 
     getItemsStock: async (productVariantIds: number[]) => {
-      return data.public.inventory.queries.getItemsStock(productVariantIds);
+      const { data: itemsStock, error } = await tryCatch(
+        data.public.inventory.queries.getItemsStock(productVariantIds),
+      );
+      if (error) {
+        throw new AppError("Failed to get items stock", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return itemsStock;
     },
   },
 
   mutations: {
-    addItem: async (userId: number, item: NewCartItem) => {
+    addItem: async ({
+      userId,
+      item,
+    }: {
+      userId: number;
+      item: NewCartItem;
+    }) => {
       const cart = await data.public.carts.queries.find(userId);
       if (!cart) {
         throw new AppError("Cart not found", "NOT_FOUND");
       }
 
-      return data.public.carts.mutations.addItem({ ...item, cartId: cart.id });
+      return data.public.carts.mutations.addItem({
+        ...item,
+        cartId: cart.id ?? 0,
+      });
     },
 
-    removeItem: async (userId: number, productVariantId: number) => {
+    removeItem: async ({
+      userId,
+      productVariantId,
+    }: {
+      userId: number;
+      productVariantId: number;
+    }) => {
       const cart = await data.public.carts.queries.find(userId);
       if (!cart) {
         throw new AppError("Cart not found", "NOT_FOUND");
