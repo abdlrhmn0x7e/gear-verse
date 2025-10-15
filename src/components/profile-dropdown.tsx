@@ -30,6 +30,8 @@ import type { User } from "~/lib/auth-client";
 import { LoginDrawerDialog } from "./login-drawer-dialog";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { Skeleton } from "./ui/skeleton";
 
 export function ProfileDropdown({
   className,
@@ -38,9 +40,19 @@ export function ProfileDropdown({
   className?: string;
   user: User;
 }) {
-  const [openLoginDrawerDialog, setOpenLoginDrawerDialog] = useState(false);
-  const { setTheme, theme } = useTheme();
   const router = useRouter();
+  const { setTheme, theme } = useTheme();
+  const [openLoginDrawerDialog, setOpenLoginDrawerDialog] = useState(false);
+  const { mutate: signOut, isPending: isSigningOut } = useMutation({
+    mutationFn: () => authClient.signOut(),
+    onSuccess: () => {
+      router.push("/");
+    },
+  });
+
+  if (isSigningOut) {
+    return <Skeleton className="size-9 rounded-full" />;
+  }
 
   return (
     <>
@@ -66,9 +78,11 @@ export function ProfileDropdown({
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
-                </span>
+                {!user.isAnonymous && (
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user.email}
+                  </span>
+                )}
               </div>
             </div>
           </DropdownMenuLabel>
@@ -104,12 +118,7 @@ export function ProfileDropdown({
             </Link>
           </DropdownMenuItem>
           {!user.isAnonymous ? (
-            <DropdownMenuItem
-              onClick={async () => {
-                await authClient.signOut();
-                router.push("/");
-              }}
-            >
+            <DropdownMenuItem onClick={() => signOut()}>
               <LogOutIcon />
               Logout
             </DropdownMenuItem>

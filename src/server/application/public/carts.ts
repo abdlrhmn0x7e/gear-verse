@@ -9,10 +9,26 @@ export const _carts = {
       const { data: cart, error } = await tryCatch(
         data.public.carts.queries.find(userId),
       );
-      if (error || !cart) {
+      if (error) {
         throw new AppError("Failed to find cart", "INTERNAL", {
           cause: error,
         });
+      }
+
+      // if there's no cart create one
+      if (!cart) {
+        const { data: newCart, error: newCartError } = await tryCatch(
+          data.public.carts.mutations.create({
+            userId,
+          }),
+        );
+        if (newCartError || !newCart) {
+          throw new AppError("Failed to create cart", "INTERNAL", {
+            cause: newCartError,
+          });
+        }
+
+        return { id: newCart.id, items: [] };
       }
 
       return cart;

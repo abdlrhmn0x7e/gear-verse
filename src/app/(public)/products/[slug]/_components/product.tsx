@@ -110,7 +110,7 @@ export function Product({
     <MaxWidthWrapper
       className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
     >
-      <div className="h-full lg:sticky lg:top-32">
+      <div className="h-fit lg:sticky lg:top-24">
         <VerseCarousel
           photos={[selectedVariant.thumbnailUrl, ...product.media]}
           className="mx-auto lg:max-w-4/5"

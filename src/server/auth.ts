@@ -2,11 +2,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "~/env";
 import { db } from "~/server/db";
-import { admin, anonymous, createAuthMiddleware } from "better-auth/plugins";
+import { admin, anonymous } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { data } from "./data-access";
-import { cookies } from "next/headers";
-import { CART_COOKIE_NAME } from "~/lib/constants";
 import { tryCatch } from "~/lib/utils/try-catch";
 
 export const auth = betterAuth({

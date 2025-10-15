@@ -1,4 +1,4 @@
-import { desc, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 
@@ -12,6 +12,7 @@ export const _users = {
             image: users.image,
           })
           .from(users)
+          .where(eq(users.isAnonymous, false))
           .orderBy(desc(users.id)) // Assuming 'id' can be used to determine latest if 'createdAt' isn't available
           .limit(5),
       );

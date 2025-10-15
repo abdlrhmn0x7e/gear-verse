@@ -33,7 +33,7 @@ export function Hero() {
       <div className="bg-background relative min-h-screen w-full">
         {/* Pink Glow Background */}
         <div className="absolute inset-0 z-0 [background-image:radial-gradient(125%_125%_at_50%_90%,var(--background)_40%,var(--primary)_200%)] [background-size:100%_100%]" />
-        <MaxWidthWrapper className="relative z-10 flex h-screen flex-col items-center justify-center py-32 md:py-48">
+        <MaxWidthWrapper className="relative z-10 flex h-screen flex-col items-center justify-center py-32">
           <div className="grid h-full grid-cols-1 lg:grid-cols-2">
             <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
               <Badge>
@@ -42,7 +42,11 @@ export function Hero() {
               </Badge>
 
               <div className="space-y-3">
-                <Heading className="text-accent-foreground relative text-pretty">
+                <Heading
+                  level={2}
+                  font="default"
+                  className="text-accent-foreground relative text-pretty"
+                >
                   The World&apos;s Best Gear{" "}
                   <span className="relative inline-block">
                     <Sparkles className="animate-twinkle absolute -top-1 -right-2 size-4 lg:top-0" />
@@ -50,7 +54,7 @@ export function Hero() {
                   </span>{" "}
                   in Egypt.
                 </Heading>
-                <p className="text-muted-foreground max-w-xl text-base lg:text-xl">
+                <p className="text-muted-foreground max-w-xl text-base lg:text-lg">
                   We&apos;re gamers who got tired of the system. So we built the
                   solution: A curated store of the best international brands,
                   fully cleared and delivered fast, so you never have to worry
