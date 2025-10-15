@@ -17,7 +17,7 @@ import {
 
 export const _products = {
   queries: {
-    async getPage({
+    getPage: async ({
       cursor,
       pageSize,
       filters,
@@ -29,7 +29,7 @@ export const _products = {
         brands?: string[] | null;
         categories?: string[] | null;
       };
-    }) {
+    }) => {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),

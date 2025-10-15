@@ -25,7 +25,7 @@ export function DeleteProductDialog({
 }: {
   id: number;
   showText?: boolean;
-  variant?: "destructive" | "destructiveGhost";
+  variant?: "destructive" | "destructive-outline";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   onDeleteSuccess?: () => void;

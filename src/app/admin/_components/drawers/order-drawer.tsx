@@ -147,7 +147,7 @@ function OrderDrawerContent() {
               <EditIcon className="size-4" />
             </Button>
 
-            <Button variant="destructiveGhost" size="icon">
+            <Button variant="destructive-outline" size="icon">
               <TrashIcon className="size-4" />
             </Button>
           </div>

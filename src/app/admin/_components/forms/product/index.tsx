@@ -220,10 +220,12 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Editor
-                        onUpdate={field.onChange}
-                        defaultContent={field.value}
-                      />
+                      <MediaStoreProvider>
+                        <Editor
+                          onUpdate={field.onChange}
+                          defaultContent={field.value}
+                        />
+                      </MediaStoreProvider>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

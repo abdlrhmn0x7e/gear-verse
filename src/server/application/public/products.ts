@@ -1,4 +1,4 @@
-import type { ProductsGetPageInput } from "~/lib/schemas/contracts";
+import type { ProductsGetPageInput } from "~/lib/schemas/contracts/public/products";
 import { paginate } from "../helpers/pagination";
 import { data } from "~/server/data-access";
 import { AppError } from "~/lib/errors/app-error";

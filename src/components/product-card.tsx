@@ -8,6 +8,7 @@ import { AspectRatio } from "./ui/aspect-ratio";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { Card, CardContent, CardHeader } from "./ui/card";
 
 export function ProductCard({
   product,
@@ -16,22 +17,23 @@ export function ProductCard({
 }) {
   return (
     <Link href={`/products/${product.slug}`} className="group">
-      <div className="bg-card space-y-3 rounded-lg border p-1">
-        <AspectRatio
-          ratio={16 / 10}
-          className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
-        >
-          <ImageWithFallback
-            src={product.thumbnailUrl}
-            alt={product.title}
-            width={512}
-            height={512}
-            className="size-full rounded-none border-none"
-            priority
-          />
-        </AspectRatio>
-
-        <div className="space-y-3">
+      <Card className="gap-1 p-1">
+        <CardHeader className="p-0">
+          <AspectRatio
+            ratio={16 / 10}
+            className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
+          >
+            <ImageWithFallback
+              src={product.thumbnailUrl}
+              alt={product.title}
+              width={512}
+              height={512}
+              className="size-full rounded-none border-none"
+              priority
+            />
+          </AspectRatio>
+        </CardHeader>
+        <CardContent className="space-y-3 p-0">
           <div className="space-y-3 px-1">
             <div>
               <div className="flex items-center gap-2">
@@ -108,8 +110,8 @@ export function ProductCard({
             <EyeIcon />
             View Details
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }

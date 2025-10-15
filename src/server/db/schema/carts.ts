@@ -43,7 +43,7 @@ export const cartItems = pgTable(
 
     cartId: bigint("cart_id", { mode: "number" })
       .notNull()
-      .references(() => carts.id),
+      .references(() => carts.id, { onDelete: "cascade" }),
     productVariantId: bigint("product_variant_id", {
       mode: "number",
     })

@@ -92,7 +92,9 @@ export function CategoriesCombobox({
   function renderValue(
     value: number,
     flattenedCategories: Array<
-      Category & { path: { icon: CategoryIconEnum; name: string }[] }
+      Omit<Category, "updated_at"> & {
+        path: { icon: CategoryIconEnum; name: string }[];
+      }
     >,
   ) {
     const currentCategory = flattenedCategories.find(

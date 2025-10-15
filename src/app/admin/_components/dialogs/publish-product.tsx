@@ -27,7 +27,7 @@ export function PublishProductDialog({
   id: number;
   published: boolean;
   showText?: boolean;
-  variant?: "destructive" | "destructiveGhost" | "ghost";
+  variant?: "destructive" | "destructive-outline" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   onPublishSuccess?: () => void;

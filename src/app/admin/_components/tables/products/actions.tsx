@@ -66,12 +66,12 @@ export function ProductsTableActions({
             id={id}
             published={published}
             className="w-full justify-start px-0"
-            variant={published ? "destructiveGhost" : "ghost"}
+            variant={published ? "destructive-outline" : "ghost"}
           />
 
           <DeleteProductDialog
             className="w-full justify-start px-0"
-            variant="destructiveGhost"
+            variant="destructive-outline"
             id={id}
           />
         </DropdownMenuGroup>
