@@ -30,6 +30,9 @@ export function LoginDrawerDialog({
         provider: "google",
         callbackURL: "/",
       }),
+    onSuccess: () => {
+      onOpenChange?.(false);
+    },
   });
 
   return (

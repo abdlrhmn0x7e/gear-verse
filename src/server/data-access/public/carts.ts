@@ -207,20 +207,10 @@ export const _carts = {
     },
 
     moveOwnership: async (oldUserId: number, newUserId: number) => {
-      // Check if a cart already exists for the new user.
-      const existing = await db
-        .select({ id: carts.id })
-        .from(carts)
-        .where(eq(carts.userId, newUserId))
-        .limit(1)
-        .then(([res]) => res);
+      // remove any existing cart for the new user
+      await db.delete(carts).where(eq(carts.userId, newUserId));
 
-      // If new user already has a cart, do nothing.
-      if (existing) {
-        return null;
-      }
-
-      // Otherwise, move the ownership.
+      // move the ownership
       return db
         .update(carts)
         .set({ userId: newUserId })
