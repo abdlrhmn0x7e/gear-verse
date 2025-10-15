@@ -184,14 +184,5 @@ export const _orders = {
         return order;
       });
     },
-
-    moveOwnership: async (oldUserId: number, newUserId: number) => {
-      return db
-        .update(orders)
-        .set({ userId: newUserId })
-        .where(eq(orders.userId, oldUserId))
-        .returning({ id: orders.id })
-        .then(([res]) => res);
-    },
   },
 };

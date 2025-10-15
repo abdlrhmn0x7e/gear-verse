@@ -54,16 +54,16 @@ export const auth = betterAuth({
 
         // move cart ownership
         const ownershipPromises = [
-          data.public.carts.mutations.moveOwnership(
+          data.admin.carts.mutations.moveOwnership(
             parsedAnonymousUserId,
             parsedNewUserId,
           ),
-          data.public.addresses.mutations.moveOwnership(
+          data.admin.addresses.mutations.moveOwnership(
             parsedAnonymousUserId,
             parsedNewUserId,
           ),
 
-          data.public.orders.mutations.moveOwnership(
+          data.admin.orders.mutations.moveOwnership(
             parsedAnonymousUserId,
             parsedNewUserId,
           ),
@@ -73,7 +73,14 @@ export const auth = betterAuth({
         if (error) {
           console.error("Error moving ownership", error);
         }
+
+        // delete the anonymous user
+        // I can't let better-auth handle this because the deletion happens
+        // before the account is linked
+        await data.admin.users.mutations.delete(parsedAnonymousUserId);
       },
+
+      disableDeleteAnonymousUser: true,
     }),
   ],
 });

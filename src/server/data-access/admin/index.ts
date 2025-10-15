@@ -8,6 +8,7 @@ import { _users } from "./users";
 import { _addresses } from "./addresses";
 import { _options } from "./options";
 import { _optionValues } from "./option-values";
+import { _carts } from "./carts";
 
 export const _admin = {
   products: _products,
@@ -20,4 +21,5 @@ export const _admin = {
   orders: _orders,
   addresses: _addresses,
   users: _users,
+  carts: _carts,
 };

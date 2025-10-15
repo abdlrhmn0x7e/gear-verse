@@ -30,14 +30,5 @@ export const _addresses = {
         .returning({ id: addresses.id })
         .then(([res]) => res);
     },
-
-    moveOwnership: async (oldUserId: number, newUserId: number) => {
-      return db
-        .update(addresses)
-        .set({ userId: newUserId })
-        .where(eq(addresses.userId, oldUserId))
-        .returning({ id: addresses.id })
-        .then(([res]) => res);
-    },
   },
 };

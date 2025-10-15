@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 export const _users = {
   queries: {
@@ -14,6 +14,15 @@ export const _users = {
         })
         .from(users)
         .orderBy(asc(users.name));
+    },
+  },
+
+  mutations: {
+    delete: async (id: number) => {
+      return db
+        .delete(users)
+        .where(eq(users.id, id))
+        .then(([res]) => res);
     },
   },
 };
