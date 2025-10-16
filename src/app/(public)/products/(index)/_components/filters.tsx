@@ -2,7 +2,6 @@
 
 import { api, type RouterOutputs } from "~/trpc/react";
 import { Heading } from "~/components/heading";
-import { cn } from "~/lib/utils";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { iconsMap } from "~/lib/icons-map";
@@ -19,21 +18,20 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { useMemo } from "react";
+import { Card, CardContent } from "~/components/ui/card";
 
 export function Filters({ className }: { className?: string }) {
   return (
-    <aside
-      id="filters"
-      className={cn(
-        "bg-card sticky top-32 hidden h-fit max-h-[calc(100vh-8rem)] overflow-y-scroll rounded-lg border p-4 pb-12 lg:block",
-        className,
-      )}
-    >
-      <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-8">
-        <CategoryFilter />
-        <BrandFilter />
-        <PriceFilter />
-      </div>
+    <aside id="filters" className={className}>
+      <Card className="p-4">
+        <CardContent className="p-0 pb-4">
+          <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-8">
+            <CategoryFilter />
+            <BrandFilter />
+            <PriceFilter />
+          </div>
+        </CardContent>
+      </Card>
     </aside>
   );
 }

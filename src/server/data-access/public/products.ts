@@ -1,4 +1,4 @@
-import { and, eq, gt, ilike, inArray, sql } from "drizzle-orm";
+import { and, eq, gt, gte, ilike, inArray, lte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -28,8 +28,13 @@ export const _products = {
         title?: string | null;
         brands?: string[] | null;
         categories?: string[] | null;
+        price?: {
+          min?: number | null;
+          max?: number | null;
+        };
       };
     }) => {
+      console.log("product page filter", filters);
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
@@ -51,6 +56,13 @@ export const _products = {
         );
 
         whereClause.push(inArray(categories.slug, Array.from(categoriesSlugs)));
+      }
+
+      if (filters?.price?.min) {
+        whereClause.push(gte(products.price, filters.price.min));
+      }
+      if (filters?.price?.max) {
+        whereClause.push(lte(products.price, filters.price.max));
       }
 
       const brandsMedia = alias(media, "brands_media");
