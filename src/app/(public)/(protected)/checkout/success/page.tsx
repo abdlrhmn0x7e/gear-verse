@@ -15,6 +15,7 @@ import { Separator } from "~/components/ui/separator";
 import { PaymentMethod } from "../../_components/payment-method";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { ImageWithFallback } from "~/components/image-with-fallback";
 
 export default async function SuccessPage({
   searchParams,
@@ -73,20 +74,35 @@ export default async function SuccessPage({
               {order.items.map((item, index) => (
                 <div
                   key={`item-${item.id}-${index}`}
-                  className="flex items-start justify-between gap-3 text-lg font-medium"
+                  className="w-full space-y-2"
                 >
-                  <div>
-                    <p>
-                      {item.quantity} x {item.title}
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      {item.values.join(", ")}
-                    </p>
+                  <div className="flex gap-3">
+                    <ImageWithFallback
+                      src={item.thumbnailUrl}
+                      alt={item.title}
+                      className="size-12 shrink-0 rounded-md"
+                      width={128}
+                      height={128}
+                    />
+                    <div>
+                      <p className="text-lg font-medium">
+                        {item.quantity} x {item.title}
+                      </p>
+                      <p className="text-muted-foreground text-sm">
+                        {item.values && `${item.values.join(", ")}`}
+                      </p>
+                    </div>
                   </div>
 
-                  <p className="text-primary-foreground text-lg font-medium">
-                    {formatCurrency(item.price * item.quantity)}
-                  </p>
+                  <div className="flex items-end justify-between">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Sub Total
+                    </p>
+
+                    <p className="text-primary-foreground text-lg font-medium">
+                      {formatCurrency(item.price * item.quantity)}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

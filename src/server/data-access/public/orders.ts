@@ -1,4 +1,5 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
   cartItems,
@@ -8,7 +9,6 @@ import {
   inventoryItems,
   productOptionValuesVariants,
   productOptionValues,
-  productOptions,
   products,
   media,
 } from "~/server/db/schema";
@@ -39,104 +39,156 @@ export const _orders = {
     },
 
     findById: async (id: number, userId: number) => {
-      const variantValues = db
-        .select({
-          productVariantId: productOptionValuesVariants.productVariantId,
-          json: sql<string[]>`
+      const variantValues = db.$with("variant_values").as(
+        db
+          .select({
+            id: sql<number>`${productVariants.id}`.as("variant_values_id"),
+            values: sql<string[]>`
             jsonb_agg(${productOptionValues.value})
           `.as("values"),
-        })
-        .from(productOptionValues)
-        .leftJoin(
-          productOptionValuesVariants,
-          eq(
-            productOptionValues.id,
-            productOptionValuesVariants.productOptionValueId,
-          ),
-        )
-        .leftJoin(
-          productOptions,
-          eq(productOptionValues.productOptionId, productOptions.id),
-        )
-        .groupBy(productOptionValuesVariants.productVariantId)
-        .as("variant_option_values");
+          })
+          .from(productVariants)
+          .leftJoin(
+            productOptionValuesVariants,
+            eq(
+              productVariants.id,
+              productOptionValuesVariants.productVariantId,
+            ),
+          )
+          .leftJoin(
+            productOptionValues,
+            eq(
+              productOptionValuesVariants.productOptionValueId,
+              productOptionValues.id,
+            ),
+          )
+          .groupBy(productVariants.id),
+      );
 
-      const orderItemsVariants = db
+      const variantsInventory = alias(inventoryItems, "variants_inventory");
+      const productsInventory = alias(inventoryItems, "products_inventory");
+      const productThumbnail = alias(media, "product_thumbnail");
+      const variantThumbnail = alias(media, "variant_thumbnail");
+
+      const items = db
+        .with(variantValues)
         .select({
-          id: productVariants.id,
+          id: sql<number>`${orderItems.id}`.as("order_item_id"),
+          orderId: sql<number>`${orderItems.orderId}`.as("order_item_order_id"),
+
+          quantity: orderItems.quantity,
+          productId: sql<number>`${products.id}`.as("order_item_product_id"),
           title: products.title,
           summary: products.summary,
+
+          productVariantId: sql<number>`${productVariants.id}`.as(
+            "order_item_product_variant_id",
+          ),
+          values: variantValues.values,
+
           price:
             sql`coalesce(${productVariants.overridePrice}, ${products.price})`.as(
               "price",
             ),
-          stock: sql`${inventoryItems.quantity}`.as("stock"),
-          thumbnailUrl: media.url,
-          values: variantValues.json,
+          thumbnailUrl:
+            sql`coalesce(${variantThumbnail.url}, ${productThumbnail.url})`.as(
+              "thumbnailUrl",
+            ),
+
+          stock:
+            sql`coalesce(${variantsInventory.quantity}, ${productsInventory.quantity})`.as(
+              "stock",
+            ),
         })
-        .from(productVariants)
+        .from(orderItems)
+        .leftJoin(products, eq(orderItems.productId, products.id))
         .leftJoin(
-          inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+          productVariants,
+          and(
+            eq(products.id, productVariants.productId),
+            eq(orderItems.productVariantId, productVariants.id),
+          ),
         )
-        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+        .leftJoin(variantValues, eq(productVariants.id, variantValues.id))
+
         .leftJoin(
-          variantValues,
-          eq(productVariants.id, variantValues.productVariantId),
+          variantsInventory,
+          and(
+            eq(variantsInventory.productId, products.id),
+            eq(variantsInventory.productVariantId, productVariants.id),
+          ),
         )
-        .leftJoin(products, eq(productVariants.productId, products.id))
-        .orderBy(desc(productVariants.id))
-        .as("variants");
+        .leftJoin(
+          productsInventory,
+          and(
+            eq(productsInventory.productId, products.id),
+            isNull(productsInventory.productVariantId),
+          ),
+        )
+
+        .leftJoin(
+          productThumbnail,
+          eq(products.thumbnailMediaId, productThumbnail.id),
+        )
+
+        .leftJoin(
+          variantThumbnail,
+          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
+        )
+        .orderBy(desc(orderItems.id))
+        .as("items");
 
       type OrderItem = {
         id: number;
+
+        productId: number;
+        title: string;
+        summary: string;
+
+        productVariantId: number | null;
+
         quantity: number;
         stock: number;
-        title: string;
+
         price: number;
-        summary: string;
         thumbnailUrl: string;
-        values: string[];
+
+        values: string[] | null;
       };
 
-      const orderItemsVariantsJson = db
+      const itemsJson = db
         .select({
-          id: orderItems.orderId,
+          orderId: items.orderId,
           json: sql<OrderItem[]>`
             jsonb_agg(
               jsonb_build_object(
-                'id', ${orderItemsVariants.id},
-                'quantity', ${orderItems.quantity},
-                'stock', ${orderItemsVariants.stock},
-                'title', ${orderItemsVariants.title},
-                'summary', ${orderItemsVariants.summary},
-                'price', ${orderItemsVariants.price},
-                'thumbnailUrl', ${orderItemsVariants.thumbnailUrl},
-                'values', ${orderItemsVariants.values}
+                'id', ${items.id},
+                'quantity', ${items.quantity},
+                'productId', ${items.productId},
+                'productVariantId', ${items.productVariantId},
+                'stock', ${items.stock},
+                'title', ${items.title},
+                'summary', ${items.summary},
+                'price', ${items.price},
+                'thumbnailUrl', ${items.thumbnailUrl},
+                'values', ${items.values}
               )
             )
-          `.as("items"),
+        `.as("json"),
         })
-        .from(orderItemsVariants)
-        .leftJoin(
-          orderItems,
-          eq(orderItems.productVariantId, orderItemsVariants.id),
-        )
-        .groupBy(orderItems.orderId)
-        .as("order_variants_json");
+        .from(items)
+        .groupBy(items.orderId)
+        .as("items_json");
 
       return db
         .select({
           id: orders.id,
           paymentMethod: orders.paymentMethod,
 
-          items: orderItemsVariantsJson.json,
+          items: itemsJson.json,
         })
         .from(orders)
-        .leftJoin(
-          orderItemsVariantsJson,
-          eq(orders.id, orderItemsVariantsJson.id),
-        )
+        .leftJoin(itemsJson, eq(orders.id, itemsJson.orderId))
         .where(and(eq(orders.id, id), eq(orders.userId, userId)))
         .limit(1)
         .then(([res]) => res);
@@ -173,12 +225,33 @@ export const _orders = {
 
         // update the product variants stock
         for (const item of items) {
+          if (item.productVariantId) {
+            await tx
+              .update(inventoryItems)
+              .set({
+                quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
+              })
+              .where(
+                and(
+                  eq(inventoryItems.productId, item.productId),
+                  eq(inventoryItems.productVariantId, item.productVariantId),
+                ),
+              );
+
+            continue;
+          }
+
           await tx
             .update(inventoryItems)
             .set({
               quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
             })
-            .where(eq(inventoryItems.variantId, item.productVariantId));
+            .where(
+              and(
+                eq(inventoryItems.productId, item.productId),
+                isNull(inventoryItems.productVariantId),
+              ),
+            );
         }
 
         return order;

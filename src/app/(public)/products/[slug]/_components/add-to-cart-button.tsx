@@ -36,8 +36,11 @@ export function AddToCartButton({
   const { data: cart } = api.public.carts.queries.find.useQuery();
 
   const currentCartItem = useMemo(
-    () => cart?.items.find((item) => item.id === variantId),
-    [cart, variantId],
+    () =>
+      cart?.items.find(
+        (item) => item.id === variantId || item.productId === productId,
+      ),
+    [cart, variantId, productId],
   );
 
   const onSuccess = () => {
@@ -65,7 +68,6 @@ export function AddToCartButton({
 
   function handleIncreaseQuantity(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    if (!variantId) return;
     addToCart(
       { productId, productVariantId: variantId ?? null },
       {
@@ -114,7 +116,6 @@ export function AddToCartButton({
               onClick={handleIncreaseQuantity}
               disabled={
                 removingFromCart ||
-                !variantId ||
                 stock === 0 ||
                 stock <= currentCartItem.quantity
               }

@@ -35,9 +35,14 @@ export const _carts = {
       return cart;
     },
 
-    getItemsStock: async (productVariantIds: number[]) => {
+    getItemsStock: async (
+      items: {
+        productId: number;
+        productVariantId: number | null;
+      }[],
+    ) => {
       const { data: itemsStock, error } = await tryCatch(
-        data.public.inventory.queries.getItemsStock(productVariantIds),
+        data.public.inventory.queries.getItemsStock(items),
       );
       if (error) {
         throw new AppError("Failed to get items stock", "INTERNAL", {

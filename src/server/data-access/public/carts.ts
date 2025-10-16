@@ -168,7 +168,9 @@ export const _carts = {
       return db
         .select({
           id: carts.id,
-          items: itemsJson.json,
+          items: sql<CartItem[]>`coalesce(${itemsJson.json}, '[]'::jsonb)`.as(
+            "items",
+          ),
         })
         .from(carts)
         .where(eq(carts.userId, userId))

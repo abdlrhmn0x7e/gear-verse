@@ -25,7 +25,6 @@ import { Spinner } from "~/components/spinner";
 import { keepPreviousData } from "@tanstack/react-query";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { createPortal } from "react-dom";
 
 export function ProductSearchDialog({
   children,
@@ -251,7 +250,7 @@ function Content({ close }: { close: () => void }) {
       {data && data.data.length === 0 && <ProductSearchEmpty />}
 
       {data && data.data.length > 0 && (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-1">
           {data.data.map((product, index) => (
             <ProductSearchItem
               key={`${product.id}-${product.title}-${index}`}
@@ -332,14 +331,14 @@ export function ProductSearchItem({
     <li {...props} className="relative">
       <Link
         href={`/products/${product.slug}`}
-        className="relative z-10 flex items-center gap-2 rounded-md p-2"
+        className="relative z-10 flex items-center gap-2 rounded-md p-1"
       >
         <ImageWithFallback
           src={product.thumbnailUrl}
           alt={product.title}
           className="size-16 shrink-0 rounded-sm"
-          width={40}
-          height={40}
+          width={128}
+          height={128}
         />
 
         <div className="flex size-full flex-1 flex-col">

@@ -7,7 +7,9 @@ export function VariantButton({
   className,
   ...props
 }: {
-  variant: RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"][number];
+  variant: NonNullable<
+    RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"]
+  >[number];
   className?: string;
 } & React.ComponentProps<"button">) {
   return (

@@ -103,7 +103,7 @@ function OrderDetails({
             />
 
             <div>
-              <p className="font-medium">{`${item.quantity}x ${item.title} - ${item.values.join(", ")}`}</p>
+              <p className="font-medium">{`${item.quantity}x ${item.title} ${item.values && `- ${item.values.join(", ")}`}`}</p>
               <p className="text-muted-foreground line-clamp-3 text-sm">
                 {item.summary}
               </p>

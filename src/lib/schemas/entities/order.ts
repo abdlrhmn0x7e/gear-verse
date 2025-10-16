@@ -31,7 +31,8 @@ export const orderItemEntitySchema = z.object({
   id: z.number().positive(),
 
   orderId: z.number().positive(),
-  productVariantId: z.number().positive(),
+  productId: z.number().positive(),
+  productVariantId: z.number().positive().nullable(),
   quantity: z.number().positive(),
 
   createdAt: z.coerce.date<Date>("Created at must be a date"),

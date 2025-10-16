@@ -69,23 +69,31 @@ export const userCheckoutRouter = createTRPCRouter({
 
         const { data: itemsStock, error: getItemsStockError } = await tryCatch(
           ctx.app.public.carts.queries.getItemsStock(
-            cart.items.map((item) => item.id),
+            cart.items.map((item) => ({
+              productId: item.productId,
+              productVariantId: item.id,
+            })),
           ),
         );
         if (getItemsStockError) {
           throw errorMap(getItemsStockError);
         }
 
-        const quantityMap = new Map<number, number>();
+        const quantityMap = new Map<string, number>();
         for (const item of cart.items) {
-          quantityMap.set(item.id, item.quantity);
+          quantityMap.set(
+            `${item.productId}-${item.productVariantId}`,
+            item.quantity,
+          );
         }
         for (const item of itemsStock) {
-          const quantity = quantityMap.get(item.id);
+          const quantity = quantityMap.get(
+            `${item.productId}-${item.productVariantId}`,
+          );
           if (quantity && quantity > item.stock) {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: "Insufficient stock",
+              message: `Insufficient stock for product ${item.productId} - ${item.productVariantId}`,
             });
           }
         }
@@ -101,7 +109,8 @@ export const userCheckoutRouter = createTRPCRouter({
               status: "PENDING",
             },
             items: cart.items.map((item) => ({
-              productVariantId: item.id,
+              productId: item.productId,
+              productVariantId: item.productVariantId,
               quantity: item.quantity,
             })),
           }),

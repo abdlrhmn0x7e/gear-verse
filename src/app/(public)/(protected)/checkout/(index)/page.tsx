@@ -65,7 +65,7 @@ function OrderSummary({
                   {item.quantity} x {item.title}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {item.values.join(", ")}
+                  {item.values && `- ${item.values.join(", ")}`}
                 </p>
               </div>
 
@@ -119,7 +119,7 @@ function OrderSummary({
                   {item.quantity} x {item.title}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {item.values.join(", ")}
+                  {item.values && `- ${item.values.join(", ")}`}
                 </p>
               </div>
 
