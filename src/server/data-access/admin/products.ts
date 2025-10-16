@@ -13,6 +13,8 @@ import {
 } from "../../db/schema";
 import { inventoryItems } from "~/server/db/schema/inventory";
 import { alias } from "drizzle-orm/pg-core";
+import { _productVariants } from "./product-variants";
+import { _options } from "./options";
 
 type NewProduct = typeof products.$inferInsert;
 type NewProductOption = Omit<
@@ -198,7 +200,12 @@ export const _products = {
                 'values', coalesce(
                   (
                     select
-                      jsonb_agg(jsonb_build_object('id', ${nonArchivedOptionValues.valueId}, 'value', ${nonArchivedOptionValues.value}))
+                      jsonb_agg(
+                        jsonb_build_object(
+                          'id', ${nonArchivedOptionValues.valueId},
+                          'value', ${nonArchivedOptionValues.value}
+                        )
+                      )
                     from ${nonArchivedOptionValues}
                     where
                       "product_options"."id" = "product_option_id"
@@ -215,6 +222,8 @@ export const _products = {
         .as("product_options_json");
 
       const variantThumbnail = alias(media, "variant_thumbnail");
+      const variantInventory = alias(inventoryItems, "variant_inventory");
+      const productInventory = alias(inventoryItems, "product_inventory");
       const variantsQuery = db
         .select({
           id: productVariants.id,
@@ -224,7 +233,10 @@ export const _products = {
             id: sql<number>`${variantThumbnail.id}`.as("thumbnailId"),
             url: variantThumbnail.url,
           },
-          stock: inventoryItems.quantity,
+          stock:
+            sql<number>`coalesce(${variantInventory.quantity}, ${productInventory.quantity})`.as(
+              "stock",
+            ),
           optionValues: sql<Record<string, { id: number; value: string }>>`
           jsonb_object_agg(
               ${productOptions.name}, json_build_object(
@@ -240,8 +252,18 @@ export const _products = {
           eq(productVariants.thumbnailMediaId, variantThumbnail.id),
         )
         .leftJoin(
-          inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+          variantInventory,
+          and(
+            eq(productVariants.id, variantInventory.itemId),
+            eq(variantInventory.itemType, "VARIANT"),
+          ),
+        )
+        .leftJoin(
+          productInventory,
+          and(
+            eq(productVariants.productId, productInventory.itemId),
+            eq(productInventory.itemType, "PRODUCT"),
+          ),
         )
         .leftJoin(
           productOptionValuesVariants,
@@ -260,8 +282,9 @@ export const _products = {
         )
         .groupBy(
           productVariants.id,
-          inventoryItems.quantity,
           variantThumbnail.id,
+          productInventory.quantity,
+          variantInventory.quantity,
         )
         .as("product_variants");
 
@@ -432,8 +455,8 @@ export const _products = {
     }: {
       newProduct: NewProduct;
       newProdcutMediaIds: number[];
-      newProductOptions: NewProductOption[];
-      newVariants: NewProductVariant[];
+      newProductOptions?: NewProductOption[];
+      newVariants?: NewProductVariant[];
       newSeo?: NewSeo;
     }) {
       return db.transaction(async (tx) => {
@@ -457,78 +480,38 @@ export const _products = {
           })),
         );
 
-        const valuesIdToDbId = new Map<number, number>();
-
-        for (const o of newProductOptions) {
-          const { values: newOptionValues, ...newOption } = o;
-
-          const [option] = await tx
-            .insert(productOptions)
-            .values({
-              ...newOption,
-              productId,
-            })
-            .returning({ id: productOptions.id, name: productOptions.name });
-
-          if (!option) {
-            throw new Error("Failed to create product option");
-          }
-
-          const values = await tx
-            .insert(productOptionValues)
-            .values(
-              newOptionValues.map((value, index) => ({
-                value: value.value,
+        // update/insert new options
+        if (
+          newProductOptions &&
+          newProductOptions.length > 0 &&
+          newVariants &&
+          newVariants.length > 0
+        ) {
+          const { valuesIdToDbId } = await _options.mutations.upsertMany(
+            newProductOptions?.map((o, index) => ({
+              name: o.name,
+              values: o.values.map((v, index) => ({
+                ...v,
                 order: index + 1,
-                productOptionId: option.id,
               })),
-            )
-            .returning({ id: productOptionValues.id });
-
-          if (!values || values.length === 0) {
-            throw new Error("Failed to create product option values");
-          }
-
-          // assuming the ids are the same as the order of the values
-          values.forEach((value, index) => {
-            valuesIdToDbId.set(newOptionValues[index]!.id, value.id);
-          });
-        }
-
-        const variants = await tx
-          .insert(productVariants)
-          .values(
-            newVariants.map((variant) => ({
-              overridePrice:
-                variant.overridePrice === 0 ? null : variant.overridePrice,
-              archived: variant.archived,
-              thumbnailMediaId: variant.thumbnailMediaId,
+              order: index + 1,
               productId,
-            })),
-          )
-          .returning({ id: productVariants.id });
-
-        if (!variants || variants.length === 0) {
-          throw new Error("Failed to create product variants");
-        }
-
-        // link the option values to the variants
-        for (const [index, variant] of variants.entries()) {
-          const { optionValues, stock } = newVariants[index]!;
-
-          // link the option values to the variants
-          await tx.insert(productOptionValuesVariants).values(
-            Object.values(optionValues).map((value) => ({
-              productOptionValueId: valuesIdToDbId.get(value.id)!,
-              productVariantId: variant.id,
             })),
           );
 
-          // create an inventory record for this variant
-          await tx.insert(inventoryItems).values({
-            variantId: variant.id,
-            quantity: stock,
-          });
+          const variantsToInsert = newVariants?.map((v) => ({
+            ...v,
+            thumbnailMediaId: v.thumbnailMediaId,
+            optionValues: v.optionValues,
+            stock: v.stock,
+          }));
+
+          await _productVariants.mutations.upsertMany(
+            productId,
+            variantsToInsert,
+            [],
+            valuesIdToDbId,
+          );
         }
 
         // create a SEO record for this product

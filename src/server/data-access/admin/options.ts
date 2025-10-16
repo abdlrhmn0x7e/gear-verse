@@ -9,8 +9,10 @@ export const _options = {
   mutations: {
     upsertMany: async (data: NewOption[]) => {
       const valuesIdToDbId = new Map<number, number>();
+
       return db.transaction(async (tx) => {
         const newOptions = [];
+
         for (const item of data) {
           const [newOption] = await tx
             .insert(productOptions)

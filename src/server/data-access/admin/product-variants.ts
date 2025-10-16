@@ -7,7 +7,7 @@ import {
   productVariants,
 } from "~/server/db/schema";
 import { db, type Tx } from "~/server/db";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 type NewProductVariant = Omit<
   typeof productVariants.$inferInsert,
@@ -96,7 +96,12 @@ export const _productVariants = {
           await tx
             .update(inventoryItems)
             .set({ quantity: stock })
-            .where(eq(inventoryItems.variantId, id));
+            .where(
+              and(
+                eq(inventoryItems.itemId, id),
+                eq(inventoryItems.itemType, "VARIANT"),
+              ),
+            );
         }
       });
     },
@@ -152,9 +157,13 @@ export const _productVariants = {
 
           await tx
             .insert(inventoryItems)
-            .values({ variantId: newVariant.id, quantity: item.stock })
+            .values({
+              itemId: newVariant.id,
+              itemType: "VARIANT",
+              quantity: item.stock,
+            })
             .onConflictDoUpdate({
-              target: inventoryItems.variantId,
+              target: [inventoryItems.itemId, inventoryItems.itemType],
               set: { quantity: item.stock },
             });
 
@@ -177,7 +186,12 @@ export const _productVariants = {
           await tx
             .update(inventoryItems)
             .set({ quantity: item.stock })
-            .where(eq(inventoryItems.variantId, id));
+            .where(
+              and(
+                eq(inventoryItems.itemId, id),
+                eq(inventoryItems.itemType, "VARIANT"),
+              ),
+            );
         }
 
         return newVariants;
@@ -198,7 +212,7 @@ export const _productVariants = {
           .where(inArray(orderItems.productVariantId, variantIds));
 
         const toArchiveIds = Array.from(
-          new Set(rowsToArchive.map((r) => r.id)),
+          new Set(rowsToArchive.map((r) => r.id ?? 0)),
         );
         if (toArchiveIds.length > 0) {
           await tx

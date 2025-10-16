@@ -10,7 +10,7 @@ import {
 import { users } from "./users";
 import { addresses } from "./addresses";
 import { relations } from "drizzle-orm";
-import { productVariants } from "./products";
+import { products, productVariants } from "./products";
 
 export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", ["COD"]);
 export const orderStatusEnum = pgEnum("order_status", [
@@ -68,9 +68,12 @@ export const orderItems = pgTable(
     orderId: bigint("order_id", { mode: "number" })
       .notNull()
       .references(() => orders.id),
-    productVariantId: bigint("product_variant_id", { mode: "number" })
+    productId: bigint("product_id", { mode: "number" })
       .notNull()
-      .references(() => productVariants.id),
+      .references(() => products.id),
+    productVariantId: bigint("product_variant_id", {
+      mode: "number",
+    }).references(() => productVariants.id),
     quantity: integer("quantity").notNull(),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -91,6 +94,10 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {
     fields: [orderItems.orderId],
     references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
   }),
   productVariant: one(productVariants, {
     fields: [orderItems.productVariantId],

@@ -2,12 +2,18 @@ import {
   bigint,
   check,
   integer,
+  pgEnum,
   pgTable,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { productVariants } from "./products";
+import { products, productVariants } from "./products";
+
+export const inventoryItemTypes = pgEnum("inventory_item_types", [
+  "VARIANT",
+  "PRODUCT",
+]);
 
 export const inventoryItems = pgTable(
   "inventory_items",
@@ -15,9 +21,9 @@ export const inventoryItems = pgTable(
     id: bigint("id", { mode: "number" })
       .primaryKey()
       .generatedAlwaysAsIdentity(),
-    variantId: bigint("variant_id", { mode: "number" })
-      .references(() => productVariants.id, { onDelete: "cascade" })
-      .notNull(),
+
+    itemId: bigint("item_id", { mode: "number" }).notNull(),
+    itemType: inventoryItemTypes("item_type").notNull(),
 
     quantity: integer("quantity").notNull(),
 
@@ -28,14 +34,21 @@ export const inventoryItems = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    uniqueIndex("inventory_variant_id_idx").on(table.variantId),
+    uniqueIndex("inventory_items_item_id_item_type_unique").on(
+      table.itemId,
+      table.itemType,
+    ),
     check("inventory_quantity_non_negative", sql`${table.quantity} >= 0`),
   ],
 );
 
 export const inventoryItemsRelations = relations(inventoryItems, ({ one }) => ({
   variant: one(productVariants, {
-    fields: [inventoryItems.variantId],
+    fields: [inventoryItems.itemId],
     references: [productVariants.id],
+  }),
+  product: one(products, {
+    fields: [inventoryItems.itemId],
+    references: [products.id],
   }),
 }));

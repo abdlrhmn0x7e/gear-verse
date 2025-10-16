@@ -64,7 +64,11 @@ export const _carts = {
         .from(productVariants)
         .leftJoin(
           inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+
+          and(
+            eq(productVariants.id, inventoryItems.itemId),
+            eq(inventoryItems.itemType, "VARIANT"),
+          ),
         )
         .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
         .leftJoin(
@@ -135,40 +139,58 @@ export const _carts = {
 
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
-        const [variant] = await tx
-          .select({ stock: inventoryItems.quantity })
-          .from(inventoryItems)
-          .where(eq(inventoryItems.variantId, item.productVariantId))
-          .limit(1);
+        let stock = 0;
 
-        if (!variant) {
-          throw new Error("Product variant not found");
+        if (item.productVariantId) {
+          const [variant] = await tx
+            .select({ stock: inventoryItems.quantity })
+            .from(inventoryItems)
+            .where(eq(inventoryItems.itemId, item.productVariantId))
+            .limit(1);
+
+          stock = variant?.stock ?? 0;
+        } else {
+          const [product] = await tx
+            .select({ stock: inventoryItems.quantity })
+            .from(inventoryItems)
+            .where(eq(inventoryItems.itemId, item.productId))
+            .limit(1);
+
+          stock = product?.stock ?? 0;
         }
 
-        if (variant.stock <= 0) {
-          throw new Error("Product variant out of stock");
+        if (stock === 0) {
+          throw new Error("Product out of stock");
         }
 
         const [updated] = await tx
           .insert(cartItems)
           .values(item)
           .onConflictDoUpdate({
-            target: [cartItems.cartId, cartItems.productVariantId],
+            target: [
+              cartItems.cartId,
+              cartItems.productId,
+              cartItems.productVariantId,
+            ],
             set: {
               quantity: sql`${cartItems.quantity} + 1`,
             },
           })
           .returning({ id: cartItems.id, quantity: cartItems.quantity });
 
-        if (variant.stock < (updated?.quantity ?? 1)) {
-          throw new Error("Product variant out of stock");
+        if (stock < (updated?.quantity ?? 1)) {
+          throw new Error("Product out of stock");
         }
 
         return updated;
       });
     },
 
-    removeItem: async (cartId: number, productVariantId: number) => {
+    removeItem: async (
+      cartId: number,
+      productId: number,
+      productVariantId: number,
+    ) => {
       return db.transaction(async (tx) => {
         const [updated] = await tx
           .update(cartItems)
@@ -176,6 +198,7 @@ export const _carts = {
           .where(
             and(
               eq(cartItems.cartId, cartId),
+              eq(cartItems.productId, productId),
               eq(cartItems.productVariantId, productVariantId),
               gt(cartItems.quantity, 1),
             ),
@@ -191,6 +214,7 @@ export const _carts = {
           .where(
             and(
               eq(cartItems.cartId, cartId),
+              eq(cartItems.productId, productId),
               eq(cartItems.productVariantId, productVariantId),
             ),
           );

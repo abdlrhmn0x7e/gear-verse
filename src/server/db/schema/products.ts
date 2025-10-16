@@ -17,6 +17,7 @@ import { media } from "./media";
 import { productsMedia } from "./products-media";
 import { seo } from "./seo";
 import { inventoryItems } from "./inventory";
+import { orderItems } from "./orders";
 
 export const products = pgTable(
   "products",
@@ -80,6 +81,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
   }),
   options: many(productOptions),
   variants: many(productVariants),
+  orderItems: many(orderItems),
   seo: one(seo, {
     fields: [products.id],
     references: [seo.productId],

@@ -76,6 +76,7 @@ export const _orders = {
         .orderBy(desc(orders.id))
         .limit(pageSize);
     },
+
     findById: async (id: number) => {
       const variantValues = db
         .select({
@@ -192,6 +193,7 @@ export const _orders = {
         .then(([res]) => res);
     },
   },
+
   mutations: {
     create: async (
       orderInput: InsertOrder,
@@ -216,6 +218,7 @@ export const _orders = {
         return order;
       });
     },
+
     moveOwnership: async (oldUserId: number, newUserId: number) => {
       return db
         .update(orders)

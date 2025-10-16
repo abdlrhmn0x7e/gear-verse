@@ -7,7 +7,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
-import { productVariants } from "./products";
+import { products, productVariants } from "./products";
 import { relations } from "drizzle-orm";
 
 export const carts = pgTable(
@@ -44,11 +44,14 @@ export const cartItems = pgTable(
     cartId: bigint("cart_id", { mode: "number" })
       .notNull()
       .references(() => carts.id, { onDelete: "cascade" }),
+
+    productId: bigint("product_id", { mode: "number" })
+      .notNull()
+      .references(() => products.id),
     productVariantId: bigint("product_variant_id", {
       mode: "number",
-    })
-      .notNull()
-      .references(() => productVariants.id),
+    }).references(() => productVariants.id),
+
     quantity: integer("quantity").notNull().default(1),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -59,8 +62,9 @@ export const cartItems = pgTable(
   },
   (table) => [
     index("cart_items_cart_id_idx").on(table.cartId),
-    uniqueIndex("cart_items_cart_id_product_variant_id_idx").on(
+    uniqueIndex("cart_items_cart_id_product_id_product_variant_id_idx").on(
       table.cartId,
+      table.productId,
       table.productVariantId,
     ),
   ],

@@ -176,6 +176,18 @@
 
   --animate-blur-in: blur-in 0.4s ease-in-out forwards;
 
+  --animate-checkbox-path: checkbox-path 0.3s ease-in-out forwards;
+
+  @keyframes checkbox-path {
+    from {
+      stroke-dashoffset: 2;
+      stroke-dasharray: 2;
+    }
+    to {
+      stroke-dasharray: 2;
+    }
+  }
+
   @keyframes blur-in {
     from {
       opacity: 0.5;

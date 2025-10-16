@@ -13,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
-import { generateRandomId } from "~/lib/utils/generate-random-id";
+import { useFormContext, useWatch } from "react-hook-form";
 
 export function Variants({
   value,
@@ -117,7 +116,7 @@ export function Variants({
       const existing = oldByKey.get(key);
 
       return {
-        id: existing?.id ?? generateRandomId(),
+        id: existing?.id ?? undefined,
         optionValues: variant.optionValues,
         thumbnail: existing?.thumbnail ?? { id: 0, url: "" },
         stock: existing?.stock ?? 0,

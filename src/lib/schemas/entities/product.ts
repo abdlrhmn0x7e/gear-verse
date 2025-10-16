@@ -115,12 +115,8 @@ export const createProductInputSchema = productEntitySchema
       .partial()
       .optional(),
     media: z.array(createProductMediaInputSchema),
-    options: z
-      .array(createProductOptionInputSchema)
-      .min(1, "Options are required"),
-    variants: z
-      .array(createProductVariantInputSchema)
-      .min(1, "Variants are required"),
+    options: z.array(createProductOptionInputSchema).optional(),
+    variants: z.array(createProductVariantInputSchema).optional(),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 

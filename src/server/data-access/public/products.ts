@@ -68,12 +68,17 @@ export const _products = {
       const brandsMedia = alias(media, "brands_media");
 
       const variantThumbnail = alias(media, "variant_thumbnail");
+      const variantInventory = alias(inventoryItems, "variant_inventory");
+      const productInventory = alias(inventoryItems, "product_inventory");
       const variantsQuery = db
         .select({
           productId: productVariants.productId,
           overridePrice: productVariants.overridePrice,
           thumbnailUrl: variantThumbnail.url,
-          stock: inventoryItems.quantity,
+          stock:
+            sql<number>`coalesce(${variantInventory.quantity}, ${productInventory.quantity})`.as(
+              "stock",
+            ),
           optionValues: sql<Record<string, string>>`
           jsonb_object_agg(
               ${productOptions.name}, ${productOptionValues.value}
@@ -87,7 +92,17 @@ export const _products = {
         )
         .leftJoin(
           inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+          and(
+            eq(productVariants.id, variantInventory.itemId),
+            eq(variantInventory.itemType, "VARIANT"),
+          ),
+        )
+        .leftJoin(
+          productInventory,
+          and(
+            eq(products.id, productInventory.itemId),
+            eq(productInventory.itemType, "PRODUCT"),
+          ),
         )
         .leftJoin(
           productOptionValuesVariants,
@@ -106,7 +121,8 @@ export const _products = {
         )
         .groupBy(
           productVariants.id,
-          inventoryItems.quantity,
+          variantInventory.quantity,
+          productInventory.quantity,
           variantThumbnail.id,
         )
         .as("product_variants");
@@ -231,14 +247,19 @@ export const _products = {
         .as("product_options_json");
 
       const variantThumbnail = alias(media, "variant_thumbnail");
+      const variantInventory = alias(inventoryItems, "variant_inventory");
+      const productInventory = alias(inventoryItems, "product_inventory");
       const variantsQuery = db
         .select({
           id: productVariants.id,
           productSlug: products.slug,
           overridePrice: productVariants.overridePrice,
           thumbnailUrl: variantThumbnail.url,
-          stock: inventoryItems.quantity,
-          optionValues: sql<Record<string, string>>`
+          stock:
+            sql<number>`coalesce(${variantInventory.quantity}, ${productInventory.quantity})`.as(
+              "stock",
+            ),
+          optionValues: sql<Record<string, string> | null>`
           jsonb_object_agg(
             ${productOptions.name}, ${productOptionValues.value}
           )
@@ -250,8 +271,18 @@ export const _products = {
           eq(productVariants.thumbnailMediaId, variantThumbnail.id),
         )
         .leftJoin(
-          inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+          variantInventory,
+          and(
+            eq(productVariants.id, variantInventory.itemId),
+            eq(variantInventory.itemType, "VARIANT"),
+          ),
+        )
+        .leftJoin(
+          productInventory,
+          and(
+            eq(products.id, productInventory.itemId),
+            eq(productInventory.itemType, "PRODUCT"),
+          ),
         )
         .leftJoin(
           productOptionValuesVariants,
@@ -272,7 +303,8 @@ export const _products = {
         .groupBy(
           products.slug,
           productVariants.id,
-          inventoryItems.quantity,
+          variantInventory.quantity,
+          productInventory.quantity,
           variantThumbnail.id,
         )
         .as("product_variants");
@@ -280,13 +312,14 @@ export const _products = {
       const variantsJson = db
         .select({
           json: sql<
-            {
-              id: number;
-              overridePrice: number;
-              thumbnailUrl: string;
-              stock: number;
-              optionValues: Record<string, string>;
-            }[]
+            | {
+                id: number;
+                overridePrice: number;
+                thumbnailUrl: string;
+                stock: number;
+                optionValues: Record<string, string>;
+              }[]
+            | null
           >`
           jsonb_agg(
             jsonb_build_object(

@@ -53,7 +53,7 @@ export const _products = {
         },
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
         newProductOptions: options,
-        newVariants: variants.map((v) => ({
+        newVariants: variants?.map((v) => ({
           ...v,
           thumbnail: undefined,
           thumbnailMediaId: v.thumbnail.id,

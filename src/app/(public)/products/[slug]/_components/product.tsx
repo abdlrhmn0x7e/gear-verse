@@ -1,6 +1,6 @@
 "use client";
 
-import { type PropsWithChildren, useMemo, useState } from "react";
+import { type PropsWithChildren, useMemo } from "react";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -16,6 +16,9 @@ import { AddToCartButton } from "./add-to-cart-button";
 import { api } from "~/trpc/react";
 import { StarRating } from "./star-rating";
 import { Button } from "~/components/ui/button";
+import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+
+type Product = RouterOutputs["public"]["products"]["queries"]["findBySlug"];
 
 export function Product({
   children,
@@ -23,7 +26,7 @@ export function Product({
   className,
   hideActions,
 }: PropsWithChildren<{
-  product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
+  product: Product;
   className?: string;
   hideActions?: boolean;
 }>) {
@@ -31,101 +34,71 @@ export function Product({
     productId: product.id,
   });
 
-  // Options are ordered grouping is based on the first option
-  const { firstOption, otherOptions } = useMemo(() => {
-    const options = product.options ?? [];
-    const firstOption = options[0];
-    const otherOptions = options.slice(1);
+  const options = product.options ?? [];
+  const variants = useMemo(() => product.variants ?? [], [product.variants]);
+  const hasOptionsAndVariants = options.length > 0 && variants.length > 0;
 
-    return { firstOption, otherOptions };
-  }, [product.options]);
-
-  // Track the currently selected option values; derive the variant from them
-  const [selectedOptions, setSelectedOptions] = useState<
-    Record<string, string>
-  >(() => ({ ...(product.variants[0]?.optionValues ?? {}) }));
-
-  const selectedVariant = useMemo(() => {
-    const exact = product.variants.find((variant) =>
-      Object.entries(selectedOptions).every(
-        ([name, value]) => variant.optionValues[name] === value,
-      ),
-    );
-    return exact ?? product.variants[0]!;
-  }, [product.variants, selectedOptions]);
-
-  const selectedVariantInStock = useMemo(
-    () => selectedVariant.stock > 0,
-    [selectedVariant],
+  // Store hooks
+  const selectedOptions = useVariantSelectionStore(
+    (state) => state.selectedOptions,
+  );
+  const variantId = useVariantSelectionStore((state) => state.variantId);
+  const updateSelectedOption = useVariantSelectionStore(
+    (state) => state.updateSelectedOption,
   );
 
-  function getVariantMatchingPartial(partial: Record<string, string>) {
-    return product.variants.find((variant) =>
-      Object.entries(partial).every(
-        ([name, value]) => variant.optionValues[name] === value,
-      ),
-    );
-  }
-
-  function handleSelectOption(optionName: string, value: string) {
-    const desired = { ...selectedOptions, [optionName]: value };
-
-    // Prefer an exact match; otherwise fall back to any variant matching the changed option
-    const exact = getVariantMatchingPartial(desired);
-    if (exact) {
-      setSelectedOptions({ ...exact.optionValues });
-      return;
+  // Derive the selected variant from selected options or fallback to variantId
+  const selectedVariant = useMemo(() => {
+    if (hasOptionsAndVariants) {
+      const exact = variants.find((v) =>
+        Object.entries(selectedOptions).every(
+          ([name, value]) => v.optionValues[name] === value,
+        ),
+      );
+      return exact ?? variants[0];
     }
 
-    const fallback = product.variants.find(
-      (v) => v.optionValues[optionName] === value,
-    );
-    setSelectedOptions({ ...(fallback ?? product.variants[0]!).optionValues });
-  }
-
-  function getRepresentativeVariantForFirstValue(value: string) {
-    if (!firstOption) {
-      return product.variants[0]!;
+    // No options, use variantId or first
+    if (variants.length > 0) {
+      return variants.find((v) => v.id === variantId) ?? variants[0];
     }
 
-    const partial: Record<string, string> = { [firstOption.name]: value };
+    // No variants available, return null
+    return null;
+  }, [variants, selectedOptions, variantId, hasOptionsAndVariants]);
 
-    for (const opt of otherOptions) {
-      const selected = selectedOptions[opt.name];
-      if (selected) {
-        partial[opt.name] = selected;
-      }
-    }
-
-    return (
-      getVariantMatchingPartial(partial) ??
-      product.variants.find(
-        (v) => v.optionValues[firstOption.name] === value,
-      ) ??
-      product.variants[0]!
-    );
-  }
+  const selectedVariantInStock = useMemo(
+    () => (selectedVariant ? (selectedVariant.stock ?? 0) > 0 : false),
+    [selectedVariant],
+  );
 
   return (
     <MaxWidthWrapper
       className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
     >
+      {/* Image Carousel Section */}
       <div className="h-fit lg:sticky lg:top-24">
         <VerseCarousel
-          photos={[selectedVariant.thumbnailUrl, ...product.media]}
+          photos={
+            selectedVariant
+              ? [selectedVariant.thumbnailUrl, ...product.media]
+              : product.media
+          }
           className="mx-auto lg:max-w-4/5"
         />
 
         <ProductBrandBadge
           brand={product.brand}
           selectedVariantInStock={selectedVariantInStock}
-          stock={selectedVariant.stock}
+          stock={selectedVariant?.stock ?? 0}
           className="absolute top-2 right-6 z-10 md:right-14 lg:hidden"
         />
       </div>
 
+      {/* Content Section */}
       <div className="space-y-8 divide-y [&>*:not(:last-child)]:pb-8">
         <div className="space-y-8">
+          {/* Product Header */}
           <div className="space-y-2 text-center lg:text-left">
             <div className="flex flex-col items-center justify-between gap-2 lg:flex-row lg:items-start">
               <Heading level={2}>{product.title}</Heading>
@@ -133,7 +106,7 @@ export function Product({
               <ProductBrandBadge
                 brand={product.brand}
                 selectedVariantInStock={selectedVariantInStock}
-                stock={selectedVariant.stock}
+                stock={selectedVariant?.stock ?? 0}
                 className="hidden lg:flex"
               />
             </div>
@@ -143,12 +116,13 @@ export function Product({
             </p>
           </div>
 
+          {/* Price and Reviews */}
           <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
             <p className="space-x-2">
               <span className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
                 {formatCurrency(
-                  selectedVariant.overridePrice === 0 ||
-                    !selectedVariant.overridePrice
+                  selectedVariant?.overridePrice === 0 ||
+                    !selectedVariant?.overridePrice
                     ? product.price
                     : selectedVariant.overridePrice,
                 )}
@@ -172,106 +146,33 @@ export function Product({
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <Heading level={2}>Variants</Heading>
+          {/* Variant Selector - Only show if options and variants exist */}
+          {hasOptionsAndVariants && selectedVariant && (
+            <VariantSelector
+              product={product}
+              onSelectOption={(name, value) =>
+                updateSelectedOption(name, value, variants)
+              }
+              selectedOptions={selectedOptions}
+              selectedVariant={selectedVariant}
+            />
+          )}
 
-              <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
-                (Current Variant -{" "}
-                {Object.values(selectedVariant.optionValues).join(", ")})
-              </p>
-            </div>
-
-            <div className="space-y-4 p-2">
-              {firstOption && (
-                <div className="space-y-2">
-                  <p className="text-lg font-medium capitalize">
-                    {firstOption.name}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {firstOption.values.map((val, index) => {
-                      const representative =
-                        getRepresentativeVariantForFirstValue(val.value);
-                      const isSelected =
-                        selectedOptions[firstOption.name] === val.value;
-
-                      return (
-                        <div
-                          key={`${firstOption.name}-${val.value}-${index}`}
-                          className="flex flex-col items-center gap-2"
-                        >
-                          <VariantButton
-                            variant={representative}
-                            onClick={() =>
-                              handleSelectOption(firstOption.name, val.value)
-                            }
-                            className={cn(isSelected && "ring-primary ring-2")}
-                          />
-                          <p className="text-sm font-medium">{val.value}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {otherOptions.length > 0 && (
-                <div className="space-y-3">
-                  {otherOptions.map((opt) => (
-                    <div key={opt.id} className="space-y-2">
-                      <p className="text-lg font-medium capitalize">
-                        {opt.name}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {opt.values.map((val) => {
-                          const isSelected =
-                            selectedOptions[opt.name] === val.value;
-                          // Enable/disable based on existence of any variant matching this value with the rest of selections
-                          const desired: Record<string, string> = {
-                            ...selectedOptions,
-                            [opt.name]: val.value,
-                          };
-                          const exists = !!getVariantMatchingPartial(desired);
-                          return (
-                            <Button
-                              key={`${opt.name}-${val.id}`}
-                              type="button"
-                              variant={isSelected ? "default" : "outline"}
-                              disabled={!exists}
-                              className="border border-transparent capitalize"
-                              onClick={() =>
-                                handleSelectOption(opt.name, val.value)
-                              }
-                            >
-                              {val.value}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {!hideActions && (
+          {/* Action Buttons */}
+          {!hideActions && selectedVariant && (
             <div className="flex flex-col gap-2 lg:flex-row">
               <AddToCartButton
                 className="peer w-full lg:flex-1"
                 size="lg"
                 variant="outline"
                 disabled={!selectedVariantInStock}
-                productVariantId={selectedVariant.id}
-                stock={selectedVariant.stock}
+                product={product}
               />
 
               <BuyNowButton
                 className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
-                productVariantId={selectedVariant.id}
                 disabled={!selectedVariantInStock}
+                product={product}
               />
             </div>
           )}
@@ -280,6 +181,134 @@ export function Product({
         {children}
       </div>
     </MaxWidthWrapper>
+  );
+}
+
+interface VariantSelectorProps {
+  product: Product;
+  selectedOptions: Record<string, string>;
+  onSelectOption: (name: string, value: string) => void;
+  selectedVariant: NonNullable<Product["variants"]>[number];
+}
+
+function VariantSelector({
+  product,
+  selectedOptions,
+  onSelectOption,
+  selectedVariant,
+}: VariantSelectorProps) {
+  const options = product.options ?? [];
+  const variants = product.variants ?? [];
+  const firstOption = options[0];
+  const otherOptions = options.slice(1);
+
+  const getVariantMatchingPartial = (partial: Record<string, string>) =>
+    variants.find((v) =>
+      Object.entries(partial).every(
+        ([name, value]) => v.optionValues[name] === value,
+      ),
+    );
+
+  const getRepresentativeVariantForFirstValue = (value: string) => {
+    if (!firstOption) {
+      return variants[0]!;
+    }
+
+    const partial: Record<string, string> = { [firstOption.name]: value };
+
+    for (const opt of otherOptions) {
+      const selected = selectedOptions[opt.name];
+      if (selected) {
+        partial[opt.name] = selected;
+      }
+    }
+
+    return (
+      getVariantMatchingPartial(partial) ??
+      variants.find((v) => v.optionValues[firstOption.name] === value) ??
+      variants[0]!
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <Heading level={2}>Variants</Heading>
+        <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
+          (Current: {Object.values(selectedVariant.optionValues).join(", ")})
+        </p>
+      </div>
+
+      <div className="space-y-4 p-2">
+        {/* First Option - with visual variant buttons */}
+        {firstOption && (
+          <div className="space-y-2">
+            <p className="text-lg font-medium capitalize">{firstOption.name}</p>
+
+            <div className="flex flex-wrap gap-2">
+              {firstOption.values.map((val, index) => {
+                const representative = getRepresentativeVariantForFirstValue(
+                  val.value,
+                );
+                const isSelected =
+                  selectedOptions[firstOption.name] === val.value;
+
+                return (
+                  <div
+                    key={`${firstOption.name}-${val.value}-${index}`}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <VariantButton
+                      variant={representative}
+                      onClick={() =>
+                        onSelectOption(firstOption.name, val.value)
+                      }
+                      className={cn(isSelected && "ring-primary ring-2")}
+                    />
+                    <p className="text-sm font-medium">{val.value}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Other Options - with button selectors */}
+        {otherOptions.length > 0 && (
+          <div className="space-y-3">
+            {otherOptions.map((opt) => (
+              <div key={opt.id} className="space-y-2">
+                <p className="text-lg font-medium capitalize">{opt.name}</p>
+
+                <div className="flex flex-wrap gap-2">
+                  {opt.values.map((val) => {
+                    const isSelected = selectedOptions[opt.name] === val.value;
+                    const desired = {
+                      ...selectedOptions,
+                      [opt.name]: val.value,
+                    };
+                    const exists = !!getVariantMatchingPartial(desired);
+
+                    return (
+                      <Button
+                        key={`${opt.name}-${val.id}`}
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        disabled={!exists}
+                        className="border border-transparent capitalize"
+                        onClick={() => onSelectOption(opt.name, val.value)}
+                      >
+                        {val.value}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

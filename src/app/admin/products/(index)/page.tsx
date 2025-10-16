@@ -7,6 +7,7 @@ import Header from "../../../../components/header";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
 import { ProductDrawer } from "../../_components/drawers/product-drawer";
+import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -34,7 +35,9 @@ export default async function AdminProductsPage({
 
       <ProductsTable />
 
-      <ProductDrawer />
+      <VariantSelectionStoreProvider>
+        <ProductDrawer />
+      </VariantSelectionStoreProvider>
     </section>
   );
 }
