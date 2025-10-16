@@ -196,9 +196,10 @@ export function CheckoutForm({
   );
 }
 
-function CheckoutFormSkeleton() {
+export function CheckoutFormSkeleton() {
   return (
     <div className="space-y-4">
+      {/* Payment Method Section */}
       <div className="space-y-2">
         <Skeleton className="h-4 w-40" />
         <div className="grid grid-cols-2 gap-2">
@@ -217,26 +218,26 @@ function CheckoutFormSkeleton() {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-64" />
-      </div>
-
-      <div className="space-y-4">
-        {[0, 1].map((i) => (
-          <div className="flex items-start justify-between" key={i}>
-            <div className="space-y-1">
-              <Skeleton className="h-4 w-64" />
-              <Skeleton className="h-3 w-80" />
+      {/* Address Section */}
+      <fieldset className="space-y-4 border-0 p-0">
+        <legend className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <Skeleton className="h-4 w-20" />
+        </legend>
+        <div className="space-y-2">
+          {[0, 1].map((i) => (
+            <div
+              key={i}
+              className="flex items-start justify-between rounded-lg border p-4"
+            >
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-4 w-64" />
+                <Skeleton className="h-3 w-80" />
+              </div>
+              <Skeleton className="mt-1 h-4 w-4 rounded-full" />
             </div>
-            <Skeleton className="mt-1 h-4 w-4 rounded-full" />
-          </div>
-        ))}
-
-        <div className="ml-auto w-fit">
-          <Skeleton className="h-9 w-32" />
+          ))}
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 }

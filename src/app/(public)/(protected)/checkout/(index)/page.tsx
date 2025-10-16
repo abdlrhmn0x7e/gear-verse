@@ -4,12 +4,13 @@ import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { api } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
 import { CompleteCheckout } from "./_components/complete-checkout";
 import type { RouterOutputs } from "~/trpc/react";
 import { Heading } from "~/components/heading";
 
 export default async function CheckoutPage() {
+  void api.public.checkout.queries.getAddresses.prefetch();
   const cart = await api.public.carts.queries.find();
   const cols =
     cart.items.length > 1 ? (cart.items.length % 2 === 0 ? 2 : 3) : 1;
@@ -17,12 +18,14 @@ export default async function CheckoutPage() {
   return (
     <section>
       <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
-        <CompleteCheckout
-          className="xl:col-span-2"
-          hasCartItems={cart.items.length > 0}
-        >
-          <OrderSummary cart={cart} cols={cols} isMobile />
-        </CompleteCheckout>
+        <HydrateClient>
+          <CompleteCheckout
+            className="xl:col-span-2"
+            hasCartItems={cart.items.length > 0}
+          >
+            <OrderSummary cart={cart} cols={cols} isMobile />
+          </CompleteCheckout>
+        </HydrateClient>
 
         <div className="hidden lg:block">
           <OrderSummary cart={cart} cols={cols} />
