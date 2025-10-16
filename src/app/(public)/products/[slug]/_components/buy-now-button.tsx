@@ -5,15 +5,22 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { ArrowBigUpIcon } from "lucide-react";
 import Link from "next/link";
+import { cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 export function BuyNowButton({
   productVariantId,
   disabled,
+  className,
   ...props
 }: React.ComponentProps<typeof Button> & { productVariantId: number }) {
   const { data: cart } = api.public.carts.queries.find.useQuery();
   const { mutate: addItem, isPending: addingItem } =
-    api.public.carts.mutations.addItem.useMutation();
+    api.public.carts.mutations.addItem.useMutation({
+      onError: () => {
+        toast.warning("You can't buy and add an item at the same time!");
+      },
+    });
   const router = useRouter();
 
   function handleClick() {
@@ -42,7 +49,7 @@ export function BuyNowButton({
 
   return (
     <Button
-      className="w-full lg:flex-1"
+      className={cn("w-full lg:flex-1", className)}
       size="lg"
       onClick={handleClick}
       disabled={addingItem || disabled}

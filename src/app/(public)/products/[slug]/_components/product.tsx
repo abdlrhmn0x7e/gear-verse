@@ -260,7 +260,7 @@ export function Product({
           {!hideActions && (
             <div className="flex flex-col gap-2 lg:flex-row">
               <AddToCartButton
-                className="w-full lg:flex-1"
+                className="peer w-full lg:flex-1"
                 size="lg"
                 variant="outline"
                 disabled={!selectedVariantInStock}
@@ -269,6 +269,7 @@ export function Product({
               />
 
               <BuyNowButton
+                className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
                 productVariantId={selectedVariant.id}
                 disabled={!selectedVariantInStock}
               />

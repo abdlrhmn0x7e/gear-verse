@@ -73,7 +73,7 @@ export function AddToCartButton({
     return (
       <div
         className={cn(
-          "has-[>div:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>div:hover]:cursor-pointer",
+          "peer:bg-red-500 has-[>div:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>div:hover]:cursor-pointer",
           removingFromCart ||
             (addingToCart && "pointer-events-none opacity-50"),
         )}
