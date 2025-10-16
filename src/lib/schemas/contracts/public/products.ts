@@ -6,10 +6,12 @@ export const productsFilterSchema = z
     title: z.string(),
     categories: z.array(z.string()),
     brands: z.array(z.string()),
-    price: z.object({
-      min: z.number(),
-      max: z.number(),
-    }),
+    price: z
+      .object({
+        min: z.number(),
+        max: z.number(),
+      })
+      .partial(),
   })
   .partial();
 

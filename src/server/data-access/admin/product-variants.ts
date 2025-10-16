@@ -7,7 +7,7 @@ import {
   productVariants,
 } from "~/server/db/schema";
 import { db, type Tx } from "~/server/db";
-import { and, eq, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 type NewProductVariant = Omit<
   typeof productVariants.$inferInsert,
@@ -96,12 +96,7 @@ export const _productVariants = {
           await tx
             .update(inventoryItems)
             .set({ quantity: stock })
-            .where(
-              and(
-                eq(inventoryItems.itemId, id),
-                eq(inventoryItems.itemType, "VARIANT"),
-              ),
-            );
+            .where(eq(inventoryItems.productVariantId, id));
         }
       });
     },
@@ -158,12 +153,15 @@ export const _productVariants = {
           await tx
             .insert(inventoryItems)
             .values({
-              itemId: newVariant.id,
-              itemType: "VARIANT",
+              productId,
+              productVariantId: newVariant.id,
               quantity: item.stock,
             })
             .onConflictDoUpdate({
-              target: [inventoryItems.itemId, inventoryItems.itemType],
+              target: [
+                inventoryItems.productId,
+                inventoryItems.productVariantId,
+              ],
               set: { quantity: item.stock },
             });
 
@@ -186,12 +184,7 @@ export const _productVariants = {
           await tx
             .update(inventoryItems)
             .set({ quantity: item.stock })
-            .where(
-              and(
-                eq(inventoryItems.itemId, id),
-                eq(inventoryItems.itemType, "VARIANT"),
-              ),
-            );
+            .where(eq(inventoryItems.productVariantId, id));
         }
 
         return newVariants;

@@ -13,7 +13,14 @@ export type VariantSelectionActions = {
     value: string,
     availableVariants?: RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"],
   ) => void;
-  setVariantId: (variantId: number) => void;
+  setVariantId: (variantId: number | null) => void;
+  setVariantSelection: (
+    variant:
+      | NonNullable<
+          RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"]
+        >[number]
+      | null,
+  ) => void;
   clear: () => void;
 };
 
@@ -47,10 +54,7 @@ export const createVariantSelectionStore = (
       );
 
       if (newVariant) {
-        set({
-          selectedOptions: newVariant.optionValues,
-          variantId: newVariant.id,
-        });
+        state.setVariantSelection(newVariant);
         return;
       }
 
@@ -59,10 +63,7 @@ export const createVariantSelectionStore = (
         (v) => v.optionValues[optionName] === value,
       );
       if (newVariant) {
-        set({
-          selectedOptions: newVariant.optionValues,
-          variantId: newVariant.id,
-        });
+        state.setVariantSelection(newVariant);
       } else {
         // Just update the option without changing variant
         set({
@@ -73,6 +74,21 @@ export const createVariantSelectionStore = (
 
     setVariantId: (variantId) => {
       set({ variantId });
+    },
+
+    setVariantSelection: (variant) => {
+      if (!variant) {
+        set({
+          variantId: null,
+          selectedOptions: {},
+        });
+        return;
+      }
+
+      set({
+        variantId: variant.id,
+        selectedOptions: variant.optionValues ?? {},
+      });
     },
 
     clear: () => {

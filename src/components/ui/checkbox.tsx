@@ -23,7 +23,7 @@ function Checkbox({
         <MinusIcon className="hidden h-4 w-4 group-data-[state=indeterminate]:block" />
         <svg
           viewBox="0 0 16 16"
-          className="text-foreground"
+          className="text-primary-foreground"
           shapeRendering="geometricPrecision"
           textRendering="geometricPrecision"
         >

@@ -10,6 +10,7 @@ export const _carts = {
         data.public.carts.queries.find(userId),
       );
       if (error) {
+        console.error("ERROR: ", error);
         throw new AppError("Failed to find cart", "INTERNAL", {
           cause: error,
         });
@@ -69,17 +70,23 @@ export const _carts = {
 
     removeItem: async ({
       userId,
+      productId,
       productVariantId,
     }: {
       userId: number;
-      productVariantId: number;
+      productId: number;
+      productVariantId: number | null;
     }) => {
       const cart = await data.public.carts.queries.find(userId);
       if (!cart) {
         throw new AppError("Cart not found", "NOT_FOUND");
       }
 
-      return data.public.carts.mutations.removeItem(cart.id, productVariantId);
+      return data.public.carts.mutations.removeItem(
+        cart.id,
+        productId,
+        productVariantId,
+      );
     },
   },
 };

@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { products, productVariants } from "./products";
-import { relations } from "drizzle-orm";
+import { isNotNull, isNull, relations } from "drizzle-orm";
 
 export const carts = pgTable(
   "carts",
@@ -62,11 +62,13 @@ export const cartItems = pgTable(
   },
   (table) => [
     index("cart_items_cart_id_idx").on(table.cartId),
-    uniqueIndex("cart_items_cart_id_product_id_product_variant_id_idx").on(
-      table.cartId,
-      table.productId,
-      table.productVariantId,
-    ),
+    uniqueIndex("cart_items_cart_id_product_id_idx")
+      .on(table.cartId, table.productId)
+      .where(isNull(table.productVariantId)),
+
+    uniqueIndex("cart_items_cart_id_product_id_product_variant_id_idx")
+      .on(table.cartId, table.productId, table.productVariantId)
+      .where(isNotNull(table.productVariantId)),
   ],
 );
 export const cartItemRelations = relations(cartItems, ({ one }) => ({

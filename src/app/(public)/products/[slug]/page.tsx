@@ -4,7 +4,6 @@ import { Product } from "./_components/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Reviews } from "./_components/reviews";
 import { InfoIcon, MessageCircleIcon } from "lucide-react";
-import { Heading } from "~/components/heading";
 import { ProductDescription } from "~/components/product-description";
 import { VariantSelectionStoreProvider } from "../../../../stores/variant-selection/provider";
 
@@ -37,14 +36,10 @@ export default async function ProductPage({
             </TabsList>
 
             <TabsContent value="details">
-              <div className="space-y-4">
-                <Heading level={2}>Description</Heading>
-
-                <ProductDescription
-                  description={product.description}
-                  className="m-0"
-                />
-              </div>
+              <ProductDescription
+                description={product.description}
+                className="m-0"
+              />
             </TabsContent>
 
             <TabsContent value="reviews">

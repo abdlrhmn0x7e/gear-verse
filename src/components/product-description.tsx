@@ -6,13 +6,13 @@ import { useVerseEditor } from "~/hooks/use-verse-editor";
 import { cn } from "~/lib/utils";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
 import { PencilOffIcon } from "lucide-react";
+import { Frame, FrameHeader, FramePanel, FrameTitle } from "./ui/frame";
 export function ProductDescription({
   className,
   description,
@@ -40,13 +40,20 @@ export function ProductDescription({
   }
 
   return (
-    <div
-      className={cn(
-        "prose prose-leading-2 prose-pink m-auto focus-visible:outline-none",
-        className,
-      )}
-    >
-      {renderToReactElement({ content: description, extensions })}
-    </div>
+    <Frame>
+      <FrameHeader>
+        <FrameTitle className="text-2xl font-bold">Description</FrameTitle>
+      </FrameHeader>
+      <FramePanel>
+        <div
+          className={cn(
+            "prose prose-leading-2 prose-pink m-auto focus-visible:outline-none",
+            className,
+          )}
+        >
+          {renderToReactElement({ content: description, extensions })}
+        </div>
+      </FramePanel>
+    </Frame>
   );
 }

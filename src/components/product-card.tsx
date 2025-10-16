@@ -8,7 +8,7 @@ import { AspectRatio } from "./ui/aspect-ratio";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 
 export function ProductCard({
   product,
@@ -17,7 +17,7 @@ export function ProductCard({
 }) {
   return (
     <Link href={`/products/${product.slug}`} className="group">
-      <Card className="gap-1 p-1">
+      <Card className="h-full gap-1 p-1">
         <CardHeader className="p-0">
           <AspectRatio
             ratio={16 / 10}
@@ -33,7 +33,8 @@ export function ProductCard({
             />
           </AspectRatio>
         </CardHeader>
-        <CardContent className="space-y-3 p-0">
+
+        <CardContent className="flex-1 space-y-3 p-0">
           <div className="space-y-3 px-1">
             <div>
               <div className="flex items-center gap-2">
@@ -67,7 +68,15 @@ export function ProductCard({
               )}
             </p>
 
-            {product.variants.length > 0 && (
+            {!product.variants && (
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-sm font-medium">
+                  No variants available
+                </p>
+              </div>
+            )}
+
+            {product.variants && product.variants.length > 0 && (
               <div className="space-y-2">
                 <p className="text-muted-foreground text-sm font-medium">
                   Available in {product.variants.length} variants
@@ -105,12 +114,14 @@ export function ProductCard({
               </div>
             )}
           </div>
+        </CardContent>
 
+        <CardFooter className="mt-2 p-0">
           <Button className="w-full">
             <EyeIcon />
             View Details
           </Button>
-        </CardContent>
+        </CardFooter>
       </Card>
     </Link>
   );

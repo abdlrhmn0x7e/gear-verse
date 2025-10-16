@@ -1,7 +1,12 @@
 import { TRPCError } from "@trpc/server";
+import { env } from "~/env";
 import { isAppError } from "~/lib/errors/app-error";
 
 export function errorMap(error: unknown) {
+  if (env.NODE_ENV === "development") {
+    console.error("ERROR: ", JSON.stringify(error, null, 4));
+  }
+
   if (isAppError(error)) {
     switch (error.kind) {
       case "NOT_FOUND":

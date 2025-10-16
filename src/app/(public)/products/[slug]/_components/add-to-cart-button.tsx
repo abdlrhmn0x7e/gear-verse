@@ -13,23 +13,21 @@ import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import type { RouterOutputs } from "~/trpc/react";
 
 export function AddToCartButton({
   disabled,
-  product,
+  productId,
+  stock,
   ...props
 }: React.ComponentProps<typeof Button> & {
-  product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
+  productId: number;
+  stock: number;
 }) {
   const utils = api.useUtils();
   const [, setParams] = useCartSearchParams();
 
   // Get variant data from store
   const variantId = useVariantSelectionStore((state) => state.variantId);
-  const selectedOptions = useVariantSelectionStore(
-    (state) => state.selectedOptions,
-  );
 
   const { mutate: addToCart, isPending: addingToCart } =
     api.public.carts.mutations.addItem.useMutation();
@@ -37,29 +35,9 @@ export function AddToCartButton({
     api.public.carts.mutations.removeItem.useMutation();
   const { data: cart } = api.public.carts.queries.find.useQuery();
 
-  // Find the selected variant from the product data
-  const selectedVariant = useMemo(() => {
-    if (!product.variants || product.variants.length === 0) return null;
-
-    // If there are options, find variant by selected options
-    if (product.options && product.options.length > 0) {
-      const exact = product.variants.find((v) =>
-        Object.entries(selectedOptions).every(
-          ([name, value]) => v.optionValues[name] === value,
-        ),
-      );
-      return exact ?? product.variants[0];
-    }
-
-    // No options, use variantId or first variant
-    return (
-      product.variants.find((v) => v.id === variantId) ?? product.variants[0]
-    );
-  }, [product.variants, product.options, selectedOptions, variantId]);
-
   const currentCartItem = useMemo(
-    () => cart?.items.find((item) => item.id === selectedVariant?.id),
-    [cart, selectedVariant?.id],
+    () => cart?.items.find((item) => item.id === variantId),
+    [cart, variantId],
   );
 
   const onSuccess = () => {
@@ -67,9 +45,8 @@ export function AddToCartButton({
   };
 
   function handleAddToCart() {
-    if (!selectedVariant) return;
     addToCart(
-      { productVariantId: selectedVariant.id },
+      { productId, productVariantId: variantId ?? null },
       {
         onSuccess,
       },
@@ -78,9 +55,8 @@ export function AddToCartButton({
 
   function handleRemoveFromCart(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    if (!selectedVariant) return;
     removeFromCart(
-      { productVariantId: selectedVariant.id },
+      { productId, productVariantId: variantId ?? null },
       {
         onSuccess,
       },
@@ -89,9 +65,9 @@ export function AddToCartButton({
 
   function handleIncreaseQuantity(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    if (!selectedVariant) return;
+    if (!variantId) return;
     addToCart(
-      { productVariantId: selectedVariant.id },
+      { productId, productVariantId: variantId ?? null },
       {
         onSuccess,
       },
@@ -138,9 +114,9 @@ export function AddToCartButton({
               onClick={handleIncreaseQuantity}
               disabled={
                 removingFromCart ||
-                !selectedVariant ||
-                selectedVariant.stock === 0 ||
-                selectedVariant.stock <= currentCartItem.quantity
+                !variantId ||
+                stock === 0 ||
+                stock <= currentCartItem.quantity
               }
               className="w-full flex-1"
             >
@@ -153,15 +129,10 @@ export function AddToCartButton({
     );
   }
 
-  // Don't render if no variant is selected
-  if (!selectedVariant) {
-    return null;
-  }
-
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={addingToCart || disabled || selectedVariant.stock === 0}
+      disabled={addingToCart ?? disabled ?? stock <= 0}
       {...props}
     >
       <IconShoppingCartPlus />

@@ -79,6 +79,7 @@ export const productRelations = relations(products, ({ one, many }) => ({
     fields: [products.brandId],
     references: [brands.id],
   }),
+  inventory: many(inventoryItems),
   options: many(productOptions),
   variants: many(productVariants),
   orderItems: many(orderItems),

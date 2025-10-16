@@ -65,6 +65,7 @@ export const productsRouter = createTRPCRouter({
           ctx.app.admin.products.mutations.editDeep(input.id, input.data),
         );
         if (error) {
+          console.log("error", error);
           throw errorMap(error);
         }
 

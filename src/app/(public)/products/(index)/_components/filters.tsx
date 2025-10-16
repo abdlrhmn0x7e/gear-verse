@@ -207,12 +207,13 @@ function PriceFilter() {
       <Heading level={4}>Price</Heading>
       <p className="text-muted-foreground text-sm">
         {formatCurrency(filters.minPrice ?? 0)} -{" "}
-        {formatCurrency(filters.maxPrice ?? 9999)}
+        {formatCurrency(filters.maxPrice ?? 99999)}
       </p>
+
       <Slider
         min={0}
-        max={9999}
-        value={[filters.minPrice ?? 0, filters.maxPrice ?? 9999]}
+        max={99999}
+        value={[filters.minPrice ?? 0, filters.maxPrice ?? 99999]}
         onValueChange={(value) => {
           void setFilters((prev) => {
             return {

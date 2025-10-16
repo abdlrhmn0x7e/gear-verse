@@ -499,7 +499,7 @@ function CartDrawer({
                 />
                 <div className="flex-1 space-y-1">
                   <p className="text-left text-sm font-medium">
-                    {item.title} - {item.values.join(", ")}
+                    {item.title} {item.values && `- ${item.values.join(", ")}`}
                   </p>
                   <div className="flex items-center justify-between">
                     <p className="text-muted-foreground text-sm">
@@ -522,7 +522,8 @@ function CartDrawer({
                       className="flex-1 md:size-6"
                       onClick={() =>
                         removeItem({
-                          productVariantId: item.id ?? 0,
+                          productId: item.productId,
+                          productVariantId: item.productVariantId,
                         })
                       }
                       disabled={removingItem}
@@ -536,7 +537,8 @@ function CartDrawer({
                       className="flex-1 md:size-6"
                       onClick={() =>
                         addItem({
-                          productVariantId: item.id ?? 0,
+                          productId: item.productId,
+                          productVariantId: item.productVariantId,
                         })
                       }
                       disabled={

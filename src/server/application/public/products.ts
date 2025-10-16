@@ -6,6 +6,7 @@ import { AppError } from "~/lib/errors/app-error";
 export const _products = {
   queries: {
     getPage: (input: ProductsGetPageInput) => {
+      console.log("input", input);
       return paginate({ input, getPage: data.public.products.queries.getPage });
     },
 

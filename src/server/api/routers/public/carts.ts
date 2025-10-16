@@ -40,13 +40,19 @@ export const userCartsRouter = createTRPCRouter({
       }),
 
     removeItem: protectedProcedure
-      .input(z.object({ productVariantId: z.number() }))
+      .input(
+        z.object({
+          productId: z.number(),
+          productVariantId: z.number().nullable(),
+        }),
+      )
       .mutation(async ({ ctx, input }) => {
         const parsedUserId = Number(ctx.session.user.id);
 
         const { data, error } = await tryCatch(
           ctx.app.public.carts.mutations.removeItem({
             userId: parsedUserId,
+            productId: input.productId,
             productVariantId: input.productVariantId,
           }),
         );

@@ -34,7 +34,6 @@ export const _products = {
         };
       };
     }) => {
-      console.log("product page filter", filters);
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
@@ -69,16 +68,12 @@ export const _products = {
 
       const variantThumbnail = alias(media, "variant_thumbnail");
       const variantInventory = alias(inventoryItems, "variant_inventory");
-      const productInventory = alias(inventoryItems, "product_inventory");
       const variantsQuery = db
         .select({
           productId: productVariants.productId,
           overridePrice: productVariants.overridePrice,
           thumbnailUrl: variantThumbnail.url,
-          stock:
-            sql<number>`coalesce(${variantInventory.quantity}, ${productInventory.quantity})`.as(
-              "stock",
-            ),
+          stock: variantInventory.quantity,
           optionValues: sql<Record<string, string>>`
           jsonb_object_agg(
               ${productOptions.name}, ${productOptionValues.value}
@@ -91,17 +86,10 @@ export const _products = {
           eq(productVariants.thumbnailMediaId, variantThumbnail.id),
         )
         .leftJoin(
-          inventoryItems,
+          variantInventory,
           and(
-            eq(productVariants.id, variantInventory.itemId),
-            eq(variantInventory.itemType, "VARIANT"),
-          ),
-        )
-        .leftJoin(
-          productInventory,
-          and(
-            eq(products.id, productInventory.itemId),
-            eq(productInventory.itemType, "PRODUCT"),
+            eq(productVariants.productId, variantInventory.productId),
+            eq(productVariants.id, variantInventory.productVariantId),
           ),
         )
         .leftJoin(
@@ -122,7 +110,6 @@ export const _products = {
         .groupBy(
           productVariants.id,
           variantInventory.quantity,
-          productInventory.quantity,
           variantThumbnail.id,
         )
         .as("product_variants");
@@ -143,7 +130,6 @@ export const _products = {
             jsonb_build_object(
               'overridePrice', ${variantsQuery.overridePrice},
               'thumbnailUrl', ${variantsQuery.thumbnailUrl},
-              'stock', ${variantsQuery.stock},
               'optionValues', ${variantsQuery.optionValues}
             )
           )
@@ -162,6 +148,7 @@ export const _products = {
           strikeThroughPrice: products.strikeThroughPrice,
           summary: products.summary,
           thumbnailUrl: media.url,
+          stock: inventoryItems.quantity,
           category: {
             name: categories.name,
             slug: categories.slug,
@@ -176,9 +163,15 @@ export const _products = {
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoin(variantsJson, eq(variantsJson.productId, products.id))
-        .where(and(...whereClause, sql`${variantsJson.json} @@ '$.stock > 0'`))
+        .where(
+          and(
+            ...whereClause,
+            sql`${inventoryItems.quantity} > 0 OR ${variantsJson.json} @@ '$.stock > 0'`,
+          ),
+        )
         .limit(pageSize + 1)
         .orderBy(products.id);
     },
@@ -248,17 +241,13 @@ export const _products = {
 
       const variantThumbnail = alias(media, "variant_thumbnail");
       const variantInventory = alias(inventoryItems, "variant_inventory");
-      const productInventory = alias(inventoryItems, "product_inventory");
       const variantsQuery = db
         .select({
           id: productVariants.id,
           productSlug: products.slug,
           overridePrice: productVariants.overridePrice,
           thumbnailUrl: variantThumbnail.url,
-          stock:
-            sql<number>`coalesce(${variantInventory.quantity}, ${productInventory.quantity})`.as(
-              "stock",
-            ),
+          stock: sql<number>`${variantInventory.quantity}`.as("stock"),
           optionValues: sql<Record<string, string> | null>`
           jsonb_object_agg(
             ${productOptions.name}, ${productOptionValues.value}
@@ -272,18 +261,9 @@ export const _products = {
         )
         .leftJoin(
           variantInventory,
-          and(
-            eq(productVariants.id, variantInventory.itemId),
-            eq(variantInventory.itemType, "VARIANT"),
-          ),
+          eq(productVariants.id, variantInventory.productVariantId),
         )
-        .leftJoin(
-          productInventory,
-          and(
-            eq(products.id, productInventory.itemId),
-            eq(productInventory.itemType, "PRODUCT"),
-          ),
-        )
+
         .leftJoin(
           productOptionValuesVariants,
           eq(productOptionValuesVariants.productVariantId, productVariants.id),
@@ -304,7 +284,6 @@ export const _products = {
           products.slug,
           productVariants.id,
           variantInventory.quantity,
-          productInventory.quantity,
           variantThumbnail.id,
         )
         .as("product_variants");
@@ -369,6 +348,7 @@ export const _products = {
           description: products.description,
           published: products.published,
           categoryId: products.categoryId,
+          stock: inventoryItems.quantity,
           brand: {
             name: brands.name,
             logoUrl: brandsMedia.url,
@@ -387,6 +367,7 @@ export const _products = {
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
+        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(
           productOptionsJson,
           eq(productOptionsJson.productSlug, products.slug),

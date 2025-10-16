@@ -21,8 +21,8 @@ export async function Products({
       brands: filters.brands ?? undefined,
       categories: filters.categories ?? undefined,
       price: {
-        min: filters.minPrice ?? 0,
-        max: filters.maxPrice ?? 9999,
+        min: filters.minPrice ?? undefined,
+        max: filters.maxPrice ?? undefined,
       },
     },
   });

@@ -18,6 +18,7 @@ import {
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
+import Link from "next/link";
 
 export function ProductList() {
   const [filters] = useAllProductSearchParams();
@@ -30,8 +31,8 @@ export function ProductList() {
           brands: debouncedFilters.brands ?? undefined,
           categories: debouncedFilters.categories ?? undefined,
           price: {
-            min: debouncedFilters.minPrice ?? 0,
-            max: debouncedFilters.maxPrice ?? 9999,
+            min: debouncedFilters.minPrice ?? undefined,
+            max: debouncedFilters.maxPrice ?? undefined,
           },
         },
         sortBy: debouncedFilters.sortBy ?? undefined,
@@ -99,10 +100,10 @@ function ProductListEmptyState() {
           className="text-muted-foreground"
           size="sm"
         >
-          <a href="/contact">
+          <Link href="/contact">
             Contact Us
             <ArrowUpRightIcon />
-          </a>
+          </Link>
         </Button>
       </EmptyContent>
     </Empty>

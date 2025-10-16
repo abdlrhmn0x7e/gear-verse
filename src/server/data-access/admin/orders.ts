@@ -116,7 +116,7 @@ export const _orders = {
         .from(productVariants)
         .leftJoin(
           inventoryItems,
-          eq(productVariants.id, inventoryItems.variantId),
+          eq(productVariants.id, inventoryItems.productVariantId),
         )
         .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
         .leftJoin(

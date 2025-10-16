@@ -58,7 +58,8 @@ export function BuyNowButton({
     if (!selectedVariant) return;
     addItem(
       {
-        productVariantId: selectedVariant.id,
+        productId: product.id,
+        productVariantId: selectedVariant.id ?? null,
       },
       {
         onSuccess: () => {
@@ -79,17 +80,12 @@ export function BuyNowButton({
     );
   }
 
-  // Don't render if no variant is selected
-  if (!selectedVariant) {
-    return null;
-  }
-
   return (
     <Button
       className={cn("w-full lg:flex-1", className)}
       size="lg"
       onClick={handleClick}
-      disabled={addingItem || disabled || selectedVariant.stock === 0}
+      disabled={addingItem ?? disabled ?? (selectedVariant?.stock ?? 0) <= 0}
       {...props}
     >
       {addingItem ? <Spinner /> : <IconBasketDollar />}

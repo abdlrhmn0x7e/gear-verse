@@ -4,7 +4,8 @@ export const cartItemSchema = z.object({
   id: z.number(),
 
   cartId: z.number(),
-  productVariantId: z.number(),
+  productId: z.number(),
+  productVariantId: z.number().nullable(),
   quantity: z.number(),
 
   createdAt: z.date(),

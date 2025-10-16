@@ -12,7 +12,6 @@ export const _orders = {
       const { data: order, error } = await tryCatch(
         data.public.orders.queries.findById(id, userId),
       );
-      console.log("order", order);
 
       if (error) {
         throw new AppError("Could not get your order", "INTERNAL", {

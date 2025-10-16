@@ -1,7 +1,6 @@
 "use client";
 
-import { type PropsWithChildren, useMemo } from "react";
-import { Heading } from "~/components/heading";
+import { type PropsWithChildren, useEffect, useMemo } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Badge } from "~/components/ui/badge";
@@ -17,8 +16,22 @@ import { api } from "~/trpc/react";
 import { StarRating } from "./star-rating";
 import { Button } from "~/components/ui/button";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import {
+  Frame,
+  FrameDescription,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "~/components/ui/frame";
 
 type Product = RouterOutputs["public"]["products"]["queries"]["findBySlug"];
+
+const WHY_US = [
+  "1~2 Days Delivery",
+  "100% Satisfaction Guarantee",
+  "Customs Cleared & Insured",
+  "Money Back Guarantee",
+];
 
 export function Product({
   children,
@@ -36,41 +49,95 @@ export function Product({
 
   const options = product.options ?? [];
   const variants = useMemo(() => product.variants ?? [], [product.variants]);
-  const hasOptionsAndVariants = options.length > 0 && variants.length > 0;
+  const hasVariants = variants.length > 0;
+  const hasOptionsAndVariants = options.length > 0 && hasVariants;
 
   // Store hooks
+  const variantId = useVariantSelectionStore((state) => state.variantId);
   const selectedOptions = useVariantSelectionStore(
     (state) => state.selectedOptions,
   );
-  const variantId = useVariantSelectionStore((state) => state.variantId);
   const updateSelectedOption = useVariantSelectionStore(
     (state) => state.updateSelectedOption,
   );
+  const setVariantSelection = useVariantSelectionStore(
+    (state) => state.setVariantSelection,
+  );
 
-  // Derive the selected variant from selected options or fallback to variantId
   const selectedVariant = useMemo(() => {
-    if (hasOptionsAndVariants) {
-      const exact = variants.find((v) =>
+    if (!hasVariants) {
+      return null;
+    }
+
+    if (Object.keys(selectedOptions).length > 0) {
+      const byOptions = variants.find((variant) =>
         Object.entries(selectedOptions).every(
-          ([name, value]) => v.optionValues[name] === value,
+          ([name, value]) => variant.optionValues[name] === value,
         ),
       );
-      return exact ?? variants[0];
+      if (byOptions) {
+        return byOptions;
+      }
     }
 
-    // No options, use variantId or first
-    if (variants.length > 0) {
-      return variants.find((v) => v.id === variantId) ?? variants[0];
+    if (variantId) {
+      const byId = variants.find((variant) => variant.id === variantId);
+      if (byId) {
+        return byId;
+      }
     }
 
-    // No variants available, return null
-    return null;
-  }, [variants, selectedOptions, variantId, hasOptionsAndVariants]);
+    return variants[0] ?? null;
+  }, [hasVariants, selectedOptions, variantId, variants]);
 
-  const selectedVariantInStock = useMemo(
-    () => (selectedVariant ? (selectedVariant.stock ?? 0) > 0 : false),
-    [selectedVariant],
-  );
+  useEffect(() => {
+    if (!hasVariants) {
+      if (variantId !== null || Object.keys(selectedOptions).length > 0) {
+        setVariantSelection(null);
+      }
+      return;
+    }
+
+    const byOptions = Object.keys(selectedOptions).length
+      ? variants.find((variant) =>
+          Object.entries(selectedOptions).every(
+            ([name, value]) => variant.optionValues[name] === value,
+          ),
+        )
+      : null;
+
+    const byId = variantId
+      ? variants.find((variant) => variant.id === variantId)
+      : null;
+
+    const resolved = byOptions ?? byId ?? variants[0] ?? null;
+
+    if (!resolved) {
+      return;
+    }
+
+    const optionValues = resolved.optionValues ?? {};
+
+    const optionsMatch = Object.entries(optionValues).every(
+      ([name, value]) => selectedOptions[name] === value,
+    );
+
+    if (variantId !== resolved.id || !optionsMatch) {
+      setVariantSelection(resolved);
+    }
+  }, [hasVariants, setVariantSelection, selectedOptions, variantId, variants]);
+
+  const stock = useMemo(() => {
+    if (selectedVariant) {
+      return selectedVariant.stock;
+    }
+
+    if (product.stock !== undefined && product.stock !== null) {
+      return product.stock;
+    }
+
+    return 0;
+  }, [product.stock, selectedVariant]);
 
   return (
     <MaxWidthWrapper
@@ -89,36 +156,31 @@ export function Product({
 
         <ProductBrandBadge
           brand={product.brand}
-          selectedVariantInStock={selectedVariantInStock}
-          stock={selectedVariant?.stock ?? 0}
+          stock={stock}
           className="absolute top-2 right-6 z-10 md:right-14 lg:hidden"
         />
       </div>
 
       {/* Content Section */}
-      <div className="space-y-8 divide-y [&>*:not(:last-child)]:pb-8">
-        <div className="space-y-8">
-          {/* Product Header */}
-          <div className="space-y-2 text-center lg:text-left">
-            <div className="flex flex-col items-center justify-between gap-2 lg:flex-row lg:items-start">
-              <Heading level={2}>{product.title}</Heading>
-
+      <div className="space-y-6">
+        <Frame className="w-full">
+          <FrameHeader>
+            <div className="flex items-center justify-between gap-2">
+              <FrameTitle className="text-2xl font-bold">
+                {product.title}
+              </FrameTitle>
               <ProductBrandBadge
                 brand={product.brand}
-                selectedVariantInStock={selectedVariantInStock}
-                stock={selectedVariant?.stock ?? 0}
+                stock={stock}
                 className="hidden lg:flex"
               />
             </div>
+            <FrameDescription>{product.summary}</FrameDescription>
+          </FrameHeader>
 
-            <p className="text-muted-foreground text-pretty lg:text-lg">
-              {product.summary}
-            </p>
-          </div>
-
-          {/* Price and Reviews */}
-          <div className="flex flex-col items-center justify-between gap-2 lg:flex-row">
-            <p className="space-x-2">
+          <FramePanel>
+            <h2 className="text-sm font-semibold">Pricing</h2>
+            <div className="space-x-2 text-center lg:text-left">
               <span className="text-primary dark:text-primary-foreground text-3xl font-bold lg:text-4xl">
                 {formatCurrency(
                   selectedVariant?.overridePrice === 0 ||
@@ -133,50 +195,71 @@ export function Product({
                   {formatCurrency(product.strikeThroughPrice ?? 0)}
                 </span>
               )}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <StarRating
-                rating={
-                  (reviews?.reduce((acc, review) => acc + review.rating, 0) ??
-                    0) / (reviews?.length ?? 0)
-                }
-              />
-              ({reviews?.length ?? 0} reviews)
             </div>
-          </div>
 
-          {/* Variant Selector - Only show if options and variants exist */}
+            {reviews && reviews.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <StarRating
+                  rating={
+                    (reviews?.reduce((acc, review) => acc + review.rating, 0) ??
+                      0) / (reviews?.length ?? 0)
+                  }
+                />
+                ({reviews?.length ?? 0} reviews)
+              </div>
+            )}
+          </FramePanel>
+
           {hasOptionsAndVariants && selectedVariant && (
-            <VariantSelector
-              product={product}
-              onSelectOption={(name, value) =>
-                updateSelectedOption(name, value, variants)
-              }
-              selectedOptions={selectedOptions}
-              selectedVariant={selectedVariant}
-            />
+            <FramePanel>
+              <h2 className="text-sm font-semibold">Variants</h2>
+              <VariantSelector
+                product={product}
+                onSelectOption={(name, value) =>
+                  updateSelectedOption(name, value, variants)
+                }
+                selectedOptions={selectedOptions}
+                selectedVariant={selectedVariant}
+              />
+            </FramePanel>
           )}
 
-          {/* Action Buttons */}
-          {!hideActions && selectedVariant && (
-            <div className="flex flex-col gap-2 lg:flex-row">
-              <AddToCartButton
-                className="peer w-full lg:flex-1"
-                size="lg"
-                variant="outline"
-                disabled={!selectedVariantInStock}
-                product={product}
-              />
-
-              <BuyNowButton
-                className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
-                disabled={!selectedVariantInStock}
-                product={product}
-              />
-            </div>
+          {!hasOptionsAndVariants && (
+            <FramePanel>
+              <h2 className="text-sm font-semibold">Why Us?</h2>
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {WHY_US.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-center gap-3 text-sm font-medium"
+                  >
+                    <CheckCircleIcon className="size-4 text-green-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </FramePanel>
           )}
-        </div>
+
+          <FramePanel>
+            {!hideActions && (
+              <div className="flex flex-col gap-2 lg:flex-row">
+                <AddToCartButton
+                  className="peer w-full lg:flex-1"
+                  size="lg"
+                  variant="outline"
+                  productId={product.id}
+                  stock={stock}
+                />
+
+                <BuyNowButton
+                  className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
+                  product={product}
+                />
+              </div>
+            )}
+          </FramePanel>
+        </Frame>
 
         {children}
       </div>
@@ -195,7 +278,6 @@ function VariantSelector({
   product,
   selectedOptions,
   onSelectOption,
-  selectedVariant,
 }: VariantSelectorProps) {
   const options = product.options ?? [];
   const variants = product.variants ?? [];
@@ -231,95 +313,93 @@ function VariantSelector({
   };
 
   return (
-    <div>
-      <div className="flex items-center gap-2">
-        <Heading level={2}>Variants</Heading>
-        <p className="text-muted-foreground text-left text-sm capitalize md:text-base">
-          (Current: {Object.values(selectedVariant.optionValues).join(", ")})
-        </p>
-      </div>
+    <div className="space-y-3">
+      {/* First Option - with visual variant buttons */}
+      {firstOption && (
+        <div className="space-y-3">
+          <p className="text-foreground/80 text-lg font-semibold capitalize">
+            {firstOption.name}
+          </p>
 
-      <div className="space-y-4 p-2">
-        {/* First Option - with visual variant buttons */}
-        {firstOption && (
-          <div className="space-y-2">
-            <p className="text-lg font-medium capitalize">{firstOption.name}</p>
+          <div className="flex flex-wrap gap-2">
+            {firstOption.values.map((val, index) => {
+              const representative = getRepresentativeVariantForFirstValue(
+                val.value,
+              );
+              const isSelected =
+                selectedOptions[firstOption.name] === val.value;
 
-            <div className="flex flex-wrap gap-2">
-              {firstOption.values.map((val, index) => {
-                const representative = getRepresentativeVariantForFirstValue(
-                  val.value,
-                );
-                const isSelected =
-                  selectedOptions[firstOption.name] === val.value;
-
-                return (
-                  <div
-                    key={`${firstOption.name}-${val.value}-${index}`}
-                    className="flex flex-col items-center gap-2"
-                  >
-                    <VariantButton
-                      variant={representative}
-                      onClick={() =>
-                        onSelectOption(firstOption.name, val.value)
-                      }
-                      className={cn(isSelected && "ring-primary ring-2")}
-                    />
-                    <p className="text-sm font-medium">{val.value}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Other Options - with button selectors */}
-        {otherOptions.length > 0 && (
-          <div className="space-y-3">
-            {otherOptions.map((opt) => (
-              <div key={opt.id} className="space-y-2">
-                <p className="text-lg font-medium capitalize">{opt.name}</p>
-
-                <div className="flex flex-wrap gap-2">
-                  {opt.values.map((val) => {
-                    const isSelected = selectedOptions[opt.name] === val.value;
-                    const desired = {
-                      ...selectedOptions,
-                      [opt.name]: val.value,
-                    };
-                    const exists = !!getVariantMatchingPartial(desired);
-
-                    return (
-                      <Button
-                        key={`${opt.name}-${val.id}`}
-                        type="button"
-                        variant={isSelected ? "default" : "outline"}
-                        disabled={!exists}
-                        className="border border-transparent capitalize"
-                        onClick={() => onSelectOption(opt.name, val.value)}
-                      >
-                        {val.value}
-                      </Button>
-                    );
-                  })}
+              return (
+                <div
+                  key={`${firstOption.name}-${val.value}-${index}`}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <VariantButton
+                    variant={representative}
+                    onClick={() => onSelectOption(firstOption.name, val.value)}
+                    className={cn(
+                      "transition-all hover:-translate-y-0.5",
+                      isSelected &&
+                        "ring-primary ring-offset-background ring-2 ring-offset-2",
+                    )}
+                  />
+                  <p className="text-sm font-medium">{val.value}</p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Other Options - with button selectors */}
+      {otherOptions.length > 0 && (
+        <div className="space-y-4">
+          {otherOptions.map((opt) => (
+            <div key={opt.id} className="space-y-3">
+              <p className="text-foreground/80 text-lg font-semibold capitalize">
+                {opt.name}
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {opt.values.map((val) => {
+                  const isSelected = selectedOptions[opt.name] === val.value;
+                  const desired = {
+                    ...selectedOptions,
+                    [opt.name]: val.value,
+                  };
+                  const exists = !!getVariantMatchingPartial(desired);
+
+                  return (
+                    <Button
+                      key={`${opt.name}-${val.id}`}
+                      type="button"
+                      variant={isSelected ? "default" : "outline"}
+                      disabled={!exists}
+                      className={cn(
+                        "capitalize transition-all",
+                        !exists && "opacity-60",
+                      )}
+                      onClick={() => onSelectOption(opt.name, val.value)}
+                    >
+                      {val.value}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 function ProductBrandBadge({
   brand,
-  selectedVariantInStock,
   stock,
   className,
 }: {
   brand: { logoUrl: string | null; name: string | null };
-  selectedVariantInStock: boolean;
   stock: number;
   className?: string;
 }) {
@@ -339,16 +419,10 @@ function ProductBrandBadge({
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-md">{brand.name}</span>
         <Badge
-          variant={
-            selectedVariantInStock
-              ? stock < 4
-                ? "warning"
-                : "success"
-              : "error"
-          }
+          variant={stock > 0 ? (stock < 4 ? "warning" : "success") : "error"}
           className="rounded-full"
         >
-          {selectedVariantInStock ? (
+          {stock > 0 ? (
             stock < 4 ? (
               <AlertTriangleIcon />
             ) : (
@@ -358,7 +432,7 @@ function ProductBrandBadge({
             <XIcon />
           )}
           <span>{stock}</span>
-          {selectedVariantInStock ? "In Stock" : "Out of Stock"}
+          {stock > 0 ? "In Stock" : "Out of Stock"}
         </Badge>
       </div>
     </Badge>
