@@ -22,6 +22,7 @@ import { useInView } from "react-intersection-observer";
 import { debounce } from "nuqs";
 import { CategoriesCommand } from "../../inputs/categories-combobox";
 import { FilterList, type FilterKey } from "../../filter-list";
+import { Button } from "~/components/ui/button";
 
 export function ProductsFilter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -133,18 +134,15 @@ export function ProductsFilter() {
   return (
     <div className="flex items-center gap-2">
       <SearchInput
-        className="h-full w-full max-w-sm"
+        className="w-full max-w-sm"
         value={filters.title ?? ""}
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger
-            className={cn(
-              "text-muted-foreground hover:text-primary cursor-pointer transition-colors focus-visible:outline-none",
-              isOpen && "text-primary",
-            )}
-          >
-            <ListFilterIcon size={16} />
+          <DropdownMenuTrigger className={cn(isOpen && "text-primary")} asChild>
+            <Button variant="ghost" size="icon-sm">
+              <ListFilterIcon />
+            </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent

@@ -34,7 +34,7 @@ export function Hero() {
         {/* Pink Glow Background */}
         <div className="absolute inset-0 z-0 [background-image:radial-gradient(125%_125%_at_50%_90%,var(--background)_40%,var(--primary)_200%)] [background-size:100%_100%]" />
         <MaxWidthWrapper className="relative z-10 flex h-screen flex-col items-center justify-center py-32">
-          <div className="grid h-full grid-cols-1 lg:grid-cols-2">
+          <div className="grid h-full grid-cols-1 items-center lg:grid-cols-2">
             <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
               <Badge>
                 <Sparkles />
@@ -43,7 +43,7 @@ export function Hero() {
 
               <div className="space-y-3">
                 <Heading
-                  level={2}
+                  level={1}
                   font="default"
                   className="text-accent-foreground relative text-pretty"
                 >

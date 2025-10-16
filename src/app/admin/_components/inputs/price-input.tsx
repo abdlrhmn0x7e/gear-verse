@@ -9,6 +9,7 @@ export function PriceInput({
   ...props
 }: React.ComponentProps<"input"> & {
   value: number | null | undefined;
+  size?: "sm" | "lg";
 }) {
   return (
     <InputGroup>

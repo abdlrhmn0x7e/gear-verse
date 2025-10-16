@@ -7,7 +7,7 @@ const headingVariants = cva(
   {
     variants: {
       level: {
-        1: `text-3xl md:text-4xl lg:text-5xl leading-12 md:leading-14 lg:leading-18 ${tanNimbus.className}`,
+        1: `text-3xl md:text-3xl lg:text-4xl 2xl:text-5xl leading-12 md:leading-14 lg:leading-18 ${tanNimbus.className}`,
         2: "text-2xl md:text-3xl font-semibold",
         3: "text-xl md:text-2xl font-semibold",
         4: "text-lg md:text-xl font-medium",
