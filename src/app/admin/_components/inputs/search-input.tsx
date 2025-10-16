@@ -48,7 +48,7 @@ export function SearchInput({
       <InputGroupAddon>
         <SearchIcon size={16} />
       </InputGroupAddon>
-      <InputGroupAddon align="inline-end">
+      <InputGroupAddon align="inline-end" className="gap-1">
         <KbdGroup>
           <Kbd className="text-muted-foreground text-sm">/</Kbd>
         </KbdGroup>

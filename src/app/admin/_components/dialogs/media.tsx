@@ -47,6 +47,7 @@ import { useMediaStore } from "../../_stores/media/provider";
 import type { SelectedMedia } from "../../_stores/media/store";
 import type { FileDropZoneProps } from "../inputs/file-dropzone";
 import { toast } from "sonner";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
 
 export function MediaDialog({
   children,
@@ -103,7 +104,8 @@ export function MediaDialog({
 
           <div className="flex h-[50svh] w-full gap-6 overflow-hidden xl:h-[60svh]">
             <motion.div
-              className="flex w-full min-w-0 flex-col gap-4"
+              className="flex min-w-0 flex-1 flex-col gap-4"
+              transition={{ ease: "easeInOut", duration: 0.2 }}
               layout="position"
             >
               <MediaFileDropzone />
@@ -120,18 +122,19 @@ export function MediaDialog({
               </div>
             </motion.div>
 
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout" initial={false}>
               {previewUrl && (
                 <motion.div
-                  initial={{ opacity: 0, width: 0, height: "auto" }}
-                  animate={{ opacity: 1, width: "34rem" }}
-                  exit={{ opacity: 0, width: 0 }}
+                  layoutId="media-preview"
+                  layout
+                  initial={{ opacity: 0, translateX: 100 }}
+                  animate={{ opacity: 1, translateX: 0 }}
+                  exit={{ opacity: 0, translateX: 100 }}
                   transition={{
-                    type: "tween",
+                    ease: "easeOut",
                     duration: 0.2,
-                    ease: "easeInOut",
                   }}
-                  className="flex items-start justify-center"
+                  className="flex w-1/3 items-start justify-center"
                 >
                   <MediaPreview url={previewUrl} />
                 </motion.div>
@@ -437,7 +440,7 @@ function MediaPreview({ url }: { url: string }) {
   const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
 
   return (
-    <div className="bg-input/20 mr-1 space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
+    <div className="bg-input/20 mr-1 h-fit w-full space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
       <div className="flex items-center justify-between px-1">
         <p className="text-muted-foreground font-medium select-none">Preview</p>
 
@@ -452,13 +455,16 @@ function MediaPreview({ url }: { url: string }) {
           <XIcon />
         </Button>
       </div>
-      <ImageWithFallback
-        src={url}
-        alt="Media preview"
-        className="size-[28rem] rounded-lg xl:size-[32rem]"
-        width={512}
-        height={512}
-      />
+
+      <AspectRatio ratio={1} className="">
+        <ImageWithFallback
+          src={url}
+          alt="Media preview"
+          className="size-full"
+          width={512}
+          height={512}
+        />
+      </AspectRatio>
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
 } from "~/components/ui/drawer";
 import { Product } from "~/app/(public)/products/[slug]/_components/product";
 import { api } from "~/trpc/react";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { ProductDescription } from "~/components/product-description";
 import { Heading } from "~/components/heading";
 import { Button } from "~/components/ui/button";
@@ -215,14 +214,14 @@ function ProductDrawerContent() {
               Edit
             </Link>
           </Button>
-          <DeleteProductDialog id={product.id} className="px-0" />
+          <DeleteProductDialog id={product.id} />
         </div>
       </DrawerHeader>
 
       <div className="mr-2 overflow-y-auto">
         <Product
           product={product}
-          className="grid-cols-1 p-4 pb-24 lg:grid-cols-1 lg:p-4 [&>div:first-child]:relative [&>div:first-child]:top-6"
+          className="grid-cols-1 gap-12 p-4 pb-24 lg:grid-cols-1 lg:p-4 [&>div:first-child]:relative [&>div:first-child]:top-6"
           hideActions
         >
           <div>

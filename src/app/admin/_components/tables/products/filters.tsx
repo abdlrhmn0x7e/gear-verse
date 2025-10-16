@@ -139,7 +139,10 @@ export function ProductsFilter() {
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger className={cn(isOpen && "text-primary")} asChild>
+          <DropdownMenuTrigger
+            className={cn(isOpen && "dark:text-primary-foreground")}
+            asChild
+          >
             <Button variant="ghost" size="icon-sm">
               <ListFilterIcon />
             </Button>

@@ -6,7 +6,7 @@ import {
 import { AdminSidebar } from "./_components/admin-sidebar";
 import { Separator } from "~/components/ui/separator";
 import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
-import { ModeDropdown } from "~/components/mode-toggle";
+import { ModeToggle } from "~/components/mode-toggle";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -39,7 +39,7 @@ export default async function AdminLayout({
             <AdminBreadcrumb />
           </div>
 
-          <ModeDropdown />
+          <ModeToggle />
         </header>
 
         <main className="flex-1 p-4">{children}</main>

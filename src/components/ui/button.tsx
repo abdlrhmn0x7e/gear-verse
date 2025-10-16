@@ -20,7 +20,7 @@ const buttonVariants = cva(
         "destructive-outline":
           "border-border bg-background text-destructive-foreground not-disabled:before:shadow-sm hover:border-destructive/32 hover:bg-destructive/4 active:before:shadow-xs data-pressed:border-destructive/32 data-pressed:bg-destructive/4 data-pressed:before:shadow-xs dark:shadow-black/24 dark:not-hover:bg-input/32 dark:not-disabled:shadow-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:active:shadow-none dark:data-pressed:shadow-none dark:data-pressed:not-hover:bg-input/32",
         ghost: "hover:bg-accent data-pressed:bg-accent",
-        link: "underline-offset-4 hover:underline",
+        link: "dark:text-primary-foreground underline-offset-4 hover:underline",
       },
       size: {
         default:

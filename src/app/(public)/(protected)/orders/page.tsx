@@ -16,7 +16,7 @@ export default async function OrdersPage({
   const orders = await api.public.orders.queries.findAll();
 
   return (
-    <section className="min-h-screen py-32">
+    <section className="min-h-screen py-24">
       <MaxWidthWrapper className="space-y-6">
         <Header
           title="Orders"

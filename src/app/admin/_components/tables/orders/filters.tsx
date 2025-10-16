@@ -20,6 +20,7 @@ import { useOrderSearchParams } from "~/app/admin/_hooks/use-order-search-params
 import { FilterList } from "../../filter-list";
 import { OrderStatus } from "./order-status";
 import { PaymentMethod } from "./payment-method";
+import { Button } from "~/components/ui/button";
 
 export function OrdersFilter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,19 +34,19 @@ export function OrdersFilter() {
   return (
     <div className="flex items-center gap-2">
       <SearchInput
-        className="size-full max-w-sm"
+        className="max-w-sm"
         placeholder="Search by order ID"
         value={filters.search ?? ""}
         onChange={handleSearchChange}
       >
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger
-            className={cn(
-              "text-muted-foreground hover:text-primary cursor-pointer transition-colors focus-visible:outline-none",
-              isOpen && "text-primary",
-            )}
+            className={cn(isOpen && "dark:text-primary-foreground")}
+            asChild
           >
-            <ListFilterIcon size={16} />
+            <Button variant="ghost" size="icon-sm">
+              <ListFilterIcon />
+            </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent

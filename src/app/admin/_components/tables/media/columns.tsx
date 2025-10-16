@@ -38,14 +38,15 @@ export const mediaColumns: ColumnDef<Media>[] = [
 
       return (
         <div className="group flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex max-w-[25vw] items-center gap-2">
             <ImageWithFallback
               src={row.original.url}
               alt={row.original.name}
+              className="shrink-0"
               width={24}
               height={24}
             />
-            <p>{row.original.name}</p>
+            <p className="truncate">{row.original.name}</p>
           </div>
 
           <Button
