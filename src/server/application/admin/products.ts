@@ -59,6 +59,9 @@ export const _products = {
           thumbnailMediaId: v.thumbnail.id,
         })),
         newSeo: seo,
+        newInventoryItem: {
+          quantity: product.inventory.quantity,
+        },
       });
     },
 
@@ -72,8 +75,6 @@ export const _products = {
           media: product.media?.map((m) => m.mediaId) ?? [],
         });
       }
-      console.log("variants", variants);
-      console.log("options", options);
 
       // variants and options are both required to update them both
       if (variants && options) {
@@ -89,7 +90,6 @@ export const _products = {
           oldVariantSigs,
           newVariantSigs,
         );
-        console.log("variantSpace", variantSpace);
 
         // update/insert new options
         const { valuesIdToDbId } =

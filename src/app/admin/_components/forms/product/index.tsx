@@ -53,6 +53,7 @@ import {
   InputGroupNumberInput,
   InputGroupText,
 } from "~/components/ui/input-group";
+import { InventoryTable } from "../../inputs/inventory-table";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -141,6 +142,10 @@ export function ProductForm({
       brandId: 0,
       media: [],
       options: [],
+      inventory: {
+        id: 0,
+        quantity: 0,
+      },
       seo: {
         pageTitle: "",
         urlHandler: "",
@@ -256,6 +261,24 @@ export function ProductForm({
                   <MediaFields media={mediaFields} swap={swapMedia} />
                 )}
               </MediaStoreProvider>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Inventory</CardTitle>
+                <div className="pointer-events-none flex items-center gap-2 opacity-50">
+                  <p className="text-muted-foreground text-sm">
+                    Inventory tracked (you want this?)
+                  </p>
+
+                  <Switch />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <InventoryTable data={[form.getValues("inventory")]} />
             </CardContent>
           </Card>
 

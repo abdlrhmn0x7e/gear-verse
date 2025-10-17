@@ -37,8 +37,18 @@ type NewProductVariant = Omit<
   stock: number;
 };
 type NewSeo = Omit<typeof seo.$inferInsert, "productId">;
+type UpdateInventoryItem = Omit<NewInventoryItem, "productId"> & {
+  id: number;
+};
 type UpdateSeo = Partial<NewSeo>;
-type UpdateProduct = Partial<NewProduct & { media: number[]; seo: UpdateSeo }>;
+type UpdateProduct = Partial<
+  NewProduct & {
+    media: number[];
+    seo: UpdateSeo;
+    inventory: UpdateInventoryItem;
+  }
+>;
+type NewInventoryItem = typeof inventoryItems.$inferInsert;
 
 export const _products = {
   queries: {
@@ -345,6 +355,10 @@ export const _products = {
           margin: products.margin,
           options: productOptionsJson.options,
           variants: variantsJson.json,
+          inventory: {
+            id: inventoryItems.id,
+            quantity: sql<number>`${inventoryItems.quantity}`.as("quantity"),
+          },
           thumbnail: {
             mediaId: products.thumbnailMediaId,
             url: sql<string>`${media.url}`.as("url"),
@@ -362,6 +376,7 @@ export const _products = {
           eq(productOptionsJson.productId, products.id),
         )
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoinLateral(variantsJson, sql`true`)
         .leftJoinLateral(productMediaJson, sql`true`)
         .leftJoin(seo, eq(seo.productId, products.id))
@@ -445,12 +460,14 @@ export const _products = {
       newProductOptions,
       newVariants,
       newSeo,
+      newInventoryItem,
     }: {
       newProduct: NewProduct;
       newProdcutMediaIds: number[];
       newProductOptions?: NewProductOption[];
       newVariants?: NewProductVariant[];
       newSeo?: NewSeo;
+      newInventoryItem?: Omit<NewInventoryItem, "productId">;
     }) {
       return db.transaction(async (tx) => {
         const [product] = await tx
@@ -460,6 +477,18 @@ export const _products = {
 
         if (!product) {
           throw new Error("Failed to create product");
+        }
+
+        // create the inventory item
+        if (newInventoryItem) {
+          const [inventoryItem] = await tx.insert(inventoryItems).values({
+            productId: product.id,
+            ...newInventoryItem,
+          });
+
+          if (!inventoryItem) {
+            throw new Error("Failed to create inventory item");
+          }
         }
 
         const { id: productId } = product;
@@ -521,7 +550,12 @@ export const _products = {
 
     async update(productId: number, updatedData: UpdateProduct) {
       return db.transaction(async (tx) => {
-        const { media: mediaData, seo: seoData, ...product } = updatedData;
+        const {
+          media: mediaData,
+          seo: seoData,
+          inventory: inventoryData,
+          ...product
+        } = updatedData;
 
         if (Object.keys(product).length > 0) {
           await tx
@@ -545,6 +579,19 @@ export const _products = {
               order: index + 1,
             })),
           );
+        }
+
+        console.log("inventoryData", inventoryData);
+        if (inventoryData) {
+          await tx
+            .update(inventoryItems)
+            .set({ quantity: inventoryData.quantity })
+            .where(
+              and(
+                eq(inventoryItems.productId, productId),
+                eq(inventoryItems.id, inventoryData.id),
+              ),
+            );
         }
 
         if (seoData) {

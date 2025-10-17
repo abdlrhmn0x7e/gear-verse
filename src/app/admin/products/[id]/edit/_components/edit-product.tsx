@@ -27,7 +27,18 @@ export function EditProduct({
 
   function onSubmit(data: Partial<ProductFormValues>) {
     updateProduct(
-      { id: product.id, data },
+      {
+        id: product.id,
+        data: {
+          ...data,
+          inventory: Boolean(data.inventory)
+            ? {
+                id: product.inventory?.id ?? 0, // always send the id even if it's not changed
+                quantity: data?.inventory?.quantity ?? 0,
+              }
+            : undefined,
+        },
+      },
       {
         onSuccess: () => {
           toast.success("Product updated successfully");
@@ -65,6 +76,11 @@ export function EditProduct({
         pageTitle: product.seo?.pageTitle ?? "",
         urlHandler: product.seo?.urlHandler ?? "",
         metaDescription: product.seo?.metaDescription ?? "",
+      },
+
+      inventory: {
+        id: product.inventory?.id ?? 0,
+        quantity: product.inventory?.quantity ?? 0,
       },
 
       media: [

@@ -123,6 +123,10 @@ export const createProductInputSchema = productEntitySchema
       .min(1, "At least one media is required"),
     options: z.array(createProductOptionInputSchema).optional(),
     variants: z.array(createProductVariantInputSchema).optional(),
+    inventory: z.object({
+      id: z.number().positive(),
+      quantity: z.coerce.number<number>().positive(),
+    }),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 

@@ -10,6 +10,7 @@ import { ModeToggle } from "~/components/mode-toggle";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { WiseWords } from "./_components/wise-words";
 
 export default async function AdminLayout({
   children,
@@ -39,7 +40,10 @@ export default async function AdminLayout({
             <AdminBreadcrumb />
           </div>
 
-          <ModeToggle />
+          <div className="flex items-center gap-2">
+            <WiseWords />
+            <ModeToggle />
+          </div>
         </header>
 
         <main className="flex-1 p-4">{children}</main>
