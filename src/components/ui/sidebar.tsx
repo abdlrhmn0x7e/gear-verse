@@ -3,7 +3,12 @@
 import * as React from "react";
 import { Slot as SlotPrimitive } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
+import {
+  CornerDownRight,
+  CornerDownRightIcon,
+  Minus,
+  PanelLeftIcon,
+} from "lucide-react";
 
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
@@ -25,6 +30,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { usePathname } from "next/navigation";
+import { IconArrowRampRight3 } from "@tabler/icons-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -484,14 +490,13 @@ const sidebarMenuButtonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
-        sm: "h-8 text-xs",
-        default: "h-9",
+        default: "h-8 text-sm",
+        sm: "h-7 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
       },
     },
@@ -651,7 +656,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        "border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5",
+        "flex min-w-0 translate-x-px flex-col py-0.5",
         "group-data-[collapsible=icon]:hidden",
         className,
       )}
@@ -678,12 +683,17 @@ function SidebarMenuSubButton({
   asChild = false,
   size = "md",
   isActive = false,
+  showVerticalBorder = false,
+  showArrow = false,
+  children,
   className,
   ...props
 }: React.ComponentProps<"a"> & {
   asChild?: boolean;
   size?: "sm" | "md";
   isActive?: boolean;
+  showVerticalBorder?: boolean;
+  showArrow?: boolean;
 }) {
   const Comp = asChild ? SlotPrimitive.Slot : "a";
 
@@ -694,15 +704,69 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        "text-sidebar-foreground ring-sidebar-ring hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground relative flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-sm pr-2 pl-9 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        isActive ? "hover:bg-sidebar-accent" : "hover:bg-sidebar-accent/60",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
+        "group/sidebar-menu-sub-button group-data-[collapsible=icon]:hidden",
         className,
       )}
       {...props}
-    />
+    >
+      <div className="flex w-full items-center">
+        {showVerticalBorder && (
+          <div className="bg-primary absolute top-0 bottom-0 left-4 w-0.5" />
+        )}
+        {showArrow && (
+          <div className="bg-primary absolute top-0 bottom-0 left-4 z-10 h-1/3 w-0.5" />
+        )}
+
+        <svg
+          className={cn(
+            "text-primary! absolute top-1 left-4 -ml-[3.2px] size-4 stroke-3 opacity-0 transition-opacity duration-100",
+            showArrow
+              ? "opacity-100"
+              : "group-hover/sidebar-menu-sub-button:opacity-50",
+          )}
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M6 4V10.4C6 13.4928 8.50721 16 11.6 16H18"
+              stroke="currentColor"
+              strokeWidth="inherit"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+            <path
+              d="M18.6 16L15 12"
+              stroke="currentColor"
+              strokeWidth="inherit"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+            <path
+              d="M18.6 16L15 20"
+              stroke="currentColor"
+              strokeWidth="inherit"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </g>
+        </svg>
+
+        <div className="flex-1 **:block **:w-full">{children}</div>
+      </div>
+    </Comp>
   );
 }
 

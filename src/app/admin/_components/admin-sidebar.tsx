@@ -17,6 +17,7 @@ import {
   HomeIcon,
   PackageIcon,
   SparklesIcon,
+  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
@@ -27,29 +28,64 @@ import {
   ProductSearchPlaceholder,
 } from "../../../components/product-search-dialog";
 import { Kbd } from "~/components/ui/kbd";
+import {
+  type IconProps,
+  type Icon,
+  IconTag,
+  IconHome2,
+  IconHomeFilled,
+  IconTagFilled,
+  IconShoppingCartFilled,
+  IconHome,
+  IconShoppingCart,
+} from "@tabler/icons-react";
+import { OrderIcon } from "~/components/order-icon";
+
+export type AdminSidebarItemItem = {
+  title: string;
+  url: string;
+};
+
+export type AdminSidebarItem = {
+  title: string;
+  url: string;
+  icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
+  iconFilled: React.ForwardRefExoticComponent<
+    IconProps & React.RefAttributes<Icon>
+  >;
+  items?: AdminSidebarItemItem[];
+};
 
 const DASHBOARD_ITEMS = [
   {
     title: "Dashboard",
     url: "/admin",
-    icon: HomeIcon,
+    icon: IconHome,
+    iconFilled: IconHomeFilled,
   },
   {
     title: "Products",
     url: "/admin/products",
-    icon: PackageIcon,
-  },
-  {
-    title: "Categories",
-    url: "/admin/categories",
-    icon: FoldersIcon,
+    icon: IconTag,
+    iconFilled: IconTagFilled,
+    items: [
+      {
+        title: "Inventory",
+        url: "/admin/inventory",
+      },
+      {
+        title: "Categories",
+        url: "/admin/categories",
+      },
+    ],
   },
   {
     title: "Orders",
     url: "/admin/orders",
-    icon: BadgeDollarSignIcon,
+    icon: IconShoppingCart,
+    iconFilled: IconShoppingCartFilled,
   },
-];
+] satisfies AdminSidebarItem[];
 
 export function AdminSidebar({
   ...props
@@ -86,7 +122,7 @@ export function AdminSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={DASHBOARD_ITEMS} />
+        <NavMain data={DASHBOARD_ITEMS} />
       </SidebarContent>
 
       <SidebarFooter>
