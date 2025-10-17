@@ -1,4 +1,4 @@
-import { eq, gt, ilike, and, inArray, sql } from "drizzle-orm";
+import { eq, gt, ilike, and, inArray, sql, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import {
   media,
@@ -376,7 +376,13 @@ export const _products = {
           eq(productOptionsJson.productId, products.id),
         )
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
-        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productId, products.id),
+            isNull(inventoryItems.productVariantId),
+          ),
+        )
         .leftJoinLateral(variantsJson, sql`true`)
         .leftJoinLateral(productMediaJson, sql`true`)
         .leftJoin(seo, eq(seo.productId, products.id))

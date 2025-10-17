@@ -60,6 +60,10 @@ export function Options() {
   }
 
   function handleRemove(id: number) {
+    if (options.length === 1) {
+      form.resetField("inventory");
+    }
+
     setOpenOptions((prev) => prev.filter((i) => i !== id));
     remove(options.findIndex((o) => o.id === id));
   }
@@ -78,6 +82,10 @@ export function Options() {
   }
 
   function handleAddOption() {
+    if (options.length === 0) {
+      form.setValue("inventory", undefined);
+    }
+
     const newId = generateRandomId();
     setOpenOptions((prev) => [...prev, newId]);
     append({ id: newId, name: "", values: [] });

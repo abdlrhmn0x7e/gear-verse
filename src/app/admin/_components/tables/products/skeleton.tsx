@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { SearchInput } from "../../inputs/search-input";
 import { ListFilterIcon } from "lucide-react";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
+import { Button } from "~/components/ui/button";
 
 export function ProductsTableSkeleton() {
   const [filters] = useProductSearchParams();
@@ -19,9 +20,9 @@ export function ProductsTableSkeleton() {
           disabled
           defaultValue={filters.title ?? ""}
         >
-          <button className="text-muted-foreground [&_svg]:size-4" disabled>
+          <Button variant="ghost" size="icon-sm">
             <ListFilterIcon />
-          </button>
+          </Button>
         </SearchInput>
       </CardHeader>
 

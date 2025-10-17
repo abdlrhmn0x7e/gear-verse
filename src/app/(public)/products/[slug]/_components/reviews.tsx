@@ -56,7 +56,7 @@ export async function Reviews({ productId }: { productId: number }) {
               reviews.map((review, index) => (
                 <div
                   key={`${review.user?.name}-${review.rating}-${index}`}
-                  className="bg-card flex items-start gap-3 rounded-lg border p-4"
+                  className="flex items-start gap-3"
                 >
                   <Avatar className="mt-1">
                     <AvatarImage

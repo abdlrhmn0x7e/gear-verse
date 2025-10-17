@@ -170,6 +170,11 @@ export function ProductForm({
   // accessing it directly from the onSubmit function won't work
   // because the form state is not updated yet
   const { dirtyFields } = form.formState;
+  const inventory = useWatch({
+    control: form.control,
+    name: "inventory",
+    defaultValue: defaultValues?.inventory,
+  });
 
   function handleSubmit(data: ProductFormValues) {
     if (defaultValues) {
@@ -264,23 +269,25 @@ export function ProductForm({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Inventory</CardTitle>
-                <div className="pointer-events-none flex items-center gap-2 opacity-50">
-                  <p className="text-muted-foreground text-sm">
-                    Inventory tracked (you want this?)
-                  </p>
+          {inventory && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Inventory</CardTitle>
+                  <div className="pointer-events-none flex items-center gap-2 opacity-50">
+                    <p className="text-muted-foreground text-sm">
+                      Inventory tracked (you want this?)
+                    </p>
 
-                  <Switch />
+                    <Switch />
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <InventoryTable data={[form.getValues("inventory")]} />
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <InventoryTable data={[inventory]} />
+              </CardContent>
+            </Card>
+          )}
 
           <Card
             className={cn(

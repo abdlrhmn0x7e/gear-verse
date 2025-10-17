@@ -151,8 +151,8 @@ export function ProductsFilter() {
           <DropdownMenuContent
             align="end"
             className="w-sm"
-            sideOffset={16}
-            alignOffset={-12}
+            sideOffset={10}
+            alignOffset={-8}
           >
             <DropdownMenuGroup>
               <DropdownMenuLabel>Filter by</DropdownMenuLabel>

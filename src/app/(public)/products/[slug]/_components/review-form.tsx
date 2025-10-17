@@ -73,7 +73,9 @@ export function ReviewForm({
         onSubmit={(e) => {
           e.preventDefault();
           void form.handleSubmit(onSubmit)();
-          form.resetField("comment");
+          if (!defaultValues) {
+            form.resetField("comment");
+          }
         }}
       >
         <InputGroup>
@@ -86,8 +88,8 @@ export function ReviewForm({
                   <TextareaAutosize
                     className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
                     placeholder="Write your review here..."
-                    {...field}
                     disabled={disabled}
+                    {...field}
                   />
                 </FormControl>
               </FormItem>
