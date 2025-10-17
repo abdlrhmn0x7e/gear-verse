@@ -67,7 +67,13 @@ export function EditProduct({
         metaDescription: product.seo?.metaDescription ?? "",
       },
 
-      media: product.media,
+      media: [
+        {
+          mediaId: product.thumbnail.mediaId,
+          url: product.thumbnail.url ?? "",
+        },
+        ...product.media,
+      ],
       options: product.options,
       variants: product.variants,
     }),

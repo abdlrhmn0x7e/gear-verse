@@ -32,7 +32,7 @@ import {
   FormItem,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { NumberInput } from "~/components/ui/input";
 import { PriceInput } from "../../inputs/price-input";
 import { cn } from "~/lib/utils";
 
@@ -208,12 +208,7 @@ export function VariantsTable({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      placeholder="Stock"
-                      type="number"
-                      min={0}
-                      {...field}
-                    />
+                    <NumberInput placeholder="Stock" min={0} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -246,7 +241,14 @@ export function VariantsTable({
   });
 
   return (
-    <Table style={{ tableLayout: "fixed" }} containerClassName="border-t">
+    <Table
+      style={{ tableLayout: "fixed" }}
+      containerClassName={cn(
+        "border-t",
+        form.formState.errors.variants &&
+          "border-destructive border rounded-sm",
+      )}
+    >
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id} className="[&_th]:border-r-0">
@@ -354,6 +356,9 @@ function VariantMediaDialog({ index }: { index: number }) {
             "group hover:bg-muted flex size-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed transition-all hover:opacity-80",
             form.formState.errors.variants?.[index]?.thumbnail &&
               "border-destructive",
+          )}
+          data-invalid={Boolean(
+            form.formState.errors.variants?.[index]?.thumbnail,
           )}
           onClick={(e) => e.stopPropagation()}
         >

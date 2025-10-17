@@ -1,19 +1,20 @@
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupInput,
+  InputGroupNumberInput,
 } from "~/components/ui/input-group";
 
 export function PriceInput({
   value,
+  step = 100,
   ...props
-}: React.ComponentProps<"input"> & {
+}: React.ComponentProps<typeof InputGroupNumberInput> & {
   value: number | null | undefined;
   size?: "sm" | "lg";
 }) {
   return (
     <InputGroup>
-      <InputGroupInput placeholder="Search..." value={value ?? ""} {...props} />
+      <InputGroupNumberInput value={value ?? ""} step={step} {...props} />
       <InputGroupAddon>
         <p className="text-muted-foreground select-none">E£</p>
       </InputGroupAddon>

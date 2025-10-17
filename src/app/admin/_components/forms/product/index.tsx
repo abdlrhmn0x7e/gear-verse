@@ -50,6 +50,7 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
+  InputGroupNumberInput,
   InputGroupText,
 } from "~/components/ui/input-group";
 
@@ -58,11 +59,13 @@ const productFormSchema = createProductInputSchema
     media: true,
   })
   .extend({
-    media: z.array(
-      createProductMediaInputSchema.extend({
-        url: z.url(),
-      }),
-    ),
+    media: z
+      .array(
+        createProductMediaInputSchema.extend({
+          url: z.url(),
+        }),
+      )
+      .min(1, "At least one media is required"),
     options: z.array(
       createProductOptionInputSchema.extend({
         id: z.number().positive(),
@@ -73,9 +76,9 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export const getDirtyFields = <
   TData extends
-    | Record<keyof TDirtyItems, unknown>
-    | Record<keyof TDirtyItems, undefined>,
-  TDirtyItems extends Record<string, unknown>,
+    | Partial<Record<keyof TDirtyItems, unknown>>
+    | Partial<Record<keyof TDirtyItems, null>>,
+  TDirtyItems extends Partial<Record<string, unknown>>,
 >(
   formValues: TData,
   dirtyItems: TDirtyItems,
@@ -134,9 +137,6 @@ export function ProductForm({
       description: {},
       published: false,
       price: 0,
-      strikeThroughPrice: 0,
-      profit: 0,
-      margin: 0,
       categoryId: 0,
       brandId: 0,
       media: [],
@@ -156,6 +156,9 @@ export function ProductForm({
   } = useFieldArray({
     control: form.control,
     name: "media",
+    rules: {
+      minLength: 1,
+    },
   });
 
   // you have to subscribe to the dirty fields here
@@ -379,7 +382,11 @@ export function ProductForm({
                     <FormItem>
                       <FormLabel>Profit</FormLabel>
                       <FormControl>
-                        <PriceInput {...field} />
+                        <PriceInput
+                          placeholder="Profit?!"
+                          {...field}
+                          value={field.value ?? 0}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -393,7 +400,20 @@ export function ProductForm({
                     <FormItem>
                       <FormLabel>Margin</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} max={100} {...field} />
+                        <InputGroup>
+                          <InputGroupNumberInput
+                            placeholder="How much profit?"
+                            min={0}
+                            max={100}
+                            {...field}
+                            value={field.value ?? 0}
+                          />
+                          <InputGroupAddon>
+                            <p className="text-muted-foreground select-none">
+                              %
+                            </p>
+                          </InputGroupAddon>
+                        </InputGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

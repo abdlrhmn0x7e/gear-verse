@@ -17,9 +17,11 @@ export const productEntitySchema = z.object({
   published: z.boolean("Published is required"),
 
   categoryId: z
-    .number("Category is required")
-    .positive("Category must be positive"),
-  brandId: z.number("Brand is required").positive("Brand must be positive"),
+    .number("Category Id Must be a Number")
+    .positive("Please select a category"),
+  brandId: z
+    .number("Brand Id Must be a Number")
+    .positive("Please select a brand"),
 
   createdAt: z.coerce.date<Date>("Created at must be a date"),
   updatedAt: z.coerce.date<Date>("Updated at must be a date"),
@@ -67,7 +69,7 @@ export const createProductVariantInputSchema = z.object({
     .optional(),
   stock: z.coerce
     .number<number>("Stock is required")
-    .nonnegative("Stock must be nonnegative"),
+    .nonnegative("Stock must be a non-negative number"),
 });
 export type CreateProductVariantInput = z.infer<
   typeof createProductVariantInputSchema
@@ -96,11 +98,13 @@ export const createProductInputSchema = productEntitySchema
   .extend({
     profit: z.coerce
       .number<number>("Profit is required")
-      .nonnegative("Profit must be nonnegative"),
+      .nonnegative("Profit must be nonnegative")
+      .nullish(),
     margin: z.coerce
       .number<number>("Margin is required")
       .nonnegative("Margin must be nonnegative")
-      .max(100, "Margin must be less than or equal to 100"),
+      .max(100, "Margin must be less than or equal to 100")
+      .nullish(),
     seo: z
       .object({
         pageTitle: z.string("Page title is required"),
@@ -114,7 +118,9 @@ export const createProductInputSchema = productEntitySchema
       })
       .partial()
       .optional(),
-    media: z.array(createProductMediaInputSchema),
+    media: z
+      .array(createProductMediaInputSchema)
+      .min(1, "At least one media is required"),
     options: z.array(createProductOptionInputSchema).optional(),
     variants: z.array(createProductVariantInputSchema).optional(),
   });

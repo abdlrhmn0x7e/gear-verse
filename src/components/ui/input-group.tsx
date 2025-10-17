@@ -5,8 +5,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "~/lib/utils/index";
 import { Button } from "~/components/ui/button";
-import { PrimitiveInput } from "~/components/ui/input";
+import { Input, NumberInput, PrimitiveInput } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -135,6 +136,76 @@ function InputGroupInput({
   return <PrimitiveInput className={className} {...props} />;
 }
 
+function InputGroupNumberInput({
+  className,
+  step = 1,
+  value,
+  onChange,
+  onFocus,
+  ...props
+}: React.ComponentProps<typeof NumberInput> & { step?: number }) {
+  const [steppedValue, setSteppedValue] = React.useState<number | undefined>(
+    Number(value),
+  );
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    e.stopPropagation();
+    e.preventDefault();
+    setSteppedValue(Number(e.target.value));
+    onChange?.(e);
+  }
+
+  function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
+    e.stopPropagation();
+    e.target.select();
+    onFocus?.(e);
+  }
+
+  function handleIncrement(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    setSteppedValue((prev) => (prev ? prev + step : step));
+  }
+
+  function handleDecrement(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    setSteppedValue((prev) => (prev ? prev - step : 0));
+  }
+
+  return (
+    <div
+      data-slot="input-control"
+      className={cn("group relative mt-[2px] mr-1 w-full", className)}
+    >
+      <PrimitiveInput
+        className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        type="number"
+        onFocus={handleFocus}
+        value={steppedValue === 0 ? "" : steppedValue}
+        onChange={handleChange}
+        {...props}
+      />
+
+      <div className="absolute top-1 right-2 bottom-1 flex flex-col gap-0.5 overflow-hidden rounded-[3px] opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          type="button"
+          className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
+          onClick={handleIncrement}
+        >
+          <ChevronUpIcon />
+        </button>
+
+        <button
+          type="button"
+          className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
+          onClick={handleDecrement}
+        >
+          <ChevronDownIcon />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function InputGroupTextarea({
   className,
   ...props
@@ -158,4 +229,5 @@ export {
   InputGroupText,
   InputGroupInput,
   InputGroupTextarea,
+  InputGroupNumberInput,
 };

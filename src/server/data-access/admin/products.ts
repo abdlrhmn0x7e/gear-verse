@@ -345,6 +345,10 @@ export const _products = {
           margin: products.margin,
           options: productOptionsJson.options,
           variants: variantsJson.json,
+          thumbnail: {
+            mediaId: products.thumbnailMediaId,
+            url: sql<string>`${media.url}`.as("url"),
+          },
           media: productMediaJson.json,
           seo: {
             pageTitle: seo.pageTitle,
@@ -357,6 +361,7 @@ export const _products = {
           productOptionsJson,
           eq(productOptionsJson.productId, products.id),
         )
+        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoinLateral(variantsJson, sql`true`)
         .leftJoinLateral(productMediaJson, sql`true`)
         .leftJoin(seo, eq(seo.productId, products.id))
