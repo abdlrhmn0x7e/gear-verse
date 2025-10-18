@@ -124,10 +124,12 @@ export const createProductInputSchema = productEntitySchema
     options: z.array(createProductOptionInputSchema).optional(),
     variants: z.array(createProductVariantInputSchema).optional(),
     inventory: z
-      .object({
-        id: z.number().positive(),
-        quantity: z.coerce.number<number>().positive(),
-      })
+      .array(
+        z.object({
+          id: z.number().positive(),
+          quantity: z.coerce.number<number>().positive(),
+        }),
+      )
       .optional(),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;

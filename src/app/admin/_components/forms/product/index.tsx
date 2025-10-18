@@ -53,7 +53,7 @@ import {
   InputGroupNumberInput,
   InputGroupText,
 } from "~/components/ui/input-group";
-import { InventoryTable } from "../../inputs/inventory-table";
+import { InventoryTable } from "../../tables/inventory/table";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -142,10 +142,12 @@ export function ProductForm({
       brandId: 0,
       media: [],
       options: [],
-      inventory: {
-        id: 0,
-        quantity: 0,
-      },
+      inventory: [
+        {
+          id: 0,
+          quantity: 0,
+        },
+      ],
       seo: {
         pageTitle: "",
         urlHandler: "",
@@ -284,7 +286,7 @@ export function ProductForm({
                 </div>
               </CardHeader>
               <CardContent>
-                <InventoryTable data={[inventory]} />
+                <InventoryTable data={inventory} />
               </CardContent>
             </Card>
           )}

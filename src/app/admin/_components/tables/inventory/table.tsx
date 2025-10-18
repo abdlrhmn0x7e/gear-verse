@@ -26,7 +26,7 @@ type InventoryItem = {
 
 export function InventoryTable({ data }: { data: InventoryItem[] }) {
   const form = useFormContext<{
-    inventory: { id: number; quantity: number };
+    inventory: InventoryItem[];
   }>();
 
   const columns = useMemo<ColumnDef<InventoryItem>[]>(
@@ -46,11 +46,11 @@ export function InventoryTable({ data }: { data: InventoryItem[] }) {
       {
         accessorKey: "quantity",
         header: "Available",
-        cell: () => {
+        cell: ({ row }) => {
           return (
             <Controller
               control={form.control}
-              name="inventory.quantity"
+              name={`inventory.${row.index}.quantity`}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <NumberInput

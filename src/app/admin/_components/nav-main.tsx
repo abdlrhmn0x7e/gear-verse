@@ -91,16 +91,16 @@ function NavMainItemSub({
 }) {
   return (
     <SidebarMenuSubItem>
-      <SidebarMenuSubButton
-        asChild
-        showVerticalBorder={showVerticalBorder}
-        showArrow={showArrow}
-        isActive={showArrow}
-      >
-        <Link href={data.url}>
+      <Link href={data.url}>
+        <SidebarMenuSubButton
+          asChild
+          showVerticalBorder={showVerticalBorder}
+          showArrow={showArrow}
+          isActive={showArrow}
+        >
           <span>{data.title}</span>
-        </Link>
-      </SidebarMenuSubButton>
+        </SidebarMenuSubButton>
+      </Link>
     </SidebarMenuSubItem>
   );
 }

@@ -11,14 +11,7 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { NavMain } from "./nav-main";
-import {
-  BadgeDollarSignIcon,
-  FoldersIcon,
-  HomeIcon,
-  PackageIcon,
-  SparklesIcon,
-  type LucideIcon,
-} from "lucide-react";
+import { SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
 import { KbdGroup } from "~/components/ui/kbd";
@@ -32,14 +25,12 @@ import {
   type IconProps,
   type Icon,
   IconTag,
-  IconHome2,
   IconHomeFilled,
   IconTagFilled,
   IconShoppingCartFilled,
   IconHome,
   IconShoppingCart,
 } from "@tabler/icons-react";
-import { OrderIcon } from "~/components/order-icon";
 
 export type AdminSidebarItemItem = {
   title: string;

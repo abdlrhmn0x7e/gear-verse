@@ -60,7 +60,7 @@ export const _products = {
         })),
         newSeo: seo,
         newInventoryItem: {
-          quantity: product.inventory.quantity,
+          quantity: product.inventory?.[0]?.quantity ?? 0, // there's always one inventory item for a product
         },
       });
     },
@@ -73,6 +73,10 @@ export const _products = {
         await data.admin.products.mutations.update(productId, {
           ...product,
           media: product.media?.map((m) => m.mediaId) ?? [],
+          inventory: {
+            id: product.inventory?.[0]?.id ?? 0,
+            quantity: product.inventory?.[0]?.quantity ?? 0, // there's always one inventory item for a product
+          },
         });
       }
 
