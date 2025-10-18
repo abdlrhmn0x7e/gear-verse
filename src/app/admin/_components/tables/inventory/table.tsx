@@ -69,7 +69,8 @@ export function InventoryTable({ data }: { data: InventoryItem[] }) {
         },
       },
     ],
-    [form],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const table = useReactTable({

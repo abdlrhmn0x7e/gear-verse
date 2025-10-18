@@ -218,7 +218,8 @@ export function VariantsTable({
         },
       },
     ],
-    [form, groupByOption],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [groupByOption],
   );
 
   const grouping = React.useMemo(() => ["groupBy"], []);

@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "~/lib/utils/index";
 import { Button } from "~/components/ui/button";
-import { Input, NumberInput, PrimitiveInput } from "~/components/ui/input";
+import { type NumberInput, PrimitiveInput } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
@@ -174,7 +174,7 @@ function InputGroupNumberInput({
   return (
     <div
       data-slot="input-control"
-      className={cn("group relative mt-[2px] mr-1 w-full", className)}
+      className={cn("group relative mt-[2px] mr-1 w-full pr-6", className)}
     >
       <PrimitiveInput
         className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
