@@ -32,9 +32,9 @@ export function NavMain({ data }: { data: AdminSidebarItem[] }) {
 function NavMainItem({ data }: { data: AdminSidebarItem }) {
   const pathname = normlaizePathname(usePathname());
   const isRootLink = data.url === "/admin";
-  const isActive =
-    (isRootLink ? pathname === "/admin" : pathname.startsWith(data.url)) ||
-    (data.items?.some((item) => pathname.startsWith(item.url)) ?? false);
+  const isActive = isRootLink
+    ? pathname === "/admin"
+    : pathname.startsWith(data.url);
   const activeIndex = data.items?.findIndex((item) => item.url === pathname);
 
   return (
@@ -58,7 +58,7 @@ function NavMainItem({ data }: { data: AdminSidebarItem }) {
         <div className="bg-primary absolute top-8 left-4 h-2 w-0.5" />
       )}
 
-      {isActive && data.items && data.items.length > 0 && (
+      {data.items && data.items.length > 0 && (
         <SidebarMenuSub>
           {data.items.map((item, index) => (
             <NavMainItemSub

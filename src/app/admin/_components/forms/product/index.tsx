@@ -53,7 +53,7 @@ import {
   InputGroupNumberInput,
   InputGroupText,
 } from "~/components/ui/input-group";
-import { InventoryTable } from "../../tables/inventory/table";
+import { InventoryTableInput } from "../../inputs/inventory-table-input";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -142,12 +142,6 @@ export function ProductForm({
       brandId: 0,
       media: [],
       options: [],
-      inventory: [
-        {
-          id: 0,
-          quantity: 0,
-        },
-      ],
       seo: {
         pageTitle: "",
         urlHandler: "",
@@ -168,15 +162,16 @@ export function ProductForm({
     },
   });
 
-  // you have to subscribe to the dirty fields here
-  // accessing it directly from the onSubmit function won't work
-  // because the form state is not updated yet
-  const { dirtyFields } = form.formState;
   const inventory = useWatch({
     control: form.control,
     name: "inventory",
     defaultValue: defaultValues?.inventory,
   });
+
+  // you have to subscribe to the dirty fields here
+  // accessing it directly from the onSubmit function won't work
+  // because the form state is not updated yet
+  const { dirtyFields } = form.formState;
 
   function handleSubmit(data: ProductFormValues) {
     if (defaultValues) {
@@ -286,7 +281,7 @@ export function ProductForm({
                 </div>
               </CardHeader>
               <CardContent>
-                <InventoryTable data={inventory} />
+                <InventoryTableInput data={[inventory]} />
               </CardContent>
             </Card>
           )}

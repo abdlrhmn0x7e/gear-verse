@@ -47,7 +47,7 @@ export function ProductsTableActions({
         <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
         <DropdownMenuGroup className="max-w-3xs space-y-1">
           <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href={`/admin/products/${id}/edit`}>
+            <Link href={`/admin/products/${id}`}>
               <PencilIcon className="text-muted-foreground" />
               Edit
             </Link>

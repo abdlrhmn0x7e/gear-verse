@@ -209,7 +209,7 @@ function ProductDrawerContent() {
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/admin/products/${product.id}/edit`}>
+            <Link href={`/admin/products/${product.id}`}>
               <PencilIcon />
               Edit
             </Link>

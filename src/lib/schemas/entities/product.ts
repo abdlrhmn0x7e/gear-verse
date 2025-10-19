@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
+import { inventoryItemSchema } from "./inventory-item";
 
 export const productEntitySchema = z.object({
   id: z.number("ID must be a number").positive("ID must be positive"),
@@ -123,13 +124,13 @@ export const createProductInputSchema = productEntitySchema
       .min(1, "At least one media is required"),
     options: z.array(createProductOptionInputSchema).optional(),
     variants: z.array(createProductVariantInputSchema).optional(),
-    inventory: z
-      .array(
-        z.object({
-          id: z.number().positive(),
-          quantity: z.coerce.number<number>().positive(),
-        }),
-      )
+    inventory: inventoryItemSchema
+      .omit({
+        productId: true,
+        productVariantId: true,
+        createdAt: true,
+        updatedAt: true,
+      })
       .optional(),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;

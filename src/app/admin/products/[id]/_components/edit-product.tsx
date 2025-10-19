@@ -32,15 +32,12 @@ export function EditProduct({
         id: product.id,
         data: {
           ...data,
-          inventory:
-            Boolean(data.inventory) && (data.inventory?.length ?? 0) > 0
-              ? [
-                  {
-                    id: product.inventory?.id ?? 0, // always send the id even if it's not changed
-                    quantity: data.inventory?.[0]?.quantity ?? 0, //  there's always one inventory item for a product
-                  },
-                ]
-              : undefined,
+          inventory: Boolean(data.inventory)
+            ? {
+                id: product.inventory?.id ?? 0, // always send the id even if it's not changed
+                quantity: data.inventory?.quantity ?? 0, //  there's always one inventory item for a product
+              }
+            : undefined,
         },
       },
       {
@@ -83,12 +80,10 @@ export function EditProduct({
       },
 
       inventory: product.inventory
-        ? [
-            {
-              id: product.inventory.id,
-              quantity: product.inventory.quantity,
-            },
-          ]
+        ? {
+            id: product.inventory.id,
+            quantity: product.inventory.quantity,
+          }
         : undefined,
 
       media: [

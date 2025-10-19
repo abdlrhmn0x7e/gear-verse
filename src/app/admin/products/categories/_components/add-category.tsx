@@ -8,7 +8,7 @@ import { api } from "~/trpc/react";
 import {
   CategoryForm,
   type CategoryFormValues,
-} from "../../_components/forms/category-form";
+} from "~/app/admin/_components/forms/category-form";
 
 export function AddCategory({
   parentCategoryId,

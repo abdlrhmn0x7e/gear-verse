@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import {
   CategoryForm,
   type CategoryFormValues,
-} from "../../_components/forms/category-form";
+} from "~/app/admin/_components/forms/category-form";
 import { SaveIcon } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Spinner } from "~/components/spinner";

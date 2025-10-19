@@ -60,7 +60,7 @@ export const _products = {
         })),
         newSeo: seo,
         newInventoryItem: {
-          quantity: product.inventory?.[0]?.quantity ?? 0, // there's always one inventory item for a product
+          quantity: product.inventory?.quantity ?? 0,
         },
       });
     },
@@ -74,8 +74,8 @@ export const _products = {
           ...product,
           media: product.media?.map((m) => m.mediaId) ?? [],
           inventory: {
-            id: product.inventory?.[0]?.id ?? 0,
-            quantity: product.inventory?.[0]?.quantity ?? 0, // there's always one inventory item for a product
+            id: product.inventory?.id ?? 0,
+            quantity: product.inventory?.quantity ?? 0, // there's always one inventory item for a product
           },
         });
       }

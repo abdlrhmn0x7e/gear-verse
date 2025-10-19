@@ -10,7 +10,10 @@ import {
 } from "~/components/ui/collapsible";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
-import { DragableItem, Droppable } from "../../_components/dragable-context";
+import {
+  DragableItem,
+  Droppable,
+} from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
 import { createPortal } from "react-dom";
@@ -21,7 +24,6 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -167,9 +169,7 @@ function CategoryTreeItem({
           variant: "ghost",
           className: cn(
             "group w-full justify-between border border-transparent py-0 focus-visible:ring-0",
-            isActive &&
-              !showEditForm &&
-              "border-border from-sidebar-accent bg-gradient-to-t to-transparent",
+            isActive && !showEditForm && "border-border bg-background",
             hasChildren && "has-[button>svg]:px-3",
             showEditForm &&
               "hover:text-foreground h-fit hover:bg-transparent dark:hover:bg-transparent [&>button]:hidden [&>svg:nth-child(2)]:hidden",

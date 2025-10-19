@@ -15,7 +15,7 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { type RouterOutputs } from "~/trpc/react";
-import { DragableItem } from "../../_components/dragable-context";
+import { DragableItem } from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 
 type CategoryProductListItem =
@@ -55,7 +55,7 @@ export function CategoryProductList({
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {products.map((product) => (
         <DragableItem
           id={`product:${product.id}`}

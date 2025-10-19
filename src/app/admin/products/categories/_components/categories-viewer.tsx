@@ -26,7 +26,7 @@ import {
   DragableContext,
   DragableOverlay,
   Droppable,
-} from "../../_components/dragable-context";
+} from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
 import {
@@ -37,15 +37,8 @@ import {
 import { CategoryProductList, ProductListItem } from "./products-grid";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
-
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { NEXT_CACHE_REVALIDATE_TAG_TOKEN_HEADER } from "next/dist/lib/constants";
 
 export function CategoriesViewer() {
   const { data: categories, isPending: isPendingCategories } =
@@ -228,102 +221,112 @@ export function CategoriesViewer() {
 
   return (
     <DragableContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="h-full overflow-hidden rounded-lg border"
-      >
-        {/* Category Tree */}
-        <ResizablePanel
-          className="bg-sidebar relative flex h-full flex-col gap-2 p-4"
-          defaultSize={25}
-          minSize={15}
-        >
-          <div className="h-fit space-y-1">
-            <div className="flex items-center justify-between gap-2">
-              <Heading level={5} className="font-medium">
-                Categories (
-                {categories?.reduce(
-                  (acc, curr) => acc + (curr.children?.length ?? 0),
-                  categories?.length ?? 0,
-                )}
-                )
-              </Heading>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="cursor-pointer rounded-full"
-                onClick={() => setShowAddCategory(true)}
-              >
-                <PlusCircleIcon />
-              </Button>
-            </div>
-
-            {isPendingCategories ? (
-              <CategoryTreeSkeleton />
-            ) : categories?.length === 0 ? (
-              <CategoryTreeEmptyState />
-            ) : (
-              categories?.map((category) => (
-                <CategoryTree
-                  key={category.id}
-                  categories={category}
-                  isDragging={!!activeId}
-                />
-              ))
-            )}
-
-            {showAddCategory && (
-              <div className="mt-2 ml-2">
-                <AddCategory
-                  parentCategoryId={null}
-                  onSuccess={() => setShowAddCategory(false)}
-                  cancel={() => setShowAddCategory(false)}
-                />
-              </div>
-            )}
-          </div>
-
-          <Droppable
-            id="category:0"
-            className="flex flex-1 items-center justify-center rounded-lg opacity-0 transition-opacity"
-            classNameWhenOver="bg-accent/40 border-2 border-dashed opacity-100"
+      <Card className="size-full gap-1 p-2">
+        <CardContent className="size-full p-0">
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="h-full overflow-hidden rounded-lg"
           >
-            <p>Move to the root</p>
-          </Droppable>
-        </ResizablePanel>
+            {/* Category Tree */}
+            <ResizablePanel
+              className="relative flex h-full flex-col gap-2 p-4"
+              defaultSize={25}
+              minSize={15}
+            >
+              <div className="h-fit space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <Heading level={5} className="font-medium">
+                    Categories (
+                    {categories?.reduce(
+                      (acc, curr) => acc + (curr.children?.length ?? 0),
+                      categories?.length ?? 0,
+                    )}
+                    )
+                  </Heading>
 
-        <ResizableHandle withHandle />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer rounded-full"
+                    onClick={() => setShowAddCategory(true)}
+                  >
+                    <PlusCircleIcon />
+                  </Button>
+                </div>
 
-        <ResizablePanel defaultSize={75}>
-          <div className="bg-background flex w-full items-center justify-between gap-2 border-b p-4">
-            <Heading level={4} className="flex items-center gap-2">
-              <FolderOpenIcon />
-              {parentCategory?.name && (
-                <>
-                  {parentCategory.name}
-                  <ChevronRight />
-                </>
-              )}
-              {selectedCategory?.name ?? "No Category Selected"}{" "}
-            </Heading>
+                {isPendingCategories ? (
+                  <CategoryTreeSkeleton />
+                ) : categories?.length === 0 ? (
+                  <CategoryTreeEmptyState />
+                ) : (
+                  categories?.map((category) => (
+                    <CategoryTree
+                      key={category.id}
+                      categories={category}
+                      isDragging={!!activeId}
+                    />
+                  ))
+                )}
 
-            <p className="text-muted-foreground text-sm font-medium">
-              {products?.length ?? 0} Products
-            </p>
-          </div>
+                {showAddCategory && (
+                  <div className="mt-2 ml-2">
+                    <AddCategory
+                      parentCategoryId={null}
+                      onSuccess={() => setShowAddCategory(false)}
+                      cancel={() => setShowAddCategory(false)}
+                    />
+                  </div>
+                )}
+              </div>
 
-          <div className="h-full overflow-y-auto p-4">
-            <CategoryProductList
-              activeId={activeId}
-              products={products}
-              isLoadingProducts={isLoadingProducts}
-            />
+              <Droppable
+                id="category:0"
+                className="flex flex-1 items-center justify-center rounded-lg opacity-0 transition-opacity"
+                classNameWhenOver="bg-accent/40 border-2 border-dashed opacity-100"
+              >
+                <p>Move to the root</p>
+              </Droppable>
+            </ResizablePanel>
 
-            <LoadMore hasNextPage={hasNextPage} ref={ref} />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+            <ResizableHandle withHandle className="bg-transparent" />
+
+            <ResizablePanel defaultSize={75} className="size-full">
+              <Card className="bg-background size-full gap-1 p-2">
+                <CardHeader className="p-0">
+                  <div className="bg-background flex w-full items-center justify-between gap-2 border-b p-4">
+                    <Heading level={4} className="flex items-center gap-2">
+                      <FolderOpenIcon />
+                      {parentCategory?.name && (
+                        <>
+                          {parentCategory.name}
+                          <ChevronRight />
+                        </>
+                      )}
+                      {selectedCategory?.name ?? "No Category Selected"}{" "}
+                    </Heading>
+
+                    <p className="text-muted-foreground text-sm font-medium">
+                      {products?.length ?? 0} Products
+                    </p>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-0">
+                  <div className="h-full overflow-y-auto p-4">
+                    <CategoryProductList
+                      activeId={activeId}
+                      products={products}
+                      isLoadingProducts={isLoadingProducts}
+                    />
+
+                    <LoadMore hasNextPage={hasNextPage} ref={ref} />
+                  </div>
+                </CardContent>
+              </Card>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </CardContent>
+      </Card>
 
       <DragableOverlay
         className={cn(

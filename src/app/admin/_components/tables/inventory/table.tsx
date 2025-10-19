@@ -4,75 +4,25 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type ColumnDef,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
-import { Controller, useFormContext } from "react-hook-form";
-import { Field } from "~/components/ui/field";
-import { NumberInput } from "~/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
+import { InventoryTableHeader } from "./header";
+import type { RouterOutputs } from "~/trpc/react";
+import { useInventoryTableColumns } from "./columns";
+import type { Control } from "react-hook-form";
+import type { InventoryItemFormValues } from "../../forms/inventory-item-form";
 
-type InventoryItem = {
-  id: number;
-  quantity: number;
-};
+export type TableInventoryItem =
+  RouterOutputs["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
 
-export function InventoryTable({ data }: { data: InventoryItem[] }) {
-  const form = useFormContext<{
-    inventory: InventoryItem[];
-  }>();
-
-  const columns = useMemo<ColumnDef<InventoryItem>[]>(
-    () => [
-      {
-        accessorKey: "id",
-        header: "Item No.",
-        cell: ({ row }) => {
-          return <span># {row.original.id}</span>;
-        },
-      },
-      {
-        accessorKey: "",
-        header: "Location",
-        cell: "Your basement",
-      },
-      {
-        accessorKey: "quantity",
-        header: "Available",
-        cell: ({ row }) => {
-          return (
-            <Controller
-              control={form.control}
-              name={`inventory.${row.index}.quantity`}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <NumberInput
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="How much you got?"
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
-                    value={field.value}
-                  />
-                </Field>
-              )}
-            />
-          );
-        },
-      },
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
+export function InventoryTable({
+  data,
+  control,
+}: {
+  data: TableInventoryItem[];
+  control: Control<InventoryItemFormValues>;
+}) {
+  const columns = useInventoryTableColumns(control);
   const table = useReactTable({
     data,
     columns,
@@ -80,30 +30,9 @@ export function InventoryTable({ data }: { data: InventoryItem[] }) {
   });
 
   return (
-    <Table containerClassName="border rounded-lg">
-      <TableHeader>
-        {table.getHeaderGroups().map((group) => (
-          <TableRow key={group.id} className="[&_th]:border-r-0">
-            {group.headers.map((header) => (
-              <TableHead
-                key={header.id}
-                colSpan={header.colSpan}
-                className="w-full"
-                style={{
-                  width: `${header.column.getSize()}px`,
-                  minWidth: `${header.column.getSize()}px`,
-                  maxWidth: `${header.column.getSize()}px`,
-                }}
-              >
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext(),
-                )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
+    <Table containerClassName="border rounded-lg bg-background">
+      <InventoryTableHeader />
+
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>

@@ -62,11 +62,11 @@ const DASHBOARD_ITEMS = [
     items: [
       {
         title: "Inventory",
-        url: "/admin/inventory",
+        url: "/admin/products/inventory",
       },
       {
         title: "Categories",
-        url: "/admin/categories",
+        url: "/admin/products/categories",
       },
     ],
   },
@@ -82,7 +82,7 @@ export function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenuButton
           size="lg"
