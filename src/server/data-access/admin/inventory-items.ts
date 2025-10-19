@@ -10,6 +10,9 @@ import {
   productVariants,
 } from "~/server/db/schema";
 
+type NewInventoryItem = typeof inventoryItems.$inferInsert;
+type UpdateInventoryItem = Partial<NewInventoryItem> & { id: number };
+
 export const _inventoryItems = {
   queries: {
     getPage: async ({
@@ -121,6 +124,31 @@ export const _inventoryItems = {
         .where(and(...whereClause))
         .limit(pageSize + 1)
         .orderBy(desc(inventoryItems.id));
+    },
+  },
+
+  mutations: {
+    updateMany(input: UpdateInventoryItem[]) {
+      return db.transaction(async (tx) => {
+        const updatedItems: { id: number }[] = [];
+
+        for (const item of input) {
+          const { id, ...updateData } = item;
+          const [updatedItem] = await tx
+            .update(inventoryItems)
+            .set(updateData)
+            .where(eq(inventoryItems.id, id))
+            .returning({ id: inventoryItems.id });
+
+          if (!updatedItem) {
+            throw new Error(`Inventory item with ID ${id} not found.`);
+          }
+
+          updatedItems.push(updatedItem);
+        }
+
+        return updatedItems;
+      });
     },
   },
 };

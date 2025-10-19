@@ -16,6 +16,8 @@ import {
 } from "~/components/ui/item";
 import { Button } from "~/components/ui/button";
 import { SaveIcon, XIcon } from "lucide-react";
+import { Spinner } from "~/components/spinner";
+import { da } from "zod/v4/locales";
 
 const inventoryItemFormSchema = createInventoryItemInputSchema;
 export type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
@@ -23,9 +25,11 @@ export type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
 export function InventoryItemForm({
   onSubmit,
   values,
+  isSubmitting = false,
 }: {
   values: RouterOutputs["admin"]["inventoryItems"]["queries"]["getPage"]["data"];
   onSubmit: (data: InventoryItemFormValues) => void;
+  isSubmitting?: boolean;
 }) {
   const [itemRef, setItemRef] = useState<HTMLDivElement | null>(null);
   const defaultValues = useMemo(() => {
@@ -49,7 +53,10 @@ export function InventoryItemForm({
   }
 
   function handleSave() {
-    void form.handleSubmit(onSubmit)();
+    void form.handleSubmit((data) => {
+      onSubmit(data);
+      form.reset(data);
+    })();
   }
 
   useEffect(() => {
@@ -89,12 +96,22 @@ export function InventoryItemForm({
             variant="destructive-outline"
             size="sm"
             onClick={handleDiscard}
+            disabled={isSubmitting}
           >
             <XIcon />
             Discard
           </Button>
-          <Button variant="outline" size="sm" onClick={handleSave}>
-            <SaveIcon />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSave}
+            disabled={
+              isSubmitting ||
+              form.formState.isSubmitting ||
+              !form.formState.isDirty
+            }
+          >
+            {isSubmitting ? <Spinner /> : <SaveIcon />}
             Save
           </Button>
         </ItemActions>

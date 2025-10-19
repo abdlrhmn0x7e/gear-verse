@@ -62,13 +62,13 @@ export function ProductsTable() {
     [products],
   );
 
-  const { ref, inView } = useInView();
-
   const table = useReactTable({
     data: productsData,
     columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const { ref, inView } = useInView();
 
   useEffect(() => {
     if (inView) {

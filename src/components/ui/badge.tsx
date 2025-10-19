@@ -18,10 +18,12 @@ const badgeVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground [button,a&]:hover:bg-secondary/90",
         info: "bg-info/8 text-info-foreground dark:bg-info/16",
-        success: "bg-success/8 text-success-foreground dark:bg-success/16",
-        warning: "bg-warning/8 text-warning-foreground dark:bg-warning/16",
+        success:
+          "bg-green-300 dark:bg-green-900 dark:text-green-300 text-green-800 [a&]:hover:bg-green-600",
+        warning:
+          "dark:border-yellow-800 border-yellow-500 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300 text-yellow-600 [a&]:hover:bg-yellow-600",
         error:
-          "bg-destructive/8 text-destructive-foreground dark:bg-destructive/16",
+          "bg-red-200 dark:bg-red-900 dark:text-red-300 text-red-600 [a&]:hover:bg-red-600",
       },
       size: {
         default: "px-[calc(--spacing(1)-1px)] text-xs",

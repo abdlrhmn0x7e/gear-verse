@@ -36,10 +36,19 @@ export type CreateInventoryItemInput = z.infer<
 
 export const updateInventoryItemInputSchema = inventoryItemSchema
   .omit({
+    id: true,
+    productId: true,
+    productVariantId: true,
     createdAt: true,
     updatedAt: true,
   })
-  .partial();
+  .partial()
+  .extend({
+    id: z
+      .number("ID must be a number")
+      .positive("ID is required and must be positive"),
+  })
+  .array();
 export type UpdateInventoryItemInput = z.infer<
   typeof updateInventoryItemInputSchema
 >;

@@ -54,8 +54,6 @@ export function SuspendableImage({
           isLoading ? "opacity-0" : "opacity-100",
         )}
         onLoad={() => {
-          // Handles cached images where onLoad might not fire
-          console.log("onLoadingComplete");
           setIsLoading(false);
         }}
         onError={() => {

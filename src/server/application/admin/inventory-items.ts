@@ -3,6 +3,7 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
+import type { UpdateInventoryItemInput } from "~/lib/schemas/entities/inventory-item";
 
 export const _inventoryItems = {
   queries: {
@@ -20,6 +21,24 @@ export const _inventoryItems = {
       }
 
       return inventoryItems;
+    },
+  },
+
+  mutations: {
+    async update(input: UpdateInventoryItemInput) {
+      const { data: updatedItem, error } = await tryCatch(
+        data.admin.inventoryItems.mutations.updateMany(input),
+      );
+      if (error) {
+        throw new AppError(
+          "Failed to update inventory item",
+          "INTERNAL",
+          undefined,
+          error,
+        );
+      }
+
+      return updatedItem;
     },
   },
 };
