@@ -224,14 +224,10 @@ function ProductDrawerContent() {
           className="grid-cols-1 gap-12 p-4 pb-24 lg:grid-cols-1 lg:p-4 [&>div:first-child]:relative [&>div:first-child]:top-6"
           hideActions
         >
-          <div>
-            <Heading level={2}>Description</Heading>
-
-            <ProductDescription
-              description={product.description}
-              className="m-0"
-            />
-          </div>
+          <ProductDescription
+            description={product.description}
+            className="m-0"
+          />
         </Product>
       </div>
     </>

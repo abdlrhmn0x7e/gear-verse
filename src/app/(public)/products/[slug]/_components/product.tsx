@@ -241,8 +241,8 @@ export function Product({
             </FramePanel>
           )}
 
-          <FramePanel>
-            {!hideActions && (
+          {!hideActions && (
+            <FramePanel>
               <div className="flex flex-col gap-2 lg:flex-row">
                 <AddToCartButton
                   className="peer w-full lg:flex-1"
@@ -257,8 +257,8 @@ export function Product({
                   product={product}
                 />
               </div>
-            )}
-          </FramePanel>
+            </FramePanel>
+          )}
         </Frame>
 
         {children}
