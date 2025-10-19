@@ -7,11 +7,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
-import {
-  Controller,
-  useFormContext,
-  type FieldArrayWithId,
-} from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Field } from "~/components/ui/field";
 import { NumberInput } from "~/components/ui/input";
 import {

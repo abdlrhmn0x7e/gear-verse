@@ -3,12 +3,7 @@
 import * as React from "react";
 import { Slot as SlotPrimitive } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
-import {
-  CornerDownRight,
-  CornerDownRightIcon,
-  Minus,
-  PanelLeftIcon,
-} from "lucide-react";
+import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
@@ -30,7 +25,6 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { usePathname } from "next/navigation";
-import { IconArrowRampRight3 } from "@tabler/icons-react";
 import { Kbd, KbdGroup } from "./kbd";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";

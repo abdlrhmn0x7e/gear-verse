@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import type { TableInventoryItem } from "./table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { InventoryItemFormValues } from "../../forms/inventory-item-form";
+import { type InventoryItemFormValues } from "../../forms/inventory-item-form";
 
 export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
   return [

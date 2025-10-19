@@ -1,4 +1,4 @@
-import { eq, and, gt, ilike, lt, desc } from "drizzle-orm";
+import { eq, and, ilike, lt, desc } from "drizzle-orm";
 import { db } from "../../db";
 import { media } from "../../db/schema";
 

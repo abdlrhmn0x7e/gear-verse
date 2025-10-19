@@ -10,7 +10,6 @@ import {
   Heading3Icon,
   HeadingIcon,
   HighlighterIcon,
-  ImageIcon,
   ImageOffIcon,
   ImagePlusIcon,
   ItalicIcon,
@@ -24,7 +23,6 @@ import {
   UnderlineIcon,
   UndoIcon,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -34,7 +32,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 
 import { Separator } from "~/components/ui/separator";
-import { FileDropzone } from "../inputs/file-dropzone";
 import {
   DrawerDialog,
   DrawerDialogContent,
@@ -44,7 +41,6 @@ import {
   DrawerDialogTitle,
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
-import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { toast } from "sonner";
 import * as React from "react";
 import { cn } from "~/lib/utils";

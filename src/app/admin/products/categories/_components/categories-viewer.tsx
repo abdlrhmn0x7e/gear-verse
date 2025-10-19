@@ -38,7 +38,6 @@ import { CategoryProductList, ProductListItem } from "./products-grid";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { NEXT_CACHE_REVALIDATE_TAG_TOKEN_HEADER } from "next/dist/lib/constants";
 
 export function CategoriesViewer() {
   const { data: categories, isPending: isPendingCategories } =
