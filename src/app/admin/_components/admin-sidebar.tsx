@@ -30,6 +30,10 @@ import {
   IconShoppingCartFilled,
   IconHome,
   IconShoppingCart,
+  IconArchive,
+  IconArchiveFilled,
+  IconCategoryFilled,
+  IconCategory,
 } from "@tabler/icons-react";
 
 export type AdminSidebarItemItem = {
@@ -59,16 +63,18 @@ const DASHBOARD_ITEMS = [
     url: "/admin/products",
     icon: IconTag,
     iconFilled: IconTagFilled,
-    items: [
-      {
-        title: "Inventory",
-        url: "/admin/products/inventory",
-      },
-      {
-        title: "Categories",
-        url: "/admin/products/categories",
-      },
-    ],
+  },
+  {
+    title: "Inventory",
+    url: "/admin/products/inventory",
+    icon: IconArchive,
+    iconFilled: IconArchiveFilled,
+  },
+  {
+    title: "Categories",
+    url: "/admin/products/categories",
+    icon: IconCategory,
+    iconFilled: IconCategoryFilled,
   },
   {
     title: "Orders",

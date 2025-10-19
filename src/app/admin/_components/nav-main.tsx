@@ -32,9 +32,7 @@ export function NavMain({ data }: { data: AdminSidebarItem[] }) {
 function NavMainItem({ data }: { data: AdminSidebarItem }) {
   const pathname = normlaizePathname(usePathname());
   const isRootLink = data.url === "/admin";
-  const isActive = isRootLink
-    ? pathname === "/admin"
-    : pathname.startsWith(data.url);
+  const isActive = isRootLink ? pathname === "/admin" : pathname === data.url;
   const activeIndex = data.items?.findIndex((item) => item.url === pathname);
 
   return (
