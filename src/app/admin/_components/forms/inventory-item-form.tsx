@@ -6,7 +6,7 @@ import { createInventoryItemInputSchema } from "~/lib/schemas/entities/inventory
 import type z from "zod";
 import { InventoryTable } from "../tables/inventory/table";
 import type { RouterOutputs } from "~/trpc/react";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Item,
   ItemActions,
@@ -43,11 +43,9 @@ export function InventoryItemForm({
       inventory: defaultValues.inventory,
     },
   });
-  const rerender = useReducer((x) => x + 1, 0)[1];
 
   function handleDiscard() {
     form.reset();
-    rerender();
   }
 
   function handleSave() {
@@ -66,9 +64,11 @@ export function InventoryItemForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <InventoryTable data={values} control={form.control} />
-      </form>
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <InventoryTable data={values} />
+        </form>
+      </FormProvider>
 
       <Item
         variant="outline"

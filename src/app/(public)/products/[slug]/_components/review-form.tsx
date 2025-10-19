@@ -14,11 +14,7 @@ import { StarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import TextareaAutosize from "react-textarea-autosize";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-} from "~/components/ui/input-group";
+import { InputGroup, InputGroupAddon } from "~/components/ui/input-group";
 import { cn } from "~/lib/utils";
 
 const reviewFormSchema = z.object({

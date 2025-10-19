@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
-import { Controller, type Control } from "react-hook-form";
-import type { InventoryItemFormValues } from "../../forms/inventory-item-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Field } from "~/components/ui/field";
 import { NumberInput } from "~/components/ui/input";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -11,10 +10,9 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import type { TableInventoryItem } from "./table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { InventoryItemFormValues } from "../../forms/inventory-item-form";
 
-export function useInventoryTableColumns(
-  control: Control<InventoryItemFormValues>,
-): ColumnDef<TableInventoryItem>[] {
+export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
   return [
     {
       accessorKey: "product",
@@ -57,9 +55,11 @@ export function useInventoryTableColumns(
       accessorKey: "quantity",
       header: "Available",
       cell: ({ row }) => {
+        const form = useFormContext<InventoryItemFormValues>();
+
         return (
           <Controller
-            control={control}
+            control={form.control}
             name={`inventory.${row.index}.quantity`}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
