@@ -85,22 +85,20 @@ export function ProductCard({
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((variant) => (
                     <Badge
-                      key={`${variant.id}-${Object.values(variant.optionValues).join(", ")}`}
+                      key={`${variant.id}-${variant.values.join(", ")}`}
                       variant="outline"
                       className="px-1 py-px"
                     >
                       <ImageWithFallback
                         src={variant.thumbnailUrl}
-                        alt={`${product.title} - ${Object.values(variant.optionValues).join(", ")}`}
+                        alt={`${product.title} - ${variant.values.join(", ")}`}
                         className="size-4 rounded-full"
                         width={16}
                         height={16}
                       />
 
                       <span className="capitalize">
-                        {Object.values(variant.optionValues)
-                          .slice(0, 2)
-                          .join(", ")}
+                        {Object.values(variant.values).slice(0, 2).join(", ")}
                       </span>
 
                       {variant.stock > 0 ? (

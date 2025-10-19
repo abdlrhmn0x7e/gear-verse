@@ -1,4 +1,14 @@
-import { and, eq, gt, gte, ilike, inArray, lte, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  gt,
+  gte,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  sql,
+} from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -14,6 +24,7 @@ import {
   productVariants,
   seo,
 } from "~/server/db/schema";
+import { variantsCTE } from "../common/cte";
 
 export const _products = {
   queries: {
@@ -65,81 +76,8 @@ export const _products = {
       }
 
       const brandsMedia = alias(media, "brands_media");
-
-      const variantThumbnail = alias(media, "variant_thumbnail");
-      const variantInventory = alias(inventoryItems, "variant_inventory");
-      const variantsQuery = db
-        .select({
-          productId: productVariants.productId,
-          overridePrice: productVariants.overridePrice,
-          thumbnailUrl: variantThumbnail.url,
-          stock: variantInventory.quantity,
-          optionValues: sql<Record<string, string>>`
-          jsonb_object_agg(
-              ${productOptions.name}, ${productOptionValues.value}
-            )
-        `.as("option_values"),
-        })
-        .from(productVariants)
-        .leftJoin(
-          variantThumbnail,
-          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
-        )
-        .leftJoin(
-          variantInventory,
-          and(
-            eq(productVariants.productId, variantInventory.productId),
-            eq(productVariants.id, variantInventory.productVariantId),
-          ),
-        )
-        .leftJoin(
-          productOptionValuesVariants,
-          eq(productOptionValuesVariants.productVariantId, productVariants.id),
-        )
-        .leftJoin(
-          productOptionValues,
-          eq(
-            productOptionValuesVariants.productOptionValueId,
-            productOptionValues.id,
-          ),
-        )
-        .leftJoin(
-          productOptions,
-          eq(productOptionValues.productOptionId, productOptions.id),
-        )
-        .groupBy(
-          productVariants.id,
-          variantInventory.quantity,
-          variantThumbnail.id,
-        )
-        .as("product_variants");
-
-      const variantsJson = db
-        .select({
-          productId: variantsQuery.productId,
-          json: sql<
-            {
-              id: number;
-              overridePrice: number;
-              thumbnailUrl: string;
-              stock: number;
-              optionValues: Record<string, string>;
-            }[]
-          >`
-          jsonb_agg(
-            jsonb_build_object(
-              'overridePrice', ${variantsQuery.overridePrice},
-              'thumbnailUrl', ${variantsQuery.thumbnailUrl},
-              'optionValues', ${variantsQuery.optionValues}
-            )
-          )
-        `.as("json"),
-        })
-        .from(variantsQuery)
-        .groupBy(variantsQuery.productId)
-        .as("variants_json");
-
       return db
+        .with(variantsCTE)
         .select({
           id: products.id,
           slug: products.slug,
@@ -157,19 +95,25 @@ export const _products = {
             name: brands.name,
             logoUrl: brandsMedia.url,
           },
-          variants: variantsJson.json,
+          variants: variantsCTE.json,
         })
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
-        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productId, products.id),
+            isNull(inventoryItems.productVariantId),
+          ),
+        )
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
-        .leftJoin(variantsJson, eq(variantsJson.productId, products.id))
+        .leftJoin(variantsCTE, eq(variantsCTE.productId, products.id))
         .where(
           and(
             ...whereClause,
-            sql`${inventoryItems.quantity} > 0 OR ${variantsJson.json} @@ '$.stock > 0'`,
+            sql`${inventoryItems.quantity} > 0 OR ${variantsCTE.json} @@ '$.stock > 0'`,
           ),
         )
         .limit(pageSize + 1)
@@ -384,7 +328,7 @@ export const _products = {
       async getCategorySlugs(categorySlug: string) {
         const childrenCategoriesIdsQuery = sql<{ slug: string }[]>`
               WITH RECURSIVE all_children_categories AS (
-                SELECT categories.id, categories.slug 
+                SELECT categories.id, categories.slug
                 FROM categories
                 WHERE slug = ${categorySlug}
 
