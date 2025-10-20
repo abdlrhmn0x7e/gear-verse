@@ -61,13 +61,20 @@ function NumberInput({
   onChange,
   onFocus,
   ...props
-}: React.ComponentProps<typeof Input> & { step?: number }) {
+}: React.ComponentProps<typeof Input> & {
+  step?: number;
+  value: string | number;
+}) {
+  function parseValue(value: string | number) {
+    return typeof value === "number" ? value : parseInt(value);
+  }
+
   const [steppedValue, setSteppedValue] = React.useState<number | undefined>(
-    Number(value),
+    parseValue(value),
   );
 
   useEffect(() => {
-    setSteppedValue(Number(value));
+    setSteppedValue(parseValue(value));
   }, [value]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -104,9 +111,9 @@ function NumberInput({
       <PrimitiveInput
         className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         type="number"
-        onFocus={handleFocus}
         value={steppedValue === 0 ? "" : steppedValue}
         onChange={handleChange}
+        onFocus={handleFocus}
         {...props}
       />
 

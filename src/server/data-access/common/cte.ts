@@ -3,6 +3,7 @@ import { db } from "~/server/db";
 import {
   inventoryItems,
   media,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   productVariants,
@@ -28,6 +29,42 @@ export const variantValuesCTE = db.$with("variant_values").as(
         productOptionValues.id,
       ),
     )
+    .where(eq(productVariants.archived, false))
+    .groupBy(productVariants.id),
+);
+
+export const fullVariantValuesCTE = db.$with("variant_values").as(
+  db
+    .select({
+      id: productVariants.id,
+      options: sql<Record<string, { id: number; value: string }>[]>`
+						jsonb_agg(
+						  jsonb_build_object(
+  						  ${productOptions.name}, jsonb_build_object(
+  								'id', ${productOptionValues.id},
+  								'value', ${productOptionValues.value}
+  							)
+							)
+						)
+					`.as("values"),
+    })
+    .from(productVariants)
+    .leftJoin(
+      productOptionValuesVariants,
+      eq(productVariants.id, productOptionValuesVariants.productVariantId),
+    )
+    .leftJoin(
+      productOptionValues,
+      eq(
+        productOptionValuesVariants.productOptionValueId,
+        productOptionValues.id,
+      ),
+    )
+    .leftJoin(
+      productOptions,
+      eq(productOptionValues.productOptionId, productOptions.id),
+    )
+    .where(eq(productVariants.archived, false))
     .groupBy(productVariants.id),
 );
 

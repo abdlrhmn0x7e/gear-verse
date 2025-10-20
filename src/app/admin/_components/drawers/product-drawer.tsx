@@ -12,7 +12,6 @@ import {
 import { Product } from "~/app/(public)/products/[slug]/_components/product";
 import { api } from "~/trpc/react";
 import { ProductDescription } from "~/components/product-description";
-import { Heading } from "~/components/heading";
 import { Button } from "~/components/ui/button";
 import { PencilIcon, XIcon } from "lucide-react";
 import Link from "next/link";

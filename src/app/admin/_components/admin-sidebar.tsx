@@ -66,13 +66,13 @@ const DASHBOARD_ITEMS = [
   },
   {
     title: "Inventory",
-    url: "/admin/products/inventory",
+    url: "/admin/inventory",
     icon: IconArchive,
     iconFilled: IconArchiveFilled,
   },
   {
     title: "Categories",
-    url: "/admin/products/categories",
+    url: "/admin/categories",
     icon: IconCategory,
     iconFilled: IconCategoryFilled,
   },

@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { api, HydrateClient } from "~/trpc/server";
 import { Suspense } from "react";
 import type { SearchParams } from "nuqs";
-import { loadInventorySearchParams } from "../../_hooks/use-inventory-search-params";
-import { InventoryItemFilter } from "../../_components/tables/inventory/filters";
+import { loadInventorySearchParams } from "../_hooks/use-inventory-search-params";
+import { InventoryItemFilter } from "../_components/tables/inventory/filters";
+import { InventoryTableSkeleton } from "../_components/tables/inventory/skeleton";
 
 export default async function AdminInventoryPage({
   searchParams,
@@ -35,7 +36,7 @@ export default async function AdminInventoryPage({
         </CardHeader>
         <CardContent className="p-0">
           <HydrateClient>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<InventoryTableSkeleton />}>
               <EditInventory />
             </Suspense>
           </HydrateClient>

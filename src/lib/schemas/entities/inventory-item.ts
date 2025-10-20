@@ -20,15 +20,11 @@ export const inventoryItemSchema = z.object({
 });
 export type InventoryItem = z.infer<typeof inventoryItemSchema>;
 
-export const createInventoryItemInputSchema = z.object({
-  inventory: z.array(
-    inventoryItemSchema.omit({
-      productId: true,
-      productVariantId: true,
-      createdAt: true,
-      updatedAt: true,
-    }),
-  ),
+export const createInventoryItemInputSchema = inventoryItemSchema.omit({
+  productId: true,
+  productVariantId: true,
+  createdAt: true,
+  updatedAt: true,
 });
 export type CreateInventoryItemInput = z.infer<
   typeof createInventoryItemInputSchema
@@ -47,8 +43,7 @@ export const updateInventoryItemInputSchema = inventoryItemSchema
     id: z
       .number("ID must be a number")
       .positive("ID is required and must be positive"),
-  })
-  .array();
+  });
 export type UpdateInventoryItemInput = z.infer<
   typeof updateInventoryItemInputSchema
 >;

@@ -11,7 +11,7 @@ const headingVariants = cva(
         2: "text-2xl md:text-3xl font-semibold",
         3: "text-xl md:text-2xl font-semibold",
         4: "text-lg md:text-xl font-medium",
-        5: "text-base md:text-lg",
+        5: "text-base md:text-lg font-medium",
         6: "text-sm md:text-base",
       },
       font: {

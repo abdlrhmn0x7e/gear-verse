@@ -6,9 +6,11 @@ import { mediaRouter } from "./media";
 import { s3Router } from "./s3";
 import { adminOrdersRouter } from "./orders";
 import { inventoryItemsRouter } from "./inventory-items";
+import { productVariantsRouter } from "./product-variants";
 
 export const adminRouter = createTRPCRouter({
   products: productsRouter,
+  productVariants: productVariantsRouter,
   brands: brandsRouter,
   categories: categoriesRouter,
   media: mediaRouter,

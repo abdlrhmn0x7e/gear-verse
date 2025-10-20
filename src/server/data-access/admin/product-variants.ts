@@ -1,13 +1,16 @@
 import {
   inventoryItems,
+  media,
   orderItems,
   productOptions,
   productOptionValues,
   productOptionValuesVariants,
+  products,
   productVariants,
 } from "~/server/db/schema";
 import { db, type Tx } from "~/server/db";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
+import { fullVariantValuesCTE } from "../common/cte";
 
 type NewProductVariant = Omit<
   typeof productVariants.$inferInsert,
@@ -16,9 +19,95 @@ type NewProductVariant = Omit<
   optionValues: Record<string, { id: number; value: string }>;
   stock: number;
 };
+type UpdateProductVariant = Partial<{
+  stock: number;
+  thumbnailMediaId: number;
+  overridePrice: number | null;
+}> & { id: number };
 
 export const _productVariants = {
-  queries: {},
+  queries: {
+    async findById(id: number) {
+      return db
+        .with(fullVariantValuesCTE)
+        .select({
+          id: productVariants.id,
+          options: fullVariantValuesCTE.options,
+          overridePrice: productVariants.overridePrice,
+          thumbnail: {
+            id: media.id,
+            url: media.url,
+          },
+          inventory: {
+            id: inventoryItems.id,
+            quantity: inventoryItems.quantity,
+          },
+        })
+        .from(productVariants)
+        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+        .leftJoin(
+          fullVariantValuesCTE,
+          eq(fullVariantValuesCTE.id, productVariants.id),
+        )
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productVariantId, productVariants.id),
+            eq(inventoryItems.productId, productVariants.productId),
+          ),
+        )
+        .where(eq(productVariants.id, id))
+        .limit(1)
+        .then(([rows]) => rows);
+    },
+
+    async findByProductId(productId: number) {
+      const productVariantsCTE = db.$with("product_variants").as(
+        db
+          .with(fullVariantValuesCTE)
+          .select({
+            productId: productVariants.productId,
+            variants: sql<
+              {
+                id: number;
+                thumbnailUrl: string;
+                options: Record<string, { id: string; value: string }>[];
+              }[]
+            >`jsonb_agg(
+                jsonb_build_object(
+                  'id', ${productVariants.id},
+                  'thumbnailUrl', ${media.url},
+                  'options', ${fullVariantValuesCTE.options}
+                )
+            )`.as("variants"),
+          })
+          .from(productVariants)
+          .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+          .leftJoin(
+            fullVariantValuesCTE,
+            eq(fullVariantValuesCTE.id, productVariants.id),
+          )
+          .groupBy(productVariants.productId),
+      );
+
+      return db
+        .with(productVariantsCTE)
+        .select({
+          title: products.title,
+          thumbnailUrl: media.url,
+          variants: productVariantsCTE.variants,
+        })
+        .from(products)
+        .leftJoin(
+          productVariantsCTE,
+          eq(products.id, productVariantsCTE.productId),
+        )
+        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .where(eq(products.id, productId))
+        .limit(1)
+        .then(([row]) => row);
+    },
+  },
   mutations: {
     async upsertMany(
       productId: number,
@@ -72,14 +161,7 @@ export const _productVariants = {
       });
     },
 
-    updateMany(
-      variants: {
-        id: number;
-        stock: number;
-        thumbnailMediaId: number;
-        overridePrice: number | null;
-      }[],
-    ) {
+    updateMany(variants: UpdateProductVariant[]) {
       return db.transaction(async (tx) => {
         for (const variant of variants) {
           const { id, stock, ...rest } = variant;
@@ -93,11 +175,36 @@ export const _productVariants = {
             })
             .where(eq(productVariants.id, variant.id));
 
+          if (!stock) continue;
+
           await tx
             .update(inventoryItems)
             .set({ quantity: stock })
             .where(eq(inventoryItems.productVariantId, id));
         }
+      });
+    },
+
+    update: (input: UpdateProductVariant) => {
+      return db.transaction(async (tx) => {
+        const { id, stock, ...rest } = input;
+
+        await tx
+          .update(productVariants)
+          .set({
+            ...rest,
+            overridePrice: rest.overridePrice === 0 ? null : rest.overridePrice,
+          })
+          .where(eq(productVariants.id, input.id));
+
+        if (!stock) return { id };
+
+        await tx
+          .update(inventoryItems)
+          .set({ quantity: stock })
+          .where(eq(inventoryItems.productVariantId, id));
+
+        return { id };
       });
     },
 

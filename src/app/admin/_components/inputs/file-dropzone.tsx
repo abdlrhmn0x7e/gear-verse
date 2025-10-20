@@ -6,7 +6,7 @@ import {
   UploadCloudIcon,
   XIcon,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
@@ -21,11 +21,13 @@ export interface FileDropZoneProps {
   options?: DropzoneOptions;
   className?: string;
   onChange?: (media: SelectedMedia[]) => void;
+  value?: SelectedMedia[];
   showFiles?: boolean;
 }
 
 export function FileDropzone({
   options = {},
+  value,
   onChange,
   className,
   showFiles = false,
@@ -33,6 +35,7 @@ export function FileDropzone({
   const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
   const addSelectedMedia = useMediaStore((state) => state.addSelectedMedia);
+  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
   const maxFiles = useMediaStore((state) => state.maxFiles);
   const deleteSelectedMedia = useMediaStore(
     (state) => state.deleteSelectedMedia,
@@ -70,6 +73,11 @@ export function FileDropzone({
     ...options,
   });
 
+  function handleDelete(mediaId: number) {
+    deleteSelectedMedia(mediaId);
+    onChange?.(selectedMedia.filter((media) => media.mediaId !== mediaId));
+  }
+
   return (
     <div className="space-y-4">
       <div
@@ -84,9 +92,9 @@ export function FileDropzone({
         )}
         {...getRootProps()}
       >
-        {/* 
+        {/*
 					This input has it's own state away from any
-					external state which could be a problem 
+					external state which could be a problem
 				*/}
         <input {...getInputProps()} />
 
@@ -143,12 +151,12 @@ export function FileDropzone({
                 src={media.url}
                 alt={media.url}
                 className="size-16"
-                width={64}
-                height={64}
+                width={128}
+                height={128}
               />
               <button
                 className="bg-muted absolute -top-1 -right-1 flex size-5 cursor-pointer items-center justify-center rounded-full border [&>svg]:size-3"
-                onClick={() => deleteSelectedMedia(media.mediaId)}
+                onClick={() => handleDelete(media.mediaId)}
               >
                 <XIcon />
               </button>

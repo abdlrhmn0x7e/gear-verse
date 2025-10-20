@@ -7,15 +7,15 @@ import { api, HydrateClient } from "~/trpc/server";
 export default async function EditProductPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ productId: string }>;
 }) {
-  const { id } = await params;
-  if (isNaN(parseInt(id))) {
+  const { productId } = await params;
+  if (isNaN(parseInt(productId))) {
     return notFound();
   }
 
   const product = await api.admin.products.queries.findById({
-    id: parseInt(id),
+    id: parseInt(productId),
   });
   if (!product) {
     return notFound();

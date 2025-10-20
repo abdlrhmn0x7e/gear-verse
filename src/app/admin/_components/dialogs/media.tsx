@@ -200,9 +200,9 @@ function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
         )}
         {...getRootProps()}
       >
-        {/* 
+        {/*
 					This input has it's own state away from any
-					external state which could be a problem 
+					external state which could be a problem
 				*/}
         <input {...getInputProps()} />
 

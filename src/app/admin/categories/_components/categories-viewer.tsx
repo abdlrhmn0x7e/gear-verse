@@ -228,7 +228,7 @@ export function CategoriesViewer() {
           >
             {/* Category Tree */}
             <ResizablePanel
-              className="relative flex h-full flex-col gap-2 p-4"
+              className="relative flex h-full flex-col gap-2 px-3 py-1"
               defaultSize={25}
               minSize={15}
             >

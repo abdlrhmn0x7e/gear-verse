@@ -1,16 +1,13 @@
 import { z } from "zod";
+import { createInventoryItemInputSchema } from "./inventory-item";
 
 export const productVariantEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
-  name: z.string("Name is required").min(1, "Name is required"),
-  stock: z.coerce
-    .number<number>("Stock is required")
-    .nonnegative("Stock must be positive"),
-  price: z.coerce
+  overridePrice: z.coerce
     .number<number>("Price is required")
-    .nonnegative("Price must be positive"),
-  options: z.array(z.string("Options must be an array of strings")).default([]),
+    .nonnegative("Price must be positive")
+    .nullable(),
 
   productId: z
     .number("Product ID must be a number")
@@ -25,21 +22,37 @@ export const productVariantEntitySchema = z.object({
 
 export type ProductVariant = z.infer<typeof productVariantEntitySchema>;
 
-export const createProductVariantInputSchema = productVariantEntitySchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createProductVariantInputSchema = productVariantEntitySchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    thumbnailMediaId: true,
+  })
+  .extend({
+    inventory: createInventoryItemInputSchema,
+    thumbnail: z.object({
+      mediaId: z
+        .number("Id must be a number")
+        .nonnegative("Id must be non-negative"),
+      url: z.url("URL must be valid"),
+    }),
+  });
 export type CreateProductVariantInput = z.infer<
   typeof createProductVariantInputSchema
 >;
 
-export const updateProductVariantInputSchema = productVariantEntitySchema
-  .omit({
-    createdAt: true,
-    updatedAt: true,
+export const updateProductVariantInputSchema = createProductVariantInputSchema
+  .omit({ productId: true })
+  .extend({
+    options: z
+      .record(z.string(), z.object({ id: z.number(), value: z.string() }))
+      .array(),
   })
-  .partial();
+  .partial()
+  .extend({
+    id: z.number("Id must be a number").nonnegative("ID must be positive"),
+  });
 export type UpdateProductVariantInput = z.infer<
   typeof updateProductVariantInputSchema
 >;
