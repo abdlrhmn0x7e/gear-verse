@@ -9,6 +9,7 @@ import { OrderStatus } from "./order-status";
 import { PaymentMethod } from "./payment-method";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { OrdersTableActions } from "./actions";
 
 export const ordersColumns: ColumnDef<
   RouterOutputs["admin"]["orders"]["queries"]["getPage"]["data"][number]
@@ -71,6 +72,13 @@ export const ordersColumns: ColumnDef<
           <span>{format(row.original.createdAt, "dd MMM, yyyy")}</span>
         </div>
       );
+    },
+  },
+
+  {
+    header: "Actions",
+    cell: ({ row }) => {
+      return <OrdersTableActions id={row.original.id} />;
     },
   },
 ];

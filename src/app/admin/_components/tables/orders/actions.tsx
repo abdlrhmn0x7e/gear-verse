@@ -8,16 +8,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { DeleteProductDialog } from "../../dialogs/delete-product";
-import { PublishProductDialog } from "../../dialogs/publish-product";
 
-export function OrdersTableActions({
-  id,
-  published,
-}: {
-  id: number;
-  published: boolean;
-}) {
+export function OrdersTableActions({ id }: { id: number }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,19 +27,6 @@ export function OrdersTableActions({
               Edit
             </Link>
           </Button>
-
-          <PublishProductDialog
-            id={id}
-            published={published}
-            className="w-full justify-start px-0"
-            variant={published ? "destructive-outline" : "ghost"}
-          />
-
-          <DeleteProductDialog
-            className="w-full justify-start px-0"
-            variant="destructive-outline"
-            id={id}
-          />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

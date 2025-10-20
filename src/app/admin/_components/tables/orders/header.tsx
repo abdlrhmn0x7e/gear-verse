@@ -10,6 +10,7 @@ export function OrdersTableHeader() {
         <TableHead>Status</TableHead>
         <TableHead>Payment Method</TableHead>
         <TableHead>Ordered At</TableHead>
+        <TableHead></TableHead>
       </TableRow>
     </TableHeader>
   );

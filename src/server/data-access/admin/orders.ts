@@ -43,35 +43,38 @@ export const _orders = {
         whereClause.push(eq(orders.paymentMethod, filters.paymentMethod));
       }
 
-      const totalValueSubQuery = db
-        .select({
-          totalValue:
-            sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`.as(
-              "totalValue",
-            ),
-        })
-        .from(orders)
-        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-        .leftJoin(
-          productVariants,
-          eq(orderItems.productVariantId, productVariants.id),
-        )
-        .leftJoin(products, eq(productVariants.productId, products.id))
-        .groupBy(orders.id)
-        .as("totalValueSubQuery");
+      const totalValueCTE = db.$with("total_value_cte").as(
+        db
+          .select({
+            orderId: orders.id,
+            totalValue:
+              sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`.as(
+                "totalValue",
+              ),
+          })
+          .from(orders)
+          .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+          .leftJoin(
+            productVariants,
+            eq(orderItems.productVariantId, productVariants.id),
+          )
+          .leftJoin(products, eq(productVariants.productId, products.id))
+          .groupBy(orders.id),
+      );
 
       return db
+        .with(totalValueCTE)
         .select({
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalValue: totalValueSubQuery.totalValue,
+          totalValue: totalValueCTE.totalValue,
           address: sql<string>`concat(${addresses.city}, ', ', ${addresses.governorate})`,
           createdAt: orders.createdAt,
         })
         .from(orders)
         .leftJoin(addresses, eq(orders.addressId, addresses.id))
-        .leftJoinLateral(totalValueSubQuery, sql`true`)
+        .leftJoin(totalValueCTE, eq(orders.id, totalValueCTE.orderId))
         .where(and(...whereClause))
         .orderBy(desc(orders.id))
         .limit(pageSize);
