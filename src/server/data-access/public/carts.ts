@@ -9,7 +9,7 @@ import {
   products,
   productVariants,
 } from "~/server/db/schema";
-import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, isNotNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 type NewCart = typeof carts.$inferInsert;
@@ -227,13 +227,19 @@ export const _carts = {
           throw new Error("Product out of stock");
         }
 
+        const target = item.productVariantId
+          ? [cartItems.cartId, cartItems.productId, cartItems.productVariantId]
+          : [cartItems.cartId, cartItems.productId];
+        const targetWhere = item.productVariantId
+          ? isNotNull(cartItems.productVariantId)
+          : isNull(cartItems.productVariantId);
+
         const [updated] = await tx
           .insert(cartItems)
           .values(item)
           .onConflictDoUpdate({
-            target: [cartItems.cartId, cartItems.productId],
-            targetWhere: isNull(cartItems.productVariantId),
-
+            target,
+            targetWhere,
             set: {
               quantity: sql`${cartItems.quantity} + 1`,
             },
