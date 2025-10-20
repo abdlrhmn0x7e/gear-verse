@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, lt, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -12,13 +12,23 @@ import {
   products,
   media,
 } from "~/server/db/schema";
+import type { Pagination } from "../common/types";
 
 type NewOrder = typeof orders.$inferInsert;
 type NewOrderItem = typeof orderItems.$inferInsert;
 
 export const _orders = {
   queries: {
-    findAll: async (userId: number) => {
+    getPage: async ({
+      cursor,
+      pageSize,
+      userId,
+    }: Pagination & { userId: number }) => {
+      const whereClause = [eq(orders.userId, userId)];
+      if (cursor) {
+        whereClause.push(lt(orders.id, cursor));
+      }
+
       return db
         .select({
           id: orders.id,
@@ -34,7 +44,9 @@ export const _orders = {
           eq(orderItems.productVariantId, productVariants.id),
         )
         .leftJoin(products, eq(productVariants.productId, products.id))
-        .where(eq(orders.userId, userId))
+        .where(and(...whereClause))
+        .limit(pageSize)
+        .orderBy(desc(orders.id))
         .groupBy(orders.id);
     },
 

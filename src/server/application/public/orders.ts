@@ -1,11 +1,13 @@
 import { data } from "~/server/data-access";
 import { AppError } from "~/lib/errors/app-error";
 import { tryCatch } from "~/lib/utils/try-catch";
+import type { OrdersGetPageInput } from "~/lib/schemas/contracts/public/orders";
+import { paginate } from "../helpers/pagination";
 
 export const _orders = {
   queries: {
-    findAll: async (userId: number) => {
-      return data.public.orders.queries.findAll(userId);
+    getPage: async (input: OrdersGetPageInput & { userId: number }) => {
+      return paginate({ input, getPage: data.public.orders.queries.getPage });
     },
 
     findById: async (id: number, userId: number) => {

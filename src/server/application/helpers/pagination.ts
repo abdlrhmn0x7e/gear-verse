@@ -5,15 +5,15 @@ import { tryCatch } from "~/lib/utils/try-catch";
 
 export async function paginate<
   T extends Record<string, unknown> & { id: number },
+  J extends Pagination,
 >({
   input,
   getPage,
 }: {
-  input: Pagination & { filters?: Record<string, unknown> };
-  getPage: (options: {
-    cursor: number | undefined;
-    pageSize: number;
-  }) => Promise<Array<T>>;
+  input: J;
+  getPage: (
+    input: { cursor: number | undefined } & Omit<J, "cursor">,
+  ) => Promise<Array<T>>;
 }) {
   const { cursor: encodedCursor, ...rest } = input;
   const cursor = encodedCursor ? base64DecodeNumber(encodedCursor) : undefined;
