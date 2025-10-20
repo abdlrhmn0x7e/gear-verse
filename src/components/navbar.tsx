@@ -405,7 +405,7 @@ function MobileMenu() {
               <Button
                 variant="ghost"
                 className={cn(
-                  "min-w-24 flex-col items-center gap-0 py-8",
+                  "min-w-24 flex-col items-center gap-0 py-2",
                   pathname === item.link.href &&
                     "text-primary dark:text-accent-foreground",
                 )}

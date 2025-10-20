@@ -19,10 +19,11 @@ import {
 } from "~/components/ui/empty";
 import { useMemo } from "react";
 import { Card, CardContent } from "~/components/ui/card";
+import { cn } from "~/lib/utils";
 
 export function Filters({ className }: { className?: string }) {
   return (
-    <aside id="filters" className={className}>
+    <aside id="filters" className={cn("hidden lg:block", className)}>
       <Card className="p-4">
         <CardContent className="p-0 pb-4">
           <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-8">

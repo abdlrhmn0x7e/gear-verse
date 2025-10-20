@@ -51,7 +51,7 @@ export async function Reviews({ productId }: { productId: number }) {
         </FrameHeader>
 
         <FramePanel>
-          <div>
+          <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-6">
             {reviews.length > 0 ? (
               reviews.map((review, index) => (
                 <div

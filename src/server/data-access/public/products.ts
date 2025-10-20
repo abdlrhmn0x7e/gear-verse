@@ -56,16 +56,19 @@ export const _products = {
         whereClause.push(inArray(brands.slug, filters.brands));
       }
       if (filters?.categories) {
-        const categoriesSlugs = new Set<string>([...filters.categories]);
+        const categoriesIds = new Set<number>();
         await Promise.all(
           filters.categories.map(async (categorySlug) => {
             const slugs =
-              await _products.queries.helpers.getCategorySlugs(categorySlug);
-            slugs.forEach((slug) => categoriesSlugs.add(slug));
+              await _products.queries.helpers.getCategoryIdsBySlug(
+                categorySlug,
+              );
+            slugs.forEach((slug) => categoriesIds.add(slug));
           }),
         );
+        console.log("categoriesSlugs", categoriesIds);
 
-        whereClause.push(inArray(categories.slug, Array.from(categoriesSlugs)));
+        whereClause.push(inArray(categories.id, Array.from(categoriesIds)));
       }
 
       if (filters?.price?.min) {
@@ -112,8 +115,8 @@ export const _products = {
         .leftJoin(variantsCTE, eq(variantsCTE.productId, products.id))
         .where(
           and(
+            sql`(coalesce(${inventoryItems.quantity}, 0) > 0 OR ${variantsCTE.json} @@ '$.stock > 0')`,
             ...whereClause,
-            sql`${inventoryItems.quantity} > 0 OR ${variantsCTE.json} @@ '$.stock > 0'`,
           ),
         )
         .limit(pageSize + 1)
@@ -325,8 +328,8 @@ export const _products = {
     },
 
     helpers: {
-      async getCategorySlugs(categorySlug: string) {
-        const childrenCategoriesIdsQuery = sql<{ slug: string }[]>`
+      async getCategoryIdsBySlug(categorySlug: string) {
+        const childrenCategoriesIdsQuery = sql<{ id: string }[]>`
               WITH RECURSIVE all_children_categories AS (
                 SELECT categories.id, categories.slug
                 FROM categories
@@ -340,12 +343,12 @@ export const _products = {
                   ON all_children_categories.id = categories.parent_id
               )
 
-              SELECT slug FROM all_children_categories
+              SELECT id FROM all_children_categories
             `;
 
         return db
-          .execute<{ slug: string }>(childrenCategoriesIdsQuery)
-          .then((result) => result.map((row) => row.slug));
+          .execute<{ id: number }>(childrenCategoriesIdsQuery)
+          .then((result) => result.map((row) => row.id));
       },
     },
   },

@@ -25,7 +25,7 @@ import { Slider } from "~/components/ui/slider";
 
 export function MobileFilters() {
   return (
-    <Drawer handleOnly>
+    <Drawer>
       <DrawerTrigger className="lg:hidden" asChild>
         <Button variant="outline">
           <ListFilterIcon />
