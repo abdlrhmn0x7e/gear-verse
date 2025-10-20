@@ -143,7 +143,7 @@ export function CheckoutForm({
                         form.setValue("addressId", id);
                       }}
                     >
-                      <Button variant="ghost" type="button">
+                      <Button type="button">
                         <IconHomePlus />
                         Add Address
                       </Button>
@@ -186,6 +186,20 @@ export function CheckoutForm({
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
+                  <AddAddressDrawerDialog
+                    onSuccess={(id: number) => {
+                      form.setValue("addressId", id);
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="ml-auto w-fit"
+                    >
+                      <IconHomePlus />
+                      Add Address
+                    </Button>
+                  </AddAddressDrawerDialog>
                 </>
               )}
             </FieldSet>

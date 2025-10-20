@@ -2,17 +2,17 @@
 
 import { IconShoppingCart, IconShoppingCartPlus } from "@tabler/icons-react";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useCartSearchParams } from "~/hooks/use-cart-search-params";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import { CartDrawer } from "./cart-drawer";
 
 export function AddToCartButton({
   disabled,
@@ -23,8 +23,8 @@ export function AddToCartButton({
   productId: number;
   stock: number;
 }) {
+  const [openCartDrawer, setOpenCartDrawer] = useState(false);
   const utils = api.useUtils();
-  const [, setParams] = useCartSearchParams();
 
   // Get variant data from store
   const variantId = useVariantSelectionStore((state) => state.variantId);
@@ -85,7 +85,6 @@ export function AddToCartButton({
             (addingToCart && "pointer-events-none opacity-50"),
         )}
         role="button"
-        onClick={() => void setParams({ cart: true })}
       >
         <Tooltip>
           <TooltipTrigger asChild>
@@ -131,13 +130,23 @@ export function AddToCartButton({
   }
 
   return (
-    <Button
-      onClick={handleAddToCart}
-      disabled={addingToCart ?? disabled ?? stock <= 0}
-      {...props}
-    >
-      <IconShoppingCartPlus />
-      Add to Cart
-    </Button>
+    <>
+      <Button
+        onClick={handleAddToCart}
+        disabled={addingToCart ?? disabled ?? stock <= 0}
+        {...props}
+      >
+        <IconShoppingCartPlus />
+        Add to Cart
+      </Button>
+
+      {cart && (
+        <CartDrawer
+          open={openCartDrawer}
+          onOpenChange={setOpenCartDrawer}
+          cart={cart}
+        />
+      )}
+    </>
   );
 }

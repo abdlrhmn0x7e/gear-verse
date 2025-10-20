@@ -69,7 +69,9 @@ export function BuyNowButton({
     );
   }
 
-  if (cart?.items.find((item) => item.id === selectedVariant?.id)) {
+  if (
+    cart?.items.find((item) => item.productVariantId === selectedVariant?.id)
+  ) {
     return (
       <Button className="w-full lg:flex-1" size="lg" asChild {...props}>
         <Link href="/checkout">

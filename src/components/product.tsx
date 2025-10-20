@@ -11,7 +11,7 @@ import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
 import { BuyNowButton } from "../app/(public)/products/[slug]/_components/buy-now-button";
 import { XIcon, CheckCircleIcon, AlertTriangleIcon } from "lucide-react";
-import { AddToCartButton } from "../app/(public)/products/[slug]/_components/add-to-cart-button";
+import { AddToCartButton } from "./add-to-cart-button";
 import { api } from "~/trpc/react";
 import { StarRating } from "../app/(public)/products/[slug]/_components/star-rating";
 import { Button } from "~/components/ui/button";
