@@ -72,7 +72,7 @@ export function VerseCarousel({
             <button
               key={index}
               className={cn(
-                "hover:border-primary h-16 w-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all",
+                "hover:border-primary size-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all",
                 currentSlide === index && "border-primary",
               )}
               onClick={() => {

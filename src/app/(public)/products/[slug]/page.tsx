@@ -1,6 +1,6 @@
 import notFound from "~/app/admin/not-found";
 import { api } from "~/trpc/server";
-import { Product } from "./_components/product";
+import { Product } from "~/components/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Reviews } from "./_components/reviews";
 import { InfoIcon, MessageCircleIcon } from "lucide-react";

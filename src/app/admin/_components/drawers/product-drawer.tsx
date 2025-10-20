@@ -9,7 +9,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
-import { Product } from "~/app/(public)/products/[slug]/_components/product";
+import { Product, ProductSkeleton } from "~/components/product";
 import { api } from "~/trpc/react";
 import { ProductDescription } from "~/components/product-description";
 import { Button } from "~/components/ui/button";
@@ -92,31 +92,7 @@ function ProductDrawerContent() {
           </div>
         </DrawerHeader>
 
-        <div className="space-y-4 p-4">
-          <Skeleton className="h-[50svh]" />
-          <div className="flex flex-wrap gap-2">
-            <Skeleton className="h-24 w-24" />
-            <Skeleton className="h-24 w-24" />
-            <Skeleton className="h-24 w-24" />
-            <Skeleton className="h-24 w-24" />
-          </div>
-
-          <div className="flex items-start justify-between gap-12">
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-full" />
-
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-
-            <Skeleton className="h-9 w-24 rounded-full" />
-          </div>
-
-          <div className="space-y-3">
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-11/12" />
-          </div>
-        </div>
+        <ProductSkeleton className="grid-cols-1 gap-12 p-4 pb-24 md:px-2 lg:grid-cols-1 lg:p-4 lg:px-2 [&>div:first-child]:relative [&>div:first-child]:top-6" />
       </>
     );
   }

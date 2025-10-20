@@ -115,7 +115,11 @@ export const _products = {
         .leftJoin(variantsCTE, eq(variantsCTE.productId, products.id))
         .where(
           and(
-            sql`(coalesce(${inventoryItems.quantity}, 0) > 0 OR ${variantsCTE.json} @@ '$.stock > 0')`,
+            sql`(
+                coalesce(${inventoryItems.quantity}, 0) > 0
+                OR
+                ${variantsCTE.json} @@ '$.stock > 0'
+              )`,
             ...whereClause,
           ),
         )

@@ -9,11 +9,11 @@ import type { RouterOutputs } from "~/trpc/react";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { VariantButton } from "~/components/variant-button";
 import { cn } from "~/lib/utils";
-import { BuyNowButton } from "./buy-now-button";
+import { BuyNowButton } from "../app/(public)/products/[slug]/_components/buy-now-button";
 import { XIcon, CheckCircleIcon, AlertTriangleIcon } from "lucide-react";
-import { AddToCartButton } from "./add-to-cart-button";
+import { AddToCartButton } from "../app/(public)/products/[slug]/_components/add-to-cart-button";
 import { api } from "~/trpc/react";
-import { StarRating } from "./star-rating";
+import { StarRating } from "../app/(public)/products/[slug]/_components/star-rating";
 import { Button } from "~/components/ui/button";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import {
@@ -23,6 +23,7 @@ import {
   FramePanel,
   FrameTitle,
 } from "~/components/ui/frame";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type Product = RouterOutputs["public"]["products"]["queries"]["findBySlug"];
 
@@ -436,5 +437,108 @@ function ProductBrandBadge({
         </Badge>
       </div>
     </Badge>
+  );
+}
+
+export function ProductSkeleton({
+  className,
+  children,
+}: {
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <MaxWidthWrapper
+      className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
+    >
+      {/* Image Carousel Section */}
+      <div className="h-fit lg:sticky lg:top-24">
+        <div className="mx-auto aspect-square w-full lg:max-w-4/5">
+          <Skeleton className="size-full" />
+          <div className="mt-4 flex gap-2 overflow-x-auto">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton
+                key={index}
+                className="size-20 flex-shrink-0 rounded-md"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Brand Badge - Mobile Only */}
+        <div className="absolute top-2 right-6 z-10 md:right-14 lg:hidden">
+          <Skeleton className="h-8 w-32" />
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="space-y-6">
+        <Frame className="w-full">
+          <FrameHeader>
+            <div className="flex items-center justify-between gap-2">
+              <Skeleton className="h-8 w-3/4" />
+              {/* Brand Badge - Desktop Only */}
+              <div className="hidden lg:flex">
+                <Skeleton className="h-8 w-32" />
+              </div>
+            </div>
+            <Skeleton className="mt-2 h-4 w-full" />
+            <Skeleton className="mt-1 h-4 w-2/3" />
+          </FrameHeader>
+
+          <FramePanel>
+            <Skeleton className="mb-3 h-4 w-16" />
+            <div className="space-x-2 text-center lg:text-left">
+              <Skeleton className="inline-block h-10 w-32 lg:h-12 lg:w-40" />
+              <Skeleton className="inline-block h-6 w-20" />
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </FramePanel>
+
+          <FramePanel>
+            <Skeleton className="mb-3 h-4 w-16" />
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-20" />
+              <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col items-center gap-2">
+                  <Skeleton className="h-20 w-20 rounded-xl" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <Skeleton className="h-20 w-20 rounded-xl" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <Skeleton className="h-20 w-20 rounded-xl" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-5 w-16" />
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-7 w-20" />
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-7 w-16" />
+              </div>
+            </div>
+          </FramePanel>
+
+          <FramePanel>
+            <div className="flex flex-col gap-2 lg:flex-row">
+              <Skeleton className="h-12 w-full lg:flex-1" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </FramePanel>
+        </Frame>
+
+        {children}
+      </div>
+    </MaxWidthWrapper>
   );
 }
