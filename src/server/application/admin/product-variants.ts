@@ -48,6 +48,7 @@ export const _productVariants = {
           overridePrice: input.overridePrice,
           stock: input.inventory?.quantity,
           thumbnailMediaId: input.thumbnail?.mediaId,
+          values: input.options?.map((option) => Object.values(option)[0]!),
         }),
       );
 

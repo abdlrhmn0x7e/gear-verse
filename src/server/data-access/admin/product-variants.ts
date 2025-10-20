@@ -23,6 +23,7 @@ type UpdateProductVariant = Partial<{
   stock: number;
   thumbnailMediaId: number;
   overridePrice: number | null;
+  values?: { id: number; value: string }[];
 }> & { id: number };
 
 export const _productVariants = {
@@ -187,7 +188,7 @@ export const _productVariants = {
 
     update: (input: UpdateProductVariant) => {
       return db.transaction(async (tx) => {
-        const { id, stock, ...rest } = input;
+        const { id, stock, values, ...rest } = input;
 
         await tx
           .update(productVariants)
@@ -203,6 +204,16 @@ export const _productVariants = {
           .update(inventoryItems)
           .set({ quantity: stock })
           .where(eq(inventoryItems.productVariantId, id));
+
+        if (!values || values.length === 0) return { id };
+
+        // Update option values
+        for (const val of values) {
+          await tx
+            .update(productOptionValues)
+            .set({ value: val.value })
+            .where(eq(productOptionValues.id, val.id));
+        }
 
         return { id };
       });
