@@ -24,7 +24,6 @@ export function EditProduct({
   const utils = api.useUtils();
   const { mutate: updateProduct, isPending: isUpdatingProduct } =
     api.admin.products.mutations.editDeep.useMutation();
-  console.log("product", product);
 
   function onSubmit(data: Partial<ProductFormValues>) {
     updateProduct(

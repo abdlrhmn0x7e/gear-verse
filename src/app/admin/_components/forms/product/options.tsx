@@ -129,6 +129,7 @@ export function Options() {
               <Option
                 key={`${option.id}-${option.name}`}
                 id={option.id}
+                option={option}
                 index={index}
                 open={openOptions.includes(option.id)}
                 toggleOpen={() => toggleOpen(option.id)}
@@ -150,22 +151,19 @@ export function Options() {
 function Option({
   id,
   index,
+  option,
   open,
   toggleOpen,
   remove,
 }: {
   id: UniqueIdentifier;
   index: number;
+  option: ProductFormValues["options"][number];
   open: boolean;
   toggleOpen: () => void;
   remove: () => void;
 }) {
   const form = useFormContext<ProductFormValues>();
-  const option = useWatch({
-    control: form.control,
-    name: `options.${index}`,
-    exact: true,
-  });
 
   async function handleDone() {
     const isValid = await form.trigger(`options.${index}`);

@@ -81,7 +81,7 @@ export const _products = {
           filters.categories.map((categoryId) => {
             const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
             WITH RECURSIVE all_children_categories AS (
-              SELECT id 
+              SELECT id
               FROM categories
               WHERE parent_id = ${categoryId}
 
@@ -587,7 +587,6 @@ export const _products = {
           );
         }
 
-        console.log("inventoryData", inventoryData);
         if (inventoryData) {
           await tx
             .update(inventoryItems)

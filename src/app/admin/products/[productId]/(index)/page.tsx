@@ -21,8 +21,6 @@ export default async function EditProductPage({
     return notFound();
   }
 
-  console.log("product", product);
-
   return (
     <section className="space-y-6">
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
