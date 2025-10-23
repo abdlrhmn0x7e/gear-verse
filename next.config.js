@@ -6,9 +6,8 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  reactCompiler: true,
+  cacheComponents: true,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -23,9 +22,6 @@ const config = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
-  },
-  experimental: {
-    reactCompiler: true,
   },
 };
 

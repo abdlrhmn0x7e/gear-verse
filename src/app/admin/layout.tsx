@@ -7,24 +7,13 @@ import { AdminSidebar } from "./_components/admin-sidebar";
 import { Separator } from "~/components/ui/separator";
 import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
 import { ModeToggle } from "~/components/mode-toggle";
-import { auth } from "~/server/auth";
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import { WiseWords } from "./_components/wise-words";
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (session?.user.role !== "admin") {
-    return notFound();
-  }
-
   return (
     <SidebarProvider>
       <AdminSidebar />

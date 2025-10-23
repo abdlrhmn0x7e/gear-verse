@@ -5,7 +5,8 @@ import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { AddOrderDialog } from "../_components/dialogs/add-order";
 
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
+  await requireAdmin();
   void api.admin.orders.queries.getPage.prefetchInfinite({
     pageSize: 10,
   });

@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { CurrentYear } from "./current-year";
 import { Logo } from "./logo";
 import Link from "next/link";
 
@@ -175,8 +177,11 @@ export function Footer() {
           </Link>
         </div>
         <span className="text-muted-foreground block text-center text-sm">
-          {" "}
-          © {new Date().getFullYear()} Gear Verse, All rights reserved
+          ©{" "}
+          <Suspense>
+            <CurrentYear />
+          </Suspense>{" "}
+          Gear Verse, All rights reserved
         </span>
       </div>
     </footer>

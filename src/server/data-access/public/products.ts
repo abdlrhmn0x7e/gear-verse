@@ -16,15 +16,11 @@ import {
   categories,
   inventoryItems,
   media,
-  productOptions,
-  productOptionValues,
-  productOptionValuesVariants,
   products,
   productsMedia,
-  productVariants,
   seo,
 } from "~/server/db/schema";
-import { variantsCTE } from "../common/cte";
+import { fullVariantsCTE, variantsCTE } from "../common/cte";
 
 export const _products = {
   queries: {
@@ -128,168 +124,20 @@ export const _products = {
     },
 
     findBySlug: async (slug: string) => {
-      const nonArchivedOptionValues = db.$with("non_archived_option_values").as(
-        db
-          .selectDistinct({
-            valueId: productOptionValues.id,
-            value: productOptionValues.value,
-            productOptionId: productOptionValues.productOptionId,
-          })
-          .from(productOptionValues)
-          .innerJoin(
-            productOptionValuesVariants,
-            eq(
-              productOptionValuesVariants.productOptionValueId,
-              productOptionValues.id,
-            ),
-          )
-          .innerJoin(
-            productVariants,
-            and(
-              eq(
-                productVariants.id,
-                productOptionValuesVariants.productVariantId,
-              ),
-              eq(productVariants.archived, false),
-            ),
-          ),
-      );
-
-      const productOptionsJson = db
-        .with(nonArchivedOptionValues)
-        .select({
-          productSlug: products.slug,
-          options: sql<
-            {
-              id: number;
-              name: string;
-              values: { id: number; value: string }[];
-            }[]
-          >`
-            jsonb_agg(
-              jsonb_build_object(
-                'id', ${productOptions.id},
-                'name', ${productOptions.name},
-                'values', coalesce(
-                  (
-                    select
-                      jsonb_agg(jsonb_build_object('id', ${nonArchivedOptionValues.valueId}, 'value', ${nonArchivedOptionValues.value}))
-                    from ${nonArchivedOptionValues}
-                    where
-                      "product_options"."id" = "product_option_id"
-                  ),
-                  '[]'::jsonb
-                )
-              )
-            )
-          `.as("options"), // the where clause had to be hard coded for some reason
-          // the generated query was ambiguous. it was mixing the value id with the product option id
-        })
-        .from(productOptions)
-        .leftJoin(products, eq(products.id, productOptions.productId))
-        .groupBy(products.id)
-        .as("product_options_json");
-
-      const variantThumbnail = alias(media, "variant_thumbnail");
-      const variantInventory = alias(inventoryItems, "variant_inventory");
-      const variantsQuery = db
-        .select({
-          id: productVariants.id,
-          productSlug: products.slug,
-          overridePrice: productVariants.overridePrice,
-          thumbnailUrl: variantThumbnail.url,
-          stock: sql<number>`${variantInventory.quantity}`.as("stock"),
-          optionValues: sql<Record<string, string> | null>`
-          jsonb_object_agg(
-            ${productOptions.name}, ${productOptionValues.value}
-          )
-        `.as("option_values"),
-        })
-        .from(productVariants)
-        .leftJoin(
-          variantThumbnail,
-          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
-        )
-        .leftJoin(
-          variantInventory,
-          eq(productVariants.id, variantInventory.productVariantId),
-        )
-
-        .leftJoin(
-          productOptionValuesVariants,
-          eq(productOptionValuesVariants.productVariantId, productVariants.id),
-        )
-        .leftJoin(
-          productOptionValues,
-          eq(
-            productOptionValuesVariants.productOptionValueId,
-            productOptionValues.id,
-          ),
-        )
-        .leftJoin(
-          productOptions,
-          eq(productOptionValues.productOptionId, productOptions.id),
-        )
-        .leftJoin(products, eq(products.id, productVariants.productId))
-        .groupBy(
-          products.slug,
-          productVariants.id,
-          variantInventory.quantity,
-          variantThumbnail.id,
-        )
-        .as("product_variants");
-
-      const variantsJson = db
-        .select({
-          json: sql<
-            | {
-                id: number;
-                overridePrice: number;
-                thumbnailUrl: string;
-                stock: number;
-                optionValues: Record<string, string>;
-              }[]
-            | null
-          >`
-          jsonb_agg(
-            jsonb_build_object(
-              'id', ${variantsQuery.id},
-              'overridePrice', ${variantsQuery.overridePrice},
-              'thumbnailUrl', ${variantsQuery.thumbnailUrl},
-              'stock', ${variantsQuery.stock},
-              'optionValues', ${variantsQuery.optionValues}
-            )
-          )
-        `.as("json"),
-        })
-        .from(variantsQuery)
-        .where(eq(variantsQuery.productSlug, slug))
-        .as("variants_json");
-
-      const productMediaQuery = db
-        .select({
-          mediaId: productsMedia.mediaId,
-          url: media.url,
-        })
-        .from(productsMedia)
-        .orderBy(productsMedia.order)
-        .leftJoin(media, eq(productsMedia.mediaId, media.id))
-        .leftJoin(products, eq(products.id, productsMedia.productId))
-        .where(eq(products.slug, slug))
-        .as("product_media_query");
-
-      const productMediaJson = db
-        .select({
-          json: sql<string[]>`
-            jsonb_agg(${productMediaQuery.url})
-        `.as("product_media"),
-        })
-        .from(productMediaQuery)
-        .as("product_media_json");
-
       const brandsMedia = alias(media, "brands_media");
 
+      const productMediaSubQuery = db
+        .select({
+          productId: productsMedia.productId,
+          json: sql<string[]>`jsonb_agg(${media.url})`.as("media_json"),
+        })
+        .from(productsMedia)
+        .leftJoin(media, eq(productsMedia.mediaId, media.id))
+        .groupBy(productsMedia.productId)
+        .as("product_media");
+
       return db
+        .with(fullVariantsCTE)
         .select({
           id: products.id,
           title: products.title,
@@ -300,15 +148,16 @@ export const _products = {
           published: products.published,
           categoryId: products.categoryId,
           stock: inventoryItems.quantity,
+
           brand: {
             name: brands.name,
             logoUrl: brandsMedia.url,
           },
+
           profit: products.profit,
           margin: products.margin,
-          options: productOptionsJson.options,
-          variants: variantsJson.json,
-          media: productMediaJson.json,
+          variants: fullVariantsCTE.json,
+          media: productMediaSubQuery.json,
           seo: {
             pageTitle: seo.pageTitle,
             urlHandler: seo.urlHandler,
@@ -318,17 +167,28 @@ export const _products = {
         .from(products)
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
-        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
+
+        .leftJoin(fullVariantsCTE, eq(fullVariantsCTE.productId, products.id))
         .leftJoin(
-          productOptionsJson,
-          eq(productOptionsJson.productSlug, products.slug),
+          productMediaSubQuery,
+          eq(productMediaSubQuery.productId, products.id),
         )
-        .leftJoinLateral(variantsJson, sql`true`)
-        .leftJoinLateral(productMediaJson, sql`true`)
+
+        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
+
         .where(eq(products.slug, slug))
         .limit(1)
         .then(([product]) => product);
+    },
+
+    findAllSlugs: async () => {
+      return db
+        .select({
+          slug: products.slug,
+        })
+        .from(products)
+        .where(eq(products.published, true));
     },
 
     helpers: {

@@ -15,14 +15,14 @@ export function VariantButton({
   return (
     <button
       className={cn(
-        "ring-primary focus-visible:ring-ring relative size-16 cursor-pointer rounded-md border transition-opacity hover:opacity-80 hover:ring-2 focus-visible:ring-2 focus-visible:outline-none",
+        "ring-primary focus-visible:ring-ring relative size-16 cursor-pointer rounded-md border transition-opacity hover:ring-2 focus-visible:ring-2 focus-visible:outline-none",
         className,
       )}
       {...props}
     >
       <ImageWithFallback
         src={variant.thumbnailUrl}
-        alt={Object.values(variant.optionValues).join(", ")}
+        alt={"Variant Image"}
         className="size-full"
         width={100}
         height={100}

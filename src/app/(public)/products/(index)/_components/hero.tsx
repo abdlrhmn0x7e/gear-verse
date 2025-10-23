@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section id="products-hero" className="pt-32">
       <MaxWidthWrapper>
-        <div className="from-secondary to-accent relative z-0 overflow-hidden rounded-3xl bg-gradient-to-r px-10 py-8 text-center md:text-left">
+        <div className="from-secondary to-accent relative z-0 overflow-hidden rounded-3xl bg-linear-to-r px-10 py-8 text-center md:text-left">
           <div className="dark:text-primary-foreground flex flex-col items-center justify-between gap-8 md:flex-row md:gap-16">
             <div>
               <Heading level={2} font="default">

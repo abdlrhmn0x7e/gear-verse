@@ -14,7 +14,7 @@ import {
 import { Progress } from "~/components/ui/progress";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
-import { api } from "~/trpc/react";
+import { type RouterOutputs } from "~/trpc/react";
 import {
   Empty,
   EmptyDescription,
@@ -24,11 +24,11 @@ import {
 } from "~/components/ui/empty";
 import { ProductCard } from "~/components/product-card";
 
-export function ProductsCarousel() {
-  const [data] = api.public.products.queries.getPage.useSuspenseQuery({
-    pageSize: 10,
-  });
-
+export function ProductsCarousel({
+  products,
+}: {
+  products: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"];
+}) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -45,7 +45,7 @@ export function ProductsCarousel() {
     });
   }, [carouselApi]);
 
-  if (!data || data.data.length === 0) {
+  if (products.length === 0) {
     return (
       <Empty className="gap-3">
         <EmptyHeader>
@@ -67,7 +67,7 @@ export function ProductsCarousel() {
     <div className="relative w-full">
       <Carousel setApi={setCarouselApi} className="w-full">
         <CarouselContent>
-          {data.data.map((product, index) => (
+          {products.map((product, index) => (
             <CarouselItem
               key={`${product.id}-${index}`}
               className="basis-4/5 sm:basis-2/5 xl:basis-3/12"

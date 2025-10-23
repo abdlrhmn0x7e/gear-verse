@@ -1,17 +1,17 @@
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { ProductCardSkeleton, ProductsCarousel } from "./products-carousel";
+import { ProductsCarousel } from "./products-carousel";
 import Glow from "~/components/ui/glow";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { PackageIcon } from "lucide-react";
-import { Suspense } from "react";
-import { api } from "~/trpc/server";
+import { app } from "~/server/application";
 
-export function RecentProducts() {
-  void api.public.products.queries.getPage.prefetch({
-    pageSize: 10,
-  });
+export async function RecentProducts() {
+  "use cache";
+
+  const products = await app.public.products.queries.getPage({ pageSize: 10 });
+
   return (
     <section className="relative py-24">
       <MaxWidthWrapper className="space-y-12">
@@ -33,9 +33,7 @@ export function RecentProducts() {
           </Button>
         </div>
 
-        <Suspense fallback={<ProductCardSkeleton />}>
-          <ProductsCarousel />
-        </Suspense>
+        <ProductsCarousel products={products.data} />
 
         <Button asChild className="flex h-12 w-full md:hidden" size="lg">
           <Link href="/products">

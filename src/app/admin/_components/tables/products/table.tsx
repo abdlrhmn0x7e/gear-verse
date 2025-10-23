@@ -10,7 +10,11 @@ import {
 import { useEffect, useMemo } from "react";
 
 // Third-party hooks & utilities
-import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
@@ -27,22 +31,14 @@ import { api } from "~/trpc/react";
 import { productColumns } from "./columns";
 import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
-import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
 import { LoadMore } from "~/components/load-more";
 
 export function ProductsTable() {
   const [params, setParams] = useProductSearchParams();
   const debouncedFilters = useDebounce(params);
-  const utils = api.useUtils();
-  const {
-    data: products,
-    isPending,
-    isFetching,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteQuery(
-    utils.admin.products.queries.getPage.infiniteQueryOptions(
+  const [products, { isFetching, hasNextPage, fetchNextPage }] =
+    api.admin.products.queries.getPage.useSuspenseInfiniteQuery(
       {
         pageSize: 10,
         filters: {
@@ -52,11 +48,10 @@ export function ProductsTable() {
         },
       },
       {
-        placeholderData: keepPreviousData,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
-    ),
-  );
+    );
+
   const productsData = useMemo(
     () => products?.pages.flatMap((page) => page.data) ?? [],
     [products],
@@ -75,10 +70,6 @@ export function ProductsTable() {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage]);
-
-  if (isPending) {
-    return <ProductsTableSkeleton />;
-  }
 
   return (
     <Card className="gap-2 py-2">
@@ -105,7 +96,7 @@ export function ProductsTable() {
                     className="cursor-pointer"
                     onClick={() =>
                       setParams((prev) => ({
-                        ...prev,
+                        id: row.original.id,
                         slug: row.original.slug,
                       }))
                     }

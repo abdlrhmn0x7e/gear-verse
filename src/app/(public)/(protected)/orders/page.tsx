@@ -1,11 +1,12 @@
 import { PackageOpenIcon } from "lucide-react";
 import Header from "~/components/header";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { OrdersTable } from "./_components/orders/table";
-import { api } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
 import { OrdersDrawer } from "./_components/orders-drawer";
 import type { SearchParams } from "nuqs/server";
 import { loadOrderSearchParams } from "./_hooks/use-orders-search-params";
+import { OrderCards, OrderCardsSkeleton } from "./_components/order-cards";
+import { Suspense } from "react";
 
 export default async function OrdersPage({
   searchParams,
@@ -13,11 +14,13 @@ export default async function OrdersPage({
   searchParams: Promise<SearchParams>;
 }) {
   void loadOrderSearchParams(searchParams);
-  const orders = await api.public.orders.queries.findAll();
+  void api.public.orders.queries.getPage.prefetchInfinite({
+    pageSize: 10,
+  });
 
   return (
     <section className="min-h-screen py-24">
-      <MaxWidthWrapper className="space-y-6">
+      <MaxWidthWrapper className="max-w-screen-xl space-y-6">
         <Header
           title="Orders"
           description="View your orders, review the details, and track the status."
@@ -25,7 +28,11 @@ export default async function OrdersPage({
           Icon={PackageOpenIcon}
         />
 
-        <OrdersTable orders={orders} />
+        <HydrateClient>
+          <Suspense fallback={<OrderCardsSkeleton />}>
+            <OrderCards />
+          </Suspense>
+        </HydrateClient>
 
         <OrdersDrawer />
       </MaxWidthWrapper>

@@ -3,17 +3,20 @@ import { Heading } from "~/components/heading";
 import { BrandsCarousel, BrandsCarouselSkeleton } from "./brands-carousel";
 import Glow from "~/components/ui/glow";
 import { Suspense } from "react";
-import { api } from "~/trpc/server";
+import { app } from "~/server/application";
 
-export function ShopByBrand() {
-  void api.public.brands.queries.findAll.prefetch();
+export async function ShopByBrand() {
+  "use cache";
+
+  const brands = await app.public.brands.queries.findAll();
+
   return (
     <section className="relative py-24">
       <MaxWidthWrapper className="space-y-8">
         <Heading level={1}>Shop By Brand</Heading>
 
         <Suspense fallback={<BrandsCarouselSkeleton />}>
-          <BrandsCarousel />
+          <BrandsCarousel brands={brands} />
         </Suspense>
       </MaxWidthWrapper>
 

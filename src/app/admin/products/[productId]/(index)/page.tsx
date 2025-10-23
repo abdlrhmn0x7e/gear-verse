@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 import Header from "~/components/header";
 import { EditProduct } from "./_components/edit-product";
 import { api, HydrateClient } from "~/trpc/server";
+import { requireAdmin } from "~/server/auth";
 
 export default async function EditProductPage({
   params,
 }: {
   params: Promise<{ productId: string }>;
 }) {
+  await requireAdmin();
   const { productId } = await params;
   if (isNaN(parseInt(productId))) {
     return notFound();

@@ -1,0 +1,172 @@
+import { CheckCircleIcon } from "lucide-react";
+import { cacheTag } from "next/cache";
+import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import {
+  Frame,
+  FrameDescription,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "~/components/ui/frame";
+import { cn } from "~/lib/utils";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { app } from "~/server/application";
+import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
+import { BuyNowButton } from "./buy-now-button";
+import { AddToCartButton } from "./add-to-cart-button";
+import { ProductBrandBadge } from "./product-brand-badge";
+import { ProductPrice } from "./product-price";
+import { ProductVariantSelector } from "./product-variant-selector";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { notFound } from "next/navigation";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { InfoIcon, MessageCircleIcon } from "lucide-react";
+import { ProductDescription } from "~/components/product-description";
+import { ProductCarousel } from "./product-carousel";
+import { Reviews } from "../reviews";
+import { Suspense } from "react";
+
+const WHY_US = [
+  "1~2 Days Delivery",
+  "100% Satisfaction Guarantee",
+  "Customs Cleared & Insured",
+  "Money Back Guarantee",
+];
+
+export async function ProductDetails({
+  slug,
+  className,
+  hideActions,
+  hideReviews,
+}: {
+  slug: string;
+  className?: string;
+  hideActions?: boolean;
+  hideReviews?: boolean;
+}) {
+  const { data: product, error } = await tryCatch(
+    app.public.products.queries.findBySlug(slug),
+  );
+  if (error) {
+    return notFound();
+  }
+
+  const hasVariants = product.variants && product.variants.length > 0;
+
+  return (
+    <VariantSelectionStoreProvider>
+      <MaxWidthWrapper
+        className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
+      >
+        {/* Image Carousel Section */}
+        <ProductCarousel media={product.media} brand={product.brand} />
+
+        {/* Content Section */}
+        <div className="space-y-6">
+          <Frame className="w-full">
+            <FrameHeader>
+              <div className="flex items-center justify-between gap-2">
+                <FrameTitle className="text-2xl font-bold">
+                  {product.title}
+                </FrameTitle>
+
+                <ProductBrandBadge
+                  brand={product.brand}
+                  className="hidden lg:flex"
+                />
+              </div>
+              <FrameDescription>{product.summary}</FrameDescription>
+            </FrameHeader>
+
+            <FramePanel>
+              <h2 className="text-sm font-semibold">Pricing</h2>
+              <div className="space-x-2 text-center lg:text-left">
+                <ProductPrice originalPrice={product.price} />
+
+                {product.strikeThroughPrice && (
+                  <span className="text-muted-foreground line-through">
+                    {formatCurrency(product.strikeThroughPrice ?? 0)}
+                  </span>
+                )}
+              </div>
+            </FramePanel>
+
+            {hasVariants && (
+              <FramePanel>
+                <h2 className="text-sm font-semibold">Variants</h2>
+                <ProductVariantSelector variants={product.variants} />
+              </FramePanel>
+            )}
+
+            {!hasVariants && (
+              <FramePanel>
+                <h2 className="text-sm font-semibold">Why Us?</h2>
+                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {WHY_US.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-3 text-sm font-medium"
+                    >
+                      <CheckCircleIcon className="size-4 text-green-500" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </FramePanel>
+            )}
+
+            {!hideActions && (
+              <FramePanel>
+                <div className="flex flex-col gap-2 lg:flex-row">
+                  <AddToCartButton
+                    className="peer w-full lg:flex-1"
+                    size="lg"
+                    variant="outline"
+                    productId={product.id}
+                    stock={0}
+                  />
+
+                  <BuyNowButton
+                    className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
+                    product={product}
+                  />
+                </div>
+              </FramePanel>
+            )}
+          </Frame>
+
+          <Tabs defaultValue="details" className="space-y-4">
+            <TabsList className="w-full">
+              <TabsTrigger value="details">
+                <InfoIcon />
+                Details
+              </TabsTrigger>
+              {!hideReviews && (
+                <TabsTrigger value="reviews">
+                  <MessageCircleIcon />
+                  Reviews
+                </TabsTrigger>
+              )}
+            </TabsList>
+
+            <TabsContent value="details">
+              <ProductDescription
+                description={product.description}
+                className="m-0"
+              />
+            </TabsContent>
+
+            {!hideReviews && (
+              <TabsContent value="reviews">
+                <Suspense fallback={<div>Loading reviews...</div>}>
+                  <Reviews productId={product.id} />
+                </Suspense>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
+      </MaxWidthWrapper>
+    </VariantSelectionStoreProvider>
+  );
+}

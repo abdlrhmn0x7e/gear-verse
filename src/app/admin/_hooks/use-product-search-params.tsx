@@ -7,6 +7,7 @@ import {
 } from "nuqs/server";
 
 const productSearchParams = {
+  id: parseAsInteger,
   title: parseAsString,
   slug: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
@@ -14,7 +15,7 @@ const productSearchParams = {
 };
 
 export function useProductSearchParams() {
-  return useQueryStates(productSearchParams, { shallow: true });
+  return useQueryStates(productSearchParams);
 }
 
 export const loadProductSearchParams = createLoader(productSearchParams);

@@ -10,13 +10,16 @@ import { Heading } from "~/components/heading";
 import { Separator } from "~/components/ui/separator";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
+import { requireAdmin } from "~/server/auth";
 
 export default async function AdminVariantPage({
   params,
 }: {
   params: Promise<{ productId: string; variantId: string }>;
 }) {
+  await requireAdmin();
   const { productId, variantId } = await params;
+
   const parsedProductId = parseInt(productId);
   const parsedVariantId = parseInt(variantId);
 

@@ -17,8 +17,8 @@ import { Orbit } from "~/components/orbit";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { api } from "~/trpc/server";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { app } from "~/server/application";
 
 const FEATURES = [
   "Customs Cleared & Insured",
@@ -32,7 +32,7 @@ export function Hero() {
     <section className="relative overflow-hidden">
       <div className="bg-background relative min-h-screen w-full">
         {/* Pink Glow Background */}
-        <div className="absolute inset-0 z-0 [background-image:radial-gradient(125%_125%_at_50%_90%,var(--background)_40%,var(--primary)_200%)] [background-size:100%_100%]" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(125%_125%_at_50%_90%,var(--background)_40%,var(--primary)_200%)] bg-size-[100%_100%]" />
         <MaxWidthWrapper className="relative z-10 flex h-screen flex-col items-center justify-center py-32">
           <div className="grid h-full grid-cols-1 items-center lg:grid-cols-2">
             <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
@@ -113,113 +113,117 @@ export function Hero() {
           </div>
         </MaxWidthWrapper>
 
-        <div className="absolute inset-x-0 -bottom-1/2 z-0 h-full opacity-80">
-          <div className="hero-ring size-[620px]" />
-          <div className="hero-ring size-[820px]" />
-          <div className="hero-ring size-[1020px]" />
-          <div className="hero-ring size-[1220px]" />
-
-          <Orbit
-            size={470}
-            rotation={-14}
-            orbitDuration={30}
-            spinDuration={18}
-            shouldOrbit
-            shouldSpin
-          >
-            <Sparkles className="fill-primary text-primary size-8 opacity-20" />
-          </Orbit>
-
-          <Orbit
-            size={460}
-            rotation={79}
-            shouldOrbit
-            orbitDuration={32}
-            shouldSpin
-            spinDuration={6}
-          >
-            <Sparkles className="fill-primary text-primary size-5 opacity-20" />
-          </Orbit>
-
-          <Orbit size={520} rotation={-41} orbitDuration={34} shouldOrbit>
-            <div className="bg-primary size-2 rounded-full opacity-20" />
-          </Orbit>
-          <Orbit
-            size={530}
-            rotation={178}
-            orbitDuration={36}
-            spinDuration={6}
-            shouldOrbit
-            shouldSpin
-          >
-            <HeadphonesIcon className="text-primary size-10 opacity-20" />
-          </Orbit>
-
-          <Orbit
-            size={625}
-            rotation={20}
-            orbitDuration={38}
-            spinDuration={8}
-            shouldOrbit
-            shouldSpin
-          >
-            <Sparkle className="fill-primary text-primary size-12" />
-          </Orbit>
-          <Orbit
-            size={610}
-            rotation={98}
-            orbitDuration={40}
-            spinDuration={8}
-            shouldOrbit
-            shouldSpin
-          >
-            <IconMouse2 className="text-primary size-8" />
-          </Orbit>
-
-          <Orbit size={660} rotation={-5} shouldOrbit orbitDuration={42}>
-            <div className="bg-primary size-2 rounded-full opacity-20" />
-          </Orbit>
-          <Orbit
-            size={710}
-            rotation={144}
-            shouldOrbit
-            orbitDuration={44}
-            shouldSpin
-            spinDuration={6}
-          >
-            <Sparkles className="fill-primary text-primary size-14 opacity-20" />
-          </Orbit>
-
-          <Orbit size={740} rotation={85} shouldOrbit orbitDuration={46}>
-            <div className="bg-primary size-3 rounded-full opacity-20" />
-          </Orbit>
-
-          <Orbit
-            size={840}
-            rotation={128}
-            orbitDuration={48}
-            spinDuration={8}
-            shouldOrbit
-            shouldSpin
-          >
-            <IconKeyboard className="text-primary size-28" />
-          </Orbit>
-
-          <Orbit
-            size={840}
-            rotation={-72}
-            orbitDuration={48}
-            spinDuration={8}
-            shouldOrbit
-            shouldSpin
-          >
-            <Gamepad2Icon className="text-primary size-28" />
-          </Orbit>
-        </div>
-
-        {/* Your Content/Components */}
+        <HeroBackground />
       </div>
     </section>
+  );
+}
+
+function HeroBackground() {
+  return (
+    <div className="absolute inset-x-0 -bottom-1/2 z-0 h-full opacity-80">
+      <div className="hero-ring size-[620px]" />
+      <div className="hero-ring size-[820px]" />
+      <div className="hero-ring size-[1020px]" />
+      <div className="hero-ring size-[1220px]" />
+
+      <Orbit
+        size={470}
+        rotation={-14}
+        orbitDuration={30}
+        spinDuration={18}
+        shouldOrbit
+        shouldSpin
+      >
+        <Sparkles className="fill-primary text-primary size-8 opacity-20" />
+      </Orbit>
+
+      <Orbit
+        size={460}
+        rotation={79}
+        shouldOrbit
+        orbitDuration={32}
+        shouldSpin
+        spinDuration={6}
+      >
+        <Sparkles className="fill-primary text-primary size-5 opacity-20" />
+      </Orbit>
+
+      <Orbit size={520} rotation={-41} orbitDuration={34} shouldOrbit>
+        <div className="bg-primary size-2 rounded-full opacity-20" />
+      </Orbit>
+      <Orbit
+        size={530}
+        rotation={178}
+        orbitDuration={36}
+        spinDuration={6}
+        shouldOrbit
+        shouldSpin
+      >
+        <HeadphonesIcon className="text-primary size-10 opacity-20" />
+      </Orbit>
+
+      <Orbit
+        size={625}
+        rotation={20}
+        orbitDuration={38}
+        spinDuration={8}
+        shouldOrbit
+        shouldSpin
+      >
+        <Sparkle className="fill-primary text-primary size-12" />
+      </Orbit>
+      <Orbit
+        size={610}
+        rotation={98}
+        orbitDuration={40}
+        spinDuration={8}
+        shouldOrbit
+        shouldSpin
+      >
+        <IconMouse2 className="text-primary size-8" />
+      </Orbit>
+
+      <Orbit size={660} rotation={-5} shouldOrbit orbitDuration={42}>
+        <div className="bg-primary size-2 rounded-full opacity-20" />
+      </Orbit>
+      <Orbit
+        size={710}
+        rotation={144}
+        shouldOrbit
+        orbitDuration={44}
+        shouldSpin
+        spinDuration={6}
+      >
+        <Sparkles className="fill-primary text-primary size-14 opacity-20" />
+      </Orbit>
+
+      <Orbit size={740} rotation={85} shouldOrbit orbitDuration={46}>
+        <div className="bg-primary size-3 rounded-full opacity-20" />
+      </Orbit>
+
+      <Orbit
+        size={840}
+        rotation={128}
+        orbitDuration={48}
+        spinDuration={8}
+        shouldOrbit
+        shouldSpin
+      >
+        <IconKeyboard className="text-primary size-28" />
+      </Orbit>
+
+      <Orbit
+        size={840}
+        rotation={-72}
+        orbitDuration={48}
+        spinDuration={8}
+        shouldOrbit
+        shouldSpin
+      >
+        <Gamepad2Icon className="text-primary size-28" />
+      </Orbit>
+    </div>
   );
 }
 
@@ -262,7 +266,7 @@ function CustomerSummerSkeleton() {
 
 async function CustomerSummary() {
   const customersSummary =
-    await api.public.customers.queries.getCustomerSummary();
+    await app.public.customers.queries.getCustomerSummary();
 
   return (
     <div className="space-y-2">

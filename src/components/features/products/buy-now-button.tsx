@@ -1,15 +1,16 @@
+"use client";
+
 import { Button } from "~/components/ui/button";
 import { IconBasketDollar } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
-import { ArrowBigUpIcon } from "lucide-react";
-import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import { useMemo } from "react";
 import type { RouterOutputs } from "~/trpc/react";
+import Link from "next/link";
+import { ArrowBigUpIcon } from "lucide-react";
 
 export function BuyNowButton({
   disabled,
@@ -19,12 +20,9 @@ export function BuyNowButton({
 }: React.ComponentProps<typeof Button> & {
   product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
 }) {
-  // Get variant data from store
-  const variantId = useVariantSelectionStore((state) => state.variantId);
-  const selectedOptions = useVariantSelectionStore(
-    (state) => state.selectedOptions,
+  const selectedVariant = useVariantSelectionStore(
+    (store) => store.selectedVariant,
   );
-
   const { data: cart } = api.public.carts.queries.find.useQuery();
   const { mutate: addItem, isPending: addingItem } =
     api.public.carts.mutations.addItem.useMutation({
@@ -33,26 +31,6 @@ export function BuyNowButton({
       },
     });
   const router = useRouter();
-
-  // Find the selected variant from the product data
-  const selectedVariant = useMemo(() => {
-    if (!product.variants || product.variants.length === 0) return null;
-
-    // If there are options, find variant by selected options
-    if (product.options && product.options.length > 0) {
-      const exact = product.variants.find((v) =>
-        Object.entries(selectedOptions).every(
-          ([name, value]) => v.optionValues[name] === value,
-        ),
-      );
-      return exact ?? product.variants[0];
-    }
-
-    // No options, use variantId or first variant
-    return (
-      product.variants.find((v) => v.id === variantId) ?? product.variants[0]
-    );
-  }, [product.variants, product.options, selectedOptions, variantId]);
 
   function handleClick() {
     if (!selectedVariant) return;

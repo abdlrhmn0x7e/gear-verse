@@ -12,7 +12,7 @@ import {
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import { CartDrawer } from "./cart-drawer";
+import { CartDrawer } from "../../cart-drawer";
 
 export function AddToCartButton({
   disabled,
@@ -27,7 +27,9 @@ export function AddToCartButton({
   const utils = api.useUtils();
 
   // Get variant data from store
-  const variantId = useVariantSelectionStore((state) => state.variantId);
+  const variantId = useVariantSelectionStore(
+    (state) => state.selectedVariant,
+  )?.id;
 
   const { mutate: addToCart, isPending: addingToCart } =
     api.public.carts.mutations.addItem.useMutation();

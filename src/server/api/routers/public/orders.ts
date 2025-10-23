@@ -6,9 +6,9 @@ import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/public/orders"
 
 export const userOrdersRouter = createTRPCRouter({
   queries: {
-    findAll: protectedProcedure
+    getPage: protectedProcedure
       .input(ordersGetPageInputSchema)
-      .query(async ({ ctx }) => {
+      .query(async ({ ctx, input }) => {
         const parsedUserId = Number(ctx.session.user.id);
 
         const { data, error } = await tryCatch(

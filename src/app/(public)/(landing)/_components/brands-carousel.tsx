@@ -21,11 +21,14 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "~/components/ui/carousel";
+import { type RouterOutputs } from "~/trpc/react";
 import { Progress } from "~/components/ui/progress";
-import { api, type RouterOutputs } from "~/trpc/react";
 
-export function BrandsCarousel() {
-  const [brands] = api.public.brands.queries.findAll.useSuspenseQuery();
+export function BrandsCarousel({
+  brands,
+}: {
+  brands: RouterOutputs["public"]["brands"]["queries"]["findAll"];
+}) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -42,7 +45,7 @@ export function BrandsCarousel() {
     });
   }, [carouselApi]);
 
-  if (!brands || brands.length === 0) {
+  if (brands.length === 0) {
     return (
       <Empty className="gap-3">
         <EmptyHeader>

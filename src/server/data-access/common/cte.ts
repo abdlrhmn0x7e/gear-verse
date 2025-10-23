@@ -103,3 +103,49 @@ export const variantsCTE = db.$with("variants").as(
     .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
     .groupBy(productVariants.productId),
 );
+
+export const fullVariantsCTE = db.$with("variants").as(
+  db
+    .with(fullVariantValuesCTE)
+    .select({
+      productId: productVariants.productId,
+      json: sql<
+        {
+          id: number;
+          overridePrice: number | null;
+          thumbnailUrl: string | null;
+          stock: number;
+          options: Record<
+            string,
+            {
+              id: number;
+              value: string;
+            }
+          >[];
+        }[]
+      >`jsonb_agg(
+          jsonb_build_object(
+            'id', ${productVariants.id},
+            'overridePrice', ${productVariants.overridePrice},
+            'thumbnailUrl', ${media.url},
+            'stock', ${inventoryItems.quantity},
+            'options', ${fullVariantValuesCTE.options}
+          )
+      )`.as("variants_json"),
+    })
+    .from(productVariants)
+    .leftJoin(
+      fullVariantValuesCTE,
+      eq(fullVariantValuesCTE.id, productVariants.id),
+    )
+    .leftJoin(
+      inventoryItems,
+      and(
+        eq(inventoryItems.productVariantId, productVariants.id),
+        eq(inventoryItems.productId, productVariants.productId),
+      ),
+    )
+    .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+    .where(eq(productVariants.archived, false))
+    .groupBy(productVariants.productId),
+);

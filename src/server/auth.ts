@@ -6,6 +6,8 @@ import { admin, anonymous } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { addresses, carts, orders, users } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -80,3 +82,15 @@ export const auth = betterAuth({
     }),
   ],
 });
+
+export async function requireAdmin() {
+  "use server";
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user.role !== "admin") {
+    return notFound();
+  }
+}

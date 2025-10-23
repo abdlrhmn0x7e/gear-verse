@@ -1,20 +1,25 @@
-import Link from "next/link";
 import { Package, PackagePlusIcon } from "lucide-react";
-import type { SearchParams } from "nuqs";
+import Link from "next/link";
+import type { SearchParams } from "nuqs/server";
 
+import { Suspense } from "react";
+import { ProductDetails } from "~/components/features/products/product-detailts";
 import { Button } from "~/components/ui/button";
+import { requireAdmin } from "~/server/auth";
+import { api, HydrateClient } from "~/trpc/server";
 import Header from "../../../../components/header";
+import { ProductDrawer } from "../../_components/drawers/product-drawer";
+import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
 import { ProductsTable } from "../../_components/tables/products/table";
 import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
-import { ProductDrawer } from "../../_components/drawers/product-drawer";
-import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
 
 export default async function AdminProductsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  void loadProductSearchParams(searchParams);
+  await requireAdmin();
+  const params = await loadProductSearchParams(searchParams);
 
   return (
     <section className="space-y-6">
@@ -33,11 +38,17 @@ export default async function AdminProductsPage({
         </Button>
       </div>
 
-      <ProductsTable />
+      <Suspense fallback={<ProductsTableSkeleton />}>
+        <ProductsTable />
+      </Suspense>
 
-      <VariantSelectionStoreProvider>
-        <ProductDrawer />
-      </VariantSelectionStoreProvider>
+      <ProductDrawer>
+        <ProductDetails
+          className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
+          slug={params.slug!}
+          hideActions
+        />
+      </ProductDrawer>
     </section>
   );
 }

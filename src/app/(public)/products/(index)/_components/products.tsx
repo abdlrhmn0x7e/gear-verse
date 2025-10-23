@@ -1,11 +1,11 @@
+import { Suspense } from "react";
 import { Heading } from "~/components/heading";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/server";
+import { api, HydrateClient } from "~/trpc/server";
 import { ProductList, ProductListSkeleton } from "./product-list";
-import { Suspense } from "react";
-import type { SearchParams } from "nuqs/server";
-import { loadAllProductSearchParams } from "./hooks";
 import { ProductsSort } from "./products-sort";
+import { loadAllProductSearchParams } from "./hooks";
+import type { SearchParams } from "nuqs/server";
 
 export async function Products({
   className,
@@ -16,7 +16,7 @@ export async function Products({
 }) {
   const filters = await loadAllProductSearchParams(searchParams);
   void api.public.products.queries.getPage.prefetchInfinite({
-    pageSize: 9,
+    pageSize: 6,
     filters: {
       brands: filters.brands ?? undefined,
       categories: filters.categories ?? undefined,
@@ -25,6 +25,7 @@ export async function Products({
         max: filters.maxPrice ?? undefined,
       },
     },
+    sortBy: filters.sortBy ?? undefined,
   });
 
   return (
@@ -35,9 +36,25 @@ export async function Products({
         <ProductsSort />
       </div>
 
-      <Suspense fallback={<ProductListSkeleton />}>
-        <ProductList />
-      </Suspense>
+      <HydrateClient>
+        <Suspense fallback={<ProductListSkeleton />}>
+          <ProductList />
+        </Suspense>
+      </HydrateClient>
+    </section>
+  );
+}
+
+export function ProductsSkeleton({ className }: { className?: string }) {
+  return (
+    <section id="products" className={cn("space-y-4", className)}>
+      <div className="flex items-center justify-between">
+        <Heading level={3}>All Products</Heading>
+
+        <ProductsSort />
+      </div>
+
+      <ProductListSkeleton />
     </section>
   );
 }
