@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { MobileFilters } from "./mobile-filters";
 import { useAllProductSearchParams } from "./hooks";
 
 export function ProductsSort() {
@@ -22,6 +21,7 @@ export function ProductsSort() {
 
   return (
     <Select
+      defaultValue="default"
       value={filters.sortBy ?? "default"}
       onValueChange={(value) => {
         void setFilters((prev) => {
@@ -43,18 +43,15 @@ export function ProductsSort() {
         });
       }}
     >
-      <div className="flex items-center gap-2">
-        <SelectTrigger className="w-full max-w-3xs">
-          <SelectValue
-            placeholder={
-              <>
-                <ArrowUpDownIcon /> Sort by...
-              </>
-            }
-          />
-        </SelectTrigger>
-        <MobileFilters />
-      </div>
+      <SelectTrigger className="w-full max-w-3xs">
+        <SelectValue
+          placeholder={
+            <>
+              <ArrowUpDownIcon /> Sort by...
+            </>
+          }
+        />
+      </SelectTrigger>
 
       <SelectContent>
         <SelectItem value="default">

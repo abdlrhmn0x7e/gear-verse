@@ -11,23 +11,44 @@ import { PackageOpenIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
 // Table logic & components
-import { type RouterOutputs } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
 import { OrdersTableHeader } from "./header";
 import { useOrdersSearchParams } from "../../_hooks/use-orders-search-params";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { useInView } from "react-intersection-observer";
+import { LoadMore } from "~/components/load-more";
 
-export function OrdersTable({
-  orders,
-}: {
-  orders: RouterOutputs["public"]["orders"]["queries"]["findAll"];
-}) {
+export function OrdersTable() {
   const [, setParams] = useOrdersSearchParams();
+  const trpc = useTRPC();
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
+    trpc.public.orders.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 10,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    ),
+  );
+
+  const orders = useMemo(() => data.pages.flatMap((page) => page.data), [data]);
 
   const table = useReactTable({
     data: orders,
     columns: ordersColumns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      void fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
 
   return (
     <div className="bg-background overflow-hidden rounded-lg border">
@@ -64,6 +85,8 @@ export function OrdersTable({
             </TableRow>
           )}
         </TableBody>
+
+        <LoadMore ref={ref} hasNextPage={hasNextPage} />
       </Table>
     </div>
   );

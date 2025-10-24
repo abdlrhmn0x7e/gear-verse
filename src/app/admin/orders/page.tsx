@@ -1,15 +1,20 @@
 import { BadgeDollarSignIcon } from "lucide-react";
 import Header from "~/components/header";
-import { api, HydrateClient } from "~/trpc/server";
+import { api, HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { AddOrderDialog } from "../_components/dialogs/add-order";
+import { requireAdmin } from "~/server/auth";
+import { Suspense } from "react";
+import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 
 export default async function AdminOrdersPage() {
   await requireAdmin();
-  void api.admin.orders.queries.getPage.prefetchInfinite({
-    pageSize: 10,
-  });
+  void prefetch(
+    trpc.admin.orders.queries.getPage.infiniteQueryOptions({
+      pageSize: 10,
+    }),
+  );
 
   return (
     <section className="space-y-6">
@@ -20,13 +25,16 @@ export default async function AdminOrdersPage() {
           Icon={BadgeDollarSignIcon}
         />
 
-        <AddOrderDialog />
+        {/* <AddOrderDialog /> */}
       </div>
 
       <HydrateClient>
-        <OrdersTable />
-        <OrderDrawer />
+        <Suspense fallback={<OrdersTableSkeleton />}>
+          <OrdersTable />
+        </Suspense>
       </HydrateClient>
+
+      <OrderDrawer />
     </section>
   );
 }

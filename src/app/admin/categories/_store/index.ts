@@ -1,8 +1,8 @@
 import { createStore } from "zustand/vanilla";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 
 type CategoryTree =
-  RouterOutputs["admin"]["categories"]["queries"]["findAll"][number];
+  RouterOutput["admin"]["categories"]["queries"]["findAll"][number];
 
 export type CategoryState = {
   selectedCategory: CategoryTree | null;

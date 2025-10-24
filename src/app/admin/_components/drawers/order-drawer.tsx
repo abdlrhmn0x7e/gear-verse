@@ -9,9 +9,9 @@ import {
 import { Drawer } from "~/components/ui/drawer";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useMemo, useRef } from "react";
-import { PaymentMethod } from "../tables/orders/payment-method";
+import { PaymentMethod } from "~/components/payment-method";
 import { OrderStatus } from "../tables/orders/order-status";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Heading } from "~/components/heading";
@@ -21,6 +21,7 @@ import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Skeleton } from "~/components/ui/skeleton";
 import { EditIcon, TrashIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -48,15 +49,19 @@ export function OrderDrawer() {
 }
 
 function OrderDrawerContent() {
+  const trpc = useTRPC();
   const [params] = useOrderSearchParams();
+
   const paramsProductIdRef = useRef<number>(params.orderId);
-  const { data, isPending } = api.admin.orders.queries.findById.useQuery(
-    {
-      id: paramsProductIdRef.current!,
-    },
-    {
-      enabled: !!paramsProductIdRef.current,
-    },
+  const { data, isPending } = useQuery(
+    trpc.admin.orders.queries.findById.queryOptions(
+      {
+        id: paramsProductIdRef.current!,
+      },
+      {
+        enabled: !!paramsProductIdRef.current,
+      },
+    ),
   );
 
   const details = useMemo(() => {
@@ -201,7 +206,7 @@ function OrderDrawerContent() {
 function OrderItem({
   item,
 }: {
-  item: RouterOutputs["admin"]["orders"]["queries"]["findById"]["items"][number];
+  item: RouterOutput["admin"]["orders"]["queries"]["findById"]["items"][number];
 }) {
   return (
     <div className="flex items-center gap-3">

@@ -12,9 +12,10 @@ import {
 import { AddressForm, type AddressFormValues } from "./address-form";
 import { Button } from "~/components/ui/button";
 import { IconHomePlus } from "@tabler/icons-react";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { useState, type PropsWithChildren } from "react";
 import { Spinner } from "~/components/spinner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function AddAddressDrawerDialog({
   children,
@@ -25,15 +26,19 @@ export function AddAddressDrawerDialog({
   onSuccess?: (id: number) => void;
 }>) {
   const [open, setOpen] = useState(false);
-  const utils = api.useUtils();
-  const { mutate: addAddress, isPending: isAddingAddress } =
-    api.public.checkout.mutations.addAddress.useMutation({
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: addAddress, isPending: isAddingAddress } = useMutation(
+    trpc.public.checkout.mutations.addAddress.mutationOptions({
       onSuccess: (data) => {
-        void utils.public.checkout.queries.getAddresses.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.public.checkout.queries.getAddresses.queryFilter(),
+        );
         onSuccess?.(data.id);
         setOpen(false);
       },
-    });
+    }),
+  );
 
   function onSubmit(values: AddressFormValues) {
     addAddress(values);

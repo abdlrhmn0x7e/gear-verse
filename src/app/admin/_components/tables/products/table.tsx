@@ -7,12 +7,11 @@ import {
 } from "@tanstack/react-table";
 
 // React & Next
-import { useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 
 // Third-party hooks & utilities
 import {
   keepPreviousData,
-  useInfiniteQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
@@ -27,7 +26,7 @@ import { useDebounce } from "~/hooks/use-debounce";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 
 // Table logic & components
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { productColumns } from "./columns";
 import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
@@ -37,8 +36,14 @@ import { LoadMore } from "~/components/load-more";
 export function ProductsTable() {
   const [params, setParams] = useProductSearchParams();
   const debouncedFilters = useDebounce(params);
-  const [products, { isFetching, hasNextPage, fetchNextPage }] =
-    api.admin.products.queries.getPage.useSuspenseInfiniteQuery(
+  const trpc = useTRPC();
+  const {
+    data: products,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery(
+    trpc.admin.products.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
@@ -49,16 +54,18 @@ export function ProductsTable() {
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        placeholderData: keepPreviousData,
       },
-    );
+    ),
+  );
 
-  const productsData = useMemo(
-    () => products?.pages.flatMap((page) => page.data) ?? [],
+  const data = useMemo(
+    () => products.pages.flatMap((page) => page.data),
     [products],
   );
 
   const table = useReactTable({
-    data: productsData,
+    data,
     columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -74,7 +81,9 @@ export function ProductsTable() {
   return (
     <Card className="gap-2 py-2">
       <CardHeader className="px-2">
-        <ProductsFilter />
+        <Suspense>
+          <ProductsFilter />
+        </Suspense>
       </CardHeader>
 
       <CardContent className="px-2">
@@ -95,10 +104,13 @@ export function ProductsTable() {
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer"
                     onClick={() =>
-                      setParams((prev) => ({
-                        id: row.original.id,
-                        slug: row.original.slug,
-                      }))
+                      setParams(
+                        () => ({
+                          id: row.original.id,
+                          slug: row.original.slug,
+                        }),
+                        { shallow: false },
+                      )
                     }
                   >
                     {row.getVisibleCells().map((cell) => (

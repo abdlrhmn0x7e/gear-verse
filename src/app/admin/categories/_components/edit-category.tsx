@@ -6,9 +6,10 @@ import {
   type CategoryFormValues,
 } from "~/app/admin/_components/forms/category-form";
 import { SaveIcon } from "lucide-react";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
 import { useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function EditCategory({
   id,
@@ -21,14 +22,18 @@ export function EditCategory({
   onSuccess: () => void;
   cancel: () => void;
 }) {
-  const utils = api.useUtils();
-  const { mutate: updateCategory, isPending: isUpdatingCategory } =
-    api.admin.categories.mutations.update.useMutation({
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: updateCategory, isPending: isUpdatingCategory } = useMutation(
+    trpc.admin.categories.mutations.update.mutationOptions({
       onSuccess: () => {
-        void utils.admin.categories.queries.findAll.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findAll.queryFilter(),
+        );
         onSuccess();
       },
-    });
+    }),
+  );
 
   function onSubmit(data: CategoryFormValues) {
     updateCategory({ id, ...data });

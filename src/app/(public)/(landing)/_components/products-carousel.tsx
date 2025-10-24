@@ -14,7 +14,7 @@ import {
 import { Progress } from "~/components/ui/progress";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import {
   Empty,
   EmptyDescription,
@@ -27,7 +27,7 @@ import { ProductCard } from "~/components/product-card";
 export function ProductsCarousel({
   products,
 }: {
-  products: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"];
+  products: RouterOutput["public"]["products"]["queries"]["getPage"]["data"];
 }) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);

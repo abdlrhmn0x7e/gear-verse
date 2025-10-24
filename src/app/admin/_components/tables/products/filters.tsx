@@ -17,29 +17,46 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { BrandsCommand } from "../../inputs/brands-combobox";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { useInView } from "react-intersection-observer";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { debounce } from "nuqs";
 import { CategoriesCommand } from "../../inputs/categories-combobox";
 import { FilterList, type FilterKey } from "../../filter-list";
 import { Button } from "~/components/ui/button";
 
 export function ProductsFilter() {
+  const trpc = useTRPC();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useProductSearchParams();
-  const { data: categories, isPending: categoriesPending } =
-    api.admin.categories.queries.findAll.useQuery();
-  const [brands, { fetchNextPage, hasNextPage, isPending: brandsPending }] =
-    api.admin.brands.getPage.useSuspenseInfiniteQuery(
+
+  const { data: categories, isPending: categoriesPending } = useQuery(
+    trpc.admin.categories.queries.findAll.queryOptions(),
+  );
+
+  const {
+    data: brands,
+    fetchNextPage,
+    hasNextPage,
+    isPending: brandsPending,
+  } = useInfiniteQuery(
+    trpc.admin.brands.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        placeholderData: keepPreviousData,
       },
-    );
+    ),
+  );
   const filteredBrands = useMemo(() => {
-    return brands.pages
+    return brands?.pages
       .flatMap((page) => page.data)
       .filter((brand) => filters.brands?.includes(brand.id));
   }, [filters, brands]);
@@ -56,7 +73,7 @@ export function ProductsFilter() {
 
     void setFilters(
       (prev) => {
-        if (prev.title === value) {
+        if (!Boolean(value)) {
           return {
             ...prev,
             title: null,
@@ -167,14 +184,16 @@ export function ProductsFilter() {
                     alignOffset={-36}
                     className="p-0"
                   >
-                    <BrandsCommand
-                      brands={brands.pages.flatMap((page) => page.data)}
-                      value={0}
-                      onValueChange={handleBrandsChange}
-                      setOpen={setIsOpen}
-                      hasNextPage={hasNextPage}
-                      ref={brandsSpinnerRef}
-                    />
+                    {brands && (
+                      <BrandsCommand
+                        brands={brands.pages.flatMap((page) => page.data)}
+                        value={0}
+                        onValueChange={handleBrandsChange}
+                        setOpen={setIsOpen}
+                        hasNextPage={hasNextPage}
+                        ref={brandsSpinnerRef}
+                      />
+                    )}
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
@@ -204,22 +223,24 @@ export function ProductsFilter() {
         </DropdownMenu>
       </SearchInput>
 
-      <FilterList
-        brands={filteredBrands}
-        categories={categories ?? []}
-        filters={[
-          {
-            key: "brands",
-            value: filters.brands ?? [],
-          },
-          {
-            key: "categories",
-            value: filters.categories ?? [],
-          },
-        ]}
-        loading={brandsPending}
-        onRemove={handleFilterRemove}
-      />
+      {brands && (
+        <FilterList
+          brands={filteredBrands}
+          categories={categories ?? []}
+          filters={[
+            {
+              key: "brands",
+              value: filters.brands ?? [],
+            },
+            {
+              key: "categories",
+              value: filters.categories ?? [],
+            },
+          ]}
+          loading={brandsPending}
+          onRemove={handleFilterRemove}
+        />
+      )}
     </div>
   );
 }

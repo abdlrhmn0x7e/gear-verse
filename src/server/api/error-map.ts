@@ -4,7 +4,7 @@ import { isAppError } from "~/lib/errors/app-error";
 
 export function errorMap(error: unknown) {
   if (env.NODE_ENV === "development") {
-    console.error("ERROR: ", JSON.stringify(error, null, 4));
+    console.error("ERROR: ", error);
   }
 
   if (isAppError(error)) {

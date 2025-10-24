@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  keepPreviousData,
+  useMutation,
+  useQueryClient,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { toast } from "sonner";
@@ -10,14 +16,16 @@ import {
 import { useInventorySearchParams } from "~/app/admin/_hooks/use-inventory-search-params";
 import { LoadMore } from "~/components/load-more";
 import { useDebounce } from "~/hooks/use-debounce";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 
 export function EditInventory() {
   const [params] = useInventorySearchParams();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const debouncedFilters = useDebounce(params);
 
-  const [data, { hasNextPage, fetchNextPage }] =
-    api.admin.inventoryItems.queries.getPage.useSuspenseInfiniteQuery(
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
+    trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
@@ -26,21 +34,25 @@ export function EditInventory() {
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        placeholderData: keepPreviousData,
       },
-    );
+    ),
+  );
   const items = data.pages.flatMap((page) => page.data);
 
-  const utils = api.useUtils();
-  const { mutate: updateInventoryItem, isPending } =
-    api.admin.inventoryItems.mutations.updateMany.useMutation({
+  const { mutate: updateInventoryItem, isPending } = useMutation(
+    trpc.admin.inventoryItems.mutations.updateMany.mutationOptions({
       onSuccess: () => {
-        void utils.admin.inventoryItems.queries.getPage.invalidate();
+        void queryClient.invalidateQueries({
+          queryKey: trpc.admin.inventoryItems.queries.getPage.queryKey(),
+        });
         toast.success("Inventory updated successfully");
       },
-    });
+    }),
+  );
 
   function onSubmit(data: InventoryItemFormValues) {
-    updateInventoryItem(data.inventory);
+    updateInventoryItem(data);
   }
 
   const { ref, inView } = useInView();

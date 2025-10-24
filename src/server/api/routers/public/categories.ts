@@ -1,5 +1,5 @@
 import { categoriesFindAllInputSchema } from "~/lib/schemas/contracts/public/categories";
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/init";
 
 export const userCategoriesRouter = createTRPCRouter({
   queries: {

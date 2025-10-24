@@ -9,25 +9,28 @@ import {
 } from "~/components/ui/drawer";
 import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { PaymentMethod } from "../../_components/payment-method";
 import { Separator } from "~/components/ui/separator";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import Header from "~/components/header";
 import { PackageOpenIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export function OrdersDrawer() {
+  const trpc = useTRPC();
   const [params, setParams] = useOrdersSearchParams();
-  const { data: order, isPending: orderPending } =
-    api.public.orders.queries.findById.useQuery(
+  const { data: order, isPending: orderPending } = useQuery(
+    trpc.public.orders.queries.findById.queryOptions(
       {
         id: params.orderId ?? 0,
       },
       {
         enabled: !!params.orderId,
       },
-    );
+    ),
+  );
   const isMobile = useIsMobile();
 
   function handleClose() {
@@ -60,7 +63,7 @@ export function OrdersDrawer() {
 function OrderDetails({
   order,
 }: {
-  order: RouterOutputs["public"]["orders"]["queries"]["findById"];
+  order: RouterOutput["public"]["orders"]["queries"]["findById"];
 }) {
   return (
     <div className="space-y-6 px-4 pb-12">

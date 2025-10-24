@@ -10,7 +10,10 @@ import {
 import { useEffect, useMemo } from "react";
 
 // Third-party hooks & utilities
-import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
@@ -24,7 +27,7 @@ import { useDebounce } from "~/hooks/use-debounce";
 import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 
 // Table logic & components
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
 import { OrdersTableHeader } from "./header";
 import { OrdersTableSkeleton } from "./skeleton";
@@ -32,17 +35,16 @@ import { OrdersFilter } from "./filters";
 import { cn } from "~/lib/utils";
 
 export function OrdersTable() {
-  const utils = api.useUtils();
+  const trpc = useTRPC();
   const [params, setParams] = useOrderSearchParams();
   const debouncedFilters = useDebounce(params);
   const {
     data: orders,
-    isPending,
     isFetching,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteQuery(
-    utils.admin.orders.queries.getPage.infiniteQueryOptions(
+  } = useSuspenseInfiniteQuery(
+    trpc.admin.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
         filters: {
@@ -76,10 +78,6 @@ export function OrdersTable() {
       void fetchNextPage();
     }
   }, [inView, fetchNextPage]);
-
-  if (isPending) {
-    return <OrdersTableSkeleton />;
-  }
 
   return (
     <Card className="gap-2 py-2">

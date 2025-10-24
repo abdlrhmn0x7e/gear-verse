@@ -1,4 +1,4 @@
-import { createTRPCRouter } from "../../trpc";
+import { createTRPCRouter } from "~/server/api/init";
 import { userProductsRouter } from "./products";
 import { userBrandsRouter } from "./brands";
 import { userCategoriesRouter } from "./categories";

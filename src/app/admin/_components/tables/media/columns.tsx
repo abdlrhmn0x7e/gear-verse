@@ -9,12 +9,12 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
-  RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["media"]["queries"]["getPage"]["data"][number];
 export const mediaColumns: ColumnDef<Media>[] = [
   {
     id: "select",

@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import cuid from "cuid";
-import { api, type RouterInputs, type RouterOutputs } from "~/trpc/react";
+import { type RouterInput, type RouterOutput, useTRPC } from "~/trpc/client";
 
 /**
  * Uploads multiple files to S3 using presigned URLs and updates their media status.
@@ -14,11 +14,11 @@ async function uploadFiles(
   files: File[],
 
   getPresignedUrls: (
-    input: RouterInputs["admin"]["s3"]["getPresignedUrls"],
-  ) => Promise<RouterOutputs["admin"]["s3"]["getPresignedUrls"]>,
+    input: RouterInput["admin"]["s3"]["getPresignedUrls"],
+  ) => Promise<RouterOutput["admin"]["s3"]["getPresignedUrls"]>,
   createMedia: (
-    input: RouterInputs["admin"]["media"]["mutations"]["createMany"],
-  ) => Promise<RouterOutputs["admin"]["media"]["mutations"]["createMany"]>,
+    input: RouterInput["admin"]["media"]["mutations"]["createMany"],
+  ) => Promise<RouterOutput["admin"]["media"]["mutations"]["createMany"]>,
 ) {
   const fileObjects = files.map((file) => ({
     file,
@@ -77,18 +77,22 @@ export interface UseUploadFilesMutationProps {
  * @returns Mutation object for uploading files.
  */
 export function useUploadFilesMutation() {
-  const utils = api.useUtils();
-
-  const { mutateAsync: getPresignedUrls } =
-    api.admin.s3.getPresignedUrls.useMutation();
-  const { mutateAsync: createMedia } =
-    api.admin.media.mutations.createMany.useMutation();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutateAsync: getPresignedUrls } = useMutation(
+    trpc.admin.s3.getPresignedUrls.mutationOptions(),
+  );
+  const { mutateAsync: createMedia } = useMutation(
+    trpc.admin.media.mutations.createMany.mutationOptions(),
+  );
 
   return useMutation({
     mutationFn: (files: File[]) =>
       uploadFiles(files, getPresignedUrls, createMedia),
     onSuccess: () => {
-      void utils.admin.media.queries.getPage.invalidate();
+      void queryClient.invalidateQueries({
+        queryKey: trpc.admin.media.queries.getPage.queryKey(),
+      });
     },
   });
 }

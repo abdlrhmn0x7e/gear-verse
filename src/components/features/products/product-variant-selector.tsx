@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffectEvent, useLayoutEffect, useMemo, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import type { StoredVariant } from "~/stores/variant-selection/store";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 
 type Variant =
-  RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"][number];
+  RouterOutput["public"]["products"]["queries"]["findBySlug"]["variants"][number];
 
 interface ProductVariantSelectorProps {
   variants: Variant[];
@@ -29,17 +29,21 @@ export function ProductVariantSelector({
   );
 
   // build the options
-  const options = variants.reduce(
-    (acc, variant) => {
-      for (const option of variant.options) {
-        const [key, opt] = Object.entries(option)[0]!;
-        acc[key] ??= new Set();
+  const options = useMemo(
+    () =>
+      variants.reduce(
+        (acc, variant) => {
+          for (const option of variant.options) {
+            const [key, opt] = Object.entries(option)[0]!;
+            acc[key] ??= new Set();
 
-        acc[key].add(opt.value);
-      }
-      return acc;
-    },
-    {} as Record<string, Set<string>>,
+            acc[key].add(opt.value);
+          }
+          return acc;
+        },
+        {} as Record<string, Set<string>>,
+      ),
+    [],
   );
 
   // get the combination values key for a variant
@@ -107,7 +111,7 @@ export function ProductVariantSelector({
     updateSelectedVariant(defaultValues);
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     mountEffect();
   }, []);
 

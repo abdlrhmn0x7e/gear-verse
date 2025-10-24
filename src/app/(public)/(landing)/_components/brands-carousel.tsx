@@ -21,13 +21,13 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "~/components/ui/carousel";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import { Progress } from "~/components/ui/progress";
 
 export function BrandsCarousel({
   brands,
 }: {
-  brands: RouterOutputs["public"]["brands"]["queries"]["findAll"];
+  brands: RouterOutput["public"]["brands"]["queries"]["findAll"];
 }) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
@@ -88,7 +88,7 @@ export function BrandsCarousel({
 function BrandCard({
   brand,
 }: {
-  brand: RouterOutputs["public"]["brands"]["queries"]["findAll"][number];
+  brand: RouterOutput["public"]["brands"]["queries"]["findAll"][number];
 }) {
   return (
     <Link href={`/brands/${brand.slug}`}>

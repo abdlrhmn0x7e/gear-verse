@@ -6,7 +6,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "lucide-react";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Spinner } from "~/components/spinner";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function CategoryTreeActions({
   categoryId,
@@ -27,18 +28,23 @@ export function CategoryTreeActions({
   setShowAddForm: (show: boolean) => void;
   setShowEditForm: (show: boolean) => void;
 }) {
-  const utils = api.useUtils();
-  const { mutate: deleteCategory, isPending: isDeletingCategory } =
-    api.admin.categories.mutations.delete.useMutation({
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: deleteCategory, isPending: isDeletingCategory } = useMutation(
+    trpc.admin.categories.mutations.delete.mutationOptions({
       onSuccess: () => {
-        void utils.admin.categories.queries.findAll.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findAll.queryFilter(),
+        );
+        toast.success("Category deleted successfully");
       },
       onError: () => {
         toast.error(
           "This category has products, please remove/move them first",
         );
       },
-    });
+    }),
+  );
 
   return (
     <DropdownMenu>

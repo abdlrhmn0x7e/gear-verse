@@ -4,13 +4,15 @@ import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { api, HydrateClient } from "~/trpc/server";
+import { api, HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { CompleteCheckout } from "./_components/complete-checkout";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { Heading } from "~/components/heading";
+import { requireAuth } from "~/server/auth";
 
 export default async function CheckoutPage() {
-  void api.public.checkout.queries.getAddresses.prefetch();
+  await requireAuth();
+  void prefetch(trpc.public.checkout.queries.getAddresses.queryOptions());
   const cart = await api.public.carts.queries.find();
   const cols =
     cart.items.length > 1 ? (cart.items.length % 2 === 0 ? 2 : 3) : 1;
@@ -40,7 +42,7 @@ function OrderSummary({
   cols,
   isMobile = false,
 }: {
-  cart: RouterOutputs["public"]["carts"]["queries"]["find"];
+  cart: RouterOutput["public"]["carts"]["queries"]["find"];
   cols: number;
   isMobile?: boolean;
 }) {

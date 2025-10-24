@@ -16,12 +16,14 @@ import { PaymentMethod } from "../../_components/payment-method";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { requireAuth } from "~/server/auth";
 
 export default async function SuccessPage({
   searchParams,
 }: {
   searchParams: Promise<{ orderId: string }>;
 }) {
+  await requireAuth();
   const { orderId } = await searchParams;
   const parsedOrderId = Number(orderId);
   if (isNaN(parsedOrderId)) {

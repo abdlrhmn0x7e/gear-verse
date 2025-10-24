@@ -4,20 +4,20 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export function InventoryTableSkeleton() {
   return (
-    <Table containerClassName="scroll-shadow">
+    <Table containerClassName="scroll-shadow border rounded-md bg-background">
       <InventoryTableHeader />
 
       <TableBody>
         {Array.from({ length: 10 }).map((_, index) => (
           <TableRow key={index}>
             <TableCell>
-              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-5 w-full" />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-5 w-full" />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-4 w-[200px]" />
+              <Skeleton className="h-5 w-[200px]" />
             </TableCell>
           </TableRow>
         ))}

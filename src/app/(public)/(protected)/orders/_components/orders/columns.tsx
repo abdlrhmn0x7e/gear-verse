@@ -2,7 +2,7 @@
 
 import { type ColumnDef } from "@tanstack/react-table";
 
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { CalendarIcon, EyeIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { PaymentMethod } from "../../../_components/payment-method";
 
 export const ordersColumns: ColumnDef<
-  RouterOutputs["public"]["orders"]["queries"]["findAll"][number]
+  RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",

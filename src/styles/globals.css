@@ -536,3 +536,40 @@ input:-webkit-autofill:active {
 @utility animate-twinkle {
   animation: twinkle 2.4s ease-in-out infinite;
 }
+
+.skeleton-animation {
+  background: var(--accent);
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(8%, rgba(var(--accent), 0.4)),
+    color-stop(18%, color-mix(in srgb, var(--color-accent) 50%, transparent)),
+    color-stop(33%, color-mix(in srgb, var(--color-accent) 40%, transparent))
+  );
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-accent) 40%, transparent) 8%,
+    color-mix(in srgb, var(--color-accent) 50%, transparent) 18%,
+    color-mix(in srgb, var(--color-accent) 40%, transparent) 33%
+  );
+  background-size: 800px 100px;
+  animation: wave-lines 2s infinite ease-out;
+}
+
+@keyframes wave-lines {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+@keyframes wave-squares {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}

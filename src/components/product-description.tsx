@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/empty";
 import { PencilOffIcon } from "lucide-react";
 import { Frame, FrameHeader, FramePanel, FrameTitle } from "./ui/frame";
+
 export function ProductDescription({
   className,
   description,

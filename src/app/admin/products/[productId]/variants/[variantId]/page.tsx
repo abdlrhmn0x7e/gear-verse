@@ -82,7 +82,9 @@ export default async function AdminVariantPage({
                 </div>
               </div>
             </CardHeader>
+
             <Separator />
+
             <CardContent className="space-y-2">
               {/*Maybe Later*/}
               {/*<SearchInput />*/}

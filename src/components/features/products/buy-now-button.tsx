@@ -2,15 +2,15 @@
 
 import { Button } from "~/components/ui/button";
 import { IconBasketDollar } from "@tabler/icons-react";
-import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import type { RouterOutputs } from "~/trpc/react";
 import Link from "next/link";
 import { ArrowBigUpIcon } from "lucide-react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function BuyNowButton({
   disabled,
@@ -18,19 +18,26 @@ export function BuyNowButton({
   product,
   ...props
 }: React.ComponentProps<typeof Button> & {
-  product: RouterOutputs["public"]["products"]["queries"]["findBySlug"];
+  product: RouterOutput["public"]["products"]["queries"]["findBySlug"];
 }) {
+  const trpc = useTRPC();
+  const router = useRouter();
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
-  const { data: cart } = api.public.carts.queries.find.useQuery();
-  const { mutate: addItem, isPending: addingItem } =
-    api.public.carts.mutations.addItem.useMutation({
+  const { data: cart } = useQuery(
+    trpc.public.carts.queries.find.queryOptions(),
+  );
+  const { mutate: addItem, isPending: addingItem } = useMutation(
+    trpc.public.carts.mutations.addItem.mutationOptions({
+      onSuccess: () => {
+        router.push("/checkout");
+      },
       onError: () => {
         toast.warning("You can't buy and add an item at the same time!");
       },
-    });
-  const router = useRouter();
+    }),
+  );
 
   function handleClick() {
     if (!selectedVariant) return;

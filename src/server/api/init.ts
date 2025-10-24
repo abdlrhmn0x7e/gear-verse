@@ -4,18 +4,25 @@ import { ZodError } from "zod";
 
 import { auth } from "../auth";
 import { app } from "../application";
+import { cache } from "react";
+import { headers } from "next/headers";
 
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth.api.getSession({
-    headers: opts.headers,
-  });
+export const createTRPCContext = cache(async () => {
+  /**
+   * @see: https://trpc.io/docs/server/context
+   */
+  const data = await auth.api.getSession({ headers: await headers() });
 
   return {
     app,
-    session,
-    ...opts,
+    user: data?.user
+      ? {
+          id: parseInt(data.user.id),
+          role: data.user.role,
+        }
+      : null,
   };
-};
+});
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
@@ -46,7 +53,9 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  if (!ctx.session?.user) {
+  const { user } = ctx;
+
+  if (!user) {
     console.log("Auth middleware: No session found");
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -54,11 +63,12 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
     });
   }
 
-  return next({ ctx: { ...ctx, session: ctx.session } });
+  return next({ ctx: { ...ctx, user } });
 });
 
 const adminMiddleware = t.middleware(async ({ next, ctx }) => {
-  if (!ctx.session?.user) {
+  const { user } = ctx;
+  if (!user) {
     console.log("Admin middleware: No session found");
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -66,18 +76,15 @@ const adminMiddleware = t.middleware(async ({ next, ctx }) => {
     });
   }
 
-  if (ctx.session.user.role !== "admin") {
-    console.log(
-      "Admin middleware: User is not admin, role:",
-      ctx.session.user.role,
-    );
+  if (user.role !== "admin") {
+    console.log("Admin middleware: User is not admin, role:", user.role);
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",
     });
   }
 
-  return next({ ctx: { ...ctx, session: ctx.session } });
+  return next({ ctx: { ...ctx, user } });
 });
 
 export const publicProcedure = t.procedure;

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { useAllProductSearchParams } from "./hooks";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Button } from "~/components/ui/button";
@@ -19,14 +19,16 @@ import {
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
 import Link from "next/link";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 
 export function ProductList() {
   const [filters] = useAllProductSearchParams();
   const debouncedFilters = useDebounce(filters);
-  const [data, { hasNextPage, fetchNextPage }] =
-    api.public.products.queries.getPage.useSuspenseInfiniteQuery(
+  const trpc = useTRPC();
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
+    trpc.public.products.queries.getPage.infiniteQueryOptions(
       {
-        pageSize: 6,
+        pageSize: 12,
         filters: {
           brands: debouncedFilters.brands ?? undefined,
           categories: debouncedFilters.categories ?? undefined,
@@ -40,7 +42,8 @@ export function ProductList() {
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
-    );
+    ),
+  );
   const products = data.pages.flatMap((page) => page.data);
 
   const { ref, inView } = useInView();

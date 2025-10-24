@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -13,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 
 export function DeleteProductDialog({
   id,
@@ -30,9 +31,11 @@ export function DeleteProductDialog({
   className?: string;
   onDeleteSuccess?: () => void;
 }) {
-  const utils = api.useUtils();
-  const { mutate: deleteProduct, isPending } =
-    api.admin.products.mutations.delete.useMutation();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: deleteProduct, isPending } = useMutation(
+    trpc.admin.products.mutations.delete.mutationOptions(),
+  );
 
   function handleDelete() {
     deleteProduct(
@@ -40,7 +43,9 @@ export function DeleteProductDialog({
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void utils.admin.products.queries.getPage.invalidate();
+          void queryClient.invalidateQueries({
+            queryKey: trpc.admin.products.queries.getPage.queryKey(),
+          });
         },
       },
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import { Heading } from "~/components/heading";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -15,7 +15,7 @@ import { useMemo } from "react";
 export function CategoryFilterItem({
   category,
 }: {
-  category: RouterOutputs["public"]["categories"]["queries"]["findAll"][number];
+  category: RouterOutput["public"]["categories"]["queries"]["findAll"][number];
 }) {
   const Icon = iconsMap.get(category.icon) ?? FolderIcon;
   const [filters, setFilters] = useAllProductSearchParams();
@@ -58,7 +58,7 @@ export function CategoryFilterItem({
 export function BrandFilterItem({
   brand,
 }: {
-  brand: RouterOutputs["public"]["brands"]["queries"]["findAll"][number];
+  brand: RouterOutput["public"]["brands"]["queries"]["findAll"][number];
 }) {
   const [filters, setFilters] = useAllProductSearchParams();
   const checked = useMemo(

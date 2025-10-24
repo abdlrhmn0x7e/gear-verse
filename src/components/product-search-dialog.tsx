@@ -12,7 +12,7 @@ import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useDebounce } from "~/hooks/use-debounce";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput, useTRPC } from "~/trpc/client";
 import {
   Empty,
   EmptyDescription,
@@ -22,7 +22,7 @@ import {
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { Spinner } from "~/components/spinner";
-import { keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 
@@ -163,12 +163,13 @@ export function ProductSearchPlaceholder({
 }
 
 function Content({ close }: { close: () => void }) {
+  const trpc = useTRPC();
   const route = useRouter();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [hover, setHover] = useState<number | null>(null);
-  const { data, isPending, isFetching, isError } =
-    api.public.products.queries.getPage.useQuery(
+  const { data, isPending, isFetching, isError } = useQuery(
+    trpc.public.products.queries.getPage.queryOptions(
       {
         pageSize: 4,
         filters: {
@@ -178,7 +179,8 @@ function Content({ close }: { close: () => void }) {
       {
         placeholderData: keepPreviousData,
       },
-    );
+    ),
+  );
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!data) return;
@@ -323,7 +325,7 @@ export function ProductSearchItem({
   index,
   ...props
 }: {
-  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
+  product: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
   hover: number | null;
   index: number;
 } & React.ComponentProps<"li">) {

@@ -3,7 +3,10 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
-import type { UpdateInventoryItemInput } from "~/lib/schemas/entities/inventory-item";
+import type {
+  UpdateInventoryItemInput,
+  UpdateManyInventoryItemsInput,
+} from "~/lib/schemas/entities/inventory-item";
 
 export const _inventoryItems = {
   queries: {
@@ -25,9 +28,9 @@ export const _inventoryItems = {
   },
 
   mutations: {
-    async update(input: UpdateInventoryItemInput) {
-      const { data: updatedItem, error } = await tryCatch(
-        data.admin.inventoryItems.mutations.updateMany(input),
+    async updateMany(input: UpdateManyInventoryItemsInput) {
+      const { data: updatedItems, error } = await tryCatch(
+        data.admin.inventoryItems.mutations.updateMany(input.inventory),
       );
       if (error) {
         throw new AppError(
@@ -38,7 +41,7 @@ export const _inventoryItems = {
         );
       }
 
-      return updatedItem;
+      return updatedItems;
     },
   },
 };

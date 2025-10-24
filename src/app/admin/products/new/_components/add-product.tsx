@@ -9,25 +9,30 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function AddProduct() {
   const router = useRouter();
-  const utils = api.useUtils();
-  const { mutate: createProduct, isPending: isCreatingProduct } =
-    api.admin.products.mutations.createDeep.useMutation({
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: createProduct, isPending: isCreatingProduct } = useMutation(
+    trpc.admin.products.mutations.createDeep.mutationOptions({
       onSuccess: () => {
         toast.success("Product created successfully");
-        void utils.admin.products.queries.getPage.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.products.queries.getPage.queryFilter(),
+        );
         router.push("/admin/products");
       },
       onError: (error) => {
         console.error(error);
         toast.error(error.message);
       },
-    });
+    }),
+  );
 
   function onSubmit(data: ProductFormValues) {
     createProduct(data);

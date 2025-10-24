@@ -7,11 +7,11 @@ import {
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { InventoryTableHeader } from "./header";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { useInventoryTableColumns } from "./columns";
 
 export type TableInventoryItem =
-  RouterOutputs["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
 
 export function InventoryTable({ data }: { data: TableInventoryItem[] }) {
   const columns = useInventoryTableColumns();

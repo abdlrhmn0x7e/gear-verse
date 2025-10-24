@@ -6,7 +6,7 @@ import z from "zod";
 import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
-import { adminProcedure, createTRPCRouter } from "../../trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/init";
 
 export const productsRouter = createTRPCRouter({
   /**
@@ -65,7 +65,6 @@ export const productsRouter = createTRPCRouter({
           ctx.app.admin.products.mutations.editDeep(input.id, input.data),
         );
         if (error) {
-          console.log("error", error);
           throw errorMap(error);
         }
 

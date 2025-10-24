@@ -1,5 +1,5 @@
 import { tryCatch } from "~/lib/utils/try-catch";
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/init";
 import { errorMap } from "../../error-map";
 
 export const userCustomersRouter = createTRPCRouter({

@@ -16,7 +16,7 @@ import {
 } from "~/components/ui/frame";
 
 export async function Reviews({ productId }: { productId: number }) {
-  const reviews = await api.public.reviews.findAll({ productId });
+  const reviews = await api.public.reviews.queries.findAll({ productId });
   const data = await auth.api.getSession({
     headers: await headers(),
   });

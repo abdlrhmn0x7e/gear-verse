@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -13,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 
 export function PublishProductDialog({
   id,
@@ -32,9 +33,11 @@ export function PublishProductDialog({
   className?: string;
   onPublishSuccess?: () => void;
 }) {
-  const utils = api.useUtils();
-  const { mutate: updateProduct, isPending } =
-    api.admin.products.mutations.editDeep.useMutation();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: updateProduct, isPending } = useMutation(
+    trpc.admin.products.mutations.editDeep.mutationOptions(),
+  );
 
   function handlePublish() {
     updateProduct(
@@ -42,7 +45,9 @@ export function PublishProductDialog({
       {
         onSuccess: () => {
           onPublishSuccess?.();
-          void utils.admin.products.queries.getPage.invalidate();
+          void queryClient.invalidateQueries({
+            queryKey: trpc.admin.products.queries.getPage.queryKey(),
+          });
         },
       },
     );

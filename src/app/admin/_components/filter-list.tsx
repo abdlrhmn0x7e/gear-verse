@@ -5,7 +5,7 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { OrderStatus } from "./tables/orders/order-status";
 import { PaymentMethod } from "~/app/(public)/(protected)/_components/payment-method";
 
@@ -47,8 +47,8 @@ type FilterValueProp = {
 interface FilterListProps {
   filters: FilterValueProp[];
   loading: boolean;
-  brands?: RouterOutputs["admin"]["brands"]["getPage"]["data"];
-  categories?: RouterOutputs["admin"]["categories"]["queries"]["findAll"];
+  brands?: RouterOutput["admin"]["brands"]["queries"]["getPage"]["data"];
+  categories?: RouterOutput["admin"]["categories"]["queries"]["findAll"];
   onRemove: ({
     key,
     value,

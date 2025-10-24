@@ -23,7 +23,7 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
     if (open) {
       return;
     }
-    void setParams((prev) => ({ ...prev, slug: null }));
+    void setParams(() => ({ id: null, slug: null }));
   }
 
   return (

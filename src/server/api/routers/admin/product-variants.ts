@@ -1,5 +1,5 @@
 import z from "zod";
-import { adminProcedure, createTRPCRouter } from "../../trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/init";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { updateProductVariantInputSchema } from "~/lib/schemas/entities/product-variants";

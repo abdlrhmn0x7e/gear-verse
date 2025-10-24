@@ -3,10 +3,10 @@
 import { IconShoppingBagX, IconShoppingCartCheck } from "@tabler/icons-react";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { Button } from "./ui/button";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
@@ -19,6 +19,9 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "./ui/drawer";
+import { useMutation } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export function CartDrawer({
   open,
@@ -27,25 +30,37 @@ export function CartDrawer({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  cart: RouterOutputs["public"]["carts"]["queries"]["find"];
+  cart: RouterOutput["public"]["carts"]["queries"]["find"];
 }) {
-  const utils = api.useUtils();
+  const trpc = useTRPC();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
   const router = useRouter();
-  const { mutate: removeItem, isPending: removingItem } =
-    api.public.carts.mutations.removeItem.useMutation({
+  const { mutate: removeItem, isPending: removingItem } = useMutation(
+    trpc.public.carts.mutations.removeItem.mutationOptions({
       onSuccess: () => {
-        void utils.public.carts.queries.find.invalidate();
+        void queryClient.invalidateQueries({
+          queryKey: trpc.public.carts.queries.find.queryKey(),
+        });
         router.refresh();
       },
-    });
-  const { mutate: addItem, isPending: addingItem } =
-    api.public.carts.mutations.addItem.useMutation({
+    }),
+  );
+  const { mutate: addItem, isPending: addingItem } = useMutation(
+    trpc.public.carts.mutations.addItem.mutationOptions({
       onSuccess: () => {
-        void utils.public.carts.queries.find.invalidate();
+        void queryClient.invalidateQueries({
+          queryKey: trpc.public.carts.queries.find.queryKey(),
+        });
         router.refresh();
       },
-    });
+    }),
+  );
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    onOpenChange(false);
+  }, [pathname]);
 
   return (
     <Drawer

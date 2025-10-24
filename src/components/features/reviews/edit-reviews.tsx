@@ -13,24 +13,27 @@ import {
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
 import { ReviewForm, type ReviewFormValues } from "./review-form";
-import type { RouterOutputs } from "~/trpc/react";
-import { api } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function EditReview({
   review,
   productId,
 }: {
-  review: RouterOutputs["public"]["reviews"]["findAll"][number];
+  review: RouterOutput["public"]["reviews"]["queries"]["findAll"][number];
   productId: number;
 }) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const { mutate: updateReview, isPending: updatingReview } =
-    api.public.reviews.update.useMutation();
-  const utils = api.useUtils();
+  const { mutate: updateReview, isPending: updatingReview } = useMutation(
+    trpc.public.reviews.mutations.update.mutationOptions(),
+  );
+
   const router = useRouter();
   function onSubmit(data: ReviewFormValues) {
     updateReview(
@@ -43,8 +46,10 @@ export function EditReview({
         onSuccess: () => {
           setIsOpen(false);
           router.refresh();
-          void utils.public.reviews.findAll.invalidate({
-            productId,
+          void queryClient.invalidateQueries({
+            queryKey: trpc.public.reviews.queries.findAll.queryKey({
+              productId,
+            }),
           });
           toast.success("Review updated successfully");
         },

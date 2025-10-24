@@ -1,26 +1,29 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   VariantForm,
   type VariantFormValues,
 } from "~/app/admin/_components/forms/variant-form";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 
 export function EditVariant({
   variant,
 }: {
-  variant: RouterOutputs["admin"]["productVariants"]["queries"]["findById"];
+  variant: RouterOutput["admin"]["productVariants"]["queries"]["findById"];
 }) {
   const router = useRouter();
-  const { mutate: updateVariant } =
-    api.admin.productVariants.mutations.update.useMutation({
+  const trpc = useTRPC();
+  const { mutate: updateVariant } = useMutation(
+    trpc.admin.productVariants.mutations.update.mutationOptions({
       onSuccess: () => {
         toast.dismiss();
         router.push("/admin/inventory");
       },
-    });
+    }),
+  );
 
   function onSubmit(data: VariantFormValues) {
     toast.loading("Updating variant...");

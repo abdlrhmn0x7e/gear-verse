@@ -3,6 +3,7 @@ import { paginate } from "../helpers/pagination";
 import { data } from "~/server/data-access";
 import { AppError } from "~/lib/errors/app-error";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { cacheTag } from "next/cache";
 
 export const _products = {
   queries: {

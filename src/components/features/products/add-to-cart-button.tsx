@@ -10,9 +10,10 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import { CartDrawer } from "../../cart-drawer";
+import { useTRPC } from "~/trpc/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function AddToCartButton({
   disabled,
@@ -24,29 +25,32 @@ export function AddToCartButton({
   stock: number;
 }) {
   const [openCartDrawer, setOpenCartDrawer] = useState(false);
-  const utils = api.useUtils();
-
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   // Get variant data from store
   const variantId = useVariantSelectionStore(
     (state) => state.selectedVariant,
   )?.id;
 
-  const { mutate: addToCart, isPending: addingToCart } =
-    api.public.carts.mutations.addItem.useMutation();
-  const { mutate: removeFromCart, isPending: removingFromCart } =
-    api.public.carts.mutations.removeItem.useMutation();
-  const { data: cart } = api.public.carts.queries.find.useQuery();
+  const { mutate: addToCart, isPending: addingToCart } = useMutation(
+    trpc.public.carts.mutations.addItem.mutationOptions(),
+  );
+  const { mutate: removeFromCart, isPending: removingFromCart } = useMutation(
+    trpc.public.carts.mutations.removeItem.mutationOptions(),
+  );
+  const { data: cart } = useQuery(
+    trpc.public.carts.queries.find.queryOptions(),
+  );
 
   const currentCartItem = useMemo(
-    () =>
-      cart?.items.find(
-        (item) => item.id === variantId || item.productId === productId,
-      ),
+    () => cart?.items.find((item) => item.productVariantId === variantId),
     [cart, variantId, productId],
   );
 
   const onSuccess = () => {
-    void utils.public.carts.queries.find.invalidate();
+    void queryClient.invalidateQueries({
+      queryKey: trpc.public.carts.queries.find.queryKey(),
+    });
   };
 
   function handleAddToCart() {

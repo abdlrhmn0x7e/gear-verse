@@ -4,11 +4,13 @@ import { PlusIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import {
   CategoryForm,
   type CategoryFormValues,
 } from "~/app/admin/_components/forms/category-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function AddCategory({
   parentCategoryId,
@@ -19,14 +21,22 @@ export function AddCategory({
   onSuccess: () => void;
   cancel: () => void;
 }) {
-  const utils = api.useUtils();
-  const { mutate: createCategory, isPending: isCreatingCategory } =
-    api.admin.categories.mutations.create.useMutation({
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: createCategory, isPending: isCreatingCategory } = useMutation(
+    trpc.admin.categories.mutations.create.mutationOptions({
       onSuccess: () => {
-        void utils.admin.categories.queries.findAll.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findAll.queryFilter(),
+        );
         onSuccess();
       },
-    });
+
+      onError: (error) => {
+        toast.error(error.message || "Failed to create category");
+      },
+    }),
+  );
 
   function onSubmit(data: CategoryFormValues) {
     createCategory(data);

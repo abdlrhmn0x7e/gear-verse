@@ -62,7 +62,6 @@ export const _products = {
             slugs.forEach((slug) => categoriesIds.add(slug));
           }),
         );
-        console.log("categoriesSlugs", categoriesIds);
 
         whereClause.push(inArray(categories.id, Array.from(categoriesIds)));
       }

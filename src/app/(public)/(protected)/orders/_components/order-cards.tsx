@@ -13,22 +13,31 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { formatDate } from "~/lib/utils/format-date";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
 import { LoadMore } from "~/components/load-more";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useTRPC } from "~/trpc/client";
 
 export function OrderCards() {
-  const [orders, { hasNextPage, fetchNextPage }] =
-    api.public.orders.queries.getPage.useSuspenseInfiniteQuery(
+  const trpc = useTRPC();
+  const {
+    data: orders,
+    hasNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery(
+    trpc.public.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
-    );
+    ),
+  );
+
   const { ref, inView } = useInView();
 
   useEffect(() => {
@@ -55,7 +64,7 @@ export function OrderCards() {
 export function OrderCard({
   order,
 }: {
-  order: RouterOutputs["public"]["orders"]["queries"]["getPage"]["data"][number];
+  order: RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number];
 }) {
   const [, setParams] = useOrdersSearchParams();
   function handleClick() {

@@ -14,12 +14,12 @@ import {
 } from "~/components/ui/empty";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import { DragableItem } from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 
 type CategoryProductListItem =
-  RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
 
 export function CategoryProductList({
   activeId,
@@ -93,7 +93,7 @@ function ProductsEmptyState() {
 }
 
 type ProductListItem =
-  RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
 
 export function ProductListItem({
   product,

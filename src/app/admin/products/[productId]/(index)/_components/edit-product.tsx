@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -12,18 +13,19 @@ import {
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { type RouterOutputs } from "~/trpc/react";
-import { api } from "~/trpc/react";
+import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 export function EditProduct({
   product,
 }: {
-  product: RouterOutputs["admin"]["products"]["queries"]["findById"];
+  product: RouterOutput["admin"]["products"]["queries"]["findById"];
 }) {
   const router = useRouter();
-  const utils = api.useUtils();
-  const { mutate: updateProduct, isPending: isUpdatingProduct } =
-    api.admin.products.mutations.editDeep.useMutation();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: updateProduct, isPending: isUpdatingProduct } = useMutation(
+    trpc.admin.products.mutations.editDeep.mutationOptions(),
+  );
 
   function onSubmit(data: Partial<ProductFormValues>) {
     updateProduct(
@@ -42,10 +44,14 @@ export function EditProduct({
       {
         onSuccess: () => {
           toast.success("Product updated successfully");
-          void utils.admin.products.queries.getPage.invalidate();
-          void utils.admin.products.queries.findById.invalidate({
-            id: product.id,
-          });
+          void queryClient.invalidateQueries(
+            trpc.admin.products.queries.getPage.queryFilter(),
+          );
+          void queryClient.invalidateQueries(
+            trpc.admin.products.queries.findById.queryFilter({
+              id: product.id,
+            }),
+          );
 
           router.push(`/admin/products`);
         },

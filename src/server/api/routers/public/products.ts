@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/init";
 import z from "zod";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";

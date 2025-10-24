@@ -16,13 +16,13 @@ import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 // Table logic & components
 import { mediaColumns } from "./columns";
 import { MediaTableHeader } from "./header";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
-  RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["media"]["queries"]["getPage"]["data"][number];
 
 export function MediaTable({
   data,

@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { api, type RouterOutputs } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
 import { Separator } from "~/components/ui/separator";
@@ -26,6 +26,7 @@ import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
 import { AddBrandDrawer } from "../drawers/add-brand";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
 export function BrandsCombobox({
   value,
@@ -40,19 +41,23 @@ export function BrandsCombobox({
 }) {
   const [open, setOpen] = React.useState(false);
   const { ref, inView } = useInView();
+  const trpc = useTRPC();
   const {
     data: brands,
     isPending: brandsPending,
     isError: brandsError,
     fetchNextPage,
     hasNextPage,
-  } = api.admin.brands.getPage.useInfiniteQuery(
-    {
-      pageSize: 10,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
+  } = useInfiniteQuery(
+    trpc.admin.brands.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 10,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        placeholderData: keepPreviousData,
+      },
+    ),
   );
 
   React.useEffect(() => {
@@ -195,7 +200,7 @@ export function BrandsCommand({
   value,
   ref,
 }: {
-  brands: RouterOutputs["admin"]["brands"]["getPage"]["data"];
+  brands: RouterOutput["admin"]["brands"]["queries"]["getPage"]["data"];
   value: number;
   onValueChange: (value: number) => void;
   setOpen: (open: boolean) => void;

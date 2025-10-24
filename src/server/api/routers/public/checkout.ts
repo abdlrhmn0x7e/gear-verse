@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/init";
 import { TRPCError } from "@trpc/server";
 import { createAddressInputSchema } from "~/lib/schemas/entities/address";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -8,11 +8,9 @@ import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
 export const userCheckoutRouter = createTRPCRouter({
   queries: {
     getAddresses: protectedProcedure.query(async ({ ctx }) => {
-      const parsedUserId = Number(ctx.session.user.id);
-
       const { data: addresses, error } = await tryCatch(
         ctx.app.public.checkout.queries.getAddresses({
-          userId: parsedUserId,
+          userId: ctx.user.id,
         }),
       );
       if (error) {
@@ -27,10 +25,8 @@ export const userCheckoutRouter = createTRPCRouter({
     addAddress: protectedProcedure
       .input(createAddressInputSchema)
       .mutation(async ({ ctx, input }) => {
-        const parsedUserId = Number(ctx.session.user.id);
-
         const { data, error } = await tryCatch(
-          ctx.app.public.checkout.mutations.addAddress(input, parsedUserId),
+          ctx.app.public.checkout.mutations.addAddress(input, ctx.user.id),
         );
         if (error) {
           throw errorMap(error);
@@ -42,11 +38,9 @@ export const userCheckoutRouter = createTRPCRouter({
     complete: protectedProcedure
       .input(checkoutInputSchema)
       .mutation(async ({ ctx, input }) => {
-        const parsedUserId = Number(ctx.session.user.id);
-
         // validate cart
         const { data: cart, error: findCartError } = await tryCatch(
-          ctx.app.public.carts.queries.find(parsedUserId),
+          ctx.app.public.carts.queries.find(ctx.user.id),
         );
 
         if (findCartError) {
@@ -101,7 +95,7 @@ export const userCheckoutRouter = createTRPCRouter({
         // create an order, order items and clear the cart
         const { data: order, error: createOrderError } = await tryCatch(
           ctx.app.public.checkout.mutations.create({
-            userId: parsedUserId,
+            userId: ctx.user.id,
             cartId: cart.id,
             input: {
               paymentMethod: input.paymentMethod,

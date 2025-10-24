@@ -1,3 +1,4 @@
+import { revalidateTag, updateTag } from "next/cache";
 import { AppError } from "~/lib/errors/app-error";
 import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categories";
 import {
@@ -41,10 +42,25 @@ export const _categories = {
         slug = generateSlug(input.name);
       }
 
-      return data.admin.categories.mutations.create({
-        ...input,
-        slug,
-      });
+      const { data: createdCategory, error } = await tryCatch(
+        data.admin.categories.mutations.create({
+          ...input,
+          slug,
+        }),
+      );
+
+      if (error) {
+        throw new AppError(
+          "This Category Already Exist, Change it's name and try again",
+          "INTERNAL",
+          {
+            cause: error,
+          },
+        );
+      }
+
+      revalidateTag("categories", "max");
+      return createdCategory;
     },
 
     update: async (input: UpdateCategoryInput) => {

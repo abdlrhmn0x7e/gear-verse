@@ -2,11 +2,11 @@
 
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createInventoryItemInputSchema } from "~/lib/schemas/entities/inventory-item";
+import { updateManyInventoryItemsInputSchema } from "~/lib/schemas/entities/inventory-item";
 import type z from "zod";
 import { InventoryTable } from "../tables/inventory/table";
-import type { RouterOutputs } from "~/trpc/react";
-import { useEffect, useMemo, useState } from "react";
+import type { RouterOutput } from "~/trpc/client";
+import { useLayoutEffect, useMemo, useState } from "react";
 import {
   Item,
   ItemActions,
@@ -17,9 +17,8 @@ import {
 import { Button } from "~/components/ui/button";
 import { SaveIcon, XIcon } from "lucide-react";
 import { Spinner } from "~/components/spinner";
-import { da } from "zod/v4/locales";
 
-const inventoryItemFormSchema = createInventoryItemInputSchema;
+const inventoryItemFormSchema = updateManyInventoryItemsInputSchema;
 export type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
 
 export function InventoryItemForm({
@@ -27,7 +26,7 @@ export function InventoryItemForm({
   values,
   isSubmitting = false,
 }: {
-  values: RouterOutputs["admin"]["inventoryItems"]["queries"]["getPage"]["data"];
+  values: RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"];
   onSubmit: (data: InventoryItemFormValues) => void;
   isSubmitting?: boolean;
 }) {
@@ -59,12 +58,12 @@ export function InventoryItemForm({
     })();
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!itemRef) return;
 
     const timeout = setTimeout(() => {
       itemRef.style.visibility = "visible";
-    }, 200);
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [itemRef]);

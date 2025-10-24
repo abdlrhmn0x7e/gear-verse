@@ -2,7 +2,8 @@ import { PlusCircleIcon, TargetIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { BrandForm, type BrandFormValues } from "../forms/brand-form";
 import { toast } from "sonner";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Spinner } from "~/components/spinner";
 import {
@@ -19,15 +20,19 @@ import { useIsMobile } from "~/hooks/use-mobile";
 export function AddBrandDrawer() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
-  const { mutate: createBrand, isPending: isCreatingBrand } =
-    api.admin.brands.create.useMutation();
-  const utils = api.useUtils();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: createBrand, isPending: isCreatingBrand } = useMutation(
+    trpc.admin.brands.mutations.create.mutationOptions(),
+  );
 
   function handleSubmit(data: BrandFormValues) {
     createBrand(data, {
       onSuccess: () => {
         toast.success("Brand created successfully");
-        void utils.admin.brands.getPage.invalidate();
+        void queryClient.invalidateQueries({
+          queryKey: trpc.admin.brands.queries.getPage.queryKey(),
+        });
         setOpen(false);
       },
     });

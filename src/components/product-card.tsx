@@ -1,7 +1,7 @@
 import { CheckCircleIcon, EyeIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { Heading } from "./heading";
 import { ImageWithFallback } from "./image-with-fallback";
 import { AspectRatio } from "./ui/aspect-ratio";
@@ -13,7 +13,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 export function ProductCard({
   product,
 }: {
-  product: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
+  product: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   return (
     <Link href={`/products/${product.slug}`} className="group">

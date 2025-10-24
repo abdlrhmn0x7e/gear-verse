@@ -1,6 +1,6 @@
 import { cn } from "~/lib/utils";
 import { ImageWithFallback } from "./image-with-fallback";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutput } from "~/trpc/client";
 
 export function VariantButton({
   variant,
@@ -8,7 +8,7 @@ export function VariantButton({
   ...props
 }: {
   variant: NonNullable<
-    RouterOutputs["public"]["products"]["queries"]["findBySlug"]["variants"]
+    RouterOutput["public"]["products"]["queries"]["findBySlug"]["variants"]
   >[number];
   className?: string;
 } & React.ComponentProps<"button">) {

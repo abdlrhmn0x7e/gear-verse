@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { api } from "~/trpc/react";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import type {
   Category,
   CategoryIconEnum,
@@ -39,6 +39,7 @@ import {
 import { Spinner } from "~/components/spinner";
 import { iconsMap } from "~/lib/icons-map";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
+import { useQuery } from "@tanstack/react-query";
 
 export function CategoriesCombobox({
   value,
@@ -48,8 +49,10 @@ export function CategoriesCombobox({
   onValueChange: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
   const [open, setOpen] = React.useState(false);
-  const { data: categories, isPending: categoriesPending } =
-    api.admin.categories.queries.findAll.useQuery();
+  const trpc = useTRPC();
+  const { data: categories, isPending: categoriesPending } = useQuery(
+    trpc.admin.categories.queries.findAll.queryOptions(),
+  );
 
   const flattenedCategories = useFlatCategories(categories ?? []);
 

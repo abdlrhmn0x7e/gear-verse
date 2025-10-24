@@ -5,14 +5,14 @@ import { ChevronRightIcon, PowerOffIcon, RadioTowerIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductsTableActions } from "./actions";
 import { Badge } from "~/components/ui/badge";
 
 export const productColumns: ColumnDef<
-  RouterOutputs["admin"]["products"]["queries"]["getPage"]["data"][number]
+  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",

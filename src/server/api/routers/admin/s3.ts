@@ -1,5 +1,5 @@
 import { s3GetPresignedUrl } from "~/lib/s3";
-import { adminProcedure, createTRPCRouter } from "../../trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/init";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { TRPCError } from "@trpc/server";
 import z from "zod";

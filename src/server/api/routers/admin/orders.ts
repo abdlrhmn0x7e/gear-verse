@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure } from "../../trpc";
+import { createTRPCRouter, adminProcedure } from "~/server/api/init";
 import z from "zod";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
@@ -6,7 +6,7 @@ import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
 
 export const adminOrdersRouter = createTRPCRouter({
   queries: {
-    getPage: protectedProcedure
+    getPage: adminProcedure
       .input(ordersGetPageInputSchema)
       .query(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
@@ -18,7 +18,7 @@ export const adminOrdersRouter = createTRPCRouter({
         return data;
       }),
 
-    findById: protectedProcedure
+    findById: adminProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(

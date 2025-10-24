@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "../../trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/init";
 
 export const userBrandsRouter = createTRPCRouter({
   queries: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import {
   CloudUploadIcon,
   EyeIcon,
@@ -11,10 +12,18 @@ import {
   UploadCloudIcon,
   XIcon,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useInView } from "react-intersection-observer";
+import { toast } from "sonner";
+import Header from "~/components/header";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { LoadMore } from "~/components/load-more";
 import { Spinner } from "~/components/spinner";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
 import {
   Dialog,
   DialogBody,
@@ -24,30 +33,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { cn } from "~/lib/utils";
-import { SearchInput } from "../inputs/search-input";
 import {
   Select,
-  SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectTrigger,
 } from "~/components/ui/select";
-import { AnimatePresence, motion } from "motion/react";
-import { api, type RouterOutputs } from "~/trpc/react";
-import { useDebounce } from "~/hooks/use-debounce";
-import Header from "~/components/header";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
-import { MediaTable } from "../tables/media/table";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import { Checkbox } from "~/components/ui/checkbox";
-import { keepPreviousData } from "@tanstack/react-query";
-import { LoadMore } from "~/components/load-more";
-import { useInView } from "react-intersection-observer";
+import { useDebounce } from "~/hooks/use-debounce";
+import { cn } from "~/lib/utils";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useMediaStore } from "../../_stores/media/provider";
 import type { SelectedMedia } from "../../_stores/media/store";
 import type { FileDropZoneProps } from "../inputs/file-dropzone";
-import { toast } from "sonner";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { SearchInput } from "../inputs/search-input";
+import { MediaTable } from "../tables/media/table";
 
 export function MediaDialog({
   children,
@@ -68,7 +68,7 @@ export function MediaDialog({
       <DialogTrigger className="relative z-10" asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl">
+      <DialogContent className="sm:max-w-screen-sm md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
         <DialogHeader>
           <DialogTitle>Select Media</DialogTitle>
         </DialogHeader>
@@ -193,7 +193,7 @@ function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
     <div className="space-y-4">
       <div
         className={cn(
-          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
+          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-center transition-colors duration-100",
           isDragActive && "bg-input/60",
           isPending && "hover:bg-input/20 pointer-events-none opacity-50",
           className,
@@ -257,6 +257,7 @@ function MediaGallery({
 }) {
   const debouncedSearch = useDebounce(search, 500);
 
+  const trpc = useTRPC();
   const {
     data: mediaPages,
     isPending,
@@ -264,17 +265,19 @@ function MediaGallery({
     hasNextPage,
     fetchNextPage,
     isError,
-  } = api.admin.media.queries.getPage.useInfiniteQuery(
-    {
-      pageSize: 10,
-      filters: {
-        name: debouncedSearch,
+  } = useInfiniteQuery(
+    trpc.admin.media.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 10,
+        filters: {
+          name: debouncedSearch,
+        },
       },
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      placeholderData: keepPreviousData,
-    },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        placeholderData: keepPreviousData,
+      },
+    ),
   );
   const media = useMemo(
     () => mediaPages?.pages.flatMap((page) => page.data),
@@ -343,7 +346,7 @@ function MediaGrid({
   media,
   className,
 }: {
-  media: RouterOutputs["admin"]["media"]["queries"]["getPage"]["data"];
+  media: RouterOutput["admin"]["media"]["queries"]["getPage"]["data"];
   className?: string;
 }) {
   const selectedMedia = useMediaStore((state) => state.selectedMedia);

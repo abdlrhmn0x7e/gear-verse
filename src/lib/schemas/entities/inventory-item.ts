@@ -47,3 +47,10 @@ export const updateInventoryItemInputSchema = inventoryItemSchema
 export type UpdateInventoryItemInput = z.infer<
   typeof updateInventoryItemInputSchema
 >;
+
+export const updateManyInventoryItemsInputSchema = z.object({
+  inventory: createInventoryItemInputSchema.array(),
+});
+export type UpdateManyInventoryItemsInput = z.infer<
+  typeof updateManyInventoryItemsInputSchema
+>;

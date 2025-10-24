@@ -36,8 +36,9 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { IconHomeOff, IconHomePlus } from "@tabler/icons-react";
 import { Button } from "~/components/ui/button";
 import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const checkoutFormSchema = checkoutInputSchema;
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -47,15 +48,19 @@ export function CheckoutForm({
 }: {
   onSubmit: (data: CheckoutFormValues) => void;
 }) {
-  const utils = api.useUtils();
-  const { data: addresses, isPending: addressesPending } =
-    api.public.checkout.queries.getAddresses.useQuery();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const { data: addresses, isPending: addressesPending } = useQuery(
+    trpc.public.checkout.queries.getAddresses.queryOptions(),
+  );
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: async () => {
-      const addresses =
-        await utils.public.checkout.queries.getAddresses.fetch();
+      const addresses = await queryClient.fetchQuery(
+        trpc.public.checkout.queries.getAddresses.queryOptions(),
+      );
 
       return {
         paymentMethod: "COD",

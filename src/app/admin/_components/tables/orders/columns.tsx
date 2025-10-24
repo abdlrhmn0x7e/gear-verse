@@ -4,15 +4,15 @@ import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutput } from "~/trpc/client";
 import { OrderStatus } from "./order-status";
-import { PaymentMethod } from "./payment-method";
+import { PaymentMethod } from "~/components/payment-method";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { OrdersTableActions } from "./actions";
 
 export const ordersColumns: ColumnDef<
-  RouterOutputs["admin"]["orders"]["queries"]["getPage"]["data"][number]
+  RouterOutput["admin"]["orders"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
     accessorKey: "id",

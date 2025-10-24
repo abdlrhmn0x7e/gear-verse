@@ -151,10 +151,12 @@ export async function ProductDetails({
             </TabsList>
 
             <TabsContent value="details">
-              <ProductDescription
-                description={product.description}
-                className="m-0"
-              />
+              <Suspense>
+                <ProductDescription
+                  description={product.description}
+                  className="m-0"
+                />
+              </Suspense>
             </TabsContent>
 
             {!hideReviews && (

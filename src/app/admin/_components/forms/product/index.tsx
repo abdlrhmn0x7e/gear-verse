@@ -394,7 +394,11 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Strike Through Price (optional)</FormLabel>
                     <FormControl>
-                      <PriceInput placeholder="0 dollaz?" {...field} />
+                      <PriceInput
+                        placeholder="0 dollaz?"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

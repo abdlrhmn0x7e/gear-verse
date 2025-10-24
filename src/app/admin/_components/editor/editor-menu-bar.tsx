@@ -47,7 +47,7 @@ import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import z from "zod";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { Skeleton } from "~/components/ui/skeleton";
 import Image from "next/image";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
@@ -61,6 +61,7 @@ import {
 } from "~/components/ui/tooltip";
 import { MediaDialog } from "../dialogs/media";
 import type { SelectedMedia } from "../../_stores/media/store";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 export function EditorMenuBar({
   editor,
@@ -401,19 +402,22 @@ function ImageDrawerDialog({
 }
 
 function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
+  const trpc = useTRPC();
   const {
     data: images,
     isPending: imagesPending,
     isError: imagesError,
     fetchNextPage,
     hasNextPage,
-  } = api.admin.media.queries.getPage.useInfiniteQuery(
-    {
-      pageSize: 10,
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
+  } = useInfiniteQuery(
+    trpc.admin.media.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 10,
+      },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    ),
   );
 
   const { ref, inView } = useInView();
@@ -424,7 +428,10 @@ function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  const imagesData = images?.pages.flatMap((page) => page.data);
+  const imagesData = React.useMemo(
+    () => images?.pages.flatMap((page) => page.data),
+    [images],
+  );
 
   if (imagesPending) {
     return (

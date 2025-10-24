@@ -182,7 +182,11 @@ export function VariantsTable({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <PriceInput placeholder={`${productPrice}`} {...field} />
+                    <PriceInput
+                      placeholder={`${productPrice}`}
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,7 +212,12 @@ export function VariantsTable({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <NumberInput placeholder="Stock" min={0} {...field} />
+                    <NumberInput
+                      placeholder="Stock"
+                      min={0}
+                      {...field}
+                      value={field.value ?? 0}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -324,8 +333,11 @@ function VariantMediaDialog({ index }: { index: number }) {
   });
 
   function handleChange(media: SelectedMedia[]) {
+    const prev = form.getValues(`variants.${index}`);
+    if (!prev) return;
+
     update(index, {
-      ...variant,
+      ...prev,
       thumbnail: { id: media[0]!.mediaId, url: media[0]!.url },
     });
   }

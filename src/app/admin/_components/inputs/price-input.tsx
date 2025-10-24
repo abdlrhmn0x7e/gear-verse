@@ -9,7 +9,7 @@ export function PriceInput({
   step = 100,
   ...props
 }: React.ComponentProps<typeof InputGroupNumberInput> & {
-  value: number | null | undefined;
+  value?: string | number;
   size?: "sm" | "lg";
 }) {
   return (

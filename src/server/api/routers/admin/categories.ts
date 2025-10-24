@@ -2,7 +2,11 @@ import {
   categoryEntitySchema,
   updateCategoryInputSchema,
 } from "~/lib/schemas/entities/category";
-import { adminProcedure, createTRPCRouter, publicProcedure } from "../../trpc";
+import {
+  createTRPCRouter,
+  adminProcedure,
+  publicProcedure,
+} from "~/server/api/init";
 import { errorMap } from "../../error-map";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { deleteCategoryInputSchema } from "~/lib/schemas/contracts/admin/categories";

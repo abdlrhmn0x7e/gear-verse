@@ -8,7 +8,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   Item,
   ItemActions,
@@ -63,12 +63,12 @@ export function VariantForm({
     })();
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!itemRef) return;
 
     const timeout = setTimeout(() => {
       itemRef.style.visibility = "visible";
-    }, 200);
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [itemRef]);

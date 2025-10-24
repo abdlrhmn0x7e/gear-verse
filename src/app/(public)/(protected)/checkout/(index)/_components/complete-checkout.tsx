@@ -4,10 +4,12 @@ import { Button } from "~/components/ui/button";
 import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
 import { ArrowBigUpDashIcon, SparklesIcon } from "lucide-react";
 import { Heading } from "~/components/heading";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/trpc/client";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
+import { useQueryClient } from "node_modules/@tanstack/react-query/build/modern/QueryClientProvider";
+import { useMutation } from "@tanstack/react-query";
 
 export function CompleteCheckout({
   children,
@@ -18,13 +20,17 @@ export function CompleteCheckout({
   hasCartItems: boolean;
   className?: string;
 }) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const router = useRouter();
-  const { mutate: checkout, isPending: checkoutPending } =
-    api.public.checkout.mutations.complete.useMutation({
+  const { mutate: checkout, isPending: checkoutPending } = useMutation(
+    trpc.public.checkout.mutations.complete.mutationOptions({
       onSuccess: (order) => {
         router.push(`/checkout/success?orderId=${order.id}`);
       },
-    });
+    }),
+  );
 
   function onSubmit(data: CheckoutFormValues) {
     checkout(data);

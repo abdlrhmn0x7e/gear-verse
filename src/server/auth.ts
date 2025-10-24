@@ -83,6 +83,18 @@ export const auth = betterAuth({
   ],
 });
 
+export async function requireAuth() {
+  "use server";
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return notFound();
+  }
+}
+
 export async function requireAdmin() {
   "use server";
 

@@ -21,7 +21,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { api } from "~/trpc/react";
 import {
   DragableContext,
   DragableOverlay,
@@ -38,10 +37,15 @@ import { CategoryProductList, ProductListItem } from "./products-grid";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { useInfiniteQuery } from "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery";
+import { useTRPC } from "~/trpc/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function CategoriesViewer() {
-  const { data: categories, isPending: isPendingCategories } =
-    api.admin.categories.queries.findAll.useQuery();
+  const trpc = useTRPC();
+  const { data: categories, isPending: isPendingCategories } = useQuery(
+    trpc.admin.categories.queries.findAll.queryOptions(),
+  );
   const selectedCategory = useCategoryStore((state) => state.selectedCategory);
   const parentCategory = useCategoryStore((state) => state.parentCategory);
 
@@ -61,9 +65,11 @@ export function CategoriesViewer() {
     isPending: isLoadingProducts,
     hasNextPage,
     fetchNextPage,
-  } = api.admin.products.queries.getPage.useInfiniteQuery(queryParams, {
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  });
+  } = useInfiniteQuery(
+    trpc.admin.products.queries.getPage.infiniteQueryOptions(queryParams, {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }),
+  );
 
   const { ref, inView } = useInView();
   useEffect(() => {
@@ -111,47 +117,61 @@ export function CategoriesViewer() {
     return categories ? findById(categories, cid) : undefined;
   }, [categories, activeId]);
 
-  const utils = api.useUtils();
-  const { mutate: updateProductCategory } =
-    api.admin.products.mutations.editDeep.useMutation({
+  const queryClient = useQueryClient();
+  const { mutate: updateProductCategory } = useMutation(
+    trpc.admin.products.mutations.editDeep.mutationOptions({
       onSuccess: () => {
-        void utils.admin.products.queries.getPage.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.products.queries.getPage.queryFilter(),
+        );
       },
 
       // Optimistic updates
       onMutate: async (data) => {
-        await utils.admin.products.queries.getPage.cancel();
-        const oldProducts =
-          utils.admin.products.queries.getPage.getData(queryParams);
+        await queryClient.cancelQueries(
+          trpc.admin.products.queries.getPage.queryFilter(),
+        );
+        const oldProducts = queryClient.getQueryData(
+          trpc.admin.products.queries.getPage.queryKey(),
+        );
         if (!oldProducts) return;
 
-        utils.admin.products.queries.getPage.setData(queryParams, {
-          ...oldProducts,
-          data: oldProducts.data.filter((p) => p.id !== data.id),
-        });
+        queryClient.setQueryData(
+          trpc.admin.products.queries.getPage.queryKey(),
+          {
+            ...oldProducts,
+            data: oldProducts.data.filter((p) => p.id !== data.id),
+          },
+        );
 
         return { previousProducts: oldProducts };
       },
 
       onError: (_err, _newTodo, context) => {
         if (!context) return;
-        utils.admin.products.queries.getPage.setData(
-          queryParams,
-          context?.previousProducts,
+        queryClient.setQueryData(
+          trpc.admin.products.queries.getPage.queryKey(),
+          context.previousProducts,
         );
       },
 
       onSettled: () => {
-        void utils.admin.products.queries.getPage.invalidate(queryParams);
+        void queryClient.invalidateQueries(
+          trpc.admin.products.queries.getPage.queryFilter(),
+        );
       },
-    });
+    }),
+  );
 
-  const { mutate: updateCategoryParent } =
-    api.admin.categories.mutations.update.useMutation({
+  const { mutate: updateCategoryParent } = useMutation(
+    trpc.admin.categories.mutations.update.mutationOptions({
       onSuccess: () => {
-        void utils.admin.categories.queries.findAll.invalidate();
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findAll.queryFilter(),
+        );
       },
-    });
+    }),
+  );
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id);

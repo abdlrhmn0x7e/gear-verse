@@ -3,11 +3,12 @@
 import { Button } from "~/components/ui/button";
 import { ReviewForm, type ReviewFormValues } from "./review-form";
 import { SendIcon } from "lucide-react";
-import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
+import { useTRPC } from "~/trpc/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function AddReview({
   productId,
@@ -18,10 +19,12 @@ export function AddReview({
   disabled: boolean;
   className?: string;
 }) {
-  const utils = api.useUtils();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const router = useRouter();
-  const { mutate: createReview, isPending: isCreatingReview } =
-    api.public.reviews.create.useMutation();
+  const { mutate: createReview, isPending: isCreatingReview } = useMutation(
+    trpc.public.reviews.mutations.create.mutationOptions(),
+  );
 
   function onSubmit(data: ReviewFormValues) {
     createReview(
@@ -29,7 +32,11 @@ export function AddReview({
       {
         onSuccess: () => {
           router.refresh();
-          void utils.public.reviews.findAll.invalidate({ productId });
+          void queryClient.invalidateQueries({
+            queryKey: trpc.public.reviews.queries.findAll.queryKey({
+              productId,
+            }),
+          });
           toast.success("Review created successfully");
         },
       },

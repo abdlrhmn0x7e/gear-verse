@@ -24,17 +24,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   useEffect,
+  useEffectEvent,
   useState,
   type ComponentProps,
   type ForwardRefExoticComponent,
   type RefAttributes,
 } from "react";
 import Header from "~/components/header";
-import { api, type RouterOutputs } from "~/trpc/react";
-import { Logo } from "./logo";
-import { ProfileDropdown } from "./profile-dropdown";
-import { AspectRatio } from "./ui/aspect-ratio";
-import { Button } from "./ui/button";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { Logo } from "~/components/logo";
+import { ProfileDropdown } from "~/components/profile-dropdown";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+import { Button } from "~/components/ui/button";
 
 import {
   ProductSearchDialog,
@@ -47,21 +48,26 @@ import {
 } from "~/components/product-search-dialog";
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
-import { ImageWithFallback } from "./image-with-fallback";
-import { Kbd, KbdGroup } from "./ui/kbd";
-import { Skeleton } from "./ui/skeleton";
-import { Separator } from "radix-ui";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { Skeleton } from "~/components/ui/skeleton";
+import { Separator } from "~/components/ui/separator";
 import { useDebounce } from "~/hooks/use-debounce";
-import { CartDrawer } from "./cart-drawer";
+import { CartDrawer } from "~/components/cart-drawer";
 import {
   Drawer,
   DrawerTrigger,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-} from "./ui/drawer";
+} from "~/components/ui/drawer";
 
-import { InputGroup, InputGroupInput, InputGroupAddon } from "./ui/input-group";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupAddon,
+} from "~/components/ui/input-group";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 export interface NavigationLink {
   title: string;
   icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
@@ -94,19 +100,27 @@ export function Navbar() {
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [openCart, setOpenCart] = useState(false);
 
-  const utils = api.useUtils();
-  const { data: cart, isPending: isPendingCart } =
-    api.public.carts.queries.find.useQuery(undefined, {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { data: cart, isPending: isPendingCart } = useQuery(
+    trpc.public.carts.queries.find.queryOptions(undefined, {
       enabled: !!user,
-    });
+    }),
+  );
   const pathname = usePathname();
+
+  const prefetchEvent = useEffectEvent(() => {
+    void queryClient.prefetchQuery(
+      trpc.public.products.queries.getPage.queryOptions({
+        pageSize: 6,
+      }),
+    );
+  });
 
   // prefetch products
   useEffect(() => {
-    void utils.public.products.queries.getPage.prefetch({
-      pageSize: 6,
-    });
-  }, [utils]);
+    prefetchEvent();
+  }, []);
 
   // login anonymously if the user is not authenticated
   useEffect(() => {
@@ -123,7 +137,7 @@ export function Navbar() {
     <>
       <header className="bg-background/90 fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur">
         <motion.div
-          className="mx-auto space-y-3 px-4 py-4 md:max-w-screen-lg md:px-8 lg:max-w-screen-xl"
+          className="mx-auto space-y-3 px-4 py-4 md:max-w-5xl md:px-8 lg:max-w-7xl"
           style={{ height: "auto" }}
           transition={{
             duration: 0.3,
@@ -255,7 +269,7 @@ function ProductsMenu({ open }: { open: boolean }) {
         paddingBottom: "1rem",
       }}
       animate={open ? "open" : "closed"}
-      className="mx-auto grid max-w-screen-xl grid-cols-4 gap-3 overflow-hidden px-3"
+      className="mx-auto grid max-w-7xl grid-cols-4 gap-3 overflow-hidden px-3"
     >
       <div className="col-span-3 space-y-3">
         <Header
@@ -296,10 +310,12 @@ function ProductsMenu({ open }: { open: boolean }) {
 }
 
 function ProductsMenuContent() {
-  const { data: products, isPending: productsPending } =
-    api.public.products.queries.getPage.useQuery({
+  const trpc = useTRPC();
+  const { data: products, isPending: productsPending } = useQuery(
+    trpc.public.products.queries.getPage.queryOptions({
       pageSize: 6,
-    });
+    }),
+  );
   if (productsPending) {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -336,7 +352,7 @@ function ProductsMenuContent() {
 function ProductCard({
   products,
 }: {
-  products: RouterOutputs["public"]["products"]["queries"]["getPage"]["data"][number];
+  products: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   return (
     <Link href={`/products/${products.slug}`}>
@@ -440,16 +456,19 @@ function SearchDrawer() {
   const pathname = usePathname();
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
+  const trpc = useTRPC();
   const {
     data: products,
     isPending: productsPending,
     isError: productsError,
-  } = api.public.products.queries.getPage.useQuery({
-    pageSize: 4,
-    filters: {
-      title: debouncedSearch,
-    },
-  });
+  } = useQuery(
+    trpc.public.products.queries.getPage.queryOptions({
+      pageSize: 4,
+      filters: {
+        title: debouncedSearch,
+      },
+    }),
+  );
 
   useEffect(() => {
     setOpen(false);

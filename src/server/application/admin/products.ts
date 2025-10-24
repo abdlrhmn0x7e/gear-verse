@@ -5,7 +5,7 @@ import type { ProductsGetPageInput } from "@schemas/contracts";
 import { paginate } from "~/server/application/helpers/pagination";
 import { generateSlug } from "~/lib/utils/slugs";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
-import { updateTag } from "next/cache";
+import { revalidateTag, updateTag } from "next/cache";
 
 export const _products = {
   queries: {
@@ -70,7 +70,7 @@ export const _products = {
       const { options, variants, ...product } = input;
 
       // invalidate the page cache for this product
-      updateTag(`product-${productId}`);
+      revalidateTag(`product-${productId}`, "max");
 
       // update the product if there are any changes
       if (Object.keys(product).length > 0) {

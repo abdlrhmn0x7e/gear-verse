@@ -1,22 +1,24 @@
 import { PackageOpenIcon } from "lucide-react";
 import Header from "~/components/header";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { OrdersDrawer } from "./_components/orders-drawer";
 import type { SearchParams } from "nuqs/server";
 import { loadOrderSearchParams } from "./_hooks/use-orders-search-params";
 import { OrderCards, OrderCardsSkeleton } from "./_components/order-cards";
 import { Suspense } from "react";
+import { requireAuth } from "~/server/auth";
 
 export default async function OrdersPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  await requireAuth();
   void loadOrderSearchParams(searchParams);
-  void api.public.orders.queries.getPage.prefetchInfinite({
-    pageSize: 10,
-  });
+  void prefetch(
+    trpc.public.orders.queries.getPage.queryOptions({ pageSize: 10 }),
+  );
 
   return (
     <section className="min-h-screen py-24">

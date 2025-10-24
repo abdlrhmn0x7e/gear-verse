@@ -11,7 +11,9 @@ export default function ProductsPage({
 }) {
   return (
     <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
-      <Filters className="lg:col-span-4 xl:col-span-3" />
+      <Suspense>
+        <Filters className="lg:col-span-4 xl:col-span-3" />
+      </Suspense>
 
       <Suspense fallback={<ProductsSkeleton />}>
         <Products
