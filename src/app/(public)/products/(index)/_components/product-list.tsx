@@ -73,7 +73,7 @@ export function ProductList() {
 
 export function ProductListSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 xl:grid-cols-3 2xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
         <ProductCardSkeleton key={`product-card-skeleton-${index}`} />
       ))}

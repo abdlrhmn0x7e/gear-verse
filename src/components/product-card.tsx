@@ -127,55 +127,65 @@ export function ProductCard({
 
 export function ProductCardSkeleton() {
   return (
-    <div className="group">
-      <div className="bg-card space-y-3 rounded-lg border p-1">
+    <Card className="h-full gap-1 p-1">
+      <CardHeader className="p-0">
         <AspectRatio
           ratio={16 / 10}
           className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
         >
           <Skeleton className="size-full rounded-none border-none" />
         </AspectRatio>
+      </CardHeader>
 
-        <div className="space-y-3">
-          <div className="space-y-3 px-1">
-            <div>
-              <div className="flex items-center gap-2">
-                <Skeleton className="size-4 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-
-              <Skeleton className="mt-2 h-6 w-3/4" />
-              <div className="mt-2 space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-11/12" />
-                <Skeleton className="h-4 w-10/12" />
-              </div>
+      <CardContent className="flex-1 space-y-3 p-0">
+        <div className="space-y-3 px-1">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="size-4 rounded-full" />
+              <Skeleton className="h-4 w-1/3" />
             </div>
 
-            <div className="flex items-end gap-3">
-              <Skeleton className="h-6 w-24" />
-              <Skeleton className="h-5 w-16" />
-            </div>
+            <Skeleton className="h-5 w-full" />
 
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-40" />
-              <div className="flex flex-wrap gap-2">
-                {[0, 1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-1 rounded-md border px-1 py-px"
-                  >
-                    <Skeleton className="size-4 rounded-full" />
-                    <Skeleton className="h-4 w-12" />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Skeleton className="h-4 w-full" />
           </div>
 
-          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-4 w-full" />
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground text-sm font-medium">
+                Available in
+              </p>
+              <Skeleton className="h-4 w-8" />
+              <p className="text-muted-foreground text-sm font-medium">
+                variants
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <Badge
+                  key={`product-card-skeleton-variant-${index}`}
+                  variant="outline"
+                  className="px-1 py-px"
+                >
+                  <Skeleton className="size-4 rounded-full" />
+
+                  <Skeleton className="h-4 w-16" />
+                </Badge>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+
+      <CardFooter className="mt-2 p-0">
+        <Button className="w-full" disabled>
+          <EyeIcon />
+          View Details
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

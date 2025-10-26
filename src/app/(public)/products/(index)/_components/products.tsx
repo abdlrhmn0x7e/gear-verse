@@ -39,9 +39,10 @@ export async function Products({
       <div className="flex items-center justify-between">
         <Heading level={3}>All Products</Heading>
 
-        <Suspense>
+        <Suspense fallback={<Skeleton className="h-6 w-[4rem]" />}>
           <div className="flex items-center gap-2">
             <ProductsSort />
+
             <MobileFilters />
           </div>
         </Suspense>
@@ -62,7 +63,7 @@ export function ProductsSkeleton({ className }: { className?: string }) {
       <div className="flex items-center justify-between">
         <Heading level={3}>All Products</Heading>
 
-        <Skeleton className="h-6 w-1/4" />
+        <Skeleton className="h-6 w-[4rem]" />
       </div>
 
       <ProductListSkeleton />

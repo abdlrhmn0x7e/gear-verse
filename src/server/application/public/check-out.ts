@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { AppError } from "~/lib/errors/app-error";
 import type { CreateAddressInput } from "~/lib/schemas/entities/address";
 import type {
@@ -65,6 +66,11 @@ export const _checkout = {
         throw new AppError("Failed to create order", "INTERNAL", {
           cause: error,
         });
+      }
+
+      // Revalidate product pages to update stock info
+      for (const item of items) {
+        revalidateTag(`product-${item.productId}`, "max");
       }
 
       return order;

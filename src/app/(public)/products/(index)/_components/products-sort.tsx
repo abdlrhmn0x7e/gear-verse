@@ -19,38 +19,32 @@ import { useAllProductSearchParams } from "./hooks";
 export function ProductsSort() {
   const [filters, setFilters] = useAllProductSearchParams();
 
+  function handleSortChange(value: string) {
+    void setFilters((prev) => {
+      if (value === "default") {
+        return {
+          sortBy: null,
+        };
+      }
+
+      if (value === filters.sortBy) {
+        return prev;
+      }
+
+      return {
+        sortBy: value as typeof filters.sortBy,
+      };
+    });
+  }
+
   return (
     <Select
       defaultValue="default"
-      value={filters.sortBy ?? "default"}
-      onValueChange={(value) => {
-        void setFilters((prev) => {
-          if (value === "default") {
-            return {
-              ...prev,
-              sortBy: null,
-            };
-          }
-
-          if (value === filters.sortBy) {
-            return prev;
-          }
-
-          return {
-            ...prev,
-            sortBy: value as typeof filters.sortBy,
-          };
-        });
-      }}
+      // value={filters.sortBy ?? "default"}
+      // onValueChange={handleSortChange}
     >
       <SelectTrigger className="w-full max-w-3xs">
-        <SelectValue
-          placeholder={
-            <>
-              <ArrowUpDownIcon /> Sort by...
-            </>
-          }
-        />
+        <SelectValue placeholder="Sort by" />
       </SelectTrigger>
 
       <SelectContent>
