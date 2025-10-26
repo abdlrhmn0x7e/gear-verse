@@ -82,11 +82,23 @@ export const _categories = {
         });
       }
 
+      revalidateTag("categories", "max");
       return updatedCategory;
     },
 
     delete: async (input: DeleteCategoryInput) => {
-      return data.admin.categories.mutations.delete(input.id);
+      const { data: deletedCategories, error } = await tryCatch(
+        data.admin.categories.mutations.delete(input.id),
+      );
+
+      if (error) {
+        throw new AppError("Could not delete category", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      revalidateTag("categories", "max");
+      return deletedCategories;
     },
   },
 };

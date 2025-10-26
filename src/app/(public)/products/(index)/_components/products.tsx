@@ -63,7 +63,7 @@ export function ProductsSkeleton({ className }: { className?: string }) {
       <div className="flex items-center justify-between">
         <Heading level={3}>All Products</Heading>
 
-        <Skeleton className="h-6 w-[4rem]" />
+        <Skeleton className="h-9 w-24" />
       </div>
 
       <ProductListSkeleton />

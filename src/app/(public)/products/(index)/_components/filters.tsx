@@ -15,13 +15,8 @@ import {
 } from "./filter-items";
 import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
-import { cacheTag } from "next/cache";
 
 export async function Filters({ className }: { className?: string }) {
-  "use cache";
-
-  cacheTag("categories");
-
   const categoriesPromise = app.public.categories.queries.findAll({
     filters: { root: true },
   });
