@@ -190,7 +190,7 @@ export function ProductForm({
       <form
         id="product-form"
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3"
+        className="mx-auto grid max-w-7xl grid-cols-1 gap-6 pb-24 lg:grid-cols-3"
       >
         <div className="space-y-8 lg:col-span-2">
           <Card>

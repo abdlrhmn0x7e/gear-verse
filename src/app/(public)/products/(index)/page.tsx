@@ -20,7 +20,9 @@ export default function ProductsPage({
 
       {/* <ProductListSkeleton /> */}
 
-      <Suspense fallback={<ProductsSkeleton />}>
+      <Suspense
+        fallback={<ProductsSkeleton className="lg:col-span-8 xl:col-span-9" />}
+      >
         <Products
           className="lg:col-span-8 xl:col-span-9"
           searchParams={searchParams}

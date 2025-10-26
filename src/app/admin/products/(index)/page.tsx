@@ -53,15 +53,15 @@ export default async function AdminProductsPage({
         </Suspense>
       </HydrateClient>
 
-      <ProductDrawer>
-        {params.slug && (
+      {params.slug && (
+        <ProductDrawer>
           <ProductDetails
             className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
             slug={params.slug}
             hideActions
           />
-        )}
-      </ProductDrawer>
+        </ProductDrawer>
+      )}
     </section>
   );
 }

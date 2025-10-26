@@ -14,17 +14,28 @@ import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
 import { DeleteProductDialog } from "../dialogs/delete-product";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect } from "react";
 
 export function ProductDrawer({ children }: { children?: React.ReactNode }) {
   const isMobile = useIsMobile();
+  const pathname = usePathname();
   const [params, setParams] = useProductSearchParams();
 
-  function handleOpenChange(open: boolean) {
-    if (open) {
-      return;
-    }
-    void setParams(() => ({ id: null, slug: null }));
-  }
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        return;
+      }
+
+      void setParams(() => ({ id: null, slug: null }));
+    },
+    [setParams],
+  );
+
+  useEffect(() => {
+    handleOpenChange(false);
+  }, [pathname]);
 
   return (
     <Drawer
