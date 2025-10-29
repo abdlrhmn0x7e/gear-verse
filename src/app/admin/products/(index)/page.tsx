@@ -1,23 +1,24 @@
-import { Package, PackagePlusIcon } from "lucide-react";
-import Link from "next/link";
-import type { SearchParams } from "nuqs/server";
-import { Suspense } from "react";
+import { ProductDrawer } from "@admin/_components/drawers/product-drawer";
+import { ProductsTableSkeleton } from "@admin/_components/tables/products/skeleton";
+import { ProductsTable } from "@admin/_components/tables/products/table";
+import { loadProductSearchParams } from "@admin/_hooks/use-product-search-params";
+
 import { ProductDetails } from "~/components/features/products/product-detailts";
+import Header from "~/components/header";
 import { Button } from "~/components/ui/button";
-import { requireAdmin } from "~/server/auth";
+import { Package, PackagePlusIcon } from "lucide-react";
+
+import { Suspense } from "react";
+import Link from "next/link";
+
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
-import Header from "../../../../components/header";
-import { ProductDrawer } from "../../_components/drawers/product-drawer";
-import { ProductsTableSkeleton } from "../../_components/tables/products/skeleton";
-import { ProductsTable } from "../../_components/tables/products/table";
-import { loadProductSearchParams } from "../../_hooks/use-product-search-params";
+import { requireAdmin } from "~/server/auth";
 
 export default async function AdminProductsPage({
   searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
+}: PageProps<"/admin/products">) {
   await requireAdmin();
+
   const params = await loadProductSearchParams(searchParams);
   void prefetch(
     trpc.admin.products.queries.getPage.infiniteQueryOptions({
@@ -53,15 +54,16 @@ export default async function AdminProductsPage({
         </Suspense>
       </HydrateClient>
 
-      {params.slug && (
-        <ProductDrawer>
+      <ProductDrawer>
+        {params.slug && (
           <ProductDetails
             className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
             slug={params.slug}
             hideActions
+            hideReviews
           />
-        </ProductDrawer>
-      )}
+        )}
+      </ProductDrawer>
     </section>
   );
 }

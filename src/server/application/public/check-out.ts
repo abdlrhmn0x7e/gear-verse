@@ -1,4 +1,3 @@
-import { revalidateTag } from "next/cache";
 import { AppError } from "~/lib/errors/app-error";
 import type { CreateAddressInput } from "~/lib/schemas/entities/address";
 import type {
@@ -6,6 +5,7 @@ import type {
   CreateOrderItemInput,
 } from "~/lib/schemas/entities/order";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { invalidateCache } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _checkout = {
@@ -68,10 +68,12 @@ export const _checkout = {
         });
       }
 
-      // Revalidate product pages to update stock info
+      // Invalidate product pages to update stock info
+      const invalidationPromises = [];
       for (const item of items) {
-        revalidateTag(`product-${item.productId}`, "max");
+        invalidationPromises.push(invalidateCache(`product-${item.productId}`));
       }
+      await Promise.all(invalidationPromises);
 
       return order;
     },

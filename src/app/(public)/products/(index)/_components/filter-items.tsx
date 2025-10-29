@@ -11,6 +11,7 @@ import { useAllProductSearchParams } from "./hooks";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { FolderIcon } from "lucide-react";
 import { useMemo } from "react";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export function CategoryFilterItem({
   category,
@@ -51,6 +52,24 @@ export function CategoryFilterItem({
         {Icon && <Icon className="size-4" />}
         {category.name}
       </Label>
+    </div>
+  );
+}
+
+export function ItemsSkeleton() {
+  return Array.from({ length: 5 }).map((_, index) => (
+    <ItemSkeleton key={`skeleton-item-${index}`} />
+  ));
+}
+
+function ItemSkeleton() {
+  return (
+    <div className="flex items-center gap-2">
+      <Checkbox disabled />
+      <div className="flex items-center gap-2">
+        <Skeleton className="size-4 rounded-md" />
+        <Skeleton className="h-4 w-24" />
+      </div>
     </div>
   );
 }
@@ -126,6 +145,19 @@ export function PriceFilter() {
           });
         }}
       />
+    </div>
+  );
+}
+
+export function PriceFilterSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Heading level={4}>Price</Heading>
+      <p className="text-muted-foreground text-sm">
+        {formatCurrency(0)} - {formatCurrency(99999)}
+      </p>
+
+      <Slider min={0} max={99999} value={[0, 99999]} disabled />
     </div>
   );
 }

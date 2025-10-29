@@ -12,7 +12,7 @@ export type VariantSelectionState = {
 };
 
 export type VariantSelectionActions = {
-  setSelectedVariant: (variant: StoredVariant) => void;
+  setSelectedVariant: (variant: StoredVariant | null) => void;
   clear: () => void;
 };
 

@@ -9,14 +9,16 @@ import {
 } from "~/components/ui/empty";
 import { Card, CardContent } from "~/components/ui/card";
 import {
-  CategoryFilterItem,
   BrandFilterItem,
+  CategoryFilterItem,
+  ItemsSkeleton,
   PriceFilter,
+  PriceFilterSkeleton,
 } from "./filter-items";
-import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
+import { Suspense } from "react";
 
-export async function Filters({ className }: { className?: string }) {
+export async function Filters() {
   const categoriesPromise = app.public.categories.queries.findAll({
     filters: { root: true },
   });
@@ -28,37 +30,46 @@ export async function Filters({ className }: { className?: string }) {
   ]);
 
   return (
-    <aside id="filters" className={cn("hidden lg:block", className)}>
+    <aside id="filters" className="hidden lg:block">
       <Card className="p-4">
         <CardContent className="p-0 pb-4">
           <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-8">
             <div className="flex flex-col gap-4">
               <Heading level={4}>Categories</Heading>
 
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <CategoryFilterItem
-                    key={`category-${category.slug}`}
-                    category={category}
-                  />
-                ))
-              ) : (
-                <CategoryFilterEmptyState />
-              )}
+              <Suspense fallback={<ItemsSkeleton />}>
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <CategoryFilterItem
+                      key={`category-${category.slug}`}
+                      category={category}
+                    />
+                  ))
+                ) : (
+                  <CategoryFilterEmptyState />
+                )}
+              </Suspense>
             </div>
 
             <div className="flex flex-col gap-4">
               <Heading level={4}>Brands</Heading>
-              {brands.length > 0 ? (
-                brands.map((brand) => (
-                  <BrandFilterItem key={`brand-${brand.slug}`} brand={brand} />
-                ))
-              ) : (
-                <BrandFilterEmptyState />
-              )}
+              <Suspense fallback={<ItemsSkeleton />}>
+                {brands.length > 0 ? (
+                  brands.map((brand) => (
+                    <BrandFilterItem
+                      key={`brand-${brand.slug}`}
+                      brand={brand}
+                    />
+                  ))
+                ) : (
+                  <BrandFilterEmptyState />
+                )}
+              </Suspense>
             </div>
 
-            <PriceFilter />
+            <Suspense fallback={<PriceFilterSkeleton />}>
+              <PriceFilter />
+            </Suspense>
           </div>
         </CardContent>
       </Card>
@@ -68,7 +79,7 @@ export async function Filters({ className }: { className?: string }) {
 
 function CategoryFilterEmptyState() {
   return (
-    <Empty className="gap-0">
+    <Empty className="gap-0 p-0 md:p-0">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FolderXIcon />
@@ -85,7 +96,7 @@ function CategoryFilterEmptyState() {
 
 function BrandFilterEmptyState() {
   return (
-    <Empty className="gap-0">
+    <Empty className="gap-0 p-0 md:p-0">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <PackageOpenIcon />

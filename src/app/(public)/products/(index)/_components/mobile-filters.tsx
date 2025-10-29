@@ -20,8 +20,6 @@ import {
 } from "./mobile-filter-items";
 
 export async function MobileFilters() {
-  "use cache";
-
   const categoriesPromise = app.public.categories.queries.findAll({
     filters: { root: true },
   });

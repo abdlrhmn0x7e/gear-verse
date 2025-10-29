@@ -9,9 +9,7 @@ export async function generateStaticParams() {
 
 export default async function ProductPage({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+}: PageProps<"/products/[slug]">) {
   const { slug } = await params;
 
   return (

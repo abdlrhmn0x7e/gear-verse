@@ -1,6 +1,8 @@
-import { CheckCircleIcon } from "lucide-react";
-import { cacheTag } from "next/cache";
+import { CheckCircleIcon, InfoIcon, MessageCircleIcon } from "lucide-react";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { ProductDescription } from "~/components/product-description";
 import {
   Frame,
   FrameDescription,
@@ -8,24 +10,19 @@ import {
   FramePanel,
   FrameTitle,
 } from "~/components/ui/frame";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
-import { BuyNowButton } from "./buy-now-button";
 import { AddToCartButton } from "./add-to-cart-button";
+import { BuyNowButton } from "./buy-now-button";
 import { ProductBrandBadge } from "./product-brand-badge";
+import { ProductCarousel } from "./product-carousel";
 import { ProductPrice } from "./product-price";
 import { ProductVariantSelector } from "./product-variant-selector";
-import { tryCatch } from "~/lib/utils/try-catch";
-import { notFound } from "next/navigation";
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { InfoIcon, MessageCircleIcon } from "lucide-react";
-import { ProductDescription } from "~/components/product-description";
-import { ProductCarousel } from "./product-carousel";
-import { Reviews } from "../reviews";
-import { Suspense } from "react";
+import { cacheTag } from "next/cache";
 
 const WHY_US = [
   "1~2 Days Delivery",
@@ -159,13 +156,13 @@ export async function ProductDetails({
               </Suspense>
             </TabsContent>
 
-            {!hideReviews && (
+            {/* {!hideReviews && (
               <TabsContent value="reviews">
                 <Suspense fallback={<div>Loading reviews...</div>}>
                   <Reviews productId={product.id} />
                 </Suspense>
               </TabsContent>
-            )}
+            )} */}
           </Tabs>
         </div>
       </MaxWidthWrapper>

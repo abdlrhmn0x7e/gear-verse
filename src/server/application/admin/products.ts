@@ -5,7 +5,7 @@ import type { ProductsGetPageInput } from "@schemas/contracts";
 import { paginate } from "~/server/application/helpers/pagination";
 import { generateSlug } from "~/lib/utils/slugs";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
-import { revalidateTag, updateTag } from "next/cache";
+import { invalidateCache } from "~/server/actions/cache";
 
 export const _products = {
   queries: {
@@ -70,7 +70,7 @@ export const _products = {
       const { options, variants, ...product } = input;
 
       // invalidate the page cache for this product
-      revalidateTag(`product-${productId}`, "max");
+      await invalidateCache(`products:${productId}`);
 
       // update the product if there are any changes
       if (Object.keys(product).length > 0) {
@@ -230,10 +230,12 @@ export const _products = {
 
     async delete(productId: number) {
       const deleted = await data.admin.products.mutations.delete(productId);
+
       if (!deleted) {
         throw new AppError("Product not found", "NOT_FOUND");
       }
 
+      await invalidateCache(`products:${productId}`);
       return deleted;
     },
 

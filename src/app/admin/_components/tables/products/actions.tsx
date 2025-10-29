@@ -1,8 +1,10 @@
 "use client";
 
 import { CopyIcon, MoreHorizontal, PencilIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +14,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { DeleteProductDialog } from "../../dialogs/delete-product";
 import { PublishProductDialog } from "../../dialogs/publish-product";
-import { toast } from "sonner";
-import { useState } from "react";
 
 export function ProductsTableActions({
   id,

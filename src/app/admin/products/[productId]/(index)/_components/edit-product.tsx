@@ -105,7 +105,7 @@ export function EditProduct({
   );
 
   return (
-    <div>
+    <>
       <ProductForm onSubmitPartial={onSubmit} defaultValues={defaultValues} />
 
       <motion.div
@@ -170,6 +170,6 @@ export function EditProduct({
           )}
         </motion.div>
       </motion.div>
-    </div>
+    </>
   );
 }

@@ -1,4 +1,3 @@
-import { revalidateTag, updateTag } from "next/cache";
 import { AppError } from "~/lib/errors/app-error";
 import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categories";
 import {
@@ -8,6 +7,7 @@ import {
 } from "~/lib/schemas/entities";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { invalidateCache } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _categories = {
@@ -59,7 +59,7 @@ export const _categories = {
         );
       }
 
-      revalidateTag("categories", "max");
+      await invalidateCache("categories");
       return createdCategory;
     },
 
@@ -82,7 +82,7 @@ export const _categories = {
         });
       }
 
-      revalidateTag("categories", "max");
+      await invalidateCache("categories");
       return updatedCategory;
     },
 
@@ -97,7 +97,7 @@ export const _categories = {
         });
       }
 
-      revalidateTag("categories", "max");
+      await invalidateCache("categories");
       return deletedCategories;
     },
   },

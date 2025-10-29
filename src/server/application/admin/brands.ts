@@ -5,7 +5,7 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
-import { revalidateTag } from "next/cache";
+import { invalidateCache } from "~/server/actions/cache";
 
 export const _brands = {
   queries: {
@@ -29,7 +29,8 @@ export const _brands = {
         });
       }
 
-      revalidateTag("brands", "max");
+      await invalidateCache("brands");
+
       return brand;
     },
   },

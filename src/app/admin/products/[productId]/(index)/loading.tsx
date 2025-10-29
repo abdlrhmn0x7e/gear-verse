@@ -11,7 +11,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <section className="space-y-6">
+    <section className="mx-auto max-w-7xl space-y-6">
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />

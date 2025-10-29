@@ -14,12 +14,10 @@ import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
 import { DeleteProductDialog } from "../dialogs/delete-product";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 export function ProductDrawer({ children }: { children?: React.ReactNode }) {
   const isMobile = useIsMobile();
-  const pathname = usePathname();
   const [params, setParams] = useProductSearchParams();
 
   const handleOpenChange = useCallback(
@@ -32,10 +30,6 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
     },
     [setParams],
   );
-
-  useEffect(() => {
-    handleOpenChange(false);
-  }, [pathname]);
 
   return (
     <Drawer

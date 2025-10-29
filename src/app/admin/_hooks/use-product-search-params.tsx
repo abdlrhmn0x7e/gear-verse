@@ -15,7 +15,7 @@ const productSearchParams = {
 };
 
 export function useProductSearchParams() {
-  return useQueryStates(productSearchParams);
+  return useQueryStates(productSearchParams, { shallow: true });
 }
 
 export const loadProductSearchParams = createLoader(productSearchParams);

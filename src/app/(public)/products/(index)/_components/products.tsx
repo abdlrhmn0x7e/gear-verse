@@ -39,7 +39,7 @@ export async function Products({
       <div className="flex items-center justify-between">
         <Heading level={3}>All Products</Heading>
 
-        <Suspense fallback={<Skeleton className="h-6 w-16" />}>
+        <Suspense fallback={<Skeleton className="h-9 w-24" />}>
           <div className="flex items-center gap-2">
             <ProductsSort />
 

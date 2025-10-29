@@ -111,8 +111,16 @@ export function ProductVariantSelector({
     updateSelectedVariant(defaultValues);
   });
 
+  // set the first value of each option as selected by default
+  const unMountEffect = useEffectEvent(() => {
+    setSelectedValues([]);
+    setSelectedVariant(null);
+  });
+
   useLayoutEffect(() => {
     mountEffect();
+
+    return () => unMountEffect();
   }, []);
 
   return Object.entries(options).map(([optionName, values], index) => (

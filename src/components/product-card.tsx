@@ -150,7 +150,7 @@ export function ProductCardSkeleton() {
             <Skeleton className="h-4 w-full" />
           </div>
 
-          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-7 w-full" />
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">

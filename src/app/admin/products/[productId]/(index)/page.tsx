@@ -2,8 +2,10 @@ import { PackageIcon, TriangleAlertIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import Header from "~/components/header";
 import { EditProduct } from "./_components/edit-product";
-import { api, HydrateClient } from "~/trpc/server";
+import { api } from "~/trpc/server";
 import { requireAdmin } from "~/server/auth";
+import { tryCatch } from "~/lib/utils/try-catch";
+import { AppError } from "~/lib/errors/app-error";
 
 export default async function EditProductPage({
   params,
@@ -16,15 +18,21 @@ export default async function EditProductPage({
     return notFound();
   }
 
-  const product = await api.admin.products.queries.findById({
-    id: parseInt(productId),
-  });
-  if (!product) {
+  const { data: product, error } = await tryCatch(
+    api.admin.products.queries.findById({
+      id: parseInt(productId),
+    }),
+  );
+  if (error instanceof AppError && error.kind === "NOT_FOUND") {
     return notFound();
   }
 
+  if (error) {
+    throw new Error("Failed to load product data.");
+  }
+
   return (
-    <section className="space-y-6">
+    <section className="mx-auto max-w-7xl space-y-6">
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
@@ -40,9 +48,7 @@ export default async function EditProductPage({
         Icon={PackageIcon}
       />
 
-      <HydrateClient>
-        <EditProduct product={product} />
-      </HydrateClient>
+      <EditProduct product={product} />
     </section>
   );
 }
