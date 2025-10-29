@@ -8,6 +8,7 @@ import { PackageIcon } from "lucide-react";
 import { app } from "~/server/application";
 
 export async function RecentProducts() {
+  "use cache";
   const products = await app.public.products.queries.getPage({ pageSize: 10 });
 
   return (

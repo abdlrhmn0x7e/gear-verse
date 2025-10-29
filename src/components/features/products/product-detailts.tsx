@@ -42,12 +42,16 @@ export async function ProductDetails({
   hideActions?: boolean;
   hideReviews?: boolean;
 }) {
+  "use cache";
+
   const { data: product, error } = await tryCatch(
     app.public.products.queries.findBySlug(slug),
   );
   if (error) {
     return notFound();
   }
+
+  cacheTag(`product:${product.id}`);
 
   const hasVariants = product.variants && product.variants.length > 0;
 
