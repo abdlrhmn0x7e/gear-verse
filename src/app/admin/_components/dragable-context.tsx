@@ -48,7 +48,7 @@ export function DragableContext({
     }),
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 10,
+        delay: 100,
         distance: 10,
         tolerance: 6,
       },
