@@ -28,7 +28,6 @@ import {
 import { PaymentMethod } from "~/components/payment-method";
 import {
   IconArchive,
-  IconShoppingBag,
   IconShoppingBagPlus,
   IconShoppingBagSearch,
 } from "@tabler/icons-react";

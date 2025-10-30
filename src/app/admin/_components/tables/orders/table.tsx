@@ -30,7 +30,6 @@ import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
 import { OrdersTableHeader } from "./header";
-import { OrdersTableSkeleton } from "./skeleton";
 import { OrdersFilter } from "./filters";
 import { cn } from "~/lib/utils";
 

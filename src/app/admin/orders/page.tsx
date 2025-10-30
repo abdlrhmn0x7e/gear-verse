@@ -1,18 +1,28 @@
 import { BadgeDollarSignIcon } from "lucide-react";
 import Header from "~/components/header";
-import { api, HydrateClient, prefetch, trpc } from "~/trpc/server";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
-import { AddOrderDialog } from "../_components/dialogs/add-order";
 import { requireAdmin } from "~/server/auth";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
+import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({
+  searchParams,
+}: PageProps<"/admin/orders">) {
   await requireAdmin();
+  const params = await loadOrderSearchParams(searchParams);
   void prefetch(
     trpc.admin.orders.queries.getPage.infiniteQueryOptions({
       pageSize: 10,
+      filters: params
+        ? {
+            orderId: params.search || undefined,
+            status: params.status || undefined,
+            paymentMethod: params.paymentMethod || undefined,
+          }
+        : undefined,
     }),
   );
 
