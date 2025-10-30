@@ -110,6 +110,7 @@ export function ProductsTable() {
                     onClick={() =>
                       setParams(
                         () => ({
+                          id: row.original.id,
                           slug: row.original.slug,
                         }),
                         { shallow: false },

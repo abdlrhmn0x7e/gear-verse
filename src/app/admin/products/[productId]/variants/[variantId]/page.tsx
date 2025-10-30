@@ -14,9 +14,7 @@ import { requireAdmin } from "~/server/auth";
 
 export default async function AdminVariantPage({
   params,
-}: {
-  params: Promise<{ productId: string; variantId: string }>;
-}) {
+}: PageProps<"/admin/products/[productId]/variants/[variantId]">) {
   await requireAdmin();
   const { productId, variantId } = await params;
 
@@ -90,8 +88,8 @@ export default async function AdminVariantPage({
               {/*<SearchInput />*/}
               <Heading level={4}>Related Variants</Heading>
               {product.variants.map((variant, index) => {
-                const optionValues = variant.options
-                  .map((option) => Object.values(option)[0]!.value)
+                const optionValues = Object.values(variant.options)
+                  .map((val) => val.value)
                   .join(" / ");
 
                 return (

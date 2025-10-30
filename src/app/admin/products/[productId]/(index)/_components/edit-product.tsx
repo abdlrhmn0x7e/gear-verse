@@ -51,7 +51,7 @@ export function EditProduct({
           );
           void queryClient.invalidateQueries(
             trpc.admin.products.queries.findBySlug.queryFilter({
-              slug: product.slug,
+              id: product.slug,
             }),
           );
 

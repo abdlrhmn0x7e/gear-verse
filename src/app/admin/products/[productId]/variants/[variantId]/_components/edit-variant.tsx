@@ -37,7 +37,9 @@ export function EditVariant({
       defaultValues={{
         id: variant.id,
         inventory: variant.inventory ?? undefined,
-        options: variant.options,
+        options: Object.entries(variant.options).map(([name, value]) => ({
+          [name]: value,
+        })),
         overridePrice: variant.overridePrice ?? 0,
         thumbnail: {
           mediaId: variant.thumbnail?.id ?? 0,

@@ -14,6 +14,7 @@ import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
 import { useCallback } from "react";
+import { DeleteProductDialog } from "../dialogs/delete-product";
 
 export function ProductDrawer({ children }: { children?: React.ReactNode }) {
   const isMobile = useIsMobile();
@@ -25,7 +26,7 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
         return;
       }
 
-      void setParams(() => ({ slug: null }));
+      void setParams(() => ({ id: null, slug: null }));
     },
     [setParams],
   );
@@ -46,12 +47,20 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
             </DrawerDescription>
           </div>
 
-          <Button variant="outline" asChild>
-            <Link href={`/admin/products/${params.slug}`}>
-              <PencilIcon />
-              Edit
-            </Link>
-          </Button>
+          <div className="flex items-center">
+            <Button variant="outline" asChild>
+              <Link href={`/admin/products/${params.id}`}>
+                <PencilIcon />
+                Edit
+              </Link>
+            </Button>
+
+            <DeleteProductDialog
+              variant="destructive-outline"
+              id={params.id!}
+              className="ml-2"
+            />
+          </div>
         </DrawerHeader>
 
         <div className="mr-2 overflow-y-auto">{children}</div>

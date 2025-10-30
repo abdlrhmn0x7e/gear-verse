@@ -13,8 +13,8 @@ export const _products = {
       return paginate({ input, getPage: data.admin.products.queries.getPage });
     },
 
-    findBySlug: async (slug: string) => {
-      const product = await data.admin.products.queries.findBySlug(slug);
+    findById: async (id: number) => {
+      const product = await data.admin.products.queries.findById(id);
       if (!product) {
         throw new AppError("Product not found", "NOT_FOUND");
       }
@@ -36,8 +36,7 @@ export const _products = {
         ? seo?.urlHandler
         : generateSlug(product.title);
 
-      const existingProduct =
-        await data.admin.products.queries.findBySlug(slug);
+      const existingProduct = await data.admin.products.queries.findById(slug);
 
       if (existingProduct) {
         throw new AppError(

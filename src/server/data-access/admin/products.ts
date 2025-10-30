@@ -164,7 +164,7 @@ export const _products = {
       });
     },
 
-    findBySlug: async (slug: string) => {
+    findById: async (id: number) => {
       const productMediaCTE = db.$with("product_media_cte").as(
         db
           .select({
@@ -354,7 +354,7 @@ export const _products = {
             isNull(inventoryItems.productVariantId),
           ),
         )
-        .where(eq(products.slug, slug))
+        .where(eq(products.id, id))
         .limit(1)
         .then((rows) => rows[0]);
     },
