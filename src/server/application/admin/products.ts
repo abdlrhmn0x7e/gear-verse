@@ -13,8 +13,8 @@ export const _products = {
       return paginate({ input, getPage: data.admin.products.queries.getPage });
     },
 
-    findById: async (id: number) => {
-      const product = await data.admin.products.queries.findById(id);
+    findBySlug: async (slug: string) => {
+      const product = await data.admin.products.queries.findBySlug(slug);
       if (!product) {
         throw new AppError("Product not found", "NOT_FOUND");
       }

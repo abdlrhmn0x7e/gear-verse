@@ -13,7 +13,6 @@ import { Button } from "~/components/ui/button";
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
-import { DeleteProductDialog } from "../dialogs/delete-product";
 import { useCallback } from "react";
 
 export function ProductDrawer({ children }: { children?: React.ReactNode }) {
@@ -26,7 +25,7 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
         return;
       }
 
-      void setParams(() => ({ id: null, slug: null }));
+      void setParams(() => ({ slug: null }));
     },
     [setParams],
   );
@@ -47,17 +46,12 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
             </DrawerDescription>
           </div>
 
-          {params.id && (
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
-                <Link href={`/admin/products/${params.id}`}>
-                  <PencilIcon />
-                  Edit
-                </Link>
-              </Button>
-              <DeleteProductDialog id={params.id} />
-            </div>
-          )}
+          <Button variant="outline" asChild>
+            <Link href={`/admin/products/${params.slug}`}>
+              <PencilIcon />
+              Edit
+            </Link>
+          </Button>
         </DrawerHeader>
 
         <div className="mr-2 overflow-y-auto">{children}</div>

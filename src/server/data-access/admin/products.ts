@@ -1,4 +1,4 @@
-import { eq, gt, ilike, and, inArray, sql, isNull } from "drizzle-orm";
+import { eq, gt, ilike, and, inArray, sql, isNull, asc } from "drizzle-orm";
 import { db } from "../../db";
 import {
   media,
@@ -12,9 +12,9 @@ import {
   seo,
 } from "../../db/schema";
 import { inventoryItems } from "~/server/db/schema/inventory";
-import { alias } from "drizzle-orm/pg-core";
 import { _productVariants } from "./product-variants";
 import { _options } from "./options";
+import { fullVariantValuesCTE } from "../common/cte";
 
 type NewProduct = typeof products.$inferInsert;
 type NewProductOption = Omit<
@@ -78,7 +78,7 @@ export const _products = {
       if (filters?.categories) {
         const categoriesIds = new Set<number>([...filters.categories]);
         await Promise.all(
-          filters.categories.map((categoryId) => {
+          filters.categories.map(async (categoryId) => {
             const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
             WITH RECURSIVE all_children_categories AS (
               SELECT id
@@ -164,39 +164,79 @@ export const _products = {
       });
     },
 
-    findById: async (id: number) => {
-      const nonArchivedOptionValues = db.$with("non_archived_option_values").as(
+    findBySlug: async (slug: string) => {
+      const productMediaCTE = db.$with("product_media_cte").as(
         db
-          .selectDistinct({
-            valueId: productOptionValues.id,
-            value: productOptionValues.value,
-            productOptionId: productOptionValues.productOptionId,
+          .select({
+            productId: productsMedia.productId,
+            mediaId: media.id,
+            url: media.url,
           })
-          .from(productOptionValues)
-          .innerJoin(
+          .from(productsMedia)
+          .leftJoin(media, eq(media.id, productsMedia.mediaId))
+          .orderBy(asc(productsMedia.order)),
+      );
+
+      const productMediaQuery = db
+        .with(productMediaCTE)
+        .select({
+          productId: productMediaCTE.productId,
+          json: sql<{ mediaId: number; url: string }[]>`
+            jsonb_agg(
+              jsonb_build_object(
+                'mediaId', ${productMediaCTE.mediaId},
+                'url', ${productMediaCTE.url}
+              )
+            )
+          `.as("product_media_json"),
+        })
+        .from(productMediaCTE)
+        .groupBy(productMediaCTE.productId)
+        .as("product_media_query");
+
+      const optionsCTE = db.$with("options_cte").as(
+        db
+          .select({
+            id: productOptions.id,
+            productId: productOptions.productId,
+            name: productOptions.name,
+            values: sql<{ id: number; value: string }[]>`
+              jsonb_agg(
+                jsonb_build_object(
+                  'id', ${productOptionValues.id},
+                  'value', ${productOptionValues.value}
+                )
+              )
+            `.as("option_values"),
+          })
+          .from(productOptions)
+          .leftJoin(
+            productOptionValues,
+            eq(productOptionValues.productOptionId, productOptions.id),
+          )
+          .leftJoin(
             productOptionValuesVariants,
             eq(
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
           )
-          .innerJoin(
+          .leftJoin(
             productVariants,
-            and(
-              eq(
-                productVariants.id,
-                productOptionValuesVariants.productVariantId,
-              ),
-              eq(productVariants.archived, false),
+            eq(
+              productOptionValuesVariants.productVariantId,
+              productVariants.id,
             ),
-          ),
+          )
+          .where(eq(productVariants.archived, false))
+          .groupBy(productOptions.id),
       );
 
-      const productOptionsJson = db
-        .with(nonArchivedOptionValues)
+      const optionsQuery = db
+        .with(optionsCTE)
         .select({
-          productId: productOptions.productId,
-          options: sql<
+          productId: optionsCTE.productId,
+          json: sql<
             {
               id: number;
               name: string;
@@ -205,177 +245,108 @@ export const _products = {
           >`
             jsonb_agg(
               jsonb_build_object(
-                'id', ${productOptions.id},
-                'name', ${productOptions.name},
-                'values', coalesce(
-                  (
-                    select
-                      jsonb_agg(
-                        jsonb_build_object(
-                          'id', ${nonArchivedOptionValues.valueId},
-                          'value', ${nonArchivedOptionValues.value}
-                        )
-                      )
-                    from ${nonArchivedOptionValues}
-                    where
-                      "product_options"."id" = "product_option_id"
-                  ),
-                  '[]'::jsonb
-                )
+                'id', ${optionsCTE.id},
+                'name', ${optionsCTE.name},
+                'values', ${optionsCTE.values}
               )
             )
-          `.as("options"), // the where clause had to be hard coded for some reason
-          // the generated query was ambiguous. it was mixing the value id with the product option id
+          `.as("options_json"),
         })
-        .from(productOptions)
-        .groupBy(productOptions.productId)
-        .as("product_options_json");
+        .from(optionsCTE)
+        .groupBy(optionsCTE.productId)
+        .as("options_query");
 
-      const variantThumbnail = alias(media, "variant_thumbnail");
-      const variantInventory = alias(inventoryItems, "variant_inventory");
-      const variantsQuery = db
+      const fullVariantQuery = db
+        .with(fullVariantValuesCTE)
         .select({
-          id: productVariants.id,
           productId: productVariants.productId,
-          overridePrice: productVariants.overridePrice,
-          thumbnail: {
-            id: sql<number>`${variantThumbnail.id}`.as("thumbnailId"),
-            url: variantThumbnail.url,
-          },
-          stock: sql<number>`${variantInventory.quantity}`.as("stock"),
-          optionValues: sql<Record<string, { id: number; value: string }>>`
-          jsonb_object_agg(
-              ${productOptions.name}, json_build_object(
-                'id', ${productOptionValues.id},
-                'value', ${productOptionValues.value}
-              )
-            )
-        `.as("option_values"),
-        })
-        .from(productVariants)
-        .leftJoin(
-          variantThumbnail,
-          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
-        )
-        .leftJoin(
-          variantInventory,
-          and(
-            eq(productVariants.productId, variantInventory.productId),
-            eq(variantInventory.productVariantId, productVariants.id),
-          ),
-        )
-        .leftJoin(
-          productOptionValuesVariants,
-          eq(productOptionValuesVariants.productVariantId, productVariants.id),
-        )
-        .leftJoin(
-          productOptionValues,
-          eq(
-            productOptionValuesVariants.productOptionValueId,
-            productOptionValues.id,
-          ),
-        )
-        .leftJoin(
-          productOptions,
-          eq(productOptionValues.productOptionId, productOptions.id),
-        )
-        .groupBy(
-          productVariants.id,
-          variantThumbnail.id,
-          variantInventory.quantity,
-        )
-        .as("product_variants");
-
-      const variantsJson = db
-        .select({
           json: sql<
             {
               id: number;
-              overridePrice: number;
-              thumbnail: { id: number; url: string };
+              overridePrice: number | null;
+              thumbnail: {
+                id: number;
+                url: string;
+              };
               stock: number;
-              optionValues: Record<string, { id: number; value: string }>;
+              optionValues: Record<
+                string,
+                {
+                  id: number;
+                  value: string;
+                }
+              >;
             }[]
-          >`
-          jsonb_agg(
-            jsonb_build_object(
-              'id', ${variantsQuery.id},
-              'overridePrice', ${variantsQuery.overridePrice},
-              'thumbnail', jsonb_build_object(
-                'id', ${variantsQuery.thumbnail.id},
-                'url', ${variantsQuery.thumbnail.url}
-              ),
-              'stock', ${variantsQuery.stock},
-              'optionValues', ${variantsQuery.optionValues}
-            )
-          )
-        `.as("json"),
-        })
-        .from(variantsQuery)
-        .where(eq(variantsQuery.productId, id))
-        .as("variants_json");
-
-      const productMediaQuery = db
-        .select({
-          mediaId: productsMedia.mediaId,
-          url: media.url,
-        })
-        .from(productsMedia)
-        .orderBy(productsMedia.order)
-        .leftJoin(media, eq(productsMedia.mediaId, media.id))
-        .where(eq(productsMedia.productId, id))
-        .as("product_media_query");
-
-      const productMediaJson = db
-        .select({
-          json: sql<{ mediaId: number; url: string }[]>`
-            jsonb_agg(
+          >`jsonb_agg(
               jsonb_build_object(
-                'mediaId', ${productMediaQuery.mediaId},
-                'url', ${productMediaQuery.url}
+                'id', ${productVariants.id},
+                'overridePrice', ${productVariants.overridePrice},
+                'thumbnail', jsonb_build_object(
+                  'id', ${media.id},
+                  'url', ${media.url}
+                ),
+                'stock', ${inventoryItems.quantity},
+                'optionValues', ${fullVariantValuesCTE.options}
               )
-            )
-        `.as("product_media"),
+            )`.as("variants_json"),
         })
-        .from(productMediaQuery)
-        .as("product_media_json");
+        .from(productVariants)
+        .leftJoin(
+          fullVariantValuesCTE,
+          eq(fullVariantValuesCTE.id, productVariants.id),
+        )
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productVariantId, productVariants.id),
+            eq(inventoryItems.productId, productVariants.productId),
+          ),
+        )
+        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+        .where(eq(productVariants.archived, false))
+        .groupBy(productVariants.productId)
+        .as("full_variant_query");
 
       return db
         .select({
           id: products.id,
+          brandId: products.brandId,
+          categoryId: products.categoryId,
+
           title: products.title,
+          description: products.description,
+          summary: products.summary,
+          slug: products.slug,
+          published: products.published,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
-          summary: products.summary,
-          description: products.description,
-          published: products.published,
-          categoryId: products.categoryId,
-          brandId: products.brandId,
           profit: products.profit,
           margin: products.margin,
-          options: productOptionsJson.options,
-          variants: variantsJson.json,
-          inventory: {
-            id: inventoryItems.id,
-            quantity: sql<number>`${inventoryItems.quantity}`.as("quantity"),
-          },
-          thumbnail: {
-            mediaId: products.thumbnailMediaId,
-            url: sql<string>`${media.url}`.as("url"),
-          },
-          media: productMediaJson.json,
+
           seo: {
             pageTitle: seo.pageTitle,
             urlHandler: seo.urlHandler,
             metaDescription: seo.metaDescription,
           },
+
+          inventory: {
+            id: inventoryItems.id,
+            quantity: inventoryItems.quantity,
+          },
+
+          variants: fullVariantQuery.json,
+          options: optionsQuery.json,
+
+          media: productMediaQuery.json,
         })
         .from(products)
         .leftJoin(
-          productOptionsJson,
-          eq(productOptionsJson.productId, products.id),
+          productMediaQuery,
+          eq(productMediaQuery.productId, products.id),
         )
-        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(optionsQuery, eq(optionsQuery.productId, products.id))
+        .leftJoin(fullVariantQuery, eq(fullVariantQuery.productId, products.id))
+        .leftJoin(seo, eq(seo.productId, products.id))
         .leftJoin(
           inventoryItems,
           and(
@@ -383,12 +354,9 @@ export const _products = {
             isNull(inventoryItems.productVariantId),
           ),
         )
-        .leftJoinLateral(variantsJson, sql`true`)
-        .leftJoinLateral(productMediaJson, sql`true`)
-        .leftJoin(seo, eq(seo.productId, products.id))
-        .where(eq(products.id, id))
+        .where(eq(products.slug, slug))
         .limit(1)
-        .then(([product]) => product);
+        .then((rows) => rows[0]);
     },
 
     getVariants: async (id: number) => {
@@ -447,15 +415,6 @@ export const _products = {
           ]),
         ),
       }));
-    },
-
-    findBySlug: async (slug: string) => {
-      return db.query.products.findFirst({
-        where: eq(products.slug, slug),
-        columns: {
-          id: true,
-        },
-      });
     },
   },
 
@@ -566,7 +525,7 @@ export const _products = {
         if (Object.keys(product).length > 0) {
           await tx
             .update(products)
-            .set(product)
+            .set({ ...product })
             .where(eq(products.id, productId))
             .returning({ id: products.id });
         }
@@ -585,6 +544,12 @@ export const _products = {
               order: index + 1,
             })),
           );
+
+          // update the product's thumbnail to be the first media item
+          await tx
+            .update(products)
+            .set({ thumbnailMediaId: mediaData[0] })
+            .where(eq(products.id, productId));
         }
 
         if (inventoryData) {

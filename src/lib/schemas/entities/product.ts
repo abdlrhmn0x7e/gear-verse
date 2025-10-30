@@ -67,7 +67,7 @@ export const createProductVariantInputSchema = z.object({
   overridePrice: z.coerce
     .number<number>("Price is required")
     .nonnegative("Price must be nonnegative")
-    .optional(),
+    .nullish(),
   stock: z.coerce
     .number<number>("Stock is required")
     .nonnegative("Stock must be a non-negative number"),

@@ -12,7 +12,6 @@ import { useEffect, useMemo } from "react";
 // Third-party hooks & utilities
 import {
   keepPreviousData,
-  useInfiniteQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
@@ -109,10 +108,12 @@ export function ProductsTable() {
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer"
                     onClick={() =>
-                      setParams(() => ({
-                        id: row.original.id,
-                        slug: row.original.slug,
-                      }))
+                      setParams(
+                        () => ({
+                          slug: row.original.slug,
+                        }),
+                        { shallow: false },
+                      )
                     }
                   >
                     {row.getVisibleCells().map((cell) => (

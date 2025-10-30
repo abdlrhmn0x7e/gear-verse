@@ -1,4 +1,4 @@
-import { ProductDetails } from "~/components/features/products/product-detailts";
+import { ProductDetails } from "~/components/features/products/product-details";
 import { app } from "~/server/application";
 
 export async function generateStaticParams() {

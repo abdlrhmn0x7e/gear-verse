@@ -9,18 +9,13 @@ import { AppError } from "~/lib/errors/app-error";
 
 export default async function EditProductPage({
   params,
-}: {
-  params: Promise<{ productId: string }>;
-}) {
+}: PageProps<"/admin/products/[slug]">) {
   await requireAdmin();
-  const { productId } = await params;
-  if (isNaN(parseInt(productId))) {
-    return notFound();
-  }
+  const { slug } = await params;
 
   const { data: product, error } = await tryCatch(
-    api.admin.products.queries.findById({
-      id: parseInt(productId),
+    api.admin.products.queries.findBySlug({
+      slug,
     }),
   );
   if (error instanceof AppError && error.kind === "NOT_FOUND") {

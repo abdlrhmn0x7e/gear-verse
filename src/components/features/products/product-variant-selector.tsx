@@ -33,12 +33,11 @@ export function ProductVariantSelector({
     () =>
       variants.reduce(
         (acc, variant) => {
-          for (const option of variant.options) {
-            const [key, opt] = Object.entries(option)[0]!;
-            acc[key] ??= new Set();
+          const [key, opt] = Object.entries(variant.options);
+          if (!key || !opt) return acc;
 
-            acc[key].add(opt.value);
-          }
+          acc[key] ??= new Set();
+          acc[key].add(opt.value);
           return acc;
         },
         {} as Record<string, Set<string>>,
@@ -48,8 +47,8 @@ export function ProductVariantSelector({
 
   // get the combination values key for a variant
   function getValuesKey(variant: Variant) {
-    return variant.options
-      .flatMap((option) => Object.values(option).map((val) => val.value))
+    return Object.values(variant.options)
+      .map((opt) => opt.value)
       .join("-");
   }
 

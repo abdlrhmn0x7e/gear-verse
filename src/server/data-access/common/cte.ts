@@ -37,14 +37,12 @@ export const fullVariantValuesCTE = db.$with("variant_values").as(
   db
     .select({
       id: productVariants.id,
-      options: sql<Record<string, { id: number; value: string }>[]>`
-						jsonb_agg(
-						  jsonb_build_object(
-  						  ${productOptions.name}, jsonb_build_object(
-  								'id', ${productOptionValues.id},
-  								'value', ${productOptionValues.value}
-  							)
-							)
+      options: sql<Record<string, { id: number; value: string }>>`
+						jsonb_object_agg(
+              ${productOptions.name}, jsonb_build_object(
+                'id', ${productOptionValues.id},
+                'value', ${productOptionValues.value}
+              )
 						)
 					`.as("values"),
     })
@@ -121,7 +119,7 @@ export const fullVariantsCTE = db.$with("variants").as(
               id: number;
               value: string;
             }
-          >[];
+          >;
         }[]
       >`jsonb_agg(
           jsonb_build_object(

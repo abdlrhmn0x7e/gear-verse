@@ -19,7 +19,7 @@ export const productsMedia = pgTable(
     mediaId: bigint("media_id", { mode: "number" })
       .notNull()
       .references(() => media.id),
-    productId: bigint("owner_id", { mode: "number" })
+    productId: bigint("product_id", { mode: "number" })
       .references(() => products.id, { onDelete: "cascade" })
       .notNull(),
 

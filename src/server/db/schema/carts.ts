@@ -47,10 +47,10 @@ export const cartItems = pgTable(
 
     productId: bigint("product_id", { mode: "number" })
       .notNull()
-      .references(() => products.id),
+      .references(() => products.id, { onDelete: "cascade" }),
     productVariantId: bigint("product_variant_id", {
       mode: "number",
-    }).references(() => productVariants.id),
+    }).references(() => productVariants.id, { onDelete: "cascade" }),
 
     quantity: integer("quantity").notNull().default(1),
 

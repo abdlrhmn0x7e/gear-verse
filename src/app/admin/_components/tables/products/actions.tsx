@@ -47,7 +47,7 @@ export function ProductsTableActions({
         <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
         <DropdownMenuGroup className="max-w-3xs space-y-1">
           <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href={`/admin/products/${id}`}>
+            <Link href={`/admin/products/${slug}`}>
               <PencilIcon className="text-muted-foreground" />
               Edit
             </Link>
@@ -71,7 +71,7 @@ export function ProductsTableActions({
 
           <DeleteProductDialog
             className="w-full justify-start"
-            variant="ghost"
+            variant="destructive-ghost"
             id={id}
           />
         </DropdownMenuGroup>

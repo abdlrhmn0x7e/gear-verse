@@ -19,14 +19,14 @@ import { useTRPC } from "~/trpc/client";
 export function DeleteProductDialog({
   id,
   showText = true,
-  variant = "destructive",
+  variant = "destructive-ghost",
   size = "default",
   className,
   onDeleteSuccess,
 }: {
   id: number;
   showText?: boolean;
-  variant?: "destructive" | "destructive-outline" | "ghost";
+  variant?: "destructive-ghost" | "destructive-outline" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   onDeleteSuccess?: () => void;

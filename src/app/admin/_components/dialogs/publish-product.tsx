@@ -28,7 +28,11 @@ export function PublishProductDialog({
   id: number;
   published: boolean;
   showText?: boolean;
-  variant?: "destructive" | "destructive-outline" | "ghost";
+  variant?:
+    | "destructive"
+    | "destructive-outline"
+    | "ghost"
+    | "destructive-ghost";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   onPublishSuccess?: () => void;
@@ -56,7 +60,11 @@ export function PublishProductDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild disabled={isPending}>
-        <Button variant={variant} size={size} className={className}>
+        <Button
+          variant={published ? "destructive-ghost" : "ghost"}
+          size={size}
+          className={className}
+        >
           {!published ? <CheckCircleIcon /> : <XCircleIcon />}
           {showText && (published ? "Unpublish product" : "Publish product")}
         </Button>

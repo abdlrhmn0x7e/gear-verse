@@ -3,7 +3,7 @@ import { ProductsTableSkeleton } from "@admin/_components/tables/products/skelet
 import { ProductsTable } from "@admin/_components/tables/products/table";
 import { loadProductSearchParams } from "@admin/_hooks/use-product-search-params";
 
-import { ProductDetails } from "~/components/features/products/product-detailts";
+import { ProductDetails } from "~/components/features/products/product-details";
 import Header from "~/components/header";
 import { Button } from "~/components/ui/button";
 import { Package, PackagePlusIcon } from "lucide-react";

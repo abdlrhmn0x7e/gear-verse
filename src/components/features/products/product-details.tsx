@@ -23,6 +23,7 @@ import { ProductCarousel } from "./product-carousel";
 import { ProductPrice } from "./product-price";
 import { ProductVariantSelector } from "./product-variant-selector";
 import { cacheTag } from "next/cache";
+import { Reviews } from "../reviews";
 
 const WHY_US = [
   "1~2 Days Delivery",
@@ -160,13 +161,13 @@ export async function ProductDetails({
               </Suspense>
             </TabsContent>
 
-            {/* {!hideReviews && (
+            {!hideReviews && (
               <TabsContent value="reviews">
                 <Suspense fallback={<div>Loading reviews...</div>}>
                   <Reviews productId={product.id} />
                 </Suspense>
               </TabsContent>
-            )} */}
+            )}
           </Tabs>
         </div>
       </MaxWidthWrapper>
