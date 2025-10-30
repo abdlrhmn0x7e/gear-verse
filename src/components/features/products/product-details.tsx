@@ -51,7 +51,7 @@ export async function ProductDetails({
     return notFound();
   }
 
-  cacheTag(`product:${product.id}`);
+  cacheTag(`products:${product.id}`);
 
   const hasVariants = product.variants && product.variants.length > 0;
 
@@ -85,11 +85,11 @@ export async function ProductDetails({
               <div className="space-x-2 text-center lg:text-left">
                 <ProductPrice originalPrice={product.price} />
 
-                {product.strikeThroughPrice && (
+                {product.strikeThroughPrice ? (
                   <span className="text-muted-foreground line-through">
                     {formatCurrency(product.strikeThroughPrice ?? 0)}
                   </span>
-                )}
+                ) : null}
               </div>
             </FramePanel>
 

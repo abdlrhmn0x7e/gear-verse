@@ -169,19 +169,17 @@ function Option({
   const watchedOption = useWatch({
     control: form.control,
     name: `options.${index}`,
-  }) as ProductFormValues["options"][number] | undefined;
+  });
 
-  const allOptions = form.getValues("options");
-  const fallbackOption = Array.isArray(allOptions)
-    ? (allOptions[index] as ProductFormValues["options"][number] | undefined)
-    : undefined;
+  const option = watchedOption ?? {
+    id: optionId,
+    name: "",
+    values: [],
+  };
 
-  const option =
-    watchedOption ??
-    fallbackOption ??
-    ({ id: optionId, name: "", values: [] } as ProductFormValues["options"][number]);
-
-  const optionName = option.name?.trim() ? option.name.trim() : "Untitled option";
+  const optionName = option.name?.trim()
+    ? option.name.trim()
+    : "Untitled option";
   const optionValues = option.values ?? [];
   const previewValues = optionValues.filter((value) =>
     typeof value.value === "string" ? value.value.trim().length > 0 : false,
@@ -328,10 +326,7 @@ function OptionFields({ index }: { index: number }) {
               strategy={verticalListSortingStrategy}
             >
               {valueFields.map((value, valueIndex) => (
-                <SortableItemWithHandle
-                  key={value.keyId}
-                  id={value.keyId}
-                >
+                <SortableItemWithHandle key={value.keyId} id={value.keyId}>
                   <OptionValueField
                     optionIndex={index}
                     valueIndex={valueIndex}

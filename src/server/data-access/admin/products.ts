@@ -194,49 +194,38 @@ export const _products = {
         .groupBy(productMediaCTE.productId)
         .as("product_media_query");
 
-      const optionsCTE = db.$with("options_cte").as(
+      const nonArchivedOptionValues = db.$with("non_archived_option_values").as(
         db
-          .select({
-            id: productOptions.id,
-            productId: productOptions.productId,
-            name: productOptions.name,
-            values: sql<{ id: number; value: string }[]>`
-              jsonb_agg(
-                jsonb_build_object(
-                  'id', ${productOptionValues.id},
-                  'value', ${productOptionValues.value}
-                )
-              )
-            `.as("option_values"),
+          .selectDistinct({
+            valueId: productOptionValues.id,
+            value: productOptionValues.value,
+            productOptionId: productOptionValues.productOptionId,
           })
-          .from(productOptions)
-          .leftJoin(
-            productOptionValues,
-            eq(productOptionValues.productOptionId, productOptions.id),
-          )
-          .leftJoin(
+          .from(productOptionValues)
+          .innerJoin(
             productOptionValuesVariants,
             eq(
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
           )
-          .leftJoin(
+          .innerJoin(
             productVariants,
-            eq(
-              productOptionValuesVariants.productVariantId,
-              productVariants.id,
+            and(
+              eq(
+                productVariants.id,
+                productOptionValuesVariants.productVariantId,
+              ),
+              eq(productVariants.archived, false),
             ),
-          )
-          .where(eq(productVariants.archived, false))
-          .groupBy(productOptions.id),
+          ),
       );
 
       const optionsQuery = db
-        .with(optionsCTE)
+        .with(nonArchivedOptionValues)
         .select({
-          productId: optionsCTE.productId,
-          json: sql<
+          productId: productOptions.productId,
+          options: sql<
             {
               id: number;
               name: string;
@@ -245,16 +234,31 @@ export const _products = {
           >`
             jsonb_agg(
               jsonb_build_object(
-                'id', ${optionsCTE.id},
-                'name', ${optionsCTE.name},
-                'values', ${optionsCTE.values}
+                'id', ${productOptions.id},
+                'name', ${productOptions.name},
+                'values', coalesce(
+                  (
+                    select
+                      jsonb_agg(
+                        jsonb_build_object(
+                          'id', ${nonArchivedOptionValues.valueId},
+                          'value', ${nonArchivedOptionValues.value}
+                        )
+                      )
+                    from ${nonArchivedOptionValues}
+                    where
+                      "product_options"."id" = "product_option_id"
+                  ),
+                  '[]'::jsonb
+                )
               )
             )
-          `.as("options_json"),
+          `.as("options"), // the where clause had to be hard coded for some reason
+          // the generated query was ambiguous. it was mixing the value id with the product option id
         })
-        .from(optionsCTE)
-        .groupBy(optionsCTE.productId)
-        .as("options_query");
+        .from(productOptions)
+        .groupBy(productOptions.productId)
+        .as("product_options_json");
 
       const fullVariantQuery = db
         .with(fullVariantValuesCTE)
@@ -335,7 +339,7 @@ export const _products = {
           },
 
           variants: fullVariantQuery.json,
-          options: optionsQuery.json,
+          options: optionsQuery.options,
 
           media: productMediaQuery.json,
         })

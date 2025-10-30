@@ -20,16 +20,15 @@ export function EditProduct({
 }: {
   product: RouterOutput["admin"]["products"]["queries"]["findBySlug"];
 }) {
-  console.log("Editing product:", product);
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: updateProduct, isPending: isUpdatingProduct } = useMutation(
     trpc.admin.products.mutations.editDeep.mutationOptions(),
   );
+  console.log("product", product);
 
   function onSubmit(data: Partial<ProductFormValues>) {
-    console.log("Submitting data:", data);
     updateProduct(
       {
         id: product.id,

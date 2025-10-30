@@ -43,7 +43,6 @@ export function VariantForm({
   isSubmitting?: boolean;
   defaultValues?: Partial<VariantFormValues>;
 }) {
-  console.log("VariantForm defaultValues:", defaultValues);
   const [itemRef, setItemRef] = useState<HTMLDivElement | null>(null);
 
   const form = useForm<VariantFormValues>({
