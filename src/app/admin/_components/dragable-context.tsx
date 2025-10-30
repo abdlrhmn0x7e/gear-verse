@@ -42,13 +42,13 @@ export function DragableContext({
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
+        delay: 100,
         tolerance: 6,
       },
     }),
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 100,
+        delay: 50,
         distance: 10,
         tolerance: 6,
       },
