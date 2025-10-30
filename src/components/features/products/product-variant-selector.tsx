@@ -33,7 +33,8 @@ export function ProductVariantSelector({
     () =>
       variants.reduce(
         (acc, variant) => {
-          const [key, opt] = Object.entries(variant.options);
+          const { options } = variant;
+          const [key, opt] = Object.entries(options)[0]!;
           if (!key || !opt) return acc;
 
           acc[key] ??= new Set();

@@ -1,4 +1,3 @@
-import { api } from "~/trpc/server";
 import { AddReview } from "./add-review";
 import { CheckCircleIcon, MessageCircleOffIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -14,9 +13,10 @@ import {
   FramePanel,
   FrameTitle,
 } from "~/components/ui/frame";
+import { app } from "~/server/application";
 
 export async function Reviews({ productId }: { productId: number }) {
-  const reviews = await api.public.reviews.queries.findAll({ productId });
+  const reviews = await app.public.reviews.queries.findAll(productId);
   const data = await auth.api.getSession({
     headers: await headers(),
   });

@@ -39,7 +39,7 @@ import { cn } from "~/lib/utils";
 export type VariantsTableData = {
   optionValues: Record<string, { id: number; value: string }>;
   thumbnail: { id: number; url: string };
-  overridePrice?: number;
+  overridePrice?: number | null;
   stock: number;
 };
 

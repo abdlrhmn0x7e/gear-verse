@@ -1,6 +1,6 @@
 import { CheckCircleIcon, InfoIcon, MessageCircleIcon } from "lucide-react";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type JSX } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { ProductDescription } from "~/components/product-description";
 import {
@@ -23,7 +23,6 @@ import { ProductCarousel } from "./product-carousel";
 import { ProductPrice } from "./product-price";
 import { ProductVariantSelector } from "./product-variant-selector";
 import { cacheTag } from "next/cache";
-import { Reviews } from "../reviews";
 
 const WHY_US = [
   "1~2 Days Delivery",
@@ -35,13 +34,13 @@ const WHY_US = [
 export async function ProductDetails({
   slug,
   className,
+  Reviews,
   hideActions,
-  hideReviews,
 }: {
   slug: string;
   className?: string;
+  Reviews?: (props: { productId: number }) => Promise<JSX.Element>;
   hideActions?: boolean;
-  hideReviews?: boolean;
 }) {
   "use cache";
 
@@ -144,7 +143,7 @@ export async function ProductDetails({
                 <InfoIcon />
                 Details
               </TabsTrigger>
-              {!hideReviews && (
+              {Reviews && (
                 <TabsTrigger value="reviews">
                   <MessageCircleIcon />
                   Reviews
@@ -161,7 +160,7 @@ export async function ProductDetails({
               </Suspense>
             </TabsContent>
 
-            {!hideReviews && (
+            {Reviews && (
               <TabsContent value="reviews">
                 <Suspense fallback={<div>Loading reviews...</div>}>
                   <Reviews productId={product.id} />

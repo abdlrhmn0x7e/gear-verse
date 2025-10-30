@@ -36,7 +36,8 @@ export const _products = {
         ? seo?.urlHandler
         : generateSlug(product.title);
 
-      const existingProduct = await data.admin.products.queries.findById(slug);
+      const existingProduct =
+        await data.admin.products.queries.findBySlug(slug);
 
       if (existingProduct) {
         throw new AppError(

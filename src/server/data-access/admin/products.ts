@@ -359,6 +359,17 @@ export const _products = {
         .then((rows) => rows[0]);
     },
 
+    findBySlug: async (slug: string) => {
+      return db
+        .select({
+          id: products.id,
+        })
+        .from(products)
+        .where(and(eq(products.slug, slug), eq(products.archived, false)))
+        .limit(1)
+        .then((rows) => rows[0]);
+    },
+
     getVariants: async (id: number) => {
       const variants = await db.query.productVariants.findMany({
         where: eq(productVariants.productId, id),

@@ -1,4 +1,5 @@
 import { ProductDetails } from "~/components/features/products/product-details";
+import { Reviews } from "~/components/features/reviews";
 import { app } from "~/server/application";
 
 export async function generateStaticParams() {
@@ -14,7 +15,7 @@ export default async function ProductPage({
 
   return (
     <section className="py-24">
-      <ProductDetails slug={slug} />
+      <ProductDetails slug={slug} Reviews={Reviews} />
     </section>
   );
 }
