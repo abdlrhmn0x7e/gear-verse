@@ -56,7 +56,7 @@ export function HeaderSkeleton({ Icon }: { Icon: LucideIcon }) {
       </div>
 
       <div className="flex flex-col items-center gap-2 sm:items-start">
-        <Skeleton className="h-6 w-64" />
+        <Skeleton className="h-7 w-64" />
         <Skeleton className="h-4 w-32" />
       </div>
     </div>

@@ -31,6 +31,8 @@ import {
   IconShoppingBagPlus,
   IconShoppingBagSearch,
 } from "@tabler/icons-react";
+import { Button } from "~/components/ui/button";
+import Link from "next/link";
 
 export default async function AdminPage() {
   const [session, userCount, ordersCount, lastOrders] = await Promise.all([
@@ -131,7 +133,13 @@ function LastOrdersTable({
       <TableBody>
         {orders.map((order) => (
           <TableRow key={order.id}>
-            <TableCell>#{order.id}</TableCell>
+            <TableCell>
+              <Button variant="link" asChild>
+                <Link href={`/admin/orders?orderId=${order.id}`}>
+                  # {order.id}
+                </Link>
+              </Button>
+            </TableCell>
             <TableCell>{order.address}</TableCell>
             <TableCell>{formatCurrency(order.totalValue)}</TableCell>
             <TableCell>
