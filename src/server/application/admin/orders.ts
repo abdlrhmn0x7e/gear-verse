@@ -9,6 +9,10 @@ export const _orders = {
       return paginate({ input, getPage: data.admin.orders.queries.getPage });
     },
 
+    getCount: async () => {
+      return data.admin.orders.queries.getCount();
+    },
+
     findById: async (id: number) => {
       const order = await data.admin.orders.queries.findById(id);
 

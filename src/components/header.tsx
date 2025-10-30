@@ -51,12 +51,12 @@ export function HeaderSkeleton({ Icon }: { Icon: LucideIcon }) {
     <div className="flex flex-col items-center gap-3 sm:flex-row">
       <div className="from-card to-accent rounded-lg bg-radial-[at_50%_75%] p-px">
         <div className="to-card from-accent flex size-10 items-center justify-center rounded-[calc(var(--radius)-2px)] bg-radial-[at_25%_25%]">
-          <Icon size={24} className="text-foreground" />
+          <Icon className="text-foreground size-5" />
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-2 sm:items-start">
-        <Skeleton className="h-6 w-24" />
+        <Skeleton className="h-6 w-64" />
         <Skeleton className="h-4 w-32" />
       </div>
     </div>

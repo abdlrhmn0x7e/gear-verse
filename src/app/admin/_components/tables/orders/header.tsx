@@ -1,6 +1,10 @@
 import { TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
-export function OrdersTableHeader() {
+export function OrdersTableHeader({
+  hideActions = false,
+}: {
+  hideActions?: boolean;
+}) {
   return (
     <TableHeader>
       <TableRow className="sticky top-0 pb-1">
@@ -10,7 +14,7 @@ export function OrdersTableHeader() {
         <TableHead>Status</TableHead>
         <TableHead>Payment Method</TableHead>
         <TableHead>Ordered At</TableHead>
-        <TableHead></TableHead>
+        {!hideActions && <TableHead></TableHead>}
       </TableRow>
     </TableHeader>
   );

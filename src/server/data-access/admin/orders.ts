@@ -195,6 +195,10 @@ export const _orders = {
         .limit(1)
         .then(([res]) => res);
     },
+
+    getCount: async () => {
+      return db.$count(orders, eq(orders.status, "PENDING"));
+    },
   },
 
   mutations: {

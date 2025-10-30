@@ -18,6 +18,16 @@ export const adminOrdersRouter = createTRPCRouter({
         return data;
       }),
 
+    getCount: adminProcedure.query(async ({ ctx }) => {
+      const { data, error } = await tryCatch(
+        ctx.app.admin.orders.queries.getCount(),
+      );
+      if (error) {
+        throw errorMap(error);
+      }
+      return data;
+    }),
+
     findById: adminProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {

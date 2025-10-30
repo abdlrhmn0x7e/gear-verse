@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
-import { asc, eq } from "drizzle-orm";
+import { asc, count, eq } from "drizzle-orm";
 
 export const _users = {
   queries: {
@@ -14,6 +14,10 @@ export const _users = {
         })
         .from(users)
         .orderBy(asc(users.name));
+    },
+
+    getCount: async () => {
+      return db.$count(users);
     },
   },
 
