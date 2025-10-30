@@ -29,7 +29,10 @@ export const _brands = {
         });
       }
 
-      await invalidateCache("brands");
+      await Promise.all([
+        invalidateCache("filters"),
+        invalidateCache("brands"),
+      ]);
 
       return brand;
     },

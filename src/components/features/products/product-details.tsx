@@ -39,7 +39,7 @@ export async function ProductDetails({
 }: {
   slug: string;
   className?: string;
-  Reviews?: (props: { productId: number }) => Promise<JSX.Element>;
+  Reviews?: (props: { productId: number }) => JSX.Element;
   hideActions?: boolean;
 }) {
   "use cache";
@@ -162,9 +162,7 @@ export async function ProductDetails({
 
             {Reviews && (
               <TabsContent value="reviews">
-                <Suspense fallback={<div>Loading reviews...</div>}>
-                  <Reviews productId={product.id} />
-                </Suspense>
+                <Reviews productId={product.id} />
               </TabsContent>
             )}
           </Tabs>

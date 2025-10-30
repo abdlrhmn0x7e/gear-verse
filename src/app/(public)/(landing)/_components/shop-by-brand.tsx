@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import { app } from "~/server/application";
 
 export async function ShopByBrand() {
+  "use cache";
+
   const brands = await app.public.brands.queries.findAll();
 
   return (

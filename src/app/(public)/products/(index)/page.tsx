@@ -3,7 +3,6 @@ import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
 import { Suspense } from "react";
-import { Skeleton } from "~/components/ui/skeleton";
 
 export default function ProductsPage({
   searchParams,

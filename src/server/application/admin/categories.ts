@@ -59,7 +59,7 @@ export const _categories = {
         );
       }
 
-      await invalidateCache("categories");
+      await invalidateCache("filters");
       return createdCategory;
     },
 
@@ -82,7 +82,7 @@ export const _categories = {
         });
       }
 
-      await invalidateCache("categories");
+      await invalidateCache("filters");
       return updatedCategory;
     },
 

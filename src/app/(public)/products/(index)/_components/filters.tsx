@@ -17,8 +17,11 @@ import {
 } from "./filter-items";
 import { app } from "~/server/application";
 import { Suspense } from "react";
+import { cacheTag } from "next/cache";
 
 export async function Filters() {
+  "use cache";
+
   const categoriesPromise = app.public.categories.queries.findAll({
     filters: { root: true },
   });
@@ -28,6 +31,8 @@ export async function Filters() {
     categoriesPromise,
     brandsPromise,
   ]);
+
+  cacheTag("filters");
 
   return (
     <aside id="filters" className="hidden lg:block">

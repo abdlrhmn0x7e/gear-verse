@@ -92,7 +92,7 @@ function BrandCard({
 }) {
   return (
     <Link href={`/brands/${brand.slug}`}>
-      <div className="group flex h-full flex-col overflow-hidden rounded-lg border">
+      <div className="bg-background group flex h-full flex-col overflow-hidden rounded-lg border">
         <AspectRatio ratio={1} className="overflow-hidden">
           <ImageWithFallback
             src={brand.logo}

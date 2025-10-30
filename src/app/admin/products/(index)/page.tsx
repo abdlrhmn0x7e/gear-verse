@@ -60,7 +60,6 @@ export default async function AdminProductsPage({
             className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
             slug={params.slug}
             hideActions
-            hideReviews
           />
         )}
       </ProductDrawer>

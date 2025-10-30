@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
 import { app } from "~/server/application";
@@ -15,7 +16,14 @@ export default async function ProductPage({
 
   return (
     <section className="py-24">
-      <ProductDetails slug={slug} Reviews={Reviews} />
+      <ProductDetails
+        slug={slug}
+        Reviews={({ productId }) => (
+          <Suspense fallback={<div>Loading reviews...</div>}>
+            <Reviews productId={productId} />
+          </Suspense>
+        )}
+      />
     </section>
   );
 }
