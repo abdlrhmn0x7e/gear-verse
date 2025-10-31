@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
@@ -23,6 +23,7 @@ import { formatCurrency } from "~/lib/utils/format-currency";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 import { OrderStatus } from "../tables/orders/order-status";
+import { DeleteOrderDialog } from "../dialogs/delete-order";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -52,6 +53,7 @@ export function OrderDrawer() {
 function OrderDrawerContent() {
   const trpc = useTRPC();
   const [params, setParams] = useOrderSearchParams();
+  const queryClient = useQueryClient();
 
   const paramsProductIdRef = useRef<number>(params.orderId);
   const { data, isPending } = useQuery(
@@ -93,6 +95,10 @@ function OrderDrawerContent() {
     return <OrderDrawerSkeleton />;
   }
 
+  function handleDeleteSuccess() {
+    void setParams({ orderId: null });
+  }
+
   return (
     <>
       <DrawerHeader>
@@ -107,9 +113,13 @@ function OrderDrawerContent() {
               <EditIcon className="size-4" />
             </Button>
 
-            <Button variant="destructive-outline" size="icon">
-              <TrashIcon className="size-4" />
-            </Button>
+            <DeleteOrderDialog
+              variant="destructive-outline"
+              showText={false}
+              size="icon"
+              id={params.orderId!}
+              onDeleteSuccess={handleDeleteSuccess}
+            />
           </div>
         </div>
 

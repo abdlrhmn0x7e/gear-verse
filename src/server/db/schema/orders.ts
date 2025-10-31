@@ -70,7 +70,7 @@ export const orderItems = pgTable(
 
     orderId: bigint("order_id", { mode: "number" })
       .notNull()
-      .references(() => orders.id),
+      .references(() => orders.id, { onDelete: "cascade" }),
     productId: bigint("product_id", { mode: "number" })
       .notNull()
       .references(() => products.id),

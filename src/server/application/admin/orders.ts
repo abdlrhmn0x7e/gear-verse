@@ -68,5 +68,18 @@ export const _orders = {
 
       return updatedOrder;
     },
+
+    delete: async (id: number) => {
+      const { data: deletedOrder, error } = await tryCatch(
+        data.admin.orders.mutations.delete(id),
+      );
+      if (error) {
+        console.error("ERROR: ", error);
+        throw new AppError("Failed to delete order", "INTERNAL", {
+          cause: error,
+        });
+      }
+      return deletedOrder;
+    },
   },
 };

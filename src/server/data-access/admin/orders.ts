@@ -302,5 +302,13 @@ export const _orders = {
         .returning({ id: orders.id })
         .then(([res]) => res);
     },
+
+    delete: async (id: number) => {
+      return db
+        .delete(orders)
+        .where(eq(orders.id, id))
+        .returning({ id: orders.id })
+        .then(([res]) => res);
+    },
   },
 };
