@@ -4,7 +4,7 @@ import { paginationSchema } from "../pagination";
 export const usersGetPageInputSchema = paginationSchema.extend({
   filters: z
     .object({
-      name: z.string().nullish(),
+      name: z.string().optional(),
     })
     .optional(),
 });

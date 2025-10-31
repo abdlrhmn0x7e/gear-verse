@@ -2,7 +2,10 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { AppError } from "~/lib/errors/app-error";
 import type { OrdersGetPageInput } from "~/lib/schemas/contracts/admin/orders";
-import type { CreateFullOrderInput } from "~/lib/schemas/entities";
+import type {
+  CreateFullOrderInput,
+  UpdateFullOrderInput,
+} from "~/lib/schemas/entities";
 import { tryCatch } from "~/lib/utils/try-catch";
 
 export const _orders = {
@@ -24,6 +27,16 @@ export const _orders = {
 
       return order;
     },
+
+    findDetailsById: async (id: number) => {
+      const order = await data.admin.orders.queries.findDetailsById(id);
+
+      if (!order) {
+        throw new AppError("Order not found", "NOT_FOUND");
+      }
+
+      return order;
+    },
   },
 
   mutations: {
@@ -33,12 +46,27 @@ export const _orders = {
         data.admin.orders.mutations.create(order, items),
       );
       if (error) {
-        console.error("ERROR: ", error);
         throw new AppError("Failed to create order", "INTERNAL", {
           cause: error,
         });
       }
       return newOrder;
+    },
+
+    update: async (input: UpdateFullOrderInput & { id: number }) => {
+      console.log("input", input);
+      const { id, items, ...order } = input;
+      const { data: updatedOrder, error } = await tryCatch(
+        data.admin.orders.mutations.update(id, order, items),
+      );
+      if (error) {
+        console.error("ERROR: ", error);
+        throw new AppError("Failed to update order", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return updatedOrder;
     },
   },
 };

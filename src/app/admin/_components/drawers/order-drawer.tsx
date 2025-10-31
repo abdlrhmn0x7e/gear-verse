@@ -51,11 +51,11 @@ export function OrderDrawer() {
 
 function OrderDrawerContent() {
   const trpc = useTRPC();
-  const [params] = useOrderSearchParams();
+  const [params, setParams] = useOrderSearchParams();
 
   const paramsProductIdRef = useRef<number>(params.orderId);
   const { data, isPending } = useQuery(
-    trpc.admin.orders.queries.findById.queryOptions(
+    trpc.admin.orders.queries.findDetailsById.queryOptions(
       {
         id: paramsProductIdRef.current!,
       },
@@ -99,7 +99,11 @@ function OrderDrawerContent() {
         <div className="flex items-center justify-between">
           <DrawerTitle>Order Details</DrawerTitle>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setParams({ orderId: null, editId: data?.id })}
+            >
               <EditIcon className="size-4" />
             </Button>
 
@@ -158,7 +162,7 @@ function OrderDrawerContent() {
 function OrderItem({
   item,
 }: {
-  item: RouterOutput["admin"]["orders"]["queries"]["findById"]["items"][number];
+  item: RouterOutput["admin"]["orders"]["queries"]["findDetailsById"]["items"][number];
 }) {
   return (
     <div className="flex items-center gap-3">

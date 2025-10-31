@@ -45,6 +45,7 @@ import { createFullOrderInputSchema } from "~/lib/schemas/entities";
 import { AddressesCombobox } from "./addresses-combobox";
 import { CustomersCombobox } from "./customers-combobox";
 import { ProductsCombobox } from "./products-combobox";
+import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 
 const orderFormSchema = createFullOrderInputSchema;
 export type OrderFormValues = z.infer<typeof orderFormSchema>;
@@ -64,12 +65,16 @@ const PAYMENT_METHODS = [
 
 export function OrderForm({
   onSubmit,
+  onEdit,
+  defaultValues,
 }: {
-  onSubmit: (values: OrderFormValues) => void;
+  onSubmit?: (values: OrderFormValues) => void;
+  onEdit?: (values: Partial<OrderFormValues>) => void;
+  defaultValues?: Partial<OrderFormValues>;
 }) {
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       paymentMethod: "COD",
       status: "PENDING",
       userId: 0,
@@ -85,6 +90,9 @@ export function OrderForm({
   } = useFieldArray({
     control: form.control,
     name: "items",
+    rules: {
+      minLength: 1,
+    },
   });
 
   const userId = useWatch({
@@ -100,9 +108,22 @@ export function OrderForm({
     });
   }
 
+  const { dirtyFields } = form.formState;
+
+  function handleSubmit(data: OrderFormValues) {
+    if (defaultValues) {
+      const _data = getDirtyFields(data, dirtyFields);
+
+      onEdit?.(_data);
+      return;
+    }
+
+    onSubmit?.(data);
+  }
+
   return (
     <form
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={form.handleSubmit(handleSubmit)}
       id="order-form"
       className="space-y-8"
     >

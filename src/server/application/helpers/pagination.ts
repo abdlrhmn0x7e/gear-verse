@@ -1,6 +1,5 @@
 import { AppError } from "~/lib/errors/app-error";
 import type { Pagination } from "~/lib/schemas/contracts/pagination";
-import type { Pagination as DataPagination } from "~/server/data-access/common/types";
 import { base64DecodeNumber, base64EncodeNumber } from "~/lib/utils/base64";
 import { tryCatch } from "~/lib/utils/try-catch";
 
@@ -12,7 +11,9 @@ export async function paginate<
   getPage,
 }: {
   input: J;
-  getPage: (input: DataPagination) => Promise<Array<T>>;
+  getPage: (
+    input: { cursor: number | undefined } & Omit<J, "cursor">,
+  ) => Promise<Array<T>>;
 }) {
   const { cursor: encodedCursor, ...rest } = input;
   const cursor = encodedCursor ? base64DecodeNumber(encodedCursor) : undefined;

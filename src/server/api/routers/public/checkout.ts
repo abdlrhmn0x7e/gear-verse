@@ -95,9 +95,9 @@ export const userCheckoutRouter = createTRPCRouter({
         // create an order, order items and clear the cart
         const { data: order, error: createOrderError } = await tryCatch(
           ctx.app.public.checkout.mutations.create({
-            userId: ctx.user.id,
             cartId: cart.id,
             input: {
+              userId: ctx.user.id,
               paymentMethod: input.paymentMethod,
               addressId: input.addressId,
               status: "PENDING",

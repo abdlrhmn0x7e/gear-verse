@@ -68,3 +68,6 @@ export const createFullOrderInputSchema = createOrderInputSchema.extend({
   items: z.array(createOrderItemInputSchema),
 });
 export type CreateFullOrderInput = z.infer<typeof createFullOrderInputSchema>;
+
+export const updateFullOrderInputSchema = createFullOrderInputSchema.partial();
+export type UpdateFullOrderInput = z.infer<typeof updateFullOrderInputSchema>;

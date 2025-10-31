@@ -6,6 +6,7 @@ import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
 import {
   createFullOrderInputSchema,
   createOrderInputSchema,
+  updateFullOrderInputSchema,
 } from "~/lib/schemas/entities";
 
 export const adminOrdersRouter = createTRPCRouter({
@@ -41,6 +42,18 @@ export const adminOrdersRouter = createTRPCRouter({
         if (error) {
           throw errorMap(error);
         }
+        return data;
+      }),
+
+    findDetailsById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.orders.queries.findDetailsById(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
 
         return data;
       }),
@@ -52,6 +65,18 @@ export const adminOrdersRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.orders.mutations.create(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
+    update: adminProcedure
+      .input(updateFullOrderInputSchema.extend({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.orders.mutations.update(input),
         );
         if (error) {
           throw errorMap(error);

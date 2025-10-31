@@ -9,6 +9,7 @@ import {
 const orderSearchParams = {
   search: parseAsInteger,
   orderId: parseAsInteger,
+  editId: parseAsInteger,
   status: parseAsStringEnum([
     "PENDING",
     "SHIPPED",

@@ -18,6 +18,9 @@ import type { Pagination } from "../common/types";
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
 
+type UpdateOrder = Partial<InsertOrder>;
+type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
+
 export const _orders = {
   queries: {
     getPage: async ({
@@ -78,6 +81,50 @@ export const _orders = {
     },
 
     findById: async (id: number) => {
+      type OrderItem = {
+        id: number;
+        quantity: number;
+        productId: number;
+        productVariantId: number;
+      };
+
+      const orderItemsJsonCTE = db.$with("order_items_cte").as(
+        db
+          .select({
+            orderId: orderItems.orderId,
+            json: sql<OrderItem[]>`
+            jsonb_agg(
+              jsonb_build_object(
+                'id', ${orderItems.id},
+                'quantity', ${orderItems.quantity},
+                'productId', ${orderItems.productId},
+                'productVariantId', ${orderItems.productVariantId}
+              )
+            )
+          `.as("items"),
+          })
+          .from(orderItems)
+          .where(eq(orderItems.orderId, id))
+          .groupBy(orderItems.orderId),
+      );
+
+      return db
+        .with(orderItemsJsonCTE)
+        .select({
+          status: orders.status,
+          paymentMethod: orders.paymentMethod,
+          userId: orders.userId,
+          addressId: orders.addressId,
+          items: orderItemsJsonCTE.json,
+        })
+        .from(orders)
+        .where(eq(orders.id, id))
+        .leftJoin(orderItemsJsonCTE, eq(orders.id, orderItemsJsonCTE.orderId))
+        .limit(1)
+        .then(([res]) => res);
+    },
+
+    findDetailsById: async (id: number) => {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
@@ -220,6 +267,30 @@ export const _orders = {
         }
 
         return order;
+      });
+    },
+
+    update: async (
+      id: number,
+      orderInput?: UpdateOrder,
+      itemsInput?: UpdateOrderItem[],
+    ) => {
+      return db.transaction(async (tx) => {
+        if (orderInput && Object.keys(orderInput).length > 0) {
+          await tx.update(orders).set(orderInput).where(eq(orders.id, id));
+        }
+
+        if (itemsInput && itemsInput.length > 0) {
+          // delete the old items
+          await tx.delete(orderItems).where(eq(orderItems.orderId, id));
+
+          // create the new items
+          await tx
+            .insert(orderItems)
+            .values(itemsInput.map((item) => ({ ...item, orderId: id })));
+        }
+
+        return { id };
       });
     },
 

@@ -44,22 +44,16 @@ export const _checkout = {
     },
 
     create: async ({
-      userId,
       cartId,
       input,
       items,
     }: {
-      userId: number;
       cartId: number;
       input: CreateOrderInput;
       items: CreateOrderItemInput[];
     }) => {
       const { data: order, error } = await tryCatch(
-        data.public.orders.mutations.create(
-          { ...input, userId },
-          items,
-          cartId,
-        ),
+        data.public.orders.mutations.create(input, items, cartId),
       );
 
       if (error) {

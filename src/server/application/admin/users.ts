@@ -7,7 +7,10 @@ import type { CreateUserInput } from "~/lib/schemas/entities/users";
 export const _users = {
   queries: {
     getPage: async (input: UsersGetPageInput) => {
-      return paginate({ input, getPage: data.admin.users.queries.getPage });
+      return paginate({
+        input,
+        getPage: data.admin.users.queries.getPage,
+      });
     },
 
     getCount: async () => {
