@@ -1,5 +1,10 @@
 import { useQueryStates } from "nuqs";
-import { createLoader, parseAsInteger, parseAsStringEnum } from "nuqs/server";
+import {
+  createLoader,
+  parseAsBoolean,
+  parseAsInteger,
+  parseAsStringEnum,
+} from "nuqs/server";
 
 const orderSearchParams = {
   search: parseAsInteger,
@@ -12,6 +17,7 @@ const orderSearchParams = {
     "CANCELLED",
   ]),
   paymentMethod: parseAsStringEnum(["COD"]),
+  create: parseAsBoolean,
 };
 
 export function useOrderSearchParams() {

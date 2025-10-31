@@ -20,12 +20,13 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
 import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
 import { useState } from "react";
+import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 
 export function CreateOrderDrawer() {
   const trpc = useTRPC();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [params, setParams] = useOrderSearchParams();
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
     trpc.admin.orders.mutations.create.mutationOptions({
       onSuccess: () => {
@@ -33,7 +34,7 @@ export function CreateOrderDrawer() {
           trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
         );
         toast.success("Order created successfully");
-        setOpen(false);
+        setParams({ create: null });
       },
     }),
   );
@@ -42,11 +43,19 @@ export function CreateOrderDrawer() {
     createOrder(values);
   }
 
+  function handleOpenChange(open: boolean) {
+    if (open) {
+      setParams({ create: true });
+      return;
+    }
+    setParams({ create: null });
+  }
+
   return (
     <Drawer
       direction={isMobile ? "bottom" : "right"}
-      open={open}
-      onOpenChange={setOpen}
+      open={Boolean(params.create)}
+      onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>
         <Button size="lg">

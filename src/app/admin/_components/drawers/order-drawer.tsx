@@ -1,27 +1,28 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { EditIcon, TrashIcon } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useRef } from "react";
+import { Heading } from "~/components/heading";
+import { ImageWithFallback } from "~/components/image-with-fallback";
+import { PaymentMethod } from "~/components/payment-method";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import { DialogTitle } from "~/components/ui/dialog";
 import {
+  Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
-import { Drawer } from "~/components/ui/drawer";
-import { useIsMobile } from "~/hooks/use-mobile";
-import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
-import { useMemo, useRef } from "react";
-import { PaymentMethod } from "~/components/payment-method";
-import { OrderStatus } from "../tables/orders/order-status";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import { Heading } from "~/components/heading";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Skeleton } from "~/components/ui/skeleton";
-import { EditIcon, TrashIcon } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useIsMobile } from "~/hooks/use-mobile";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
+import { OrderStatus } from "../tables/orders/order-status";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -89,57 +90,7 @@ function OrderDrawerContent() {
   }, [data]);
 
   if (isPending) {
-    return (
-      <>
-        <DrawerHeader>
-          <div className="flex items-center justify-between">
-            <DrawerTitle>
-              <Skeleton className="h-6 w-32" />
-            </DrawerTitle>
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-9 w-9 rounded-full" />
-              <Skeleton className="h-9 w-9 rounded-full" />
-            </div>
-          </div>
-          <DrawerDescription className="mt-2">
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <Skeleton className="h-4 w-40" />
-            </div>
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="max-h-full space-y-6 divide-y overflow-y-auto px-4 [&>div]:pb-6 [&>div:last-child]:pb-0">
-          <div className="flex flex-col gap-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="grid grid-cols-2 items-center gap-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-40 justify-self-end" />
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <Skeleton className="h-5 w-28" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <div className="flex flex-col gap-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <Skeleton className="size-24 shrink-0 rounded-md" />
-                  <div className="flex w-full flex-col gap-1">
-                    <Skeleton className="h-4 w-1/2" />
-                    <div className="ml-auto">
-                      <Skeleton className="h-4 w-24" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </>
-    );
+    return <OrderDrawerSkeleton />;
   }
 
   return (
@@ -148,7 +99,7 @@ function OrderDrawerContent() {
         <div className="flex items-center justify-between">
           <DrawerTitle>Order Details</DrawerTitle>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
+            <Button variant="outline" size="icon">
               <EditIcon className="size-4" />
             </Button>
 
@@ -157,21 +108,21 @@ function OrderDrawerContent() {
             </Button>
           </div>
         </div>
-        <DrawerDescription className="mt-2">
-          <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarImage
-                src={data?.user?.image ?? ""}
-                alt={data?.user?.name ?? ""}
-              />
-              <AvatarFallback>
-                {data?.user?.name?.charAt(0) ?? ""}
-              </AvatarFallback>
-            </Avatar>
-            <p>{data?.user?.name ?? "your mom"}</p>
-          </div>
-        </DrawerDescription>
+
+        <DrawerDescription className="sr-only">Order Details</DrawerDescription>
+
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage
+              src={data?.user?.image ?? ""}
+              alt={data?.user?.name ?? ""}
+            />
+            <AvatarFallback>{data?.user?.name?.charAt(0) ?? ""}</AvatarFallback>
+          </Avatar>
+          <span>{data?.user?.name ?? "your mom"}</span>
+        </div>
       </DrawerHeader>
+
       <div className="max-h-full space-y-6 divide-y overflow-y-auto px-4 [&>div]:pb-6 [&>div:last-child]:pb-0">
         <div className="flex flex-col gap-4">
           {details.map((detail) => (
@@ -192,6 +143,7 @@ function OrderDrawerContent() {
               )}
             </p>
           </div>
+
           <div className="flex flex-col gap-4">
             {data?.items.map((item, index) => (
               <OrderItem key={`${item.id}-${index}`} item={item} />
@@ -243,7 +195,56 @@ function DetailRow({
   return (
     <div className="grid grid-cols-2">
       <p className="capitalize">{label}</p>
-      <p className="text-muted-foreground capitalize">{value}</p>
+      <div className="text-muted-foreground capitalize">{value}</div>
     </div>
+  );
+}
+
+function OrderDrawerSkeleton() {
+  return (
+    <>
+      <DrawerHeader>
+        <DialogTitle className="sr-only">Order Details</DialogTitle>
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-6 w-32" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-9 rounded-md" />
+            <Skeleton className="h-9 w-9 rounded-md" />
+          </div>
+        </div>
+        <div className="mt-2 flex items-center gap-2">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+      </DrawerHeader>
+      <div className="max-h-full space-y-6 divide-y overflow-y-auto px-4 [&>div]:pb-6 [&>div:last-child]:pb-0">
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="size-24 shrink-0 rounded-md" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="ml-auto h-4 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
