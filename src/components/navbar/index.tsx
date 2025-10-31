@@ -27,6 +27,7 @@ import { ProductsMenuContent, ProductsMenuSkeleton } from "./products-menu";
 import { NavSocialLinks } from "./social-links";
 import { CategoriesMenu } from "./categories-menu";
 import { DrawerTrigger } from "../ui/drawer";
+import { MobileNav } from "./mobile-nav";
 
 export function Navbar() {
   return (
@@ -39,7 +40,9 @@ export function Navbar() {
                 <Logo />
               </Link>
 
-              <SearchDrawer />
+              <Suspense>
+                <SearchDrawer />
+              </Suspense>
 
               <NavigationMenu.List className="hidden w-full items-center gap-2 lg:flex">
                 <NavigationMenu.Item value="explore">
@@ -113,15 +116,17 @@ export function Navbar() {
                   <AdminNav />
                 </Suspense>
 
-                <CartDrawer
-                  Trigger={
-                    <DrawerTrigger asChild>
-                      <Button variant="outline" size="icon-lg">
-                        <IconShoppingCart />
-                      </Button>
-                    </DrawerTrigger>
-                  }
-                />
+                <Suspense>
+                  <CartDrawer
+                    Trigger={
+                      <DrawerTrigger asChild>
+                        <Button variant="outline" size="icon-lg">
+                          <IconShoppingCart />
+                        </Button>
+                      </DrawerTrigger>
+                    }
+                  />
+                </Suspense>
 
                 <ProfileDropdown className="ml-1 border" />
               </div>
@@ -131,6 +136,10 @@ export function Navbar() {
           <NavViewport />
         </NavContainer>
       </header>
+
+      <Suspense>
+        <MobileNav />
+      </Suspense>
     </NavigationMenu.Root>
   );
 }
