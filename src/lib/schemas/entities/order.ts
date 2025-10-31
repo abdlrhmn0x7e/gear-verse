@@ -1,10 +1,19 @@
 import z from "zod";
 
+export const orderStatusEnum = z.enum([
+  "PENDING",
+  "SHIPPED",
+  "DELIVERED",
+  "REFUNDED",
+  "CANCELLED",
+]);
+export type OrderStatus = z.infer<typeof orderStatusEnum>;
+
 export const orderEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
   paymentMethod: z.enum(["COD", "ONLINE"]),
-  status: z.enum(["PENDING", "SHIPPED", "DELIVERED", "REFUNDED", "CANCELLED"]),
+  status: orderStatusEnum,
   userId: z
     .number("User ID must be a number")
     .positive("User ID must be positive"),
