@@ -13,6 +13,7 @@ import {
   media,
   users,
 } from "~/server/db/schema";
+import type { Pagination } from "../common/types";
 
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
@@ -23,15 +24,11 @@ export const _orders = {
       pageSize,
       cursor,
       filters,
-    }: {
-      pageSize: number;
-      cursor: number | undefined;
-      filters?: Partial<{
-        orderId: number;
-        status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
-        paymentMethod: "COD";
-      }>;
-    }) => {
+    }: Pagination<{
+      orderId: number;
+      status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
+      paymentMethod: "COD";
+    }>) => {
       const whereClause = [gt(orders.id, cursor ?? 0)];
       if (filters?.orderId) {
         whereClause.push(gt(orders.id, filters.orderId));

@@ -1,11 +1,11 @@
 import { Badge } from "~/components/ui/badge";
-import { HandCoinsIcon } from "lucide-react";
+import { CreditCardIcon, HandCoinsIcon } from "lucide-react";
 
 export function PaymentMethod({
   method,
   variant = "badge",
 }: {
-  method: "COD";
+  method: "COD" | "ONLINE";
   variant?: "badge" | "plain";
 }) {
   switch (method) {
@@ -23,6 +23,22 @@ export function PaymentMethod({
         <Badge variant="secondary">
           <HandCoinsIcon />
           Cash on Delivery
+        </Badge>
+      );
+    case "ONLINE":
+      if (variant === "plain") {
+        return (
+          <div className="flex items-center gap-1">
+            <CreditCardIcon />
+            <span>Online Payment</span>
+          </div>
+        );
+      }
+
+      return (
+        <Badge variant="secondary">
+          <CreditCardIcon />
+          Online Payment
         </Badge>
       );
   }

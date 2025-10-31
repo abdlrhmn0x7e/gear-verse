@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { auth } from "~/server/auth";
 import Header from "../../../components/header";
 import {
+  EyeIcon,
   HomeIcon,
   PlusIcon,
   ShoppingBagIcon,
@@ -103,15 +104,26 @@ export default async function AdminPage() {
 
       <Frame>
         <FrameHeader>
-          <div className="flex items-center gap-2">
-            <ShoppingCartIcon className="size-6" />
-            <FrameTitle className="text-lg font-semibold">
-              Last Orders
-            </FrameTitle>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <ShoppingCartIcon className="size-6" />
+                <FrameTitle className="text-lg font-semibold">
+                  Last Orders
+                </FrameTitle>
+              </div>
+
+              <FrameDescription>
+                View the last 5 orders placed in your store.
+              </FrameDescription>
+            </div>
+            <Button variant="outline" type="button" asChild>
+              <Link href="/admin/orders">
+                <EyeIcon />
+                View All Orders
+              </Link>
+            </Button>
           </div>
-          <FrameDescription>
-            View the last 5 orders placed in your store.
-          </FrameDescription>
         </FrameHeader>
         <FramePanel>
           <LastOrdersTable orders={lastOrders.data} />

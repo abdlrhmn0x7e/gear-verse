@@ -12,7 +12,10 @@ import { addresses } from "./addresses";
 import { relations } from "drizzle-orm";
 import { products, productVariants } from "./products";
 
-export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", ["COD"]);
+export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", [
+  "COD",
+  "ONLINE",
+]);
 export const orderStatusEnum = pgEnum("order_status", [
   "PENDING",
   "SHIPPED",

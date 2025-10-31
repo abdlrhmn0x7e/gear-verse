@@ -3,6 +3,10 @@ import z from "zod";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
+import {
+  createFullOrderInputSchema,
+  createOrderInputSchema,
+} from "~/lib/schemas/entities";
 
 export const adminOrdersRouter = createTRPCRouter({
   queries: {
@@ -38,6 +42,20 @@ export const adminOrdersRouter = createTRPCRouter({
           throw errorMap(error);
         }
 
+        return data;
+      }),
+  },
+
+  mutations: {
+    create: adminProcedure
+      .input(createFullOrderInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.orders.mutations.create(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
         return data;
       }),
   },

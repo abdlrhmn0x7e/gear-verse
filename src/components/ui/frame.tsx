@@ -7,7 +7,7 @@ function Frame({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="frame"
       className={cn(
-        "bg-muted relative flex flex-col gap-3 rounded-2xl p-1",
+        "group/frame bg-muted relative flex flex-col gap-3 rounded-xl p-1",
         className,
       )}
       {...props}
@@ -20,7 +20,7 @@ function FramePanel({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="frame-panel"
       className={cn(
-        "not-has-[table]:bg-card space-y-4 overflow-hidden bg-clip-padding not-has-[table]:rounded-xl not-has-[table]:border not-has-[table]:p-5",
+        "not-has-[table]:bg-card space-y-4 overflow-hidden bg-clip-padding not-has-[table]:rounded-lg not-has-[table]:border not-has-[table]:p-5",
         className,
       )}
       {...props}

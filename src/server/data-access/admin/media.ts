@@ -1,23 +1,18 @@
 import { eq, and, ilike, lt, desc } from "drizzle-orm";
 import { db } from "../../db";
 import { media } from "../../db/schema";
+import type { Pagination } from "../common/types";
 
 type NewMediaDto = typeof media.$inferInsert;
 type UpdateMediaDto = Partial<NewMediaDto>;
 
 export const _media = {
   queries: {
-    getPage: ({
+    getPage: async ({
       cursor,
       pageSize,
       filters,
-    }: {
-      cursor: number | undefined;
-      pageSize: number;
-      filters?: Partial<{
-        name: string;
-      }>;
-    }) => {
+    }: Pagination<{ name: string }>) => {
       const whereClause = cursor ? [lt(media.id, cursor)] : [];
       if (filters?.name) {
         whereClause.push(ilike(media.name, `%${filters.name}%`));

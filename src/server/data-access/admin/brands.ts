@@ -1,17 +1,12 @@
 import { gt, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { brands, media } from "../../db/schema";
+import type { Pagination } from "../common/types";
 
 type NewBrandDto = typeof brands.$inferInsert;
 export const _brands = {
   queries: {
-    getPage: async ({
-      cursor,
-      pageSize,
-    }: {
-      cursor: number | undefined;
-      pageSize: number;
-    }) => {
+    getPage: async ({ cursor, pageSize }: Pagination) => {
       return db
         .select({ id: brands.id, name: brands.name, logo: { url: media.url } })
         .from(brands)

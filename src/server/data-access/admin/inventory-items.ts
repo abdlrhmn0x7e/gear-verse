@@ -9,6 +9,7 @@ import {
   products,
   productVariants,
 } from "~/server/db/schema";
+import type { Pagination } from "../common/types";
 
 type NewInventoryItem = typeof inventoryItems.$inferInsert;
 type UpdateInventoryItem = Partial<NewInventoryItem> & { id: number };
@@ -19,13 +20,7 @@ export const _inventoryItems = {
       pageSize,
       cursor,
       filters,
-    }: {
-      pageSize: number;
-      cursor: number | undefined;
-      filters?: Partial<{
-        inventorySearch: string | null;
-      }>;
-    }) => {
+    }: Pagination<{ inventorySearch: string | null }>) => {
       const whereClause = cursor ? [lt(inventoryItems.id, cursor)] : [];
       const variantValuesCTE = db.$with("variant_values").as(
         db

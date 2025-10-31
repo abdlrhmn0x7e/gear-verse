@@ -15,6 +15,7 @@ import { inventoryItems } from "~/server/db/schema/inventory";
 import { _productVariants } from "./product-variants";
 import { _options } from "./options";
 import { fullVariantValuesCTE } from "../common/cte";
+import type { Pagination } from "../common/types";
 
 type NewProduct = typeof products.$inferInsert;
 type NewProductOption = Omit<
@@ -56,15 +57,11 @@ export const _products = {
       cursor,
       pageSize,
       filters,
-    }: {
-      cursor: number | undefined;
-      pageSize: number;
-      filters?: {
-        title?: string | null;
-        brands?: number[] | null;
-        categories?: number[] | null;
-      };
-    }) => {
+    }: Pagination<{
+      title: string;
+      brands: number[];
+      categories: number[];
+    }>) => {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.archived, false),

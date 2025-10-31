@@ -129,6 +129,19 @@ function DrawerDescription({
   );
 }
 
+function DrawerBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="drawer-body"
+      className={cn(
+        "mr-1 max-h-full overflow-y-auto pt-2 pr-3 pb-6 pl-4",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 export {
   Drawer,
   DrawerPortal,
@@ -140,4 +153,5 @@ export {
   DrawerFooter,
   DrawerTitle,
   DrawerDescription,
+  DrawerBody,
 };

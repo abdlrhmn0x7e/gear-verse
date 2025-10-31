@@ -7,6 +7,7 @@ import { requireAdmin } from "~/server/auth";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
+import { CreateOrderDrawer } from "./_components/crearte-order-drawer";
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -35,7 +36,7 @@ export default async function AdminOrdersPage({
           Icon={BadgeDollarSignIcon}
         />
 
-        {/* <AddOrderDialog /> */}
+        <CreateOrderDrawer />
       </div>
 
       <HydrateClient>

@@ -2,6 +2,8 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { AppError } from "~/lib/errors/app-error";
 import type { OrdersGetPageInput } from "~/lib/schemas/contracts/admin/orders";
+import type { CreateFullOrderInput } from "~/lib/schemas/entities";
+import { tryCatch } from "~/lib/utils/try-catch";
 
 export const _orders = {
   queries: {
@@ -21,6 +23,22 @@ export const _orders = {
       }
 
       return order;
+    },
+  },
+
+  mutations: {
+    create: async (input: CreateFullOrderInput) => {
+      const { items, ...order } = input;
+      const { data: newOrder, error } = await tryCatch(
+        data.admin.orders.mutations.create(order, items),
+      );
+      if (error) {
+        console.error("ERROR: ", error);
+        throw new AppError("Failed to create order", "INTERNAL", {
+          cause: error,
+        });
+      }
+      return newOrder;
     },
   },
 };

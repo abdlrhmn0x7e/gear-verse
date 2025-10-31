@@ -6,6 +6,7 @@ import { _orders } from "./orders";
 import { _inventoryItems } from "./inventory-items";
 import { _productVariants } from "./product-variants";
 import { _users } from "./users";
+import { _addresses } from "./addresses";
 
 export const _admin = {
   products: _products,
@@ -16,4 +17,5 @@ export const _admin = {
   orders: _orders,
   inventoryItems: _inventoryItems,
   users: _users,
+  addresses: _addresses,
 };
