@@ -2,6 +2,7 @@ import { PackageOpenIcon } from "lucide-react";
 import Header from "~/components/header";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { OrdersTableSkeleton } from "./_components/orders/skeleton";
+import { OrderCardsSkeleton } from "./_components/order-cards";
 
 export default function OrdersLoading() {
   return (
@@ -14,7 +15,7 @@ export default function OrdersLoading() {
           Icon={PackageOpenIcon}
         />
 
-        <OrdersTableSkeleton />
+        <OrderCardsSkeleton />
       </MaxWidthWrapper>
     </section>
   );

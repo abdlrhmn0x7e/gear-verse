@@ -22,7 +22,7 @@ export default async function OrdersPage({
 
   return (
     <section className="min-h-screen py-24">
-      <MaxWidthWrapper className="max-w-screen-xl space-y-6">
+      <MaxWidthWrapper className="max-w-7xl space-y-6">
         <Header
           title="Orders"
           description="View your orders, review the details, and track the status."
