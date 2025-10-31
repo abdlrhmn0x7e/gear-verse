@@ -1,20 +1,20 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
-  DialogTrigger,
+  DialogBody,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogBody,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/dialog";
-import { CustomerForm, type CustomerFormValues } from "../forms/customer-form";
 import { useTRPC } from "~/trpc/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { CustomerForm, type CustomerFormValues } from "../forms/customer-form";
 
 export function AddCustomerDialog() {
   const [open, setOpen] = useState(false);

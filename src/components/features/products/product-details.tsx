@@ -125,7 +125,6 @@ export async function ProductDetails({
                     size="lg"
                     variant="outline"
                     productId={product.id}
-                    stock={0}
                   />
 
                   <BuyNowButton

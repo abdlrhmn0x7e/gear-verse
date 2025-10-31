@@ -1,5 +1,7 @@
 "use client";
 
+import { IconBrandGoogle } from "@tabler/icons-react";
+import { useMutation } from "@tanstack/react-query";
 import {
   CheckIcon,
   LogOutIcon,
@@ -8,7 +10,14 @@ import {
   PackageOpenIcon,
   SunIcon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { authClient } from "~/lib/auth-client";
+import { cn } from "~/lib/utils";
+import { LoginDrawerDialog } from "./login-drawer-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,27 +30,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { cn } from "~/lib/utils";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { authClient } from "~/lib/auth-client";
-import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
-import type { User } from "~/lib/auth-client";
-import { LoginDrawerDialog } from "./login-drawer-dialog";
-import { IconBrandGoogle } from "@tabler/icons-react";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Skeleton } from "./ui/skeleton";
 
-export function ProfileDropdown({
-  className,
-  user,
-}: {
-  className?: string;
-  user: User;
-}) {
+export function ProfileDropdown({ className }: { className?: string }) {
   const router = useRouter();
   const { setTheme, theme } = useTheme();
+  const { data, isPending } = authClient.useSession();
   const [openLoginDrawerDialog, setOpenLoginDrawerDialog] = useState(false);
   const { mutate: signOut, isPending: isSigningOut } = useMutation({
     mutationFn: () => authClient.signOut(),
@@ -50,9 +44,15 @@ export function ProfileDropdown({
     },
   });
 
-  if (isSigningOut) {
+  if (isSigningOut || isPending) {
     return <Skeleton className="size-9 rounded-full" />;
   }
+
+  if (!data) {
+    return null;
+  }
+
+  const { user } = data;
 
   return (
     <>

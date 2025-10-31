@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { eq, sql } from "drizzle-orm";
+import { eq, isNull, sql } from "drizzle-orm";
 import { categories } from "../../db/schema";
 
 type NewCategory = typeof categories.$inferInsert;
@@ -7,7 +7,18 @@ type UpdateCategory = Partial<NewCategory>;
 
 export const _categories = {
   queries: {
-    async findAll() {
+    async findAll({ filters }: { filters?: Partial<{ root: boolean }> } = {}) {
+      if (filters?.root) {
+        return db
+          .select({
+            id: categories.id,
+            name: categories.name,
+            slug: categories.slug,
+          })
+          .from(categories)
+          .where(isNull(categories.parent_id));
+      }
+
       const query = sql<{ tree: string }[]>`
         WITH RECURSIVE all_categories AS (
           SELECT categories.*, 0 AS level

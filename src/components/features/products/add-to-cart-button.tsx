@@ -14,19 +14,18 @@ import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import { CartDrawer } from "../../cart-drawer";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DrawerTrigger } from "~/components/ui/drawer";
 
 export function AddToCartButton({
   disabled,
   productId,
-  stock,
   ...props
 }: React.ComponentProps<typeof Button> & {
   productId: number;
-  stock: number;
 }) {
-  const [openCartDrawer, setOpenCartDrawer] = useState(false);
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
   // Get variant data from store
   const variantId = useVariantSelectionStore(
     (state) => state.selectedVariant,
@@ -106,13 +105,19 @@ export function AddToCartButton({
           <TooltipContent>Decrease quantity</TooltipContent>
         </Tooltip>
 
-        <div className="flex items-center gap-2">
-          <IconShoppingCart className="size-4" />
+        <CartDrawer
+          Trigger={
+            <DrawerTrigger asChild>
+              <div className="flex items-center gap-2">
+                <IconShoppingCart className="size-4" />
 
-          <p className="text-sm font-medium">
-            {currentCartItem.quantity} in cart
-          </p>
-        </div>
+                <p className="text-sm font-medium">
+                  {currentCartItem.quantity} in cart
+                </p>
+              </div>
+            </DrawerTrigger>
+          }
+        />
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -121,8 +126,8 @@ export function AddToCartButton({
               onClick={handleIncreaseQuantity}
               disabled={
                 removingFromCart ||
-                stock === 0 ||
-                stock <= currentCartItem.quantity
+                currentCartItem.stock === 0 ||
+                currentCartItem.stock <= currentCartItem.quantity
               }
               className="w-full flex-1"
             >
@@ -136,23 +141,13 @@ export function AddToCartButton({
   }
 
   return (
-    <>
-      <Button
-        onClick={handleAddToCart}
-        disabled={addingToCart ?? disabled ?? stock <= 0}
-        {...props}
-      >
-        <IconShoppingCartPlus />
-        Add to Cart
-      </Button>
-
-      {cart && (
-        <CartDrawer
-          open={openCartDrawer}
-          onOpenChange={setOpenCartDrawer}
-          cart={cart}
-        />
-      )}
-    </>
+    <Button
+      onClick={handleAddToCart}
+      disabled={addingToCart ?? disabled ?? stock <= 0}
+      {...props}
+    >
+      <IconShoppingCartPlus />
+      Add to Cart
+    </Button>
   );
 }

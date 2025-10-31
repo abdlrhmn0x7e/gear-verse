@@ -1,5 +1,7 @@
 "use client";
 
+import { IconShoppingBagX } from "@tabler/icons-react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -7,12 +9,8 @@ import { useRouter } from "next/navigation";
 import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Spinner } from "~/components/spinner";
 import { DialogOverlay } from "~/components/ui/dialog";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-import { Separator } from "~/components/ui/separator";
-import { Skeleton } from "~/components/ui/skeleton";
-import { useDebounce } from "~/hooks/use-debounce";
-import { type RouterOutput, useTRPC } from "~/trpc/client";
 import {
   Empty,
   EmptyDescription,
@@ -20,11 +18,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { IconShoppingBagX } from "@tabler/icons-react";
-import { Spinner } from "~/components/spinner";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { cn } from "~/lib/utils";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { Separator } from "~/components/ui/separator";
+import { Skeleton } from "~/components/ui/skeleton";
+import { useDebounce } from "~/hooks/use-debounce";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { cn } from "~/lib/utils";
+import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 export function ProductSearchDialog({
   children,

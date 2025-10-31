@@ -11,16 +11,9 @@ export const createTRPCContext = cache(async () => {
   /**
    * @see: https://trpc.io/docs/server/context
    */
-  const data = await auth.api.getSession({ headers: await headers() });
 
   return {
     app,
-    user: data?.user
-      ? {
-          id: parseInt(data.user.id),
-          role: data.user.role,
-        }
-      : null,
   };
 });
 
@@ -53,7 +46,13 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  const { user } = ctx;
+  const data = await auth.api.getSession({ headers: await headers() });
+  const user = data?.user
+    ? {
+        id: parseInt(data.user.id),
+        role: data.user.role,
+      }
+    : null;
 
   if (!user) {
     console.log("Auth middleware: No session found");
@@ -63,11 +62,23 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
     });
   }
 
-  return next({ ctx: { ...ctx, user } });
+  return next({
+    ctx: {
+      ...ctx,
+      user,
+    },
+  });
 });
 
 const adminMiddleware = t.middleware(async ({ next, ctx }) => {
-  const { user } = ctx;
+  const data = await auth.api.getSession({ headers: await headers() });
+  const user = data?.user
+    ? {
+        id: parseInt(data.user.id),
+        role: data.user.role,
+      }
+    : null;
+
   if (!user) {
     console.log("Admin middleware: No session found");
     throw new TRPCError({

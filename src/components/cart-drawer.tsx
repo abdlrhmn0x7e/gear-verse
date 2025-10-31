@@ -3,10 +3,13 @@
 import { IconShoppingBagX, IconShoppingCartCheck } from "@tabler/icons-react";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useTRPC } from "~/trpc/client";
 import { Button } from "./ui/button";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import type { JSX } from "react/jsx-dev-runtime";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
@@ -19,23 +22,26 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "./ui/drawer";
-import { useMutation } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 export function CartDrawer({
   open,
   onOpenChange,
-  cart,
+  Trigger,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  cart: RouterOutput["public"]["carts"]["queries"]["find"];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  Trigger?: JSX.Element;
 }) {
   const trpc = useTRPC();
-  const pathname = usePathname();
-  const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
+
+  const { data: cart, isPending: isPendingCart } = useQuery(
+    trpc.public.carts.queries.find.queryOptions(),
+  );
   const { mutate: removeItem, isPending: removingItem } = useMutation(
     trpc.public.carts.mutations.removeItem.mutationOptions({
       onSuccess: () => {
@@ -56,11 +62,18 @@ export function CartDrawer({
       },
     }),
   );
-  const isMobile = useIsMobile();
 
   useEffect(() => {
-    onOpenChange(false);
+    onOpenChange?.(false);
   }, [pathname]);
+
+  if (isPendingCart) {
+    return <Skeleton className="size-9 rounded-full" />;
+  }
+
+  if (!cart) {
+    return null;
+  }
 
   return (
     <Drawer
@@ -68,6 +81,8 @@ export function CartDrawer({
       open={open}
       onOpenChange={onOpenChange}
     >
+      {Trigger}
+
       <DrawerContent className="sm:h-auto">
         <DrawerHeader>
           <DrawerTitle className="text-2xl font-bold">
