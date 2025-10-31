@@ -13,7 +13,7 @@ import {
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
 import { LoginDrawerDialog } from "./login-drawer-dialog";
@@ -35,7 +35,7 @@ import { Skeleton } from "./ui/skeleton";
 export function ProfileDropdown({ className }: { className?: string }) {
   const router = useRouter();
   const { setTheme, theme } = useTheme();
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending: isPendingSession } = authClient.useSession();
   const [openLoginDrawerDialog, setOpenLoginDrawerDialog] = useState(false);
   const { mutate: signOut, isPending: isSigningOut } = useMutation({
     mutationFn: () => authClient.signOut(),
@@ -44,9 +44,18 @@ export function ProfileDropdown({ className }: { className?: string }) {
     },
   });
 
-  if (isSigningOut || isPending) {
+  // login anonymously if the user is not authenticated
+  useEffect(() => {
+    if (!data && !isPendingSession) {
+      void authClient.signIn.anonymous();
+    }
+  }, [data, isPendingSession]);
+
+  if (isSigningOut || isPendingSession) {
     return <Skeleton className="size-9 rounded-full" />;
   }
+
+  console.log("ProfileDropdown data:", data);
 
   if (!data) {
     return null;
