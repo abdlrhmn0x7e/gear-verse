@@ -1,5 +1,7 @@
 import {
   and,
+  asc,
+  desc,
   eq,
   gt,
   gte,
@@ -21,6 +23,7 @@ import {
   seo,
 } from "~/server/db/schema";
 import { fullVariantsCTE, variantsCTE } from "../common/cte";
+import type { Pagination } from "../common/types";
 
 export const _products = {
   queries: {
@@ -28,19 +31,19 @@ export const _products = {
       cursor,
       pageSize,
       filters,
-    }: {
-      cursor: number | undefined;
-      pageSize: number;
-      filters?: {
-        title?: string | null;
-        brands?: string[] | null;
-        categories?: string[] | null;
-        price?: {
-          min?: number | null;
-          max?: number | null;
+      sortBy,
+    }: Pagination<
+      {
+        title: string;
+        brands: string[];
+        categories: string[];
+        price: {
+          min: number;
+          max: number;
         };
-      };
-    }) => {
+      },
+      "price-asc" | "price-desc" | "newest" | "oldest"
+    >) => {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
@@ -71,6 +74,23 @@ export const _products = {
       }
       if (filters?.price?.max) {
         whereClause.push(lte(products.price, filters.price.max));
+      }
+
+      // Default order by is newest (desc)
+      let orderBy = desc(products.id);
+      switch (sortBy) {
+        case "price-asc":
+          orderBy = asc(products.price);
+          break;
+        case "price-desc":
+          orderBy = desc(products.price);
+          break;
+        case "newest":
+          orderBy = desc(products.id);
+          break;
+        case "oldest":
+          orderBy = asc(products.id);
+          break;
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -119,7 +139,7 @@ export const _products = {
           ),
         )
         .limit(pageSize + 1)
-        .orderBy(products.id);
+        .orderBy(orderBy);
     },
 
     findBySlug: async (slug: string) => {

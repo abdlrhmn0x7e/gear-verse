@@ -32,10 +32,13 @@ export function ProductList() {
         filters: {
           brands: debouncedFilters.brands ?? undefined,
           categories: debouncedFilters.categories ?? undefined,
-          price: {
-            min: debouncedFilters.minPrice ?? undefined,
-            max: debouncedFilters.maxPrice ?? undefined,
-          },
+          price:
+            filters.maxPrice && filters.minPrice
+              ? {
+                  min: filters.minPrice,
+                  max: filters.maxPrice,
+                }
+              : undefined,
         },
         sortBy: debouncedFilters.sortBy ?? undefined,
       },

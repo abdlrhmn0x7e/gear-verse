@@ -40,33 +40,43 @@ export function ProductsSort() {
   return (
     <Select
       defaultValue="default"
-      // value={filters.sortBy ?? "default"}
-      // onValueChange={handleSortChange}
+      value={filters.sortBy ?? "default"}
+      onValueChange={handleSortChange}
     >
-      <SelectTrigger className="w-full max-w-3xs">
+      <SelectTrigger className="sm:w-xs">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
 
       <SelectContent>
         <SelectItem value="default">
-          <ArrowUpDownIcon />
-          Default
+          <div className="flex w-full items-center gap-2">
+            <ArrowUpDownIcon />
+            Default
+          </div>
         </SelectItem>
         <SelectItem value="newest">
-          <SparklesIcon />
-          Newest
+          <div className="flex w-full items-center gap-2">
+            <SparklesIcon />
+            Newest
+          </div>
         </SelectItem>
         <SelectItem value="oldest">
-          <SkullIcon />
-          Oldest
+          <div className="flex w-full items-center gap-2">
+            <SkullIcon />
+            Oldest
+          </div>
         </SelectItem>
         <SelectItem value="price-asc">
-          <ArrowUpIcon />
-          Price: Low to High
+          <div className="flex w-full items-center gap-2">
+            <ArrowUpIcon />
+            <span className="flex-1">Price: Low to High</span>
+          </div>
         </SelectItem>
         <SelectItem value="price-desc">
-          <ArrowDownIcon />
-          Price: High to Low
+          <div className="flex w-full items-center gap-2">
+            <ArrowDownIcon />
+            <span className="flex-1">Price: High to Low</span>
+          </div>
         </SelectItem>
       </SelectContent>
     </Select>
