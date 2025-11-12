@@ -13,6 +13,10 @@ export async function AdminNav() {
     return null;
   }
 
+  if (data.user.role !== "admin") {
+    return null;
+  }
+
   return (
     <Button variant="outline" size="icon-lg" asChild>
       <Link href="/admin">

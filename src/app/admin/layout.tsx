@@ -9,12 +9,15 @@ import { AdminBreadcrumb } from "./_components/admin-breadcrumb";
 import { ModeToggle } from "~/components/mode-toggle";
 import { WiseWords } from "./_components/wise-words";
 import { Suspense } from "react";
+import { requireAdmin } from "~/server/auth";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireAdmin();
+
   return (
     <Suspense>
       <SidebarProvider>

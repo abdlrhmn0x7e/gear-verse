@@ -1,6 +1,8 @@
-import { headers } from "next/headers";
-import { auth } from "~/server/auth";
-import Header from "../../../components/header";
+import {
+  IconArchive,
+  IconShoppingBagPlus,
+  IconShoppingBagSearch,
+} from "@tabler/icons-react";
 import {
   EyeIcon,
   HomeIcon,
@@ -9,16 +11,11 @@ import {
   ShoppingCartIcon,
   UsersIcon,
 } from "lucide-react";
-import SummaryCard from "../_components/summary-card";
+import { headers } from "next/headers";
+import Link from "next/link";
 import { Heading } from "~/components/heading";
-import { QuickAction } from "../_components/quick-action";
-import { api } from "~/trpc/server";
-import type { RouterOutput } from "~/trpc/client";
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { OrdersTableHeader } from "../_components/tables/orders/header";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { OrderStatus } from "../_components/tables/orders/order-status";
-import { formatDate } from "~/lib/utils/format-date";
+import { PaymentMethod } from "~/components/payment-method";
+import { Button } from "~/components/ui/button";
 import {
   Frame,
   FrameDescription,
@@ -26,16 +23,21 @@ import {
   FramePanel,
   FrameTitle,
 } from "~/components/ui/frame";
-import { PaymentMethod } from "~/components/payment-method";
-import {
-  IconArchive,
-  IconShoppingBagPlus,
-  IconShoppingBagSearch,
-} from "@tabler/icons-react";
-import { Button } from "~/components/ui/button";
-import Link from "next/link";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { formatDate } from "~/lib/utils/format-date";
+import { auth, requireAdmin } from "~/server/auth";
+import type { RouterOutput } from "~/trpc/client";
+import { api } from "~/trpc/server";
+import Header from "../../../components/header";
+import { QuickAction } from "../_components/quick-action";
+import SummaryCard from "../_components/summary-card";
+import { OrdersTableHeader } from "../_components/tables/orders/header";
+import { OrderStatus } from "../_components/tables/orders/order-status";
 
 export default async function AdminPage() {
+  await requireAdmin();
+
   const [session, userCount, ordersCount, lastOrders] = await Promise.all([
     auth.api.getSession({
       headers: await headers(),

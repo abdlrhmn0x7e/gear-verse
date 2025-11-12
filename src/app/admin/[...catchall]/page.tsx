@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
 
-export default function AdminCatchallPage() {
+export default function PublicCatchAllPage() {
   return notFound();
 }
