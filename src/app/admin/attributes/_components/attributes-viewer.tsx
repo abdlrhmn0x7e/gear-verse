@@ -5,12 +5,12 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { AttributeValuesView } from "./attribute-values-view";
 import {
   AttributesExplorer,
   AttributesExplorerSkeleton,
 } from "./attributes-explorer";
-import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 
 export function AttributesViewer() {
   void prefetch(trpc.admin.attributes.queries.getAll.queryOptions());

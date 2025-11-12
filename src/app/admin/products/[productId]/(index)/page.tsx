@@ -10,6 +10,7 @@ import { AppError } from "~/lib/errors/app-error";
 export default async function EditProductPage({
   params,
 }: PageProps<"/admin/products/[productId]">) {
+  await requireAdmin();
   const { productId } = await params;
   const parsedId = Number(productId);
 

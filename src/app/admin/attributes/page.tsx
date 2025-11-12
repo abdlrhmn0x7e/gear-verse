@@ -2,8 +2,10 @@ import { IconKeyframes } from "@tabler/icons-react";
 import Header from "~/components/header";
 import { AttributesViewer } from "./_components/attributes-viewer";
 import { AttributeStoreProvider } from "./_store/provider";
+import { requireAdmin } from "~/server/auth";
 
-export default function AdminAttributesPage() {
+export default async function AdminAttributesPage() {
+  await requireAdmin();
   return (
     <section className="flex h-full flex-col gap-6">
       <Header

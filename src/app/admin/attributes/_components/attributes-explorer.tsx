@@ -91,7 +91,7 @@ export function AttributesExplorer() {
       </div>
 
       <div className="space-y-1">
-        {attributes?.map((attribute) => (
+        {attributes.map((attribute) => (
           <div
             key={attribute.id}
             className={cn(

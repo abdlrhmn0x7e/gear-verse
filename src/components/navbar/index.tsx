@@ -110,9 +110,7 @@ export function Navbar() {
               </ProductSearchDialog>
 
               <div className="flex items-center gap-1">
-                <Suspense
-                  fallback={<Skeleton className="size-9 rounded-full" />}
-                >
+                <Suspense fallback={null}>
                   <AdminNav />
                 </Suspense>
 

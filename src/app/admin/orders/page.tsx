@@ -8,10 +8,12 @@ import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
 import { CreateOrderDrawer } from "./_components/create-order-drawer";
 import { EditOrderDrawer } from "./_components/edit-order-drawer";
+import { requireAdmin } from "~/server/auth";
 
 export default async function AdminOrdersPage({
   searchParams,
 }: PageProps<"/admin/orders">) {
+  await requireAdmin();
   const params = await loadOrderSearchParams(searchParams);
   void prefetch(
     trpc.admin.orders.queries.getPage.infiniteQueryOptions({

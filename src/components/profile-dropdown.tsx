@@ -41,6 +41,7 @@ export function ProfileDropdown({ className }: { className?: string }) {
     mutationFn: () => authClient.signOut(),
     onSuccess: () => {
       router.push("/");
+      router.refresh();
     },
   });
 
