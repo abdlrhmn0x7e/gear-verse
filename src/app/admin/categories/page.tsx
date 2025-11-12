@@ -2,11 +2,8 @@ import { FoldersIcon } from "lucide-react";
 import Header from "~/components/header";
 import { CategoriesViewer } from "./_components/categories-viewer";
 import { CategoryStoreProvider } from "./_store/provider";
-import { requireAdmin } from "~/server/auth";
 
-export default async function AdminCategoriesPage() {
-  await requireAdmin();
-
+export default function AdminCategoriesPage() {
   return (
     <section className="flex h-full flex-col gap-6">
       <Header

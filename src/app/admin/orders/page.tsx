@@ -3,7 +3,6 @@ import Header from "~/components/header";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
-import { requireAdmin } from "~/server/auth";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
@@ -13,7 +12,6 @@ import { EditOrderDrawer } from "./_components/edit-order-drawer";
 export default async function AdminOrdersPage({
   searchParams,
 }: PageProps<"/admin/orders">) {
-  await requireAdmin();
   const params = await loadOrderSearchParams(searchParams);
   void prefetch(
     trpc.admin.orders.queries.getPage.infiniteQueryOptions({

@@ -2,20 +2,18 @@ import { PackageIcon } from "lucide-react";
 import { EditInventory } from "./_components/edit-inventory";
 import Header from "~/components/header";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { api, HydrateClient, prefetch, trpc } from "~/trpc/server";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { Suspense } from "react";
 import type { SearchParams } from "nuqs";
 import { loadInventorySearchParams } from "../_hooks/use-inventory-search-params";
 import { InventoryItemFilter } from "../_components/tables/inventory/filters";
 import { InventoryTableSkeleton } from "../_components/tables/inventory/skeleton";
-import { requireAdmin } from "~/server/auth";
 
 export default async function AdminInventoryPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireAdmin();
   const filters = await loadInventorySearchParams(searchParams);
   void prefetch(
     trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions({
