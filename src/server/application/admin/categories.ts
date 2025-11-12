@@ -1,5 +1,6 @@
 import { AppError } from "~/lib/errors/app-error";
 import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categories";
+import type { CategoriesFindAllInput } from "~/lib/schemas/contracts/public/categories";
 import {
   categoryTreeSchema,
   type CreateCategoryInput,
@@ -12,10 +13,14 @@ import { data } from "~/server/data-access";
 
 export const _categories = {
   queries: {
-    findAll: async () => {
-      const categories = await data.admin.categories.queries.findAll();
+    findAll: async (input: CategoriesFindAllInput) => {
+      const categories = await data.admin.categories.queries.findAll(input);
       if (!categories) {
         throw new AppError("Categories not found", "NOT_FOUND");
+      }
+
+      if (input?.filters?.root) {
+        return categories;
       }
 
       // validate the sql query results

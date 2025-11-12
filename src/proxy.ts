@@ -1,6 +1,6 @@
+import { headers } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "./server/auth";
-import { headers } from "next/headers";
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;

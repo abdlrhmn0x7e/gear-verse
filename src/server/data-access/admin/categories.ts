@@ -1,6 +1,7 @@
 import { db } from "../../db";
 import { eq, isNull, sql } from "drizzle-orm";
 import { categories } from "../../db/schema";
+import type { CategoryTree } from "~/lib/schemas/entities";
 
 type NewCategory = typeof categories.$inferInsert;
 type UpdateCategory = Partial<NewCategory>;
@@ -75,10 +76,10 @@ export const _categories = {
 
       // fuck the ORM, use raw SQL
       const result = (await db.execute(query))[0]!.tree as string;
-      return JSON.parse(result ?? "[]") as unknown[]; // this is validated on the application layer
+      return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the application layer
     },
 
-    findById(id: number) {
+    async findById(id: number) {
       return db
         .select({
           slug: categories.slug,
@@ -95,7 +96,7 @@ export const _categories = {
       return db.insert(categories).values(data);
     },
 
-    update(id: number, data: UpdateCategory) {
+    async update(id: number, data: UpdateCategory) {
       return db
         .update(categories)
         .set(data)

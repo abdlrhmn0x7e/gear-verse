@@ -10,22 +10,25 @@ import {
 import { errorMap } from "../../error-map";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { deleteCategoryInputSchema } from "~/lib/schemas/contracts/admin/categories";
+import { categoriesFindAllInputSchema } from "~/lib/schemas/contracts/public/categories";
 
 export const categoriesRouter = createTRPCRouter({
   /**
    * Queries
    */
   queries: {
-    findAll: publicProcedure.query(async ({ ctx }) => {
-      const { data, error } = await tryCatch(
-        ctx.app.admin.categories.queries.findAll(),
-      );
-      if (error) {
-        throw errorMap(error);
-      }
+    findAll: adminProcedure
+      .input(categoriesFindAllInputSchema)
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.categories.queries.findAll(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
 
-      return data;
-    }),
+        return data;
+      }),
   },
 
   /**

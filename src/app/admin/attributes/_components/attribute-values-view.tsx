@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { useTRPC } from "~/trpc/client";
 import { useAttributeStore } from "../_store/provider";
 import { Heading } from "~/components/heading";
-import { IconKeyframe } from "@tabler/icons-react";
+import { IconCategoryPlus, IconKeyframe } from "@tabler/icons-react";
 import {
   Dialog,
   DialogContent,
@@ -23,14 +23,23 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Button } from "~/components/ui/button";
-import { DiamondMinusIcon, PlusIcon } from "lucide-react";
+import { DiamondMinusIcon, DiamondPlusIcon, PlusIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 
 export function AttributeValuesView() {
   const selectedAttribute = useAttributeStore(
     (state) => state.selectedAttribute,
   );
   return (
-    <Card className="bg-background h-full p-1">
+    <Card className="bg-background h-full gap-1 p-1">
       <CardHeader className="p-0">
         <div className="bg-background flex w-full items-center justify-between gap-2 border-b p-4">
           <Heading level={4} className="flex items-center gap-2">
@@ -41,8 +50,25 @@ export function AttributeValuesView() {
         </div>
       </CardHeader>
 
-      <CardContent className="h-full">
-        <AttributeValues />
+      <CardContent className="h-full p-0">
+        <Tabs>
+          <TabsList className="w-full border md:w-fit">
+            <TabsTrigger value="values">
+              <DiamondPlusIcon />
+              Values
+            </TabsTrigger>
+            <TabsTrigger value="categories">
+              <IconCategoryPlus />
+              Categories
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="h-full px-2">
+            <TabsContent value="values">
+              <AttributeValues />
+            </TabsContent>
+          </div>
+        </Tabs>
       </CardContent>
     </Card>
   );
@@ -84,7 +110,41 @@ function AttributeValues() {
     return <div>Loading values...</div>;
   }
 
-  return <code>{JSON.stringify(values, null, 2)}</code>;
+  if (!values || values.length === 0) {
+    return (
+      <Empty className="h-2/3">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <DiamondMinusIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Values Found</EmptyTitle>
+          <EmptyDescription>
+            No values were found for this attribute. Add some values to get
+            started.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Value</TableHead>
+          <TableHead></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {values.map((value) => (
+          <TableRow>
+            <TableCell>{value.value}</TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
 }
 
 function AddValueDialog({ id }: { id: number | undefined }) {
