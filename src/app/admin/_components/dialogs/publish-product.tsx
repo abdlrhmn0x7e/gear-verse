@@ -20,23 +20,14 @@ export function PublishProductDialog({
   id,
   showText = true,
   published,
-  variant = "ghost",
-  size = "default",
-  className,
   onPublishSuccess,
+  ...props
 }: {
   id: number;
   published: boolean;
   showText?: boolean;
-  variant?:
-    | "destructive"
-    | "destructive-outline"
-    | "ghost"
-    | "destructive-ghost";
-  size?: "default" | "sm" | "lg" | "icon";
-  className?: string;
   onPublishSuccess?: () => void;
-}) {
+} & React.ComponentProps<typeof AlertDialog>) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: updateProduct, isPending } = useMutation(
@@ -58,17 +49,7 @@ export function PublishProductDialog({
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild disabled={isPending}>
-        <Button
-          variant={published ? "destructive-ghost" : "ghost"}
-          size={size}
-          className={className}
-        >
-          {!published ? <CheckCircleIcon /> : <XCircleIcon />}
-          {showText && (published ? "Unpublish product" : "Publish product")}
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog {...props}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

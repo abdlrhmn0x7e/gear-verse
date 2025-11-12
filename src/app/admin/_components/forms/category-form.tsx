@@ -80,10 +80,12 @@ export function CategoryForm({
                     <SelectGroup>
                       {Array.from(iconsMap.entries()).map(([key, Icon]) => (
                         <SelectItem key={key} value={key}>
-                          <Icon />
-                          <span className="capitalize">
-                            {key.toLowerCase()}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <Icon />
+                            <span className="capitalize">
+                              {key.toLowerCase()}
+                            </span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectGroup>

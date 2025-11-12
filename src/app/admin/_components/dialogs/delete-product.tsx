@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { TrashIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,23 +12,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
 import { useTRPC } from "~/trpc/client";
 
 export function DeleteProductDialog({
   id,
   showText = true,
-  variant = "destructive-ghost",
-  size = "default",
-  className,
   onDeleteSuccess,
+  Trigger,
+  ...props
 }: {
   id: number;
   showText?: boolean;
-  variant?: "destructive-ghost" | "destructive-outline" | "ghost";
-  size?: "default" | "sm" | "lg" | "icon";
-  className?: string;
   onDeleteSuccess?: () => void;
+  Trigger?: React.ReactNode;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -52,13 +47,8 @@ export function DeleteProductDialog({
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild disabled={isPending}>
-        <Button variant={variant} size={size} className={className}>
-          <TrashIcon />
-          {showText && "Delete product"}
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog {...props}>
+      {Trigger && <AlertDialogTrigger asChild>{Trigger}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

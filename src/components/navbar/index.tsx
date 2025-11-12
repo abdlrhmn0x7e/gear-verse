@@ -19,15 +19,15 @@ import { CartDrawer } from "../cart-drawer";
 import Header from "../header";
 import { ProfileDropdown } from "../profile-dropdown";
 import { Button } from "../ui/button";
+import { DrawerTrigger } from "../ui/drawer";
 import { Skeleton } from "../ui/skeleton";
 import { AdminNav } from "./admin-nav";
+import { CategoriesMenu } from "./categories-menu";
+import { MobileNav } from "./mobile-nav";
 import { NavContent, NavLink, NavTrigger, NavViewport } from "./nav";
 import { NavContainer } from "./nav-container";
 import { ProductsMenuContent, ProductsMenuSkeleton } from "./products-menu";
 import { NavSocialLinks } from "./social-links";
-import { CategoriesMenu } from "./categories-menu";
-import { DrawerTrigger } from "../ui/drawer";
-import { MobileNav } from "./mobile-nav";
 
 export function Navbar() {
   return (

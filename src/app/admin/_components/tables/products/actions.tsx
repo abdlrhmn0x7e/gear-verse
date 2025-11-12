@@ -1,6 +1,13 @@
 "use client";
 
-import { CopyIcon, MoreHorizontal, PencilIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  CopyIcon,
+  PencilIcon,
+  XCircleIcon,
+  MoreHorizontal,
+  TrashIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,11 +16,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { DeleteProductDialog } from "../../dialogs/delete-product";
 import { PublishProductDialog } from "../../dialogs/publish-product";
+import { useDialog } from "~/hooks/use-dialog";
 
 export function ProductsTableActions({
   id,
@@ -25,6 +34,8 @@ export function ProductsTableActions({
   published: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const publishDialog = useDialog();
+  const deleteDialog = useDialog();
 
   function handleCopyProductLink() {
     void navigator.clipboard.writeText(
@@ -35,47 +46,59 @@ export function ProductsTableActions({
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
-        <DropdownMenuGroup className="max-w-3xs space-y-1">
-          <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href={`/admin/products/${id}`}>
-              <PencilIcon className="text-muted-foreground" />
-              Edit
-            </Link>
+    <>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="size-4" />
           </Button>
+        </DropdownMenuTrigger>
 
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={handleCopyProductLink}
-          >
-            <CopyIcon />
-            Copy Product Link
-          </Button>
+        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+          <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
+          <DropdownMenuGroup className="max-w-3xs space-y-1">
+            <DropdownMenuItem
+              variant="ghost"
+              className="w-full justify-start"
+              asChild
+            >
+              <Link href={`/admin/products/${id}`}>
+                <PencilIcon className="text-muted-foreground" />
+                Edit
+              </Link>
+            </DropdownMenuItem>
 
-          <PublishProductDialog
-            id={id}
-            published={published}
-            className="w-full justify-start"
-            variant="ghost"
-          />
+            <DropdownMenuItem
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={handleCopyProductLink}
+            >
+              <CopyIcon />
+              Copy Product Link
+            </DropdownMenuItem>
 
-          <DeleteProductDialog
-            className="w-full justify-start"
-            variant="destructive-ghost"
-            id={id}
-          />
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <DropdownMenuItem onClick={publishDialog.trigger}>
+              {!published ? <CheckCircleIcon /> : <XCircleIcon />}
+              {published ? "Unpublish product" : "Publish product"}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive-ghost"
+              onClick={deleteDialog.trigger}
+            >
+              <TrashIcon /> Delete Product
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DeleteProductDialog id={id} {...deleteDialog.props} />
+
+      <PublishProductDialog
+        id={id}
+        published={published}
+        {...publishDialog.props}
+      />
+    </>
   );
 }

@@ -3,7 +3,7 @@ import { tanNimbus } from "~/fonts";
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6;
 const headingVariants = cva(
-  "text-pretty scroll-m-20 tracking-tight text-balance",
+  "text-pretty scroll-m-20 tracking-tight text-balance capitalize",
   {
     variants: {
       level: {

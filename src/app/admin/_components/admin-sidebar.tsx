@@ -34,6 +34,8 @@ import {
   IconArchiveFilled,
   IconCategoryFilled,
   IconCategory,
+  IconKeyframes,
+  IconKeyframesFilled,
 } from "@tabler/icons-react";
 
 export type AdminSidebarItemItem = {
@@ -75,6 +77,12 @@ const DASHBOARD_ITEMS = [
     url: "/admin/categories",
     icon: IconCategory,
     iconFilled: IconCategoryFilled,
+  },
+  {
+    title: "Attributes",
+    url: "/admin/attributes",
+    icon: IconKeyframes,
+    iconFilled: IconKeyframesFilled,
   },
   {
     title: "Orders",

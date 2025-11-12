@@ -55,8 +55,6 @@ export function ProfileDropdown({ className }: { className?: string }) {
     return <Skeleton className="size-9 rounded-full" />;
   }
 
-  console.log("ProfileDropdown data:", data);
-
   if (!data) {
     return null;
   }

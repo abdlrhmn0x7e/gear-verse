@@ -9,6 +9,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { categoryAttributes } from "./attributes";
 
 export const categoryIconEnum = pgEnum("category_icon", [
   "KEYBOARDS",
@@ -58,9 +59,10 @@ export const categories = pgTable(
   ],
 );
 
-export const categoryRelations = relations(categories, ({ one }) => ({
+export const categoryRelations = relations(categories, ({ one, many }) => ({
   parent: one(categories, {
     fields: [categories.parent_id],
     references: [categories.id],
   }),
+  attributes: many(categoryAttributes),
 }));
