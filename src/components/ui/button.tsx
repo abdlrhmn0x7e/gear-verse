@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "border-primary bg-primary text-primary-foreground not-disabled:shadow-sm not-disabled:inset-shadow-[0_1px_--theme(--color-white/16%)] not-disabled:before:shadow-sm not-disabled:before:shadow-primary/32 hover:bg-primary/90 active:inset-shadow-[0_1px_--theme(--color-black/8%)] active:before:shadow-xs data-pressed:inset-shadow-[0_1px_--theme(--color-black/8%)] data-pressed:before:shadow-xs dark:shadow-black/24 dark:before:hidden",
         outline:
-          "border-border bg-background not-disabled:before:shadow-sm hover:bg-accent/50 active:before:shadow-xs data-pressed:bg-accent/50 data-pressed:before:shadow-xs dark:bg-input/32 dark:shadow-black/24 dark:not-disabled:shadow-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:hover:bg-input/48 dark:active:shadow-none dark:data-pressed:bg-input/48 dark:data-pressed:shadow-none",
+          "border-border bg-background not-disabled:before:shadow-sm hover:bg-accent/50 active:before:shadow-xs data-pressed:bg-accent/50 data-pressed:before:shadow-xs dark:shadow-black/24 dark:not-disabled:shadow-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:hover:bg-background/75 dark:active:shadow-none dark:data-pressed:bg-input/48 dark:data-pressed:shadow-none",
         secondary:
           "border-secondary bg-secondary text-secondary-foreground hover:bg-secondary/90 data-pressed:bg-secondary/90",
         destructive:
@@ -33,6 +33,7 @@ const buttonVariants = cva(
         xl: "min-h-10 px-[calc(--spacing(4)-1px)] py-[calc(--spacing(2)-1px)] text-base [&_svg:not([class*='size-'])]:size-4.5",
         icon: "size-8 rounded-full",
         "icon-sm": "size-7 rounded-full",
+        "icon-xs": "size-5 rounded-full [&_svg:not([class*='size-'])]:size-3",
         "icon-lg": "size-9 rounded-full",
       },
     },

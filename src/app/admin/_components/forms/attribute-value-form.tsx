@@ -3,9 +3,10 @@ import { Controller, useForm } from "react-hook-form";
 import type z from "zod";
 import { Field, FieldError, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { createAttributeValueInputSchema } from "~/lib/schemas/entities/attribute-value";
 import { createUserInputSchema } from "~/lib/schemas/entities/users";
 
-const attributeFormSchema = createUserInputSchema;
+const attributeFormSchema = createAttributeValueInputSchema;
 export type AttributeValueFormValues = z.infer<typeof attributeFormSchema>;
 
 export function AttributeValueForm({
@@ -29,7 +30,7 @@ export function AttributeValueForm({
   }
 
   return (
-    <form id="customer-form" onSubmit={handleSubmit}>
+    <form id="attribute-value-form" onSubmit={handleSubmit}>
       <Controller
         control={form.control}
         name="value"

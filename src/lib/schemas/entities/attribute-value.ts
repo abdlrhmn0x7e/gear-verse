@@ -14,6 +14,7 @@ export type AttributeValueEntity = z.infer<typeof attributeValueEntitySchema>;
 
 export const createAttributeValueInputSchema = attributeValueEntitySchema.omit({
   id: true,
+  attributeId: true,
   slug: true,
   createdAt: true,
 });

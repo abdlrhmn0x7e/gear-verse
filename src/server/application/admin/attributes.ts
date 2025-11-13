@@ -3,6 +3,7 @@ import type {
   CreateAttributeInput,
   UpdateAttributeInput,
 } from "~/lib/schemas/entities/attribute";
+import type { CreateAttributeValueInput } from "~/lib/schemas/entities/attribute-value";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
@@ -46,13 +47,31 @@ export const _attributes = {
           slug: generateSlug(input.name),
         }),
       );
-      if (error) {
+      if (error || !createdAttribute) {
         throw new AppError("Failed to create attribute", "INTERNAL", {
           cause: error,
         });
       }
 
       return createdAttribute;
+    },
+
+    async addValue(input: CreateAttributeValueInput & { attributeId: number }) {
+      const { data: addedValue, error } = await tryCatch(
+        data.admin.attributes.mutations.addValue({
+          value: input.value,
+          attributeId: input.attributeId,
+          slug: generateSlug(input.value),
+        }),
+      );
+
+      if (error) {
+        throw new AppError("Failed to add attribute value", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return addedValue;
     },
 
     async update(id: number, input: UpdateAttributeInput) {

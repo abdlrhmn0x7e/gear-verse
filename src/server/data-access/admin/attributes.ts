@@ -5,6 +5,8 @@ import { attributes, attributeValues } from "~/server/db/schema/attributes";
 type CreateAttributeInput = typeof attributes.$inferInsert;
 type UpdateAttributeInput = Partial<typeof attributes.$inferInsert>;
 
+type CreateAttributeValueInput = typeof attributeValues.$inferInsert;
+
 export const _attributes = {
   queries: {
     getAll() {
@@ -69,11 +71,27 @@ export const _attributes = {
   },
 
   mutations: {
-    create(input: CreateAttributeInput) {
+    async create(input: CreateAttributeInput) {
       return db
         .insert(attributes)
         .values(input)
-        .returning({ id: attributes.id });
+        .returning({
+          id: attributes.id,
+          name: attributes.name,
+          slug: attributes.slug,
+          type: attributes.type,
+        })
+        .then(([res]) => res);
+    },
+
+    async addValue(input: CreateAttributeValueInput) {
+      return db
+        .insert(attributeValues)
+        .values(input)
+        .returning({
+          id: attributeValues.id,
+        })
+        .then(([res]) => res);
     },
 
     update(id: number, input: UpdateAttributeInput) {

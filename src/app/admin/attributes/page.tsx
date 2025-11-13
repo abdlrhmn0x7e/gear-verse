@@ -4,6 +4,9 @@ import { requireAdmin } from "~/server/auth";
 import { AttributesView } from "./_components/attributes-view";
 import { Card, CardContent } from "~/components/ui/card";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
+import { ReactFlowProvider } from "@xyflow/react";
+import { Suspense } from "react";
+import { Spinner } from "~/components/spinner";
 
 export default async function AdminAttributesPage() {
   await requireAdmin();
@@ -23,12 +26,25 @@ export default async function AdminAttributesPage() {
       />
 
       <Card className="h-full p-2">
-        <CardContent className="h-full p-0">
-          <HydrateClient>
-            <AttributesView />
-          </HydrateClient>
+        <CardContent className="relative h-full p-0">
+          <ReactFlowProvider>
+            <HydrateClient>
+              <Suspense fallback={<AttributeViewSkeleton />}>
+                <AttributesView />
+              </Suspense>
+            </HydrateClient>
+          </ReactFlowProvider>
         </CardContent>
       </Card>
     </section>
+  );
+}
+
+function AttributeViewSkeleton() {
+  return (
+    <div className="relative flex h-full flex-col items-center justify-center gap-1 p-0">
+      <Spinner />
+      <p className="font-medium">Loading Editor</p>
+    </div>
   );
 }
