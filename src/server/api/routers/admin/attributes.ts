@@ -22,6 +22,22 @@ export const attributesRouter = createTRPCRouter({
       return data;
     }),
 
+    getCategoryAttributes: adminProcedure
+      .input(z.object({ categoryId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.attributes.queries.getCategoryAttributes(
+            input.categoryId,
+          ),
+        );
+
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
     getAllConnections: adminProcedure.query(async ({ ctx }) => {
       const { data, error } = await tryCatch(
         ctx.app.admin.attributes.queries.getAllConnections(),

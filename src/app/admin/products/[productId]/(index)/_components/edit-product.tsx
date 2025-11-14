@@ -18,7 +18,7 @@ import { type RouterOutput, useTRPC } from "~/trpc/client";
 export function EditProduct({
   product,
 }: {
-  product: RouterOutput["admin"]["products"]["queries"]["findBySlug"];
+  product: RouterOutput["admin"]["products"]["queries"]["findById"];
 }) {
   const router = useRouter();
   const trpc = useTRPC();
@@ -26,9 +26,10 @@ export function EditProduct({
   const { mutate: updateProduct, isPending: isUpdatingProduct } = useMutation(
     trpc.admin.products.mutations.editDeep.mutationOptions(),
   );
-  console.log("product", product);
 
   function onSubmit(data: Partial<ProductFormValues>) {
+    console.log("Submitting data:", data);
+
     updateProduct(
       {
         id: product.id,
@@ -49,7 +50,7 @@ export function EditProduct({
             trpc.admin.products.queries.getPage.queryFilter(),
           );
           void queryClient.invalidateQueries(
-            trpc.admin.products.queries.findBySlug.queryFilter({
+            trpc.admin.products.queries.findById.queryFilter({
               id: product.id,
             }),
           );
@@ -93,6 +94,7 @@ export function EditProduct({
         : undefined,
 
       media: product.media,
+      attributeIds: product.attributeIds,
       options: product.options,
       variants: product.variants,
     }),

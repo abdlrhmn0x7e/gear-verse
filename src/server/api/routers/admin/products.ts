@@ -27,7 +27,7 @@ export const productsRouter = createTRPCRouter({
         return data;
       }),
 
-    findBySlug: adminProcedure
+    findById: adminProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
         const { data: product, error: productError } = await tryCatch(

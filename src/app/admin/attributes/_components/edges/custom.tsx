@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getSimpleBezierPath,
+  getStraightPath,
   useReactFlow,
   type EdgeComponentProps,
 } from "@xyflow/react";
@@ -20,7 +20,7 @@ export function CustomEdge({
 }: EdgeComponentProps) {
   const trpc = useTRPC();
   const { deleteElements } = useReactFlow();
-  const [edgePath, labelX, labelY] = getSimpleBezierPath({
+  const [edgePath, labelX, labelY] = getStraightPath({
     sourceX,
     sourceY,
     targetX,
@@ -50,8 +50,9 @@ export function CustomEdge({
       <BaseEdge id={id} path={edgePath} />
       <EdgeLabelRenderer>
         <Button
-          variant="default"
+          variant="destructive"
           size="icon-xs"
+          className="size-4"
           onClick={handleDelete}
           style={{
             position: "absolute",

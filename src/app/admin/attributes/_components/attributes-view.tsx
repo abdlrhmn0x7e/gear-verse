@@ -49,7 +49,7 @@ export function AttributesView() {
       id: `attribute-${attribute.slug}-${attribute.id}`,
       position: {
         x: 0,
-        y: index * 50,
+        y: index * 100,
       },
       type: "attribute",
       data: attribute,

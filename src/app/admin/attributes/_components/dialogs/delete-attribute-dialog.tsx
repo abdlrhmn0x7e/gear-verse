@@ -23,7 +23,7 @@ export function DeleteAttributeAlertDialog({
   ...props
 }: { id: number; slug: string } & React.ComponentProps<typeof AlertDialog>) {
   const trpc = useTRPC();
-  const { setNodes } = useReactFlow();
+  const { deleteElements } = useReactFlow();
   const queryClient = useQueryClient();
   const { mutate: deleteAttribute, isPending } = useMutation(
     trpc.admin.attributes.mutations.delete.mutationOptions({
@@ -31,6 +31,13 @@ export function DeleteAttributeAlertDialog({
         queryClient.invalidateQueries(
           trpc.admin.attributes.queries.getAll.queryFilter(),
         );
+        deleteElements({
+          nodes: [
+            {
+              id: `attribute-${slug}-${id}`,
+            },
+          ],
+        });
         props.onOpenChange?.(false);
       },
     }),

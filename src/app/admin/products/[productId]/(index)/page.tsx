@@ -19,7 +19,7 @@ export default async function EditProductPage({
   }
 
   const { data: product, error } = await tryCatch(
-    api.admin.products.queries.findBySlug({
+    api.admin.products.queries.findById({
       id: parsedId,
     }),
   );

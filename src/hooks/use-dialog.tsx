@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export function useDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const trigger = () => setIsOpen(true);
+  const trigger = useCallback(() => setIsOpen(true), []);
 
   return {
     props: {

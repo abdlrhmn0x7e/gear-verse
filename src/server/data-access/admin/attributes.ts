@@ -24,22 +24,46 @@ export const _attributes = {
         .orderBy(asc(attributes.id));
     },
 
+    getCategoryAttributes: async (categoryId: number) => {
+      return db
+        .select({
+          id: attributes.id,
+          name: attributes.name,
+          slug: attributes.slug,
+          type: attributes.type,
+          valueId: attributeValues.id,
+          value: attributeValues.value,
+        })
+        .from(attributes)
+        .innerJoin(
+          attributeValues,
+          eq(attributes.id, attributeValues.attributeId),
+        )
+        .innerJoin(
+          categoryAttributes,
+          and(
+            eq(categoryAttributes.categoryId, categoryId),
+            eq(categoryAttributes.attributeId, attributes.id),
+          ),
+        )
+        .orderBy(asc(categoryAttributes.order));
+    },
+
     getAllWithValues() {
+      type Value = { id: number; value: string; slug: string };
       const attributeValuesJsonCTE = db.$with("attribute_values_json_cte").as(
         db
           .select({
             attributeId: attributeValues.attributeId,
-            json: sql<
-              { id: number; value: string; slug: string; order: number }[]
-            >`
+            json: sql<Value[]>`
                 jsonb_agg(
                   jsonb_build_object(
                     'id', ${attributeValues.id},
                     'value', ${attributeValues.value},
-                    'slug', ${attributeValues.slug},
+                    'slug', ${attributeValues.slug}
                     )
                 )
-              `,
+              `.as("values_json"),
           })
           .from(attributeValues)
           .groupBy(attributeValues.attributeId),
@@ -52,7 +76,9 @@ export const _attributes = {
           name: attributes.name,
           slug: attributes.slug,
           type: attributes.type,
-          values: attributeValuesJsonCTE.json,
+          values: sql<
+            Value[]
+          >`coalesce(${attributeValuesJsonCTE.json}, '[]'::jsonb)`,
         })
         .from(attributes)
         .leftJoin(
@@ -138,7 +164,13 @@ export const _attributes = {
         .update(attributes)
         .set(input)
         .where(eq(attributes.id, id))
-        .returning({ id: attributes.id });
+        .returning({
+          id: attributes.id,
+          name: attributes.name,
+          slug: attributes.slug,
+          type: attributes.type,
+        })
+        .then(([res]) => res);
     },
 
     delete(id: number) {

@@ -1,4 +1,6 @@
-import { eq, gt, ilike, and, inArray, sql, isNull, asc } from "drizzle-orm";
+import { and, asc, eq, gt, ilike, inArray, isNull, sql } from "drizzle-orm";
+import { productAttributeValues } from "~/server/db/schema/attributes";
+import { inventoryItems } from "~/server/db/schema/inventory";
 import { db } from "../../db";
 import {
   media,
@@ -11,11 +13,10 @@ import {
   productVariants,
   seo,
 } from "../../db/schema";
-import { inventoryItems } from "~/server/db/schema/inventory";
-import { _productVariants } from "./product-variants";
-import { _options } from "./options";
 import { fullVariantValuesCTE } from "../common/cte";
 import type { Pagination } from "../common/types";
+import { _options } from "./options";
+import { _productVariants } from "./product-variants";
 
 type NewProduct = typeof products.$inferInsert;
 type NewProductOption = Omit<
@@ -46,6 +47,7 @@ type UpdateProduct = Partial<
   NewProduct & {
     media: number[];
     seo: UpdateSeo;
+    attributeIds: number[];
     inventory: UpdateInventoryItem;
   }
 >;
@@ -190,6 +192,17 @@ export const _products = {
         .from(productMediaCTE)
         .groupBy(productMediaCTE.productId)
         .as("product_media_query");
+
+      const productAttributesQuery = db
+        .select({
+          productId: productAttributeValues.productId,
+          json: sql<number[]>`
+            jsonb_agg(${productAttributeValues.attributeValueId})
+          `.as("product_attribute_values_json"),
+        })
+        .from(productAttributeValues)
+        .groupBy(productAttributeValues.productId)
+        .as("product_attribute_values_query");
 
       const nonArchivedOptionValues = db.$with("non_archived_option_values").as(
         db
@@ -339,11 +352,17 @@ export const _products = {
           options: optionsQuery.options,
 
           media: productMediaQuery.json,
+
+          attributeIds: productAttributesQuery.json,
         })
         .from(products)
         .leftJoin(
           productMediaQuery,
           eq(productMediaQuery.productId, products.id),
+        )
+        .leftJoin(
+          productAttributesQuery,
+          eq(productAttributesQuery.productId, products.id),
         )
         .leftJoin(optionsQuery, eq(optionsQuery.productId, products.id))
         .leftJoin(fullVariantQuery, eq(fullVariantQuery.productId, products.id))
@@ -434,6 +453,7 @@ export const _products = {
     async createDeep({
       newProduct,
       newProdcutMediaIds,
+      newAttributes,
       newProductOptions,
       newVariants,
       newSeo,
@@ -441,6 +461,7 @@ export const _products = {
     }: {
       newProduct: NewProduct;
       newProdcutMediaIds: number[];
+      newAttributes?: number[];
       newProductOptions?: NewProductOption[];
       newVariants?: NewProductVariant[];
       newSeo?: NewSeo;
@@ -478,6 +499,16 @@ export const _products = {
             order: index + 1,
           })),
         );
+
+        // link attributes
+        if (newAttributes && newAttributes.length !== 0) {
+          await tx.insert(productAttributeValues).values(
+            newAttributes.map((id) => ({
+              productId,
+              attributeValueId: id,
+            })),
+          );
+        }
 
         // update/insert new options
         if (
@@ -531,6 +562,7 @@ export const _products = {
           media: mediaData,
           seo: seoData,
           inventory: inventoryData,
+          attributeIds,
           ...product
         } = updatedData;
 
@@ -562,6 +594,21 @@ export const _products = {
             .update(products)
             .set({ thumbnailMediaId: mediaData[0] })
             .where(eq(products.id, productId));
+        }
+
+        if (attributeIds && attributeIds.length > 0) {
+          // delete the old attribute values relations
+          await tx
+            .delete(productAttributeValues)
+            .where(eq(productAttributeValues.productId, productId));
+
+          // create the new media relations
+          await tx.insert(productAttributeValues).values(
+            attributeIds.map((attributeValueId) => ({
+              productId,
+              attributeValueId,
+            })),
+          );
         }
 
         if (inventoryData) {

@@ -25,7 +25,7 @@ export const _products = {
 
   mutations: {
     async createDeep(input: CreateProductInput) {
-      const { options, variants, seo, media, ...product } = input;
+      const { options, variants, seo, media, attributeIds, ...product } = input;
 
       const [thumbnail, ...restMedia] = media;
       if (!thumbnail?.mediaId) {
@@ -52,6 +52,7 @@ export const _products = {
           slug,
           thumbnailMediaId: thumbnail.mediaId,
         },
+        newAttributes: attributeIds,
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
         newProductOptions: options,
         newVariants: variants?.map((v) => ({

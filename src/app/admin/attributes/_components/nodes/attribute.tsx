@@ -67,6 +67,7 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
     </Popover>
   );
 }
+
 function AttributeValues({ attributeId }: { attributeId: number }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();

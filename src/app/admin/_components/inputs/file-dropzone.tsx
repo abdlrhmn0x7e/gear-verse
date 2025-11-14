@@ -6,7 +6,7 @@ import {
   UploadCloudIcon,
   XIcon,
 } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";

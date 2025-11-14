@@ -55,6 +55,7 @@ import {
 } from "~/components/ui/input-group";
 import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
+import { AttributeCombobox } from "../../inputs/attributes-combobox";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -95,6 +96,7 @@ export function ProductForm({
       price: 0,
       categoryId: 0,
       brandId: 0,
+      attributeIds: [],
       media: [],
       options: [],
       seo: {
@@ -121,6 +123,11 @@ export function ProductForm({
     control: form.control,
     name: "inventory",
     defaultValue: defaultValues?.inventory,
+  });
+  const categoryId = useWatch({
+    control: form.control,
+    name: "categoryId",
+    defaultValue: defaultValues?.categoryId,
   });
 
   // you have to subscribe to the dirty fields here
@@ -440,6 +447,24 @@ export function ProductForm({
                       <CategoriesCombobox
                         onValueChange={field.onChange}
                         value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="attributeIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Attributes</FormLabel>
+                    <FormControl>
+                      <AttributeCombobox
+                        value={field.value ?? []}
+                        categoryId={categoryId}
+                        onValueChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />

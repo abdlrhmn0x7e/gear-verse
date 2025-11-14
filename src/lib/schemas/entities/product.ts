@@ -119,6 +119,7 @@ export const createProductInputSchema = productEntitySchema
       })
       .partial()
       .optional(),
+    attributeIds: z.array(z.number().nonnegative()).optional(),
     media: z
       .array(createProductMediaInputSchema)
       .min(1, "At least one media is required"),

@@ -25,6 +25,20 @@ export const _attributes = {
       return attributes;
     },
 
+    async getCategoryAttributes(categoryId: number) {
+      const { data: attributes, error } = await tryCatch(
+        data.admin.attributes.queries.getCategoryAttributes(categoryId),
+      );
+
+      if (error) {
+        throw new AppError("Failed to fetch category attributes", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return attributes;
+    },
+
     async getAllConnections() {
       const { data: connections, error } = await tryCatch(
         data.admin.attributes.queries.getAllConnections(),
@@ -61,7 +75,7 @@ export const _attributes = {
       const { data: updatedAttribute, error } = await tryCatch(
         data.admin.attributes.mutations.update(id, input),
       );
-      if (error) {
+      if (error || !updatedAttribute) {
         throw new AppError("Failed to update attribute", "INTERNAL", {
           cause: error,
         });
