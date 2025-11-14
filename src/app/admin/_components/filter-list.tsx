@@ -8,6 +8,7 @@ import { iconsMap } from "~/lib/icons-map";
 import type { RouterOutput } from "~/trpc/client";
 import { OrderStatus } from "./tables/orders/order-status";
 import { PaymentMethod } from "~/app/(public)/(protected)/_components/payment-method";
+import type { CategoryTree } from "~/lib/schemas/entities";
 
 const itemVariant = {
   hidden: { y: 10, opacity: 0 },
@@ -48,7 +49,7 @@ interface FilterListProps {
   filters: FilterValueProp[];
   loading: boolean;
   brands?: RouterOutput["admin"]["brands"]["queries"]["getPage"]["data"];
-  categories?: RouterOutput["admin"]["categories"]["queries"]["findAll"];
+  categories?: CategoryTree[];
   onRemove: ({
     key,
     value,

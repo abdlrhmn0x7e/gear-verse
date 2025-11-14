@@ -14,10 +14,18 @@ export type AttributeValueEntity = z.infer<typeof attributeValueEntitySchema>;
 
 export const createAttributeValueInputSchema = attributeValueEntitySchema.omit({
   id: true,
-  attributeId: true,
   slug: true,
   createdAt: true,
 });
 export type CreateAttributeValueInput = z.infer<
   typeof createAttributeValueInputSchema
+>;
+
+export const updateAttributeValueInputSchema = createAttributeValueInputSchema
+  .partial()
+  .extend({
+    attributeId: z.number(),
+  });
+export type UpdateAttributeValueInput = z.infer<
+  typeof updateAttributeValueInputSchema
 >;

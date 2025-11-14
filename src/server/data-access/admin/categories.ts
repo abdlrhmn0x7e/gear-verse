@@ -76,7 +76,7 @@ export const _categories = {
 
       // fuck the ORM, use raw SQL
       const result = (await db.execute(query))[0]!.tree as string;
-      return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the application layer
+      return JSON.parse(result ?? "[]") as unknown[]; // this is validated on the application layer
     },
 
     async findById(id: number) {

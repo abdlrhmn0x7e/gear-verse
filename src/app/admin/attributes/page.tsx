@@ -11,11 +11,7 @@ import { Spinner } from "~/components/spinner";
 export default async function AdminAttributesPage() {
   await requireAdmin();
   void prefetch(trpc.admin.attributes.queries.getAll.queryOptions());
-  void prefetch(
-    trpc.admin.categories.queries.findAll.queryOptions({
-      filters: { root: true },
-    }),
-  );
+  void prefetch(trpc.admin.categories.queries.findRoots.queryOptions());
 
   return (
     <section className="flex h-full flex-col gap-6">

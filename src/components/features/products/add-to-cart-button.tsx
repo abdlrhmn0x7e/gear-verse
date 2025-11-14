@@ -27,9 +27,9 @@ export function AddToCartButton({
   const queryClient = useQueryClient();
 
   // Get variant data from store
-  const variantId = useVariantSelectionStore(
-    (state) => state.selectedVariant,
-  )?.id;
+  const variant = useVariantSelectionStore((state) => state.selectedVariant);
+  const variantId = variant?.id;
+  const stock = variant?.stock ?? 0;
 
   const { mutate: addToCart, isPending: addingToCart } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions(),

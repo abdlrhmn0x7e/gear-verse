@@ -10,6 +10,7 @@ import { productVariantsRouter } from "./product-variants";
 import { usersRouter } from "./users";
 import { addressesRouter } from "./addresses";
 import { attributesRouter } from "./attributes";
+import { attributeValuesRouter } from "./attribute-values";
 
 export const adminRouter = createTRPCRouter({
   products: productsRouter,
@@ -23,4 +24,5 @@ export const adminRouter = createTRPCRouter({
   users: usersRouter,
   addresses: addressesRouter,
   attributes: attributesRouter,
+  attributeValues: attributeValuesRouter,
 });

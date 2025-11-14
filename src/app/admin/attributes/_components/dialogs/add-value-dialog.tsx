@@ -14,7 +14,7 @@ import { PlusCircleIcon } from "lucide-react";
 import {
   AttributeValueForm,
   type AttributeValueFormValues,
-} from "../../_components/forms/attribute-value-form";
+} from "../../../_components/forms/attribute-value-form";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "~/components/spinner";
@@ -26,11 +26,11 @@ export function AddValueDialog({ attributeId }: { attributeId: number }) {
   const dialog = useDialog();
   const { mutate: createAttributeValue, isPending: creatingAttributeValue } =
     useMutation(
-      trpc.admin.attributes.mutations.addValue.mutationOptions({
+      trpc.admin.attributeValues.mutations.create.mutationOptions({
         onSuccess: () => {
           void queryClient.invalidateQueries(
-            trpc.admin.attributes.queries.getValues.queryFilter({
-              id: attributeId,
+            trpc.admin.attributeValues.queries.findAll.queryFilter({
+              attributeId,
             }),
           );
           dialog.dismiss();

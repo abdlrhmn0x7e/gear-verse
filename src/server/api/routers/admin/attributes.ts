@@ -20,20 +20,6 @@ export const attributesRouter = createTRPCRouter({
 
       return data;
     }),
-
-    getValues: adminProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ ctx, input }) => {
-        const { data, error } = await tryCatch(
-          ctx.app.admin.attributes.queries.getValues(input.id),
-        );
-
-        if (error) {
-          throw errorMap(error);
-        }
-
-        return data;
-      }),
   },
 
   mutations: {
@@ -49,23 +35,7 @@ export const attributesRouter = createTRPCRouter({
 
         return createdAttribute;
       }),
-    addValue: adminProcedure
-      .input(
-        z.object({
-          attributeId: z.number(),
-          value: z.string(),
-        }),
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { data: addedValue, error } = await tryCatch(
-          ctx.app.admin.attributes.mutations.addValue(input),
-        );
-        if (error) {
-          throw errorMap(error);
-        }
 
-        return addedValue;
-      }),
     update: adminProcedure
       .input(updateAttributeInputSchema.extend({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
@@ -79,6 +49,7 @@ export const attributesRouter = createTRPCRouter({
 
         return updatedAttribute;
       }),
+
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {

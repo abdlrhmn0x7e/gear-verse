@@ -29,6 +29,9 @@ export function AddCategory({
         void queryClient.invalidateQueries(
           trpc.admin.categories.queries.findAll.queryFilter(),
         );
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findRoots.queryFilter(),
+        );
         onSuccess();
       },
 

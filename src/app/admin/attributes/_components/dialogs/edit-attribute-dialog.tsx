@@ -18,7 +18,7 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import {
   AttributeForm,
   type AttributeFormValues,
-} from "../../_components/forms/attribute-form";
+} from "../../../_components/forms/attribute-form";
 import { IconEdit } from "@tabler/icons-react";
 
 type Attribute =

@@ -1,6 +1,11 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
   Background,
   Handle,
@@ -37,17 +42,22 @@ import {
   IconFrameOff,
   IconHandMove,
   IconKeyframe,
+  IconTrash,
   IconZoomIn,
   IconZoomOut,
 } from "@tabler/icons-react";
 import "@xyflow/react/dist/style.css";
 import { Heading } from "~/components/heading";
 import { Badge } from "~/components/ui/badge";
-import { AddAttributeDialog } from "./add-attribute-dialog";
-import { DeleteAttributeAlertDialog } from "./delete-attribute-dialog";
-import { EditAttributeDialog } from "./edit-attribute-dialog";
+import { AddAttributeDialog } from "./dialogs/add-attribute-dialog";
+import { DeleteAttributeAlertDialog } from "./dialogs/delete-attribute-dialog";
+import { EditAttributeDialog } from "./dialogs/edit-attribute-dialog";
 import { AttributeTypeBadge } from "./attribute-type-badge";
-import { AddValueDialog } from "./add-value-dialog";
+import { AddValueDialog } from "./dialogs/add-value-dialog";
+import { Spinner } from "~/components/spinner";
+import { DeleteDialog } from "~/components/delete-dialog";
+import { Button } from "~/components/ui/button";
+import { TrashIcon } from "lucide-react";
 
 const nodeTypes = {
   attribute: AttributeNode,
@@ -61,9 +71,7 @@ export function AttributesView() {
     trpc.admin.attributes.queries.getAll.queryOptions(),
   );
   const { data: categories } = useSuspenseQuery(
-    trpc.admin.categories.queries.findAll.queryOptions({
-      filters: { root: true },
-    }),
+    trpc.admin.categories.queries.findRoots.queryOptions(),
   );
   const [nodes, _, onNodesChange] = useNodesState([
     ...attributes.map((attribute, index) => ({
@@ -147,7 +155,7 @@ const CONTROLS = [
 
 function CustomControls() {
   return (
-    <Card className="bg-background/80 absolute bottom-0 left-0 z-10 w-10 overflow-hidden p-1 shadow-lg backdrop-blur-md transition-[width] duration-300 hover:w-auto">
+    <Card className="bg-background/80 absolute bottom-0 left-0 z-10 w-10 cursor-help overflow-hidden p-1 shadow-lg backdrop-blur-md transition-[width] duration-300 hover:w-auto">
       <CardContent className="p-0">
         <ul>
           {CONTROLS.map(({ label, icon: Icon }) => (
@@ -181,11 +189,6 @@ type Attribute =
   RouterOutput["admin"]["attributes"]["queries"]["getAll"][number];
 type AttributeNode = Node<Attribute, "attribute">;
 function AttributeNode(props: NodeProps<AttributeNode>) {
-  const trpc = useTRPC();
-  const { data: attributeValues } = useSuspenseQuery(
-    trpc.admin.attributes.queries.getValues.queryOptions({ id: props.data.id }),
-  );
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -209,39 +212,92 @@ function AttributeNode(props: NodeProps<AttributeNode>) {
           <Handle type="source" position={Position.Right} />
         </Card>
       </PopoverTrigger>
-      <PopoverContent className="min-w-96" align="start">
+
+      <PopoverContent className="min-w-96 space-y-4" align="start">
         <div className="flex justify-between gap-4">
           <Heading level={5}>Attribute Values</Heading>
           <AddValueDialog attributeId={props.data.id} />
         </div>
 
-        {!attributeValues || attributeValues.length === 0 ? (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <IconFrameOff />
-              </EmptyMedia>
-              <EmptyTitle>No Values</EmptyTitle>
-              <EmptyDescription>
-                Add some values to get started dumbass
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <ul className="mt-4 max-h-64 space-y-2 overflow-y-auto">
-            {attributeValues.map((value) => (
-              <li
-                key={value.id}
-                className="bg-background flex items-center justify-between rounded-md border px-3 py-2"
-              >
-                {value.value}
-                <div></div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <AttributeValues attributeId={props.data.id} />
       </PopoverContent>
     </Popover>
+  );
+}
+
+function AttributeValues({ attributeId }: { attributeId: number }) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { data: attributeValues, isPending: attributeValuesPending } = useQuery(
+    trpc.admin.attributeValues.queries.findAll.queryOptions({
+      attributeId,
+    }),
+  );
+  const { mutate: deleteAttributeValue, isPending: deletingAttributeValue } =
+    useMutation(
+      trpc.admin.attributeValues.mutations.delete.mutationOptions({
+        onSuccess: () => {
+          void queryClient.invalidateQueries(
+            trpc.admin.attributeValues.queries.findAll.queryFilter(),
+          );
+        },
+      }),
+    );
+
+  if (attributeValuesPending) {
+    return (
+      <div className="flex h-full min-h-58 items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!attributeValues || attributeValues.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <IconFrameOff />
+          </EmptyMedia>
+          <EmptyTitle>No Values</EmptyTitle>
+          <EmptyDescription>
+            Add some values to get started dumbass
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  return (
+    <ul className="min-h-58 space-y-1">
+      {attributeValues.map((value) => (
+        <li
+          key={value.id}
+          className="bg-background flex items-center justify-between rounded-md border px-2 py-1"
+        >
+          <p className="text-muted-foreground text-sm font-medium">
+            {value.value}
+          </p>
+
+          <div>
+            <DeleteDialog
+              entity="attribute value"
+              handleDelete={() => deleteAttributeValue({ id: value.id })}
+              disabled={deletingAttributeValue}
+              Trigger={
+                <Button
+                  variant="destructive-ghost"
+                  size="icon"
+                  disabled={deletingAttributeValue}
+                >
+                  <IconTrash />
+                </Button>
+              }
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 

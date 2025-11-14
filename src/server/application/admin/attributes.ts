@@ -23,20 +23,6 @@ export const _attributes = {
 
       return attributes;
     },
-
-    async getValues(id: number) {
-      const { data: values, error } = await tryCatch(
-        data.admin.attributes.queries.getValues(id),
-      );
-
-      if (error) {
-        throw new AppError("Failed to fetch attribute values", "INTERNAL", {
-          cause: error,
-        });
-      }
-
-      return values;
-    },
   },
 
   mutations: {
@@ -54,24 +40,6 @@ export const _attributes = {
       }
 
       return createdAttribute;
-    },
-
-    async addValue(input: CreateAttributeValueInput & { attributeId: number }) {
-      const { data: addedValue, error } = await tryCatch(
-        data.admin.attributes.mutations.addValue({
-          value: input.value,
-          attributeId: input.attributeId,
-          slug: generateSlug(input.value),
-        }),
-      );
-
-      if (error) {
-        throw new AppError("Failed to add attribute value", "INTERNAL", {
-          cause: error,
-        });
-      }
-
-      return addedValue;
     },
 
     async update(id: number, input: UpdateAttributeInput) {

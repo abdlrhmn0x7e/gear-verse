@@ -36,6 +36,9 @@ export function CategoryTreeActions({
         void queryClient.invalidateQueries(
           trpc.admin.categories.queries.findAll.queryFilter(),
         );
+        void queryClient.invalidateQueries(
+          trpc.admin.categories.queries.findRoots.queryFilter(),
+        );
         toast.success("Category deleted successfully");
       },
       onError: () => {

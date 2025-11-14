@@ -20,7 +20,7 @@ import { useTRPC } from "~/trpc/client";
 import {
   AttributeForm,
   type AttributeFormValues,
-} from "../../_components/forms/attribute-form";
+} from "../../../_components/forms/attribute-form";
 import { useReactFlow } from "@xyflow/react";
 
 export function AddAttributeDialog({

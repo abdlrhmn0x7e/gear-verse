@@ -36,6 +36,14 @@ export const categoryEntitySchema = z.object({
 });
 export type Category = z.infer<typeof categoryEntitySchema>;
 
+export const minimalCategoryEntitySchema = categoryEntitySchema.pick({
+  id: true,
+  name: true,
+  icon: true,
+  slug: true,
+});
+export type MinimalCategory = z.infer<typeof minimalCategoryEntitySchema>;
+
 export const categoryTreeSchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
   name: z.string("Name is required").min(1, "Name is required"),

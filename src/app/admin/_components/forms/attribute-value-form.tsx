@@ -4,9 +4,10 @@ import type z from "zod";
 import { Field, FieldError, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { createAttributeValueInputSchema } from "~/lib/schemas/entities/attribute-value";
-import { createUserInputSchema } from "~/lib/schemas/entities/users";
 
-const attributeFormSchema = createAttributeValueInputSchema;
+const attributeFormSchema = createAttributeValueInputSchema.omit({
+  attributeId: true,
+});
 export type AttributeValueFormValues = z.infer<typeof attributeFormSchema>;
 
 export function AttributeValueForm({

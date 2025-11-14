@@ -8,6 +8,7 @@ import { _productVariants } from "./product-variants";
 import { _users } from "./users";
 import { _addresses } from "./addresses";
 import { _attributes } from "./attributes";
+import { _attributeValues } from "./attribute-values";
 
 export const _admin = {
   products: _products,
@@ -20,4 +21,5 @@ export const _admin = {
   users: _users,
   addresses: _addresses,
   attributes: _attributes,
+  attributeValues: _attributeValues,
 };
