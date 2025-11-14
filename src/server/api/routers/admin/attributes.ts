@@ -2,6 +2,7 @@ import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { adminProcedure, createTRPCRouter } from "../../init";
 import {
+  connectCategoryAttributeInputSchema,
   createAttributeInputSchema,
   updateAttributeInputSchema,
 } from "~/lib/schemas/entities/attribute";
@@ -12,6 +13,18 @@ export const attributesRouter = createTRPCRouter({
     getAll: adminProcedure.query(async ({ ctx }) => {
       const { data, error } = await tryCatch(
         ctx.app.admin.attributes.queries.getAll(),
+      );
+
+      if (error) {
+        throw errorMap(error);
+      }
+
+      return data;
+    }),
+
+    getAllConnections: adminProcedure.query(async ({ ctx }) => {
+      const { data, error } = await tryCatch(
+        ctx.app.admin.attributes.queries.getAllConnections(),
       );
 
       if (error) {
@@ -61,6 +74,30 @@ export const attributesRouter = createTRPCRouter({
         }
 
         return deletedAttribute;
+      }),
+
+    connect: adminProcedure
+      .input(connectCategoryAttributeInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data: result, error } = await tryCatch(
+          ctx.app.admin.attributes.mutations.connect(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return result;
+      }),
+
+    disconnect: adminProcedure
+      .input(connectCategoryAttributeInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data: result, error } = await tryCatch(
+          ctx.app.admin.attributes.mutations.disconnect(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return result;
       }),
   },
 });

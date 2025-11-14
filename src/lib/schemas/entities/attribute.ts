@@ -31,3 +31,11 @@ export type CreateAttributeInput = z.infer<typeof createAttributeInputSchema>;
 
 export const updateAttributeInputSchema = createAttributeInputSchema.partial();
 export type UpdateAttributeInput = z.infer<typeof updateAttributeInputSchema>;
+
+export const connectCategoryAttributeInputSchema = z.object({
+  attributeId: z.number(),
+  categoryId: z.number(),
+});
+export type ConnectCategoryAttributeInput = z.infer<
+  typeof connectCategoryAttributeInputSchema
+>;

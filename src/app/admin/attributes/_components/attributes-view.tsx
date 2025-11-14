@@ -4,16 +4,25 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  useSuspenseQueries,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
   Background,
+  BaseEdge,
+  EdgeLabelRenderer,
   Handle,
   Position,
   ReactFlow,
   addEdge,
+  getBezierPath,
+  getSimpleBezierPath,
+  getSmoothStepPath,
+  getStraightPath,
   useEdgesState,
   useNodesState,
+  useReactFlow,
+  type EdgeComponentProps,
   type Node,
   type NodeProps,
   type OnConnect,
@@ -21,19 +30,18 @@ import {
 import { useCallback } from "react";
 import { Card, CardContent } from "~/components/ui/card";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
-import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 
 import {
   IconDragDrop,
@@ -43,21 +51,22 @@ import {
   IconHandMove,
   IconKeyframe,
   IconTrash,
+  IconX,
   IconZoomIn,
   IconZoomOut,
 } from "@tabler/icons-react";
 import "@xyflow/react/dist/style.css";
+import { DeleteDialog } from "~/components/delete-dialog";
 import { Heading } from "~/components/heading";
+import { Spinner } from "~/components/spinner";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { AttributeTypeBadge } from "./attribute-type-badge";
 import { AddAttributeDialog } from "./dialogs/add-attribute-dialog";
+import { AddValueDialog } from "./dialogs/add-value-dialog";
 import { DeleteAttributeAlertDialog } from "./dialogs/delete-attribute-dialog";
 import { EditAttributeDialog } from "./dialogs/edit-attribute-dialog";
-import { AttributeTypeBadge } from "./attribute-type-badge";
-import { AddValueDialog } from "./dialogs/add-value-dialog";
-import { Spinner } from "~/components/spinner";
-import { DeleteDialog } from "~/components/delete-dialog";
-import { Button } from "~/components/ui/button";
-import { TrashIcon } from "lucide-react";
+import { iconsMap } from "~/lib/icons-map";
 
 const nodeTypes = {
   attribute: AttributeNode,
@@ -65,17 +74,27 @@ const nodeTypes = {
   layout: LayoutNode,
 };
 
+const edgeTypes = {
+  "custom-edge": CustomEdge,
+};
+
 export function AttributesView() {
   const trpc = useTRPC();
-  const { data: attributes } = useSuspenseQuery(
-    trpc.admin.attributes.queries.getAll.queryOptions(),
+  const [{ data: categories }, { data: attributes }, { data: connections }] =
+    useSuspenseQueries({
+      queries: [
+        trpc.admin.categories.queries.findRoots.queryOptions(),
+        trpc.admin.attributes.queries.getAll.queryOptions(),
+        trpc.admin.attributes.queries.getAllConnections.queryOptions(),
+      ],
+    });
+  const { mutate: connect } = useMutation(
+    trpc.admin.attributes.mutations.connect.mutationOptions(),
   );
-  const { data: categories } = useSuspenseQuery(
-    trpc.admin.categories.queries.findRoots.queryOptions(),
-  );
+
   const [nodes, _, onNodesChange] = useNodesState([
     ...attributes.map((attribute, index) => ({
-      id: attribute.slug,
+      id: `attribute-${attribute.slug}-${attribute.id}`,
       position: {
         x: 0,
         y: index * 50,
@@ -93,7 +112,7 @@ export function AttributesView() {
       width: 225,
     },
     ...categories.map((category, index) => ({
-      id: category.id.toString(),
+      id: `category-${category.slug}-${category.id}`,
       position: { x: 10, y: 50 * index + 20 },
       type: "category",
       data: category,
@@ -101,11 +120,29 @@ export function AttributesView() {
       extent: "parent" as const,
     })),
   ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const onConnect: OnConnect = useCallback(
-    (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    connections.map((conn) => ({
+      id: `e-${conn.attribute.slug}-${conn.attribute.id}-${conn.category.slug}-${conn.category.id}`,
+      source: `attribute-${conn.attribute.slug}-${conn.attribute.id}`,
+      target: `category-${conn.category.slug}-${conn.category.id}`,
+      type: "custom-edge",
+    })),
   );
+  const onConnect: OnConnect = useCallback((params) => {
+    const attributeId = parseInt(params.source!.split("-").pop()!);
+    const categoryId = parseInt(params.target!.split("-").pop()!);
+
+    if (!attributeId || !categoryId) {
+      return;
+    }
+
+    connect({
+      attributeId,
+      categoryId,
+    });
+
+    return setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
+  }, []);
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
@@ -114,6 +151,7 @@ export function AttributesView() {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         edges={edges}
+        edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
@@ -171,13 +209,15 @@ function CustomControls() {
 }
 
 type Category =
-  RouterOutput["admin"]["categories"]["queries"]["findAll"][number];
+  RouterOutput["admin"]["categories"]["queries"]["findRoots"][number];
 type CategoryNode = Node<Category, "category">;
 function CategoryNode(props: NodeProps<CategoryNode>) {
+  const Icon = iconsMap.get(props.data.icon) || IconFolder;
+
   return (
     <Card className="ring-primary/50 bg-secondary dark:border-primary-foreground min-w-24 border-dashed py-1 text-center transition-shadow hover:ring-2">
       <CardContent className="flex items-center gap-1">
-        <IconFolder className="size-4" />
+        <Icon className="size-4" />
         {props.data.name}
       </CardContent>
       <Handle type="target" position={Position.Left} />
@@ -279,22 +319,20 @@ function AttributeValues({ attributeId }: { attributeId: number }) {
             {value.value}
           </p>
 
-          <div>
-            <DeleteDialog
-              entity="attribute value"
-              handleDelete={() => deleteAttributeValue({ id: value.id })}
-              disabled={deletingAttributeValue}
-              Trigger={
-                <Button
-                  variant="destructive-ghost"
-                  size="icon"
-                  disabled={deletingAttributeValue}
-                >
-                  <IconTrash />
-                </Button>
-              }
-            />
-          </div>
+          <DeleteDialog
+            entity="attribute value"
+            handleDelete={() => deleteAttributeValue({ id: value.id })}
+            disabled={deletingAttributeValue}
+            Trigger={
+              <Button
+                variant="destructive-ghost"
+                size="icon"
+                disabled={deletingAttributeValue}
+              >
+                <IconTrash />
+              </Button>
+            }
+          />
         </li>
       ))}
     </ul>
@@ -318,5 +356,61 @@ function LayoutNode(props: NodeProps<Node<{ label: string }>>) {
         {props.data.label}
       </Badge>
     </div>
+  );
+}
+
+function CustomEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+}: EdgeComponentProps) {
+  const trpc = useTRPC();
+  const { deleteElements } = useReactFlow();
+  const [edgePath, labelX, labelY] = getSimpleBezierPath({
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+  });
+  const { mutate: disconnect } = useMutation(
+    trpc.admin.attributes.mutations.disconnect.mutationOptions(),
+  );
+
+  function handleDelete() {
+    const attributeId = Number(id?.split("-")?.[2]);
+    const categoryId = Number(id?.split("-")?.[4]);
+
+    if (!attributeId || !categoryId) {
+      return;
+    }
+
+    disconnect({
+      attributeId,
+      categoryId,
+    });
+    deleteElements({ edges: [{ id: id ?? "edge" }] });
+  }
+
+  return (
+    <>
+      <BaseEdge id={id} path={edgePath} />
+      <EdgeLabelRenderer>
+        <Button
+          variant="default"
+          size="icon-xs"
+          onClick={handleDelete}
+          style={{
+            position: "absolute",
+            transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+            zIndex: 50,
+            pointerEvents: "all",
+          }}
+        >
+          <IconX />
+        </Button>
+      </EdgeLabelRenderer>
+    </>
   );
 }

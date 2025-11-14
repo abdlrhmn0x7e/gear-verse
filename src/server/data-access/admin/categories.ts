@@ -15,6 +15,7 @@ export const _categories = {
             id: categories.id,
             name: categories.name,
             slug: categories.slug,
+            icon: categories.icon,
           })
           .from(categories)
           .where(isNull(categories.parent_id));

@@ -1,5 +1,6 @@
 import { AppError } from "~/lib/errors/app-error";
 import type {
+  ConnectCategoryAttributeInput,
   CreateAttributeInput,
   UpdateAttributeInput,
 } from "~/lib/schemas/entities/attribute";
@@ -22,6 +23,20 @@ export const _attributes = {
       }
 
       return attributes;
+    },
+
+    async getAllConnections() {
+      const { data: connections, error } = await tryCatch(
+        data.admin.attributes.queries.getAllConnections(),
+      );
+
+      if (error) {
+        throw new AppError("Failed to fetch connections", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return connections;
     },
   },
 
@@ -66,6 +81,33 @@ export const _attributes = {
       }
 
       return deletedAttribute;
+    },
+
+    async connect(input: ConnectCategoryAttributeInput) {
+      const { data: connection, error } = await tryCatch(
+        data.admin.attributes.mutations.connect(input),
+      );
+      if (error) {
+        console.log("error", error);
+        throw new AppError("Failed to connect attribute", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return connection;
+    },
+
+    async disconnect(input: ConnectCategoryAttributeInput) {
+      const { data: connection, error } = await tryCatch(
+        data.admin.attributes.mutations.disconnect(input),
+      );
+      if (error) {
+        throw new AppError("Failed to disconnect attribute", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return connection;
     },
   },
 };

@@ -1,11 +1,14 @@
-import { sql, asc, eq } from "drizzle-orm";
+import { sql, asc, eq, and } from "drizzle-orm";
 import { db } from "~/server/db";
-import { attributes, attributeValues } from "~/server/db/schema/attributes";
+import { categories } from "~/server/db/schema";
+import {
+  attributes,
+  attributeValues,
+  categoryAttributes,
+} from "~/server/db/schema/attributes";
 
 type CreateAttributeInput = typeof attributes.$inferInsert;
 type UpdateAttributeInput = Partial<typeof attributes.$inferInsert>;
-
-type CreateAttributeValueInput = typeof attributeValues.$inferInsert;
 
 export const _attributes = {
   queries: {
@@ -19,17 +22,6 @@ export const _attributes = {
         })
         .from(attributes)
         .orderBy(asc(attributes.id));
-    },
-
-    getValues(id: number) {
-      return db
-        .select({
-          id: attributeValues.id,
-          value: attributeValues.value,
-        })
-        .from(attributeValues)
-        .where(eq(attributeValues.attributeId, id))
-        .orderBy(asc(attributeValues.id));
     },
 
     getAllWithValues() {
@@ -68,6 +60,23 @@ export const _attributes = {
           eq(attributes.id, attributeValuesJsonCTE.attributeId),
         );
     },
+
+    async getAllConnections() {
+      return db
+        .select({
+          attribute: {
+            id: categoryAttributes.attributeId,
+            slug: sql<string>`${attributes.slug}`,
+          },
+          category: {
+            id: categoryAttributes.categoryId,
+            slug: sql<string>`${categories.slug}`,
+          },
+        })
+        .from(categoryAttributes)
+        .leftJoin(attributes, eq(attributes.id, categoryAttributes.attributeId))
+        .leftJoin(categories, eq(categories.id, categoryAttributes.categoryId));
+    },
   },
 
   mutations: {
@@ -84,14 +93,44 @@ export const _attributes = {
         .then(([res]) => res);
     },
 
-    async addValue(input: CreateAttributeValueInput) {
+    async connect({
+      categoryId,
+      attributeId,
+    }: {
+      categoryId: number;
+      attributeId: number;
+    }) {
+      return db.transaction(async (tx) => {
+        const last = await tx
+          .select({ max: sql<number>`max(${categoryAttributes.order})` })
+          .from(categoryAttributes)
+          .where(eq(categoryAttributes.categoryId, categoryId))
+          .then(([res]) => res);
+
+        const nextOrder = last?.max ?? 0;
+
+        return await tx
+          .insert(categoryAttributes)
+          .values({ categoryId, attributeId, order: nextOrder })
+          .returning();
+      });
+    },
+
+    async disconnect({
+      categoryId,
+      attributeId,
+    }: {
+      categoryId: number;
+      attributeId: number;
+    }) {
       return db
-        .insert(attributeValues)
-        .values(input)
-        .returning({
-          id: attributeValues.id,
-        })
-        .then(([res]) => res);
+        .delete(categoryAttributes)
+        .where(
+          and(
+            eq(categoryAttributes.attributeId, attributeId),
+            eq(categoryAttributes.categoryId, categoryId),
+          ),
+        );
     },
 
     update(id: number, input: UpdateAttributeInput) {
