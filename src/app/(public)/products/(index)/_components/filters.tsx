@@ -22,7 +22,7 @@ import {
 export async function Filters() {
   "use cache";
 
-  const categoriesPromise = app.public.categories.queries.getRoots();
+  const categoriesPromise = app.public.categories.queries.findRoots();
   const brandsPromise = app.public.brands.queries.findAll();
 
   const [categories, brands] = await Promise.all([

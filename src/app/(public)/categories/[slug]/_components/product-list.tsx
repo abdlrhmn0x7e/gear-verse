@@ -33,9 +33,6 @@ export function ProductList({ slug }: { slug: string }) {
         ({ type: key, value }) as CategoryProductsFilters[number],
     ),
   );
-  console.log("Slug:", slug);
-  console.log("Search Params:", filters);
-  console.log("Parsed Search Params:", parsedFilters);
 
   const trpc = useTRPC();
   const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(

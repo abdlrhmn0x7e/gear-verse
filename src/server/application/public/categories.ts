@@ -14,7 +14,7 @@ export const _categories = {
       return data.public.categories.queries.findAll(input);
     },
 
-    getRoots: async () => {
+    findRoots: async () => {
       const { data: roots, error } = await tryCatch(
         data.public.categories.queries.getRoots(),
       );
