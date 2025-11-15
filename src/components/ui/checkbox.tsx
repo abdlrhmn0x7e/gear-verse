@@ -14,6 +14,7 @@ function Checkbox({
     <CheckboxPrimitive.Root
       className={cn(
         "group peer border-border bg-background focus-visible:ring-ring data-[state=checked]:border-primary data-[state=indeterminate]:border-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:text-primary-foreground relative h-4 w-4 shrink-0 overflow-hidden rounded border shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+        "cursor-pointer",
         className,
       )}
       {...props}

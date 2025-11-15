@@ -14,7 +14,6 @@ import { relations } from "drizzle-orm";
 export const attributeTypesEnum = pgEnum("attribute_types", [
   "SELECT",
   "MULTISELECT",
-  "RANGE",
   "BOOLEAN",
 ]);
 
@@ -64,7 +63,7 @@ export const attributeValues = pgTable(
   (table) => [
     uniqueIndex("attribute_values_attribute_id_value_idx").on(
       table.attributeId,
-      table.value,
+      table.slug,
     ),
   ],
 );

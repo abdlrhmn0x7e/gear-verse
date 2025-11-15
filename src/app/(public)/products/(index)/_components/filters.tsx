@@ -1,5 +1,8 @@
-import { Heading } from "~/components/heading";
 import { FolderXIcon, PackageOpenIcon } from "lucide-react";
+import { cacheTag } from "next/cache";
+import { Suspense } from "react";
+import { Heading } from "~/components/heading";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -7,7 +10,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Card, CardContent } from "~/components/ui/card";
+import { app } from "~/server/application";
 import {
   BrandFilterItem,
   CategoryFilterItem,
@@ -15,16 +18,11 @@ import {
   PriceFilter,
   PriceFilterSkeleton,
 } from "./filter-items";
-import { app } from "~/server/application";
-import { Suspense } from "react";
-import { cacheTag } from "next/cache";
 
 export async function Filters() {
   "use cache";
 
-  const categoriesPromise = app.public.categories.queries.findAll({
-    filters: { root: true },
-  });
+  const categoriesPromise = app.public.categories.queries.getRoots();
   const brandsPromise = app.public.brands.queries.findAll();
 
   const [categories, brands] = await Promise.all([

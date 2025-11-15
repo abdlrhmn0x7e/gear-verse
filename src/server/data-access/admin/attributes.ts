@@ -107,16 +107,33 @@ export const _attributes = {
 
   mutations: {
     async create(input: CreateAttributeInput) {
-      return db
-        .insert(attributes)
-        .values(input)
-        .returning({
-          id: attributes.id,
-          name: attributes.name,
-          slug: attributes.slug,
-          type: attributes.type,
-        })
-        .then(([res]) => res);
+      return db.transaction(async (tx) => {
+        const res = await tx
+          .insert(attributes)
+          .values(input)
+          .returning({
+            id: attributes.id,
+            name: attributes.name,
+            slug: attributes.slug,
+            type: attributes.type,
+          })
+          .then(([res]) => res);
+
+        if (!res) {
+          throw new Error("Failed to create an attribute");
+        }
+
+        // create a true value for the boolean
+        if (res.type === "BOOLEAN") {
+          tx.insert(attributeValues).values({
+            value: "true",
+            slug: "true",
+            attributeId: res.id,
+          });
+        }
+
+        return res;
+      });
     },
 
     async connect({

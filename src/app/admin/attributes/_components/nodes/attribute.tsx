@@ -26,6 +26,7 @@ import { AttributeTypeBadge } from "../attribute-type-badge";
 import { AddValueDialog } from "../dialogs/add-value-dialog";
 import { DeleteAttributeAlertDialog } from "../dialogs/delete-attribute-dialog";
 import { EditAttributeDialog } from "../dialogs/edit-attribute-dialog";
+import type { AttributeType } from "~/lib/schemas/entities/attribute";
 
 type Attribute =
   RouterOutput["admin"]["attributes"]["queries"]["getAll"][number];
@@ -62,13 +63,19 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
           <AddValueDialog attributeId={props.data.id} />
         </div>
 
-        <AttributeValues attributeId={props.data.id} />
+        <AttributeValues attributeId={props.data.id} type={props.data.type} />
       </PopoverContent>
     </Popover>
   );
 }
 
-function AttributeValues({ attributeId }: { attributeId: number }) {
+function AttributeValues({
+  attributeId,
+  type,
+}: {
+  attributeId: number;
+  type: AttributeType;
+}) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: attributeValues, isPending: attributeValuesPending } = useQuery(
@@ -93,6 +100,21 @@ function AttributeValues({ attributeId }: { attributeId: number }) {
         <Spinner />
       </div>
     );
+  }
+
+  if (type === "BOOLEAN") {
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconFrameOff />
+        </EmptyMedia>
+        <EmptyTitle>This is a Boolean Filter</EmptyTitle>
+        <EmptyDescription>
+          You can't add values to a boolean it only has a true or false values
+          dumbass
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>;
   }
 
   if (!attributeValues || attributeValues.length === 0) {

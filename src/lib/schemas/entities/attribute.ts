@@ -1,11 +1,6 @@
 import z from "zod";
 
-export const attributeTypeEnum = z.enum([
-  "SELECT",
-  "MULTISELECT",
-  "RANGE",
-  "BOOLEAN",
-]);
+export const attributeTypeEnum = z.enum(["SELECT", "MULTISELECT", "BOOLEAN"]);
 export type AttributeType = z.infer<typeof attributeTypeEnum>;
 
 export const attributeEntitySchema = z.object({

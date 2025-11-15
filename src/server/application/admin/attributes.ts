@@ -7,6 +7,7 @@ import type {
 import type { CreateAttributeValueInput } from "~/lib/schemas/entities/attribute-value";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { invalidateCache } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _attributes = {
@@ -68,6 +69,8 @@ export const _attributes = {
         });
       }
 
+      await invalidateCache("attribute-filters");
+
       return createdAttribute;
     },
 
@@ -81,6 +84,7 @@ export const _attributes = {
         });
       }
 
+      await invalidateCache("attribute-filters");
       return updatedAttribute;
     },
 
@@ -94,6 +98,7 @@ export const _attributes = {
         });
       }
 
+      await invalidateCache("attribute-filters");
       return deletedAttribute;
     },
 
@@ -108,6 +113,7 @@ export const _attributes = {
         });
       }
 
+      await invalidateCache("attribute-filters");
       return connection;
     },
 
@@ -121,6 +127,7 @@ export const _attributes = {
         });
       }
 
+      await invalidateCache("attribute-filters");
       return connection;
     },
   },

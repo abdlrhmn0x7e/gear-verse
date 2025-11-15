@@ -93,7 +93,9 @@ export function AttributesView() {
       categoryId,
     });
 
-    return setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
+    return setEdges((edgesSnapshot) =>
+      addEdge({ ...params, type: "custom-edge" }, edgesSnapshot),
+    );
   }, []);
 
   return (

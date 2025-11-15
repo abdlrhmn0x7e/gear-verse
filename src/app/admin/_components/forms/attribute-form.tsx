@@ -17,15 +17,12 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
 import {
   CheckCheckIcon,
   CheckIcon,
-  ChevronDownIcon,
-  ChevronsUpDownIcon,
   SlidersHorizontalIcon,
   ToggleRightIcon,
 } from "lucide-react";
@@ -43,11 +40,6 @@ const attributeTypes = [
     name: "Multi Select",
     value: "MULTISELECT",
     icon: CheckCheckIcon,
-  },
-  {
-    name: "Range",
-    value: "RANGE",
-    icon: SlidersHorizontalIcon,
   },
   {
     name: "Boolean",
