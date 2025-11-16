@@ -17,7 +17,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DrawerTrigger } from "~/components/ui/drawer";
 
 export function AddToCartButton({
-  disabled,
   productId,
   ...props
 }: React.ComponentProps<typeof Button> & {
@@ -28,6 +27,7 @@ export function AddToCartButton({
 
   // Get variant data from store
   const variant = useVariantSelectionStore((state) => state.selectedVariant);
+  console.log("Selected variant in AddToCartButton:", variant);
   const variantId = variant?.id;
   const stock = variant?.stock ?? 0;
 
@@ -143,7 +143,7 @@ export function AddToCartButton({
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={addingToCart || (disabled ?? true) || stock <= 0}
+      disabled={addingToCart || stock <= 0}
       {...props}
     >
       <IconShoppingCartPlus />

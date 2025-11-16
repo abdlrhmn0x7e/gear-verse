@@ -102,26 +102,26 @@ export const variantsCTE = db.$with("variants").as(
     .groupBy(productVariants.productId),
 );
 
+export type FullVariant = {
+  id: number;
+  overridePrice: number | null;
+  thumbnailUrl: string | null;
+  stock: number;
+  options: Record<
+    string,
+    {
+      id: number;
+      value: string;
+    }
+  >;
+};
+
 export const fullVariantsCTE = db.$with("variants").as(
   db
     .with(fullVariantValuesCTE)
     .select({
       productId: productVariants.productId,
-      json: sql<
-        {
-          id: number;
-          overridePrice: number | null;
-          thumbnailUrl: string | null;
-          stock: number;
-          options: Record<
-            string,
-            {
-              id: number;
-              value: string;
-            }
-          >;
-        }[]
-      >`jsonb_agg(
+      json: sql<FullVariant[]>`jsonb_agg(
           jsonb_build_object(
             'id', ${productVariants.id},
             'overridePrice', ${productVariants.overridePrice},

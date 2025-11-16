@@ -14,6 +14,7 @@ import {
   FrameTitle,
 } from "~/components/ui/frame";
 import { app } from "~/server/application";
+import { DeleteReviewDialog } from "./delete-review";
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await app.public.reviews.queries.findAll(productId);
@@ -90,7 +91,10 @@ export async function Reviews({ productId }: { productId: number }) {
                       </div>
 
                       {review.user?.id === Number(data?.user.id) && (
-                        <EditReview review={review} productId={productId} />
+                        <div className="flex items-center gap-1">
+                          <EditReview review={review} productId={productId} />
+                          <DeleteReviewDialog id={review.id} />
+                        </div>
                       )}
                     </div>
 

@@ -49,8 +49,10 @@ export function ProfileDropdown({ className }: { className?: string }) {
   useEffect(() => {
     if (!data && !isPendingSession) {
       void authClient.signIn.anonymous();
+      return;
     }
-  }, [data, isPendingSession]);
+    router.refresh();
+  }, [data, isPendingSession, router]);
 
   if (isSigningOut || isPendingSession) {
     return <Skeleton className="size-9 rounded-full" />;

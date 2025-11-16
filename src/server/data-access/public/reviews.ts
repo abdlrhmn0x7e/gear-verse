@@ -63,5 +63,12 @@ export const _reviews = {
         .where(and(eq(reviews.userId, userId), eq(reviews.id, id)))
         .returning({ id: reviews.id });
     },
+
+    delete: async (id: number, userId: number) => {
+      return db
+        .delete(reviews)
+        .where(and(eq(reviews.userId, userId), eq(reviews.id, id)))
+        .returning({ id: reviews.id });
+    },
   },
 };

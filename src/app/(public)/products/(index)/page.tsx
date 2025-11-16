@@ -11,7 +11,7 @@ export default function ProductsPage({
 }) {
   return (
     <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
-      <div className="hidden lg:col-span-4 lg:block xl:col-span-3">
+      <div className="relative hidden h-fit lg:col-span-4 lg:block xl:col-span-3">
         <Filters />
       </div>
 

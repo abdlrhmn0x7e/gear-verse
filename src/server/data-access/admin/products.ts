@@ -270,28 +270,28 @@ export const _products = {
         .groupBy(productOptions.productId)
         .as("product_options_json");
 
+      type Variant = {
+        id: number;
+        overridePrice: number | null;
+        thumbnail: {
+          id: number;
+          url: string;
+        };
+        stock: number;
+        optionValues: Record<
+          string,
+          {
+            id: number;
+            value: string;
+          }
+        >;
+      };
+
       const fullVariantQuery = db
         .with(fullVariantValuesCTE)
         .select({
           productId: productVariants.productId,
-          json: sql<
-            {
-              id: number;
-              overridePrice: number | null;
-              thumbnail: {
-                id: number;
-                url: string;
-              };
-              stock: number;
-              optionValues: Record<
-                string,
-                {
-                  id: number;
-                  value: string;
-                }
-              >;
-            }[]
-          >`jsonb_agg(
+          json: sql<Variant[]>`jsonb_agg(
               jsonb_build_object(
                 'id', ${productVariants.id},
                 'overridePrice', ${productVariants.overridePrice},
@@ -348,7 +348,9 @@ export const _products = {
             quantity: inventoryItems.quantity,
           },
 
-          variants: fullVariantQuery.json,
+          variants: sql<
+            Variant[]
+          >`coalesce(${fullVariantQuery.json}, '[]'::jsonb)`,
           options: optionsQuery.options,
 
           media: productMediaQuery.json,

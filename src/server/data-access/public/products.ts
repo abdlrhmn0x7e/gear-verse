@@ -22,7 +22,7 @@ import {
   productsMedia,
   seo,
 } from "~/server/db/schema";
-import { fullVariantsCTE, variantsCTE } from "../common/cte";
+import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
 import type { Pagination } from "../common/types";
 
 export const _products = {
@@ -175,7 +175,9 @@ export const _products = {
 
           profit: products.profit,
           margin: products.margin,
-          variants: fullVariantsCTE.json,
+          variants: sql<
+            FullVariant[]
+          >`coalesce(${fullVariantsCTE.json}, '[]'::jsonb)`,
           media: sql<
             string[]
           >`coalesce(${productMediaSubQuery.json}, '[]'::jsonb)`,

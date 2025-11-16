@@ -69,5 +69,22 @@ export const userReviewsRouter = createTRPCRouter({
 
         return data;
       }),
+    delete: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { id } = input;
+        const { data, error } = await tryCatch(
+          ctx.app.public.reviews.mutations.delete(id, ctx.user.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
   },
 });

@@ -15,6 +15,7 @@ import {
   BrandFilterEmptyState,
   CategoryFilterEmptyState,
 } from "~/components/features/products/base-filter-items";
+import { ClearAllFiltersButton } from "./clear-all-filters-button";
 
 export async function Filters() {
   "use cache";
@@ -70,6 +71,7 @@ export async function Filters() {
             <Suspense fallback={<PriceFilterSkeleton />}>
               <PriceFilter />
             </Suspense>
+            <ClearAllFiltersButton />
           </div>
         </CardContent>
       </Card>

@@ -16,6 +16,7 @@ import { RadioGroup } from "~/components/ui/radio-group";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
 import { FilterItem } from "./filter-item";
+import { ClearAllFiltersButton } from "./clear-all-filters-button";
 
 export async function Filters({
   slug,
@@ -115,6 +116,8 @@ export async function Filters({
       <Suspense fallback={<PriceFilterSkeleton />}>
         {isMobile ? <MobilePriceFilter /> : <PriceFilter />}
       </Suspense>
+
+      <ClearAllFiltersButton />
     </div>
   );
 }

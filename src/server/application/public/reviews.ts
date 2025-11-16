@@ -55,5 +55,25 @@ export const _reviews = {
 
       return updatedReview;
     },
+
+    delete: async (id: number, userId: number) => {
+      const { data: updatedReview, error } = await tryCatch(
+        data.public.reviews.mutations.delete(id, userId),
+      );
+
+      if (error) {
+        throw new AppError("Failed to update review", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      if (!updatedReview) {
+        throw new AppError("Failed to update review", "NOT_FOUND", {
+          cause: error,
+        });
+      }
+
+      return updatedReview;
+    },
   },
 };

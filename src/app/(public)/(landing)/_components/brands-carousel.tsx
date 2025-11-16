@@ -91,7 +91,7 @@ function BrandCard({
   brand: RouterOutput["public"]["brands"]["queries"]["findAll"][number];
 }) {
   return (
-    <Link href={`/brands/${brand.slug}`}>
+    <Link href={`/products/?brands=${brand.slug}`}>
       <div className="group flex h-full flex-col overflow-hidden rounded-lg border bg-white">
         <AspectRatio ratio={1} className="overflow-hidden">
           <ImageWithFallback

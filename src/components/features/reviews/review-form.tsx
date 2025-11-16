@@ -92,7 +92,7 @@ export function ReviewForm({
             )}
           />
 
-          <InputGroupAddon align="block-end">
+          <InputGroupAddon align="block-end" className="cursor-pointer">
             <FormField
               control={form.control}
               name="rating"

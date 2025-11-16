@@ -54,6 +54,7 @@ export async function ProductDetails({
   cacheTag(`products:${product.id}`);
 
   const hasVariants = product.variants && product.variants.length > 0;
+  console.log("Rendering ProductDetails for product:", product);
 
   return (
     <VariantSelectionStoreProvider>

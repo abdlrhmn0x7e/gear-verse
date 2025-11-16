@@ -13,7 +13,6 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function BuyNowButton({
-  disabled,
   className,
   product,
   ...props
@@ -38,6 +37,8 @@ export function BuyNowButton({
       },
     }),
   );
+
+  console.log("Selected variant in BuyNowButton:", selectedVariant);
 
   function handleClick() {
     if (!selectedVariant) return;
@@ -72,7 +73,7 @@ export function BuyNowButton({
       className={cn("w-full lg:flex-1", className)}
       size="lg"
       onClick={handleClick}
-      disabled={addingItem ?? disabled ?? (selectedVariant?.stock ?? 0) <= 0}
+      // disabled={addingItem || (selectedVariant?.stock ?? 0) <= 0}
       {...props}
     >
       {addingItem ? <Spinner /> : <IconBasketDollar />}
