@@ -54,7 +54,6 @@ export async function ProductDetails({
   cacheTag(`products:${product.id}`);
 
   const hasVariants = product.variants && product.variants.length > 0;
-  console.log("Rendering ProductDetails for product:", product);
 
   return (
     <VariantSelectionStoreProvider>
@@ -62,7 +61,11 @@ export async function ProductDetails({
         className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
       >
         {/* Image Carousel Section */}
-        <ProductCarousel media={product.media} brand={product.brand} />
+        <ProductCarousel
+          media={product.media}
+          brand={product.brand}
+          variantLength={product.variants.length}
+        />
 
         {/* Content Section */}
         <div className="space-y-6">

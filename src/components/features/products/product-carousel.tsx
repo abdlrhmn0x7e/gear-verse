@@ -7,9 +7,11 @@ import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 export function ProductCarousel({
   media,
   brand,
+  variantLength,
 }: {
   media: string[];
   brand: BadgeBrand;
+  variantLength: number;
 }) {
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
@@ -19,7 +21,9 @@ export function ProductCarousel({
     <div className="h-fit lg:sticky lg:top-24">
       <VerseCarousel
         photos={
-          selectedVariant ? [selectedVariant.thumbnailUrl, ...media] : media
+          selectedVariant && variantLength > 1
+            ? [selectedVariant.thumbnailUrl, ...media]
+            : media
         }
         className="mx-auto lg:max-w-4/5"
       />
