@@ -148,11 +148,13 @@ export const _categories = {
         filters?.attributes.map(
           _categories.queries.helpers.existsFragmentForFilter,
         ) ?? [];
+      const categoryIds =
+        await _categories.queries.helpers.getCategoryIdsBySlug(slug);
 
       const preds = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
-        eq(categories.slug, slug),
+        inArray(categories.id, categoryIds),
         ...fragments,
       ];
 
@@ -289,6 +291,29 @@ export const _categories = {
     },
 
     helpers: {
+      async getCategoryIdsBySlug(categorySlug: string) {
+        const childrenCategoriesIdsQuery = sql<{ id: string }[]>`
+              WITH RECURSIVE all_children_categories AS (
+                SELECT categories.id, categories.slug
+                FROM categories
+                WHERE slug = ${categorySlug}
+
+                UNION ALL
+
+                SELECT categories.id, categories.slug
+                FROM categories
+                INNER JOIN all_children_categories
+                  ON all_children_categories.id = categories.parent_id
+              )
+
+              SELECT id FROM all_children_categories
+            `;
+
+        return db
+          .execute<{ id: number }>(childrenCategoriesIdsQuery)
+          .then((result) => result.map((row) => row.id));
+      },
+
       existsFragmentForFilter: (
         filter: CategoryProductsFilters["attributes"][number],
       ) => {

@@ -367,7 +367,7 @@ export function ProductForm({
                         value={field.value ?? ""}
                       />
                     </FormControl>
-                    {strikeThroughPrice && price && (
+                    {!!strikeThroughPrice && !!price && (
                       <FormDescription>
                         this is a{" "}
                         {Math.max(

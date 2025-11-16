@@ -15,7 +15,7 @@ import {
 } from "../../db/schema";
 import { fullVariantValuesCTE } from "../common/cte";
 import type { Pagination } from "../common/types";
-import { _options, type NewOption } from "./options";
+import { type NewOption } from "./options";
 import { _productVariants } from "./product-variants";
 
 type NewProduct = typeof products.$inferInsert;

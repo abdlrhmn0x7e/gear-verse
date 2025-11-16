@@ -30,7 +30,7 @@ import { NavSocialLinks } from "./social-links";
 
 export function Navbar() {
   return (
-    <NavigationMenu.Root>
+    <NavigationMenu.Root delayDuration={500}>
       <header className="bg-background/90 fixed inset-x-0 top-0 z-50 h-auto w-full border-b backdrop-blur">
         <NavContainer id="navigation-menu-portal">
           <nav className="flex items-center justify-between">

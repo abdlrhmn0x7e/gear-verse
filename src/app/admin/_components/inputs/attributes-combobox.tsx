@@ -103,6 +103,33 @@ export function AttributeCombobox({
     );
   }
 
+  if (attributes.length === 0) {
+    return (
+      <Combobox
+        value={value.map((value) => value.toString())}
+        onValueChange={(value) =>
+          onValueChange(value.map((val) => parseInt(val)))
+        }
+        className="w-full p-0"
+        multiple
+        autoHighlight
+        disabled
+      >
+        <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
+          <ComboboxInput
+            placeholder="No attributes found for this category"
+            className="h-auto min-w-20 flex-1"
+            disabled
+          />
+
+          <ComboboxTrigger className="absolute top-2 right-2">
+            <ChevronDown className="h-4 w-4" />
+          </ComboboxTrigger>
+        </ComboboxAnchor>
+      </Combobox>
+    );
+  }
+
   const handleChange = (value: string[]) => {
     const ids = value.map((val) => parseInt(val.split("-").pop()!));
     onValueChange(ids);
