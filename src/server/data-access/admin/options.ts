@@ -1,7 +1,7 @@
 import { db } from "~/server/db";
 import { productOptions, productOptionValues } from "~/server/db/schema";
 
-type NewOption = typeof productOptions.$inferInsert & {
+export type NewOption = typeof productOptions.$inferInsert & {
   values: { id: number; value: string; order: number }[];
 };
 

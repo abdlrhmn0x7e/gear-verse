@@ -1,7 +1,7 @@
 import { and, asc, eq, gt, ilike, inArray, isNull, sql } from "drizzle-orm";
 import { productAttributeValues } from "~/server/db/schema/attributes";
 import { inventoryItems } from "~/server/db/schema/inventory";
-import { db } from "../../db";
+import { db, type Tx } from "../../db";
 import {
   media,
   orderItems,
@@ -15,7 +15,7 @@ import {
 } from "../../db/schema";
 import { fullVariantValuesCTE } from "../common/cte";
 import type { Pagination } from "../common/types";
-import { _options } from "./options";
+import { _options, type NewOption } from "./options";
 import { _productVariants } from "./product-variants";
 
 type NewProduct = typeof products.$inferInsert;
@@ -522,17 +522,19 @@ export const _products = {
           newVariants &&
           newVariants.length > 0
         ) {
-          const { valuesIdToDbId } = await _options.mutations.upsertMany(
-            newProductOptions?.map((o, index) => ({
-              name: o.name,
-              values: o.values.map((v, index) => ({
-                ...v,
+          const { valuesIdToDbId } =
+            await _products.mutations.helpers.upsertManyOptions(
+              newProductOptions?.map((o, index) => ({
+                name: o.name,
+                values: o.values.map((v, index) => ({
+                  ...v,
+                  order: index + 1,
+                })),
                 order: index + 1,
+                productId,
               })),
-              order: index + 1,
-              productId,
-            })),
-          );
+              tx,
+            );
 
           const variantsToInsert = newVariants?.map((v) => ({
             ...v,
@@ -541,7 +543,8 @@ export const _products = {
             stock: v.stock,
           }));
 
-          await _productVariants.mutations.upsertMany(
+          await _productVariants.mutations.helpers.upsertManyTx(
+            tx,
             productId,
             variantsToInsert,
             [],
@@ -550,7 +553,6 @@ export const _products = {
         }
 
         // create a SEO record for this product
-
         if (newSeo?.pageTitle && newSeo.urlHandler && newSeo.metaDescription) {
           await tx.insert(seo).values({
             ...newSeo,
@@ -701,6 +703,54 @@ export const _products = {
               .then(([product]) => product)
           : product;
       });
+    },
+
+    helpers: {
+      async upsertManyOptions(data: NewOption[], tx: Tx) {
+        const valuesIdToDbId = new Map<number, number>();
+
+        const newOptions = [];
+
+        for (const item of data) {
+          const [newOption] = await tx
+            .insert(productOptions)
+            .values({ productId: item.productId, name: item.name })
+            .onConflictDoUpdate({
+              target: [productOptions.productId, productOptions.name],
+              set: { name: item.name, order: item.order },
+            })
+            .returning({ id: productOptions.id });
+
+          if (!newOption) {
+            throw new Error("Failed to create product option");
+          }
+
+          // create/update option values
+          for (const value of item.values) {
+            const [newOptionValue] = await tx
+              .insert(productOptionValues)
+              .values({ value: value.value, productOptionId: newOption.id })
+              .onConflictDoUpdate({
+                target: [
+                  productOptionValues.productOptionId,
+                  productOptionValues.value,
+                ],
+                set: { value: value.value, order: value.order },
+              })
+              .returning({ id: productOptionValues.id });
+
+            if (!newOptionValue) {
+              throw new Error("Failed to create product option value");
+            }
+
+            valuesIdToDbId.set(value.id, newOptionValue.id);
+          }
+
+          newOptions.push({ ...newOption, values: item.values });
+        }
+
+        return { newOptions, valuesIdToDbId };
+      },
     },
   },
 };
