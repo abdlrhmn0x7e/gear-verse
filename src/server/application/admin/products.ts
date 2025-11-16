@@ -8,6 +8,17 @@ import { generateSlug } from "~/lib/utils/slugs";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 import { invalidateCache } from "~/server/actions/cache";
 
+async function deleteProductAndInvalidate(productId: number) {
+  const deleted = await data.admin.products.mutations.delete(productId);
+
+  if (!deleted) {
+    throw new AppError("Product not found", "NOT_FOUND");
+  }
+
+  await invalidateCache(`products:${productId}`);
+  return deleted;
+}
+
 export const _products = {
   queries: {
     getPage: (input: ProductsGetPageInput) => {
@@ -246,14 +257,16 @@ export const _products = {
     },
 
     async delete(productId: number) {
-      const deleted = await data.admin.products.mutations.delete(productId);
+      return deleteProductAndInvalidate(productId);
+    },
 
-      if (!deleted) {
-        throw new AppError("Product not found", "NOT_FOUND");
+    async deleteMany(productIds: number[]) {
+      const deletedProducts = [];
+      for (const productId of productIds) {
+        deletedProducts.push(await deleteProductAndInvalidate(productId));
       }
 
-      await invalidateCache(`products:${productId}`);
-      return deleted;
+      return deletedProducts;
     },
 
     helpers: {

@@ -15,3 +15,10 @@ export const productsGetPageInputSchema = paginationSchema.extend({
   filters: productsFilterSchema.optional(),
 });
 export type ProductsGetPageInput = z.infer<typeof productsGetPageInputSchema>;
+
+export const productsBulkDeleteInputSchema = z.object({
+  ids: z.array(z.number()).min(1, "At least one product ID is required"),
+});
+export type ProductsBulkDeleteInput = z.infer<
+  typeof productsBulkDeleteInputSchema
+>;

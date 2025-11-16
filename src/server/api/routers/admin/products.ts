@@ -3,7 +3,10 @@ import {
   updateProductInputSchema,
 } from "@schemas/entities";
 import z from "zod";
-import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/products";
+import {
+  productsBulkDeleteInputSchema,
+  productsGetPageInputSchema,
+} from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 import { createTRPCRouter, adminProcedure } from "~/server/api/init";
@@ -76,6 +79,19 @@ export const productsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.mutations.delete(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    bulkDelete: adminProcedure
+      .input(productsBulkDeleteInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.deleteMany(input.ids),
         );
         if (error) {
           throw errorMap(error);

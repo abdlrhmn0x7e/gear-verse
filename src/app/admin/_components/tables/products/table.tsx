@@ -4,10 +4,11 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type RowSelectionState,
 } from "@tanstack/react-table";
 
 // React & Next
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // Third-party hooks & utilities
 import {
@@ -17,9 +18,10 @@ import {
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
-import { PackageOpenIcon } from "lucide-react";
+import { PackageOpenIcon, TrashIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
+import { Button } from "~/components/ui/button";
 
 // Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
@@ -33,10 +35,12 @@ import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
 import { LoadMore } from "~/components/load-more";
 import { useTRPC } from "~/trpc/client";
+import { BulkDeleteProductsDialog } from "../../dialogs/bulk-delete-products";
 
 export function ProductsTable() {
   const [params, setParams] = useProductSearchParams();
   const debouncedFilters = useDebounce(params);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const trpc = useTRPC();
   const {
@@ -70,7 +74,17 @@ export function ProductsTable() {
     data: productsData,
     columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id.toString(),
+    enableRowSelection: true,
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
   });
+
+  const selectedProductIds = table
+    .getSelectedRowModel()
+    .rows.map((row) => row.original.id);
 
   const { ref, inView } = useInView();
 
@@ -80,6 +94,21 @@ export function ProductsTable() {
     }
   }, [inView, fetchNextPage]);
 
+  function handleBulkDeleteSuccess(deletedIds: number[]) {
+    table.resetRowSelection();
+
+    if (params.id && deletedIds.includes(params.id)) {
+      void setParams(
+        (prev) => ({
+          ...prev,
+          id: null,
+          slug: null,
+        }),
+        { shallow: true },
+      );
+    }
+  }
+
   if (isPending) {
     return <ProductsTableSkeleton />;
   }
@@ -87,7 +116,30 @@ export function ProductsTable() {
   return (
     <Card className="gap-2 py-2">
       <CardHeader className="px-2">
-        <ProductsFilter />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex-1">
+            <ProductsFilter />
+          </div>
+
+          {selectedProductIds.length > 0 && (
+            <div className="flex w-full justify-end lg:w-auto">
+              <BulkDeleteProductsDialog
+                ids={selectedProductIds}
+                onDeleteSuccess={handleBulkDeleteSuccess}
+                Trigger={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="w-full gap-2 lg:w-auto"
+                  >
+                    <TrashIcon className="size-4" />
+                    Delete selected ({selectedProductIds.length})
+                  </Button>
+                }
+              />
+            </div>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="px-2">
@@ -98,7 +150,7 @@ export function ProductsTable() {
           )}
         >
           <Table containerClassName="h-fit max-h-[75svh] overflow-y-auto">
-            <ProductsTableHeader />
+            <ProductsTableHeader table={table} />
 
             <TableBody>
               {table.getRowModel().rows?.length ? (

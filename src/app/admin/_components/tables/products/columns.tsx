@@ -10,10 +10,38 @@ import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductsTableActions } from "./actions";
 import { Badge } from "~/components/ui/badge";
+import { Checkbox } from "~/components/ui/checkbox";
 
 export const productColumns: ColumnDef<
   RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number]
 >[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected()
+            ? true
+            : table.getIsSomePageRowsSelected()
+              ? "indeterminate"
+              : false
+        }
+        aria-label="Select all products"
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onClick={(event) => event.stopPropagation()}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        aria-label="Select product"
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(event) => event.stopPropagation()}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "id",
     header: "Product No.",
