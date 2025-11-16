@@ -8,10 +8,12 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
-import type { TableInventoryItem } from "./table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { type InventoryItemFormValues } from "../../forms/inventory-item-form";
+import type { RouterOutput } from "~/trpc/client";
 
+type TableInventoryItem =
+  RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
 export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
   return [
     {
@@ -19,7 +21,7 @@ export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
       header: "Product",
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex min-h-12 items-center gap-2">
             <ImageWithFallback
               src={row.original.thumbnailUrl}
               alt={row.original.title}
@@ -67,7 +69,8 @@ export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                   placeholder="How much you got?"
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               </Field>
             )}

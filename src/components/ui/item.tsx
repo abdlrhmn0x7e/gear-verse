@@ -37,7 +37,7 @@ const itemVariants = cva(
       variant: {
         default: "bg-transparent",
         outline:
-          "bg-background before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+          "bg-card before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
         muted: "bg-muted/50",
       },
       size: {

@@ -6,28 +6,26 @@ import {
   useQueryClient,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useInView } from "react-intersection-observer";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import {
   InventoryItemForm,
   type InventoryItemFormValues,
 } from "~/app/admin/_components/forms/inventory-item-form";
 import { useInventorySearchParams } from "~/app/admin/_hooks/use-inventory-search-params";
-import { LoadMore } from "~/components/load-more";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useTRPC } from "~/trpc/client";
 
 export function EditInventory() {
-  const [params] = useInventorySearchParams();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [params] = useInventorySearchParams();
   const debouncedFilters = useDebounce(params);
 
-  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
+  const { data } = useSuspenseInfiniteQuery(
     trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions(
       {
-        pageSize: 10,
+        pageSize: 15,
         filters: {
           inventorySearch: debouncedFilters.inventorySearch ?? undefined,
         },
@@ -38,7 +36,7 @@ export function EditInventory() {
       },
     ),
   );
-  const items = data.pages.flatMap((page) => page.data);
+  const items = useMemo(() => data.pages.flatMap((page) => page.data), [data]);
 
   const { mutate: updateInventoryItem, isPending } = useMutation(
     trpc.admin.inventoryItems.mutations.updateMany.mutationOptions({
@@ -55,13 +53,6 @@ export function EditInventory() {
     updateInventoryItem(data);
   }
 
-  const { ref, inView } = useInView();
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, hasNextPage, fetchNextPage]);
-
   return (
     <div className="bg-background rounded-lg">
       <InventoryItemForm
@@ -69,8 +60,6 @@ export function EditInventory() {
         onSubmit={onSubmit}
         isSubmitting={isPending}
       />
-
-      <LoadMore ref={ref} hasNextPage={hasNextPage} />
     </div>
   );
 }

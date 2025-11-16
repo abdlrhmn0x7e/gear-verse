@@ -48,7 +48,7 @@ export function ProductsTable() {
   } = useSuspenseInfiniteQuery(
     trpc.admin.products.queries.getPage.infiniteQueryOptions(
       {
-        pageSize: 10,
+        pageSize: 15,
         filters: {
           title: debouncedFilters.title ?? undefined,
           brands: params.brands ?? undefined,
@@ -143,9 +143,14 @@ export function ProductsTable() {
                   </TableCell>
                 </TableRow>
               )}
+              <TableRow>
+                <TableCell colSpan={productColumns.length}>
+                  <div className="flex flex-col items-center justify-center">
+                    <LoadMore ref={ref} hasNextPage={hasNextPage} />
+                  </div>
+                </TableCell>
+              </TableRow>
             </TableBody>
-
-            <LoadMore hasNextPage={hasNextPage} ref={ref} />
           </Table>
         </div>
       </CardContent>

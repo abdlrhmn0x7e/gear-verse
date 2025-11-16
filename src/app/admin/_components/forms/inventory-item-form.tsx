@@ -6,7 +6,7 @@ import { updateManyInventoryItemsInputSchema } from "~/lib/schemas/entities/inve
 import type z from "zod";
 import { InventoryTable } from "../tables/inventory/table";
 import type { RouterOutput } from "~/trpc/client";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   Item,
   ItemActions,
@@ -31,19 +31,14 @@ export function InventoryItemForm({
   isSubmitting?: boolean;
 }) {
   const [itemRef, setItemRef] = useState<HTMLDivElement | null>(null);
-  const defaultValues = useMemo(() => {
-    return {
-      inventory: values.map((item) => ({
-        id: item.id,
-        quantity: item.quantity,
-      })),
-    };
-  }, [values]);
 
   const form = useForm<InventoryItemFormValues>({
     resolver: zodResolver(inventoryItemFormSchema),
     defaultValues: {
-      inventory: defaultValues.inventory,
+      inventory: values.map((item) => ({
+        id: item.id,
+        quantity: Number(item.quantity),
+      })),
     },
   });
 
@@ -57,6 +52,16 @@ export function InventoryItemForm({
       form.reset(data);
     })();
   }
+
+  useEffect(() => {
+    form.setValue(
+      "inventory",
+      values.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      })),
+    );
+  }, [values, form]);
 
   useLayoutEffect(() => {
     if (!itemRef) return;
@@ -72,7 +77,7 @@ export function InventoryItemForm({
     <>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InventoryTable data={values} />
+          <InventoryTable />
         </form>
       </FormProvider>
 

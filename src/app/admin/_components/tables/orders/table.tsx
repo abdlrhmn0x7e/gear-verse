@@ -18,7 +18,6 @@ import { useInView } from "react-intersection-observer";
 
 // UI & Icons
 import { PackageOpenIcon } from "lucide-react";
-import { Spinner } from "~/components/spinner";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 
@@ -32,6 +31,7 @@ import { ordersColumns } from "./columns";
 import { OrdersTableHeader } from "./header";
 import { OrdersFilter } from "./filters";
 import { cn } from "~/lib/utils";
+import { LoadMore } from "~/components/load-more";
 
 export function OrdersTable() {
   const trpc = useTRPC();
@@ -45,7 +45,7 @@ export function OrdersTable() {
   } = useSuspenseInfiniteQuery(
     trpc.admin.orders.queries.getPage.infiniteQueryOptions(
       {
-        pageSize: 10,
+        pageSize: 15,
         filters: {
           orderId: debouncedFilters.search ?? undefined,
           status: debouncedFilters.status ?? undefined,
@@ -132,13 +132,14 @@ export function OrdersTable() {
                   </TableCell>
                 </TableRow>
               )}
+              <TableRow>
+                <TableCell colSpan={ordersColumns.length}>
+                  <div className="flex flex-col items-center justify-center">
+                    <LoadMore ref={ref} hasNextPage={hasNextPage} />
+                  </div>
+                </TableCell>
+              </TableRow>
             </TableBody>
-
-            {hasNextPage && (
-              <div className="flex items-center justify-center p-4" ref={ref}>
-                <Spinner />
-              </div>
-            )}
           </Table>
         </div>
       </CardContent>

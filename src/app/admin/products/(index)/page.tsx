@@ -22,7 +22,7 @@ export default async function AdminProductsPage({
   const params = await loadProductSearchParams(searchParams);
   void prefetch(
     trpc.admin.products.queries.getPage.infiniteQueryOptions({
-      pageSize: 10,
+      pageSize: 15,
       filters: {
         title: params.title ?? undefined,
         brands: params.brands ?? undefined,

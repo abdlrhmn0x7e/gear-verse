@@ -550,7 +550,8 @@ export const _products = {
         }
 
         // create a SEO record for this product
-        if (newSeo) {
+
+        if (newSeo?.pageTitle && newSeo.urlHandler && newSeo.metaDescription) {
           await tx.insert(seo).values({
             ...newSeo,
             productId,

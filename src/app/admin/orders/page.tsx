@@ -17,7 +17,7 @@ export default async function AdminOrdersPage({
   const params = await loadOrderSearchParams(searchParams);
   void prefetch(
     trpc.admin.orders.queries.getPage.infiniteQueryOptions({
-      pageSize: 10,
+      pageSize: 15,
       filters: params
         ? {
             orderId: params.search ?? undefined,

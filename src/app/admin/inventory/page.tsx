@@ -19,7 +19,7 @@ export default async function AdminInventoryPage({
   const filters = await loadInventorySearchParams(searchParams);
   void prefetch(
     trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions({
-      pageSize: 10,
+      pageSize: 15,
       filters: {
         inventorySearch: filters.inventorySearch ?? undefined,
       },

@@ -50,7 +50,6 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupNumberInput,
   InputGroupText,
 } from "~/components/ui/input-group";
 import { InventoryTableInput } from "../../inputs/inventory-table-input";
@@ -99,11 +98,6 @@ export function ProductForm({
       attributeIds: [],
       media: [],
       options: [],
-      seo: {
-        pageTitle: "",
-        urlHandler: "",
-        metaDescription: "",
-      },
     },
   });
 

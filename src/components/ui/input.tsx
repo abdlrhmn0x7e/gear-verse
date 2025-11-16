@@ -75,7 +75,7 @@ function NumberInput({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.stopPropagation();
     e.preventDefault();
-    setSteppedValue(Number(e.target.value));
+    setSteppedValue(parseValue(e.target.value));
     onChange?.(e);
   }
 
@@ -106,7 +106,7 @@ function NumberInput({
       <PrimitiveInput
         className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         type="number"
-        value={steppedValue === 0 ? "" : steppedValue}
+        value={steppedValue ?? ""}
         onChange={handleChange}
         onFocus={handleFocus}
         {...props}
