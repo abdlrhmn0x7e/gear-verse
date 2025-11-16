@@ -4,11 +4,14 @@ import { BrandsCarousel, BrandsCarouselSkeleton } from "./brands-carousel";
 import Glow from "~/components/ui/glow";
 import { Suspense } from "react";
 import { app } from "~/server/application";
+import { cacheTag } from "next/cache";
 
 export async function ShopByBrand() {
   "use cache";
 
   const brands = await app.public.brands.queries.findAll();
+
+  cacheTag("brands");
 
   return (
     <section className="relative py-24">
