@@ -38,7 +38,7 @@ export function Footer() {
           <Logo />
         </Link>
 
-        <div className="my-8 flex flex-wrap justify-center gap-6">
+        {/*<div className="my-8 flex flex-wrap justify-center gap-6">
           {links.map((link, index) => (
             <Link
               key={index}
@@ -48,7 +48,7 @@ export function Footer() {
               <span>{link.title}</span>
             </Link>
           ))}
-        </div>
+        </div>*/}
         <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
           <Link
             href="#"

@@ -9,6 +9,7 @@ import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Skeleton } from "../../ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
+import { IconCircleDashedPercentage } from "@tabler/icons-react";
 
 export function ProductCard({
   product,
@@ -18,10 +19,25 @@ export function ProductCard({
   return (
     <Link href={`/products/${product.slug}`} className="group">
       <Card className="h-full gap-1 p-1">
-        <CardHeader className="p-0">
+        <CardHeader className="relative p-0">
+          {!!product.strikeThroughPrice && (
+            <Badge className="absolute top-2 right-2 z-10 px-1 font-medium">
+              <IconCircleDashedPercentage />
+              {Math.max(
+                Math.ceil(
+                  ((product.strikeThroughPrice - product.price) /
+                    product.price) *
+                    100,
+                ),
+                0,
+              )}
+              % Discount
+            </Badge>
+          )}
+
           <AspectRatio
             ratio={16 / 10}
-            className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
+            className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))] border bg-white"
           >
             <ImageWithFallback
               src={product.thumbnailUrl}
@@ -61,7 +77,7 @@ export function ProductCard({
               <span className="text-foreground dark:text-primary-foreground text-xl font-semibold">
                 {formatCurrency(product.price)}
               </span>
-              {product.strikeThroughPrice && (
+              {!!product.strikeThroughPrice && (
                 <span className="text-muted-foreground line-through">
                   {formatCurrency(product.strikeThroughPrice)}
                 </span>

@@ -41,10 +41,10 @@ function ProductCard({
 }) {
   return (
     <NavLink href={`/products/${products.slug}`}>
-      <div className="group bg-card space-y-3 rounded-lg border p-1">
+      <div className="group bg-card h-full space-y-3 rounded-lg border p-1">
         <AspectRatio
           ratio={16 / 9}
-          className="w-full overflow-hidden rounded-lg border"
+          className="w-full overflow-hidden rounded-lg border bg-white"
         >
           <ImageWithFallback
             src={products.thumbnailUrl}

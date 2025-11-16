@@ -41,7 +41,10 @@ export function VerseCarousel({
         <CarouselContent>
           {photos.map((photo, index) => (
             <CarouselItem key={index}>
-              <AspectRatio ratio={1 / 1} className="h-full bg-white">
+              <AspectRatio
+                ratio={1 / 1}
+                className="h-full rounded-lg border bg-white"
+              >
                 <SuspendableImage
                   src={photo}
                   alt={`Product Image ${index + 1}`}

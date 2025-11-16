@@ -21,7 +21,9 @@ export const _inventoryItems = {
       cursor,
       filters,
     }: Pagination<{ inventorySearch: string | null }>) => {
-      const whereClause = cursor ? [lt(inventoryItems.id, cursor)] : [];
+      const whereClause = cursor
+        ? [lt(inventoryItems.id, cursor), eq(products.archived, false)]
+        : [];
       const variantValuesCTE = db.$with("variant_values").as(
         db
           .select({

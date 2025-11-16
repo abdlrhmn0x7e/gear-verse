@@ -37,7 +37,8 @@ export function ProductsTableActions({
   const publishDialog = useDialog();
   const deleteDialog = useDialog();
 
-  function handleCopyProductLink() {
+  function handleCopyProductLink(e: React.MouseEvent) {
+    e.stopPropagation();
     void navigator.clipboard.writeText(
       `${window.location.origin}/products/${slug}`,
     );
@@ -61,6 +62,7 @@ export function ProductsTableActions({
             <DropdownMenuItem
               variant="ghost"
               className="w-full justify-start"
+              onClick={(e) => e.stopPropagation()}
               asChild
             >
               <Link href={`/admin/products/${id}`}>
@@ -78,7 +80,12 @@ export function ProductsTableActions({
               Copy Product Link
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={publishDialog.trigger}>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                publishDialog.trigger();
+              }}
+            >
               {!published ? <CheckCircleIcon /> : <XCircleIcon />}
               {published ? "Unpublish product" : "Publish product"}
             </DropdownMenuItem>

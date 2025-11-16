@@ -27,7 +27,12 @@ export const Component = ({
   }
 
   return (
-    <div className={cn("size-8 overflow-hidden rounded-sm border", className)}>
+    <div
+      className={cn(
+        "size-8 overflow-hidden rounded-sm border bg-white",
+        className,
+      )}
+    >
       <SuspendableImage key={`${src}-${alt}`} src={src} alt={alt} {...props} />
     </div>
   );

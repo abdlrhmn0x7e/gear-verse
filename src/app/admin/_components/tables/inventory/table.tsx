@@ -44,7 +44,6 @@ export function InventoryTable() {
     ),
   );
   const data = useMemo(() => items.pages.flatMap((page) => page.data), [items]);
-  console.log("InventoryTable render with items:", data);
 
   const { ref, inView } = useInView();
   useEffect(() => {

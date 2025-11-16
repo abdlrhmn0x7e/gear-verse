@@ -176,7 +176,9 @@ export const _products = {
           profit: products.profit,
           margin: products.margin,
           variants: fullVariantsCTE.json,
-          media: productMediaSubQuery.json,
+          media: sql<
+            string[]
+          >`coalesce(${productMediaSubQuery.json}, '[]'::jsonb)`,
           seo: {
             pageTitle: seo.pageTitle,
             urlHandler: seo.urlHandler,

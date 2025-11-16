@@ -353,7 +353,9 @@ export const _products = {
 
           media: productMediaQuery.json,
 
-          attributeIds: productAttributesQuery.json,
+          attributeIds: sql<
+            number[]
+          >`coalesce(${productAttributesQuery.json}, '[]'::jsonb)`,
         })
         .from(products)
         .leftJoin(

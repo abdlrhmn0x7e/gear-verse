@@ -31,15 +31,16 @@ export function PublishProductDialog({
     trpc.admin.products.mutations.editDeep.mutationOptions(),
   );
 
-  function handlePublish() {
+  function handlePublish(e: React.MouseEvent) {
+    e.stopPropagation();
     updateProduct(
       { id, data: { published: !published } },
       {
         onSuccess: () => {
           onPublishSuccess?.();
-          void queryClient.invalidateQueries({
-            queryKey: trpc.admin.products.queries.getPage.queryKey(),
-          });
+          void queryClient.invalidateQueries(
+            trpc.admin.products.queries.getPage.infiniteQueryFilter(),
+          );
         },
       },
     );
@@ -57,7 +58,9 @@ export function PublishProductDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction disabled={isPending} onClick={handlePublish}>
             Continue
           </AlertDialogAction>

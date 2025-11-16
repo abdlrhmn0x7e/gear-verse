@@ -30,7 +30,7 @@ import { NavSocialLinks } from "./social-links";
 
 export function Navbar() {
   return (
-    <NavigationMenu.Root delayDuration={9999999}>
+    <NavigationMenu.Root>
       <header className="bg-background/90 fixed inset-x-0 top-0 z-50 h-auto w-full border-b backdrop-blur">
         <NavContainer id="navigation-menu-portal">
           <nav className="flex items-center justify-between">
@@ -45,10 +45,12 @@ export function Navbar() {
 
               <NavigationMenu.List className="hidden w-full items-center gap-2 lg:flex">
                 <NavigationMenu.Item value="explore">
-                  <NavTrigger>
-                    <IconShoppingBagPlus />
-                    <span>Explore Our Store</span>
-                  </NavTrigger>
+                  <Link href="/products" passHref>
+                    <NavTrigger>
+                      <IconShoppingBagPlus />
+                      <span>Explore Our Store</span>
+                    </NavTrigger>
+                  </Link>
 
                   <NavContent className="grid grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                     <div className="col-span-2 space-y-3">

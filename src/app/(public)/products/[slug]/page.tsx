@@ -34,7 +34,7 @@ export async function generateMetadata({
     };
   } catch {
     return {
-      title: "Product Not Found",
+      title: "Gear Verse | Product Not Found",
       description: "The requested product could not be found.",
     };
   }

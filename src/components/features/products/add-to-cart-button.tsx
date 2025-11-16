@@ -86,8 +86,8 @@ export function AddToCartButton({
       <div
         className={cn(
           "peer:bg-red-500 has-[>div:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>div:hover]:cursor-pointer",
-          removingFromCart ||
-            (addingToCart && "pointer-events-none opacity-50"),
+          (removingFromCart || addingToCart || stock === 0) &&
+            "pointer-events-none opacity-50",
         )}
         role="button"
       >
@@ -143,7 +143,7 @@ export function AddToCartButton({
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={addingToCart ?? disabled ?? stock <= 0}
+      disabled={addingToCart || (disabled ?? true) || stock <= 0}
       {...props}
     >
       <IconShoppingCartPlus />

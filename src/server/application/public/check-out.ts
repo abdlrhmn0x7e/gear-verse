@@ -65,7 +65,9 @@ export const _checkout = {
       // Invalidate product pages to update stock info
       const invalidationPromises = [];
       for (const item of items) {
-        invalidationPromises.push(invalidateCache(`product-${item.productId}`));
+        invalidationPromises.push(
+          invalidateCache(`products:${item.productId}`),
+        );
       }
       await Promise.all(invalidationPromises);
 

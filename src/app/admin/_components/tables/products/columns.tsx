@@ -67,6 +67,7 @@ export const productColumns: ColumnDef<
           <ImageWithFallback
             src={row.original.thumbnail?.url}
             alt={row.original.title ?? "Product Thumbnail"}
+            className="bg-white"
             width={40}
             height={40}
           />
