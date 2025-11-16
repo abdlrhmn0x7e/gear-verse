@@ -55,7 +55,6 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
     : null;
 
   if (!user) {
-    console.log("Auth middleware: No session found");
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Authentication required",
@@ -80,7 +79,6 @@ const adminMiddleware = t.middleware(async ({ next, ctx }) => {
     : null;
 
   if (!user) {
-    console.log("Admin middleware: No session found");
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "Authentication required",
@@ -88,7 +86,6 @@ const adminMiddleware = t.middleware(async ({ next, ctx }) => {
   }
 
   if (user.role !== "admin") {
-    console.log("Admin middleware: User is not admin, role:", user.role);
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",

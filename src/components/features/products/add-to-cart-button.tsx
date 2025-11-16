@@ -27,7 +27,6 @@ export function AddToCartButton({
 
   // Get variant data from store
   const variant = useVariantSelectionStore((state) => state.selectedVariant);
-  console.log("Selected variant in AddToCartButton:", variant);
   const variantId = variant?.id;
   const stock = variant?.stock ?? 0;
 

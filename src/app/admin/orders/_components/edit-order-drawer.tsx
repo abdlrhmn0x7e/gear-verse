@@ -85,7 +85,6 @@ export function EditOrderDrawer() {
       return;
     }
 
-    console.log("values", values);
     updateOrder({ id: params.editId, ...values });
   }
 

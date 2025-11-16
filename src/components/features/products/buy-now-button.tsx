@@ -38,8 +38,6 @@ export function BuyNowButton({
     }),
   );
 
-  console.log("Selected variant in BuyNowButton:", selectedVariant);
-
   function handleClick() {
     if (!selectedVariant) return;
     addItem(

@@ -13,6 +13,10 @@ export const _categories = {
       return data.public.categories.queries.findAll(input);
     },
 
+    findAllSlugs: async () => {
+      return data.public.categories.queries.findAllSlugs();
+    },
+
     findRoots: async () => {
       const { data: roots, error } = await tryCatch(
         data.public.categories.queries.getRoots(),

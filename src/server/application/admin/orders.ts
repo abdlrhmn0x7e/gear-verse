@@ -54,7 +54,6 @@ export const _orders = {
     },
 
     update: async (input: UpdateFullOrderInput & { id: number }) => {
-      console.log("input", input);
       const { id, items, ...order } = input;
       const { data: updatedOrder, error } = await tryCatch(
         data.admin.orders.mutations.update(id, order, items),

@@ -133,7 +133,6 @@ export function ProductForm({
     name: "strikeThroughPrice",
     defaultValue: defaultValues?.strikeThroughPrice,
   });
-  console.log("Price", price, "STP", strikeThroughPrice);
 
   // you have to subscribe to the dirty fields here
   // accessing it directly from the onSubmit function won't work

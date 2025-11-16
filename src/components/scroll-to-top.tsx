@@ -27,8 +27,6 @@ export function ScrollToTop() {
     return () => document.removeEventListener("scroll", handleScrollEvent);
   }, [setScrollYCB]);
 
-  if (!window) return;
-
   return (
     <Button
       size="icon-lg"

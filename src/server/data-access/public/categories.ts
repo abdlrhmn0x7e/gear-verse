@@ -112,6 +112,15 @@ export const _categories = {
       return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
     },
 
+    async findAllSlugs() {
+      return db
+        .select({
+          slug: categories.slug,
+        })
+        .from(categories)
+        .where(isNull(categories.parent_id));
+    },
+
     async getRoots() {
       return db
         .select({

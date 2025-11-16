@@ -107,7 +107,6 @@ export const _attributes = {
         data.admin.attributes.mutations.connect(input),
       );
       if (error) {
-        console.log("error", error);
         throw new AppError("Failed to connect attribute", "INTERNAL", {
           cause: error,
         });

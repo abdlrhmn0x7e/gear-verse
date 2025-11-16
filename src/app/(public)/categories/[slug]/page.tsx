@@ -5,6 +5,12 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Suspense } from "react";
 import { Products, ProductsSkeleton } from "./_components/products";
 import { loadFilterSearchParams } from "./_components/utils";
+import { app } from "~/server/application";
+
+export async function generateStaticParams() {
+  const slugs = await app.public.categories.queries.findAllSlugs();
+  return slugs;
+}
 
 export default async function CategoryPage({
   params,

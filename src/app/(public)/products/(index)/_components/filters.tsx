@@ -71,7 +71,10 @@ export async function Filters() {
             <Suspense fallback={<PriceFilterSkeleton />}>
               <PriceFilter />
             </Suspense>
-            <ClearAllFiltersButton />
+
+            <Suspense>
+              <ClearAllFiltersButton />
+            </Suspense>
           </div>
         </CardContent>
       </Card>
