@@ -20,9 +20,9 @@ export default async function AdminOrdersPage({
       pageSize: 10,
       filters: params
         ? {
-            orderId: params.search || undefined,
-            status: params.status || undefined,
-            paymentMethod: params.paymentMethod || undefined,
+            orderId: params.search ?? undefined,
+            status: params.status ?? undefined,
+            paymentMethod: params.paymentMethod ?? undefined,
           }
         : undefined,
     }),

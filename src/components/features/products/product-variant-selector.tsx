@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  useEffectEvent,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffectEvent, useLayoutEffect, useMemo, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -181,7 +175,7 @@ function PrimaryOptionValueButton({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {parsedValues.map((value, idx) => (
+      {parsedValues.map((value) => (
         <div
           className="flex flex-col items-center gap-1"
           key={`option-value-fragment-${value}`}
@@ -197,7 +191,7 @@ function PrimaryOptionValueButton({
             <ImageWithFallback
               src={
                 variantThumbnails.find((vt) => vt.value === value)
-                  ?.thumbnailUrl || ""
+                  ?.thumbnailUrl ?? ""
               }
               alt={value}
               className="size-full"

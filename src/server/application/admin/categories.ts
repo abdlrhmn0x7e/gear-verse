@@ -1,10 +1,7 @@
 import { AppError } from "~/lib/errors/app-error";
 import type { DeleteCategoryInput } from "~/lib/schemas/contracts/admin/categories";
-import type { CategoriesFindAllInput } from "~/lib/schemas/contracts/public/categories";
 import {
   categoryTreeSchema,
-  minimalCategoryEntitySchema,
-  type Category,
   type CreateCategoryInput,
   type MinimalCategory,
   type UpdateCategoryInput,

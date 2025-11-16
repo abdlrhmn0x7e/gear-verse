@@ -19,7 +19,6 @@ import {
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
 import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
-import { useState } from "react";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 
 export function CreateOrderDrawer() {
@@ -34,7 +33,7 @@ export function CreateOrderDrawer() {
           trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
         );
         toast.success("Order created successfully");
-        setParams({ create: null });
+        void setParams({ create: null });
       },
     }),
   );
@@ -45,10 +44,10 @@ export function CreateOrderDrawer() {
 
   function handleOpenChange(open: boolean) {
     if (open) {
-      setParams({ create: true });
+      void setParams({ create: true });
       return;
     }
-    setParams({ create: null });
+    void setParams({ create: null });
   }
 
   return (

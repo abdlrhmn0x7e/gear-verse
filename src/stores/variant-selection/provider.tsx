@@ -23,12 +23,14 @@ export const VariantSelectionStoreProvider = ({
   children,
 }: VariantSelectionStoreProviderProps) => {
   const storeRef = useRef<VariantSelectionStoreApi | null>(null);
-   
+
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
     storeRef.current = createVariantSelectionStore();
   }
 
   return (
+    // eslint-disable-next-line react-hooks/refs
     <VariantSelectionStoreContext.Provider value={storeRef.current}>
       {children}
     </VariantSelectionStoreContext.Provider>

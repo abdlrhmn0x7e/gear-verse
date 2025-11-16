@@ -23,7 +23,6 @@ import {
   keepPreviousData,
   useInfiniteQuery,
   useQuery,
-  useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
 import { debounce } from "nuqs";
 import { CategoriesCommand } from "../../inputs/categories-combobox";

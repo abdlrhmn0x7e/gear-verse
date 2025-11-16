@@ -1,3 +1,4 @@
+/** eslint-disable react-hooks/static-components */
 import { api } from "~/trpc/server";
 import { Card, CardContent } from "../ui/card";
 import type { RouterOutput } from "~/trpc/client";
@@ -41,6 +42,7 @@ function CategoryCard({
     <NavLink href={`/categories/${category.slug}`}>
       <Card className="ring-accent transition-shadow hover:ring-2">
         <CardContent className="flex flex-col items-center gap-2 text-center">
+          {/* eslint-disable-next-line react-hooks/static-components*/}
           <CategoryIcon />
           <Heading level={4}>{category.name}</Heading>
         </CardContent>

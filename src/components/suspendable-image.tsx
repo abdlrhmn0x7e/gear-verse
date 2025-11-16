@@ -21,12 +21,14 @@ export function SuspendableImage({
 
   // Reset states when src changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
     setHasError(false);
   }, [src]);
 
   // if the component is remounted and loading is set to true, and src didn't change, set it to false
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading((prev) => !prev);
   }, []);
 

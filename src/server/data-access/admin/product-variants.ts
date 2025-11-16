@@ -72,7 +72,7 @@ export const _productVariants = {
               {
                 id: number;
                 thumbnailUrl: string;
-                options: Record<string, { id: string; value: string }>[];
+                options: Record<string, { id: string; value: string }>;
               }[]
             >`jsonb_agg(
                 jsonb_build_object(
@@ -171,9 +171,7 @@ export const _productVariants = {
             .update(productVariants)
             .set({
               ...rest,
-              overridePrice: !rest.overridePrice
-                ? null
-                : rest.overridePrice,
+              overridePrice: rest.overridePrice ?? null,
             })
             .where(eq(productVariants.id, variant.id));
 

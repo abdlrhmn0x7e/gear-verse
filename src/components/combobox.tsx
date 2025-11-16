@@ -85,7 +85,7 @@ function ComboboxTrigger({
       )}
       {...props}
     >
-      {children || <ChevronDown className="size-4" />}
+      {children ?? <ChevronDown className="size-4" />}
     </ComboboxPrimitive.Trigger>
   );
 }
@@ -130,6 +130,7 @@ function ComboboxBadgeItem({
       className={cn(
         badgeVariants({
           variant: "outline",
+          className,
         }),
         "px-2",
       )}

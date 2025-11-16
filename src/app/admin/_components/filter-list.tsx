@@ -76,7 +76,7 @@ export function FilterList({
     value: FilterItemsValue[FilterKey] | null;
   }) {
     switch (key) {
-      case "brands":
+      case "brands": {
         const brand = brands?.find((brand) => brand.id === value);
 
         return (
@@ -94,8 +94,9 @@ export function FilterList({
             <p>{brand?.name ?? `Brand name ${value}`}</p>
           </div>
         );
+      }
 
-      case "categories":
+      case "categories": {
         const category = flattenedCategories.find(
           (category) => category.id === value,
         );
@@ -120,8 +121,9 @@ export function FilterList({
             })}
           </div>
         );
+      }
 
-      case "status":
+      case "status": {
         return (
           <OrderStatus
             variant="plain"
@@ -135,9 +137,11 @@ export function FilterList({
             }
           />
         );
+      }
 
-      case "paymentMethod":
+      case "paymentMethod": {
         return <PaymentMethod paymentMethod={value as "COD"} />;
+      }
     }
   }
 

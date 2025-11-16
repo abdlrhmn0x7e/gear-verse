@@ -21,7 +21,6 @@ import {
 import { Spinner } from "~/components/spinner";
 import { AddAddressDialog } from "../../dialogs/add-address";
 import { IconHome, IconHomeOff, IconPhone } from "@tabler/icons-react";
-import { humanizeString } from "~/lib/utils/humanize-string";
 import { Badge } from "~/components/ui/badge";
 
 export function AddressesCombobox({

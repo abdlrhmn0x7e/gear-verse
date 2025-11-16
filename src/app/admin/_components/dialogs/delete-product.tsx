@@ -16,13 +16,11 @@ import { useTRPC } from "~/trpc/client";
 
 export function DeleteProductDialog({
   id,
-  showText = true,
   onDeleteSuccess,
   Trigger,
   ...props
 }: {
   id: number;
-  showText?: boolean;
   onDeleteSuccess?: () => void;
   Trigger?: React.ReactNode;
 }) {

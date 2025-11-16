@@ -1,7 +1,6 @@
 import { db } from "../../db";
 import { eq, isNull, sql } from "drizzle-orm";
 import { categories } from "../../db/schema";
-import type { CategoryTree } from "~/lib/schemas/entities";
 
 type NewCategory = typeof categories.$inferInsert;
 type UpdateCategory = Partial<NewCategory>;

@@ -139,7 +139,7 @@ export function ProductSearchIcon({ className }: { className?: string }) {
   return (
     <SearchIcon
       className={cn(
-        "transition-all duration-200 group-data-[state=open]:-translate-x-[8px] group-data-[state=open]:opacity-0",
+        "transition-all duration-200 group-data-[state=open]:-translate-x-2 group-data-[state=open]:opacity-0",
         className,
       )}
     />
@@ -249,7 +249,7 @@ function Content({ close }: { close: () => void }) {
 
       {isError && <ProductSearchError />}
 
-      {data && data.data.length === 0 && <ProductSearchEmpty />}
+      {data?.data.length === 0 && <ProductSearchEmpty />}
 
       {data && data.data.length > 0 && (
         <ul className="flex flex-col gap-1">

@@ -21,7 +21,6 @@ export function CompleteCheckout({
   className?: string;
 }) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
 
   const router = useRouter();
   const { mutate: checkout, isPending: checkoutPending } = useMutation(

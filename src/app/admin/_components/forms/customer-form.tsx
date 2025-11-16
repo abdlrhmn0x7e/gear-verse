@@ -19,6 +19,7 @@ export function CustomerForm({
     resolver: zodResolver(customerFormSchema),
     defaultValues: defaultValues ?? {
       name: "",
+      // eslint-disable-next-line react-hooks/purity
       email: `temp-user-${Date.now()}@gearverse.com`,
       role: "user",
       isAnonymous: false,

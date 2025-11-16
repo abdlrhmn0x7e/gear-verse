@@ -56,6 +56,7 @@ export function CategoryFilterItem({
         onCheckedChange={() => handleCategoryChange(category.slug)}
       />
       <Label htmlFor={`category-${category.slug}`}>
+        {/* eslint-disable-next-line react-hooks/static-components*/}
         {Icon && <Icon className="size-4" />}
         {category.name}
       </Label>

@@ -5,7 +5,6 @@ import { errorMap } from "../../error-map";
 import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
 import {
   createFullOrderInputSchema,
-  createOrderInputSchema,
   updateFullOrderInputSchema,
 } from "~/lib/schemas/entities";
 

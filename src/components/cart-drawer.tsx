@@ -7,8 +7,7 @@ import { useTRPC } from "~/trpc/client";
 import { Button } from "./ui/button";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { JSX } from "react/jsx-dev-runtime";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
@@ -35,7 +34,6 @@ export function CartDrawer({
 }) {
   const trpc = useTRPC();
   const router = useRouter();
-  const pathname = usePathname();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
@@ -62,10 +60,6 @@ export function CartDrawer({
       },
     }),
   );
-
-  useEffect(() => {
-    onOpenChange?.(false);
-  }, [pathname]);
 
   if (isPendingCart) {
     return <Skeleton className="size-9 rounded-full" />;
@@ -172,6 +166,7 @@ export function CartDrawer({
           <Button variant="default" className="w-full" size="lg" asChild>
             <Link
               href="/checkout"
+              onNavigate={() => onOpenChange?.(false)}
               className={cn(
                 cart.items.length <= 0 && "pointer-events-none opacity-50",
               )}

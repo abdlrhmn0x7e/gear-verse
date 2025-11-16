@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { EditIcon, TrashIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { EditIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { Heading } from "~/components/heading";
@@ -22,8 +22,8 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
-import { OrderStatus } from "../tables/orders/order-status";
 import { DeleteOrderDialog } from "../dialogs/delete-order";
+import { OrderStatus } from "../tables/orders/order-status";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -53,15 +53,16 @@ export function OrderDrawer() {
 function OrderDrawerContent() {
   const trpc = useTRPC();
   const [params, setParams] = useOrderSearchParams();
-  const queryClient = useQueryClient();
 
   const paramsProductIdRef = useRef<number>(params.orderId);
   const { data, isPending } = useQuery(
     trpc.admin.orders.queries.findDetailsById.queryOptions(
       {
+        // eslint-disable-next-line react-hooks/refs
         id: paramsProductIdRef.current!,
       },
       {
+        // eslint-disable-next-line react-hooks/refs
         enabled: !!paramsProductIdRef.current,
       },
     ),

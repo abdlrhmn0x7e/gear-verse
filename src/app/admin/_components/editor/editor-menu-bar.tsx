@@ -10,7 +10,6 @@ import {
   Heading3Icon,
   HeadingIcon,
   HighlighterIcon,
-  ImageOffIcon,
   ImagePlusIcon,
   ItalicIcon,
   LinkIcon,
@@ -47,13 +46,6 @@ import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import z from "zod";
-import { useTRPC } from "~/trpc/client";
-import { Skeleton } from "~/components/ui/skeleton";
-import Image from "next/image";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { useInView } from "react-intersection-observer";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Spinner } from "~/components/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -61,7 +53,25 @@ import {
 } from "~/components/ui/tooltip";
 import { MediaDialog } from "../dialogs/media";
 import type { SelectedMedia } from "../../_stores/media/store";
-import { useInfiniteQuery } from "@tanstack/react-query";
+
+function MaybeTooltip({
+  label,
+  children,
+  disableTooltips,
+}: {
+  label: string;
+  children: React.ReactNode;
+  disableTooltips?: boolean;
+}) {
+  if (disableTooltips) return <>{children}</>;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function EditorMenuBar({
   editor,
@@ -106,22 +116,6 @@ export function EditorMenuBar({
     }),
   });
 
-  function MaybeTooltip({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) {
-    if (disableTooltips) return <>{children}</>;
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
-      </Tooltip>
-    );
-  }
-
   return (
     <div
       className={cn(
@@ -130,7 +124,7 @@ export function EditorMenuBar({
       )}
     >
       {/* Undo / Redo */}
-      <MaybeTooltip label="Undo">
+      <MaybeTooltip label="Undo" disableTooltips={disableTooltips}>
         <Button
           variant="ghost"
           size="icon"
@@ -141,7 +135,7 @@ export function EditorMenuBar({
           <UndoIcon />
         </Button>
       </MaybeTooltip>
-      <MaybeTooltip label="Redo">
+      <MaybeTooltip label="Redo" disableTooltips={disableTooltips}>
         <Button
           variant="ghost"
           size="icon"
@@ -160,7 +154,7 @@ export function EditorMenuBar({
 
       {/* Heading */}
       <DropdownMenu>
-        <MaybeTooltip label="Headings">
+        <MaybeTooltip label="Headings" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" type="button">
               <HeadingIcon />
@@ -200,7 +194,7 @@ export function EditorMenuBar({
 
       {/* List */}
       <DropdownMenu>
-        <MaybeTooltip label="Lists">
+        <MaybeTooltip label="Lists" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" type="button">
               <ListIcon />
@@ -231,7 +225,7 @@ export function EditorMenuBar({
       />
 
       {/* Text formatting */}
-      <MaybeTooltip label="Bold">
+      <MaybeTooltip label="Bold" disableTooltips={disableTooltips}>
         <Button
           variant={editorState.isBold ? "default" : "ghost"}
           size="icon"
@@ -241,7 +235,7 @@ export function EditorMenuBar({
           <BoldIcon />
         </Button>
       </MaybeTooltip>
-      <MaybeTooltip label="Italic">
+      <MaybeTooltip label="Italic" disableTooltips={disableTooltips}>
         <Button
           variant={editorState.isItalic ? "default" : "ghost"}
           size="icon"
@@ -252,7 +246,7 @@ export function EditorMenuBar({
         </Button>
       </MaybeTooltip>
 
-      <MaybeTooltip label="Underline">
+      <MaybeTooltip label="Underline" disableTooltips={disableTooltips}>
         <Button
           variant={editorState.isUnderline ? "default" : "ghost"}
           size="icon"
@@ -262,7 +256,7 @@ export function EditorMenuBar({
           <UnderlineIcon />
         </Button>
       </MaybeTooltip>
-      <MaybeTooltip label="Strikethrough">
+      <MaybeTooltip label="Strikethrough" disableTooltips={disableTooltips}>
         <Button
           variant={editorState.isStrikethrough ? "default" : "ghost"}
           size="icon"
@@ -272,7 +266,7 @@ export function EditorMenuBar({
           <StrikethroughIcon />
         </Button>
       </MaybeTooltip>
-      <MaybeTooltip label="Highlight">
+      <MaybeTooltip label="Highlight" disableTooltips={disableTooltips}>
         <Button
           variant={editorState.isHighlight ? "default" : "ghost"}
           size="icon"
@@ -290,7 +284,7 @@ export function EditorMenuBar({
 
       {/* Text alignment */}
       <DropdownMenu>
-        <MaybeTooltip label="Alignment">
+        <MaybeTooltip label="Alignment" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" type="button">
               <AlignJustifyIcon />
@@ -357,7 +351,10 @@ export function EditorMenuBar({
         disableTooltips={disableTooltips}
       />
 
-      <MaybeTooltip label={expanded ? "Minimize" : "Expand"}>
+      <MaybeTooltip
+        label={expanded ? "Minimize" : "Expand"}
+        disableTooltips={disableTooltips}
+      >
         <Button variant="ghost" type="button" onClick={onExpand}>
           {expanded ? <Minimize2Icon /> : <Maximize2Icon />}
         </Button>
@@ -398,107 +395,6 @@ function ImageDrawerDialog({
         </Tooltip>
       )}
     </MediaDialog>
-  );
-}
-
-function ImageGallery({ addImage }: { addImage: (url: string) => void }) {
-  const trpc = useTRPC();
-  const {
-    data: images,
-    isPending: imagesPending,
-    isError: imagesError,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery(
-    trpc.admin.media.queries.getPage.infiniteQueryOptions(
-      {
-        pageSize: 10,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      },
-    ),
-  );
-
-  const { ref, inView } = useInView();
-
-  React.useEffect(() => {
-    if (inView && hasNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, fetchNextPage, hasNextPage]);
-
-  const imagesData = React.useMemo(
-    () => images?.pages.flatMap((page) => page.data),
-    [images],
-  );
-
-  if (imagesPending) {
-    return (
-      <div className="min-h-[24rem]">
-        <div className="grid grid-cols-3 gap-4 p-1">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <AspectRatio
-              key={`image-skeleton-${index}`}
-              ratio={16 / 9}
-              className="bg-muted overflow-hidden rounded-lg"
-            >
-              <Skeleton className="size-full" />
-            </AspectRatio>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (imagesError) {
-    return (
-      <div className="flex min-h-[24rem] flex-col items-center justify-center gap-2 p-1">
-        <ImageOffIcon size={48} />
-        <p className="text-muted-foreground text-center">
-          An error occurred while loading images
-        </p>
-      </div>
-    );
-  }
-
-  if (!imagesData?.length) {
-    return (
-      <div className="flex min-h-[24rem] flex-col items-center justify-center gap-2 p-1">
-        <ImageOffIcon size={48} />
-        <p className="text-muted-foreground text-center">No images found</p>
-      </div>
-    );
-  }
-
-  return (
-    <ScrollArea className="h-[24rem]">
-      <div className="grid grid-cols-3 gap-4 p-1">
-        {imagesData.map((image, idx) => (
-          <AspectRatio
-            key={`image-${image.id}-${idx}`}
-            ratio={16 / 9}
-            className="bg-muted ring-primary cursor-pointer overflow-hidden rounded-lg border ring-0 transition-all hover:opacity-80 hover:ring-2"
-            role="button"
-            onClick={() => addImage(image.url)}
-          >
-            <Image
-              alt={`Media Image ${image.id}`}
-              src={image.url}
-              height={256}
-              width={256}
-              className="size-full object-cover"
-            />
-          </AspectRatio>
-        ))}
-      </div>
-
-      {hasNextPage && (
-        <div className="flex items-center justify-center p-4" ref={ref}>
-          <Spinner />
-        </div>
-      )}
-    </ScrollArea>
   );
 }
 

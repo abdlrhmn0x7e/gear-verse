@@ -20,7 +20,6 @@ import { Skeleton } from "../ui/skeleton";
 import { Card, CardContent } from "../ui/card";
 import { iconsMap } from "~/lib/icons-map";
 import { Heading } from "../heading";
-import { useEffect } from "react";
 import { useDialog } from "~/hooks/use-dialog";
 
 const NAV_ITEMS = [
@@ -80,14 +79,9 @@ export function MobileNav() {
 function CategoriesDrawer() {
   const trpc = useTRPC();
   const drawer = useDialog();
-  const pathname = usePathname();
   const { data: categories, isPending: categoriesPending } = useQuery(
     trpc.public.categories.queries.findRoots.queryOptions(),
   );
-
-  useEffect(() => {
-    drawer.dismiss();
-  }, [pathname]);
 
   return (
     <Drawer {...drawer.props}>
@@ -113,7 +107,11 @@ function CategoriesDrawer() {
             : categories.map((cat) => {
                 const CategoryIcon = iconsMap.get(cat.icon) ?? IconFolder;
                 return (
-                  <Link key={cat.slug} href={`/categories/${cat.slug}`}>
+                  <Link
+                    key={cat.slug}
+                    href={`/categories/${cat.slug}`}
+                    onNavigate={() => drawer.dismiss()}
+                  >
                     <Card className="ring-accent transition-shadow hover:ring-2">
                       <CardContent className="flex flex-col items-center gap-2 text-center">
                         <CategoryIcon />

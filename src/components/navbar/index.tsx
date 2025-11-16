@@ -20,7 +20,6 @@ import Header from "../header";
 import { ProfileDropdown } from "../profile-dropdown";
 import { Button } from "../ui/button";
 import { DrawerTrigger } from "../ui/drawer";
-import { Skeleton } from "../ui/skeleton";
 import { AdminNav } from "./admin-nav";
 import { CategoriesMenu } from "./categories-menu";
 import { MobileNav } from "./mobile-nav";

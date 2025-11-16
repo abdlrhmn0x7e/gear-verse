@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
-import { and, asc, count, desc, eq, gt, ilike, lt } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, lt } from "drizzle-orm";
 import type { Pagination } from "../common/types";
 import type { CreateUserInput } from "~/lib/schemas/entities/users";
 

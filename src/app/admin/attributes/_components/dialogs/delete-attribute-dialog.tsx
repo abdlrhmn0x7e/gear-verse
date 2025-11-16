@@ -28,10 +28,10 @@ export function DeleteAttributeAlertDialog({
   const { mutate: deleteAttribute, isPending } = useMutation(
     trpc.admin.attributes.mutations.delete.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(
+        void queryClient.invalidateQueries(
           trpc.admin.attributes.queries.getAll.queryFilter(),
         );
-        deleteElements({
+        void deleteElements({
           nodes: [
             {
               id: `attribute-${slug}-${id}`,

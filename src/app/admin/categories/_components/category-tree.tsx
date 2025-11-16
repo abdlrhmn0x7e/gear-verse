@@ -194,6 +194,7 @@ function CategoryTreeItem({
         {renderCategoryContent()}
 
         {showAddForm &&
+          // eslint-disable-next-line react-hooks/refs
           addCategoryPortalRef.current &&
           createPortal(
             <div className="mt-1 ml-7 p-1">
@@ -203,6 +204,7 @@ function CategoryTreeItem({
                 cancel={() => setShowAddForm(false)}
               />
             </div>,
+            // eslint-disable-next-line react-hooks/refs
             addCategoryPortalRef.current,
           )}
       </DragableItem>

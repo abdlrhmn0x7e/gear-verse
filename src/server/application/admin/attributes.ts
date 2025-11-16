@@ -4,7 +4,6 @@ import type {
   CreateAttributeInput,
   UpdateAttributeInput,
 } from "~/lib/schemas/entities/attribute";
-import type { CreateAttributeValueInput } from "~/lib/schemas/entities/attribute-value";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { invalidateCache } from "~/server/actions/cache";

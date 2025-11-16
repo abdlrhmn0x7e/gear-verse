@@ -3,7 +3,6 @@ import type {
   CategoriesFindAllInput,
   CategoryProductsInput,
 } from "~/lib/schemas/contracts/public/categories";
-import { categoryTreeSchema } from "~/lib/schemas/entities";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";

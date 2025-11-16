@@ -19,7 +19,8 @@ export const AttributeStoreProvider = ({
   children,
 }: AttributeStoreProviderProps) => {
   const storeRef = useRef<AttributeStoreApi | null>(null);
-   
+
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
     storeRef.current = createAttributeStore({
       selectedAttribute: null,
@@ -27,6 +28,7 @@ export const AttributeStoreProvider = ({
   }
 
   return (
+    // eslint-disable-next-line react-hooks/refs
     <AttributeStoreContext.Provider value={storeRef.current}>
       {children}
     </AttributeStoreContext.Provider>

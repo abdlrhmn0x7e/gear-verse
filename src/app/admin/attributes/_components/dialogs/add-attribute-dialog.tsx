@@ -52,7 +52,7 @@ export function AddAttributeDialog({
             data: response,
           },
         ]);
-        fitView();
+        void fitView();
         setOpen(false);
       },
       onError: () => {

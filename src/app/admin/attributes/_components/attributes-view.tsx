@@ -80,23 +80,26 @@ export function AttributesView() {
       type: "custom-edge",
     })),
   );
-  const onConnect: OnConnect = useCallback((params) => {
-    const attributeId = parseInt(params.source!.split("-").pop()!);
-    const categoryId = parseInt(params.target!.split("-").pop()!);
+  const onConnect: OnConnect = useCallback(
+    (params) => {
+      const attributeId = parseInt(params.source.split("-").pop()!);
+      const categoryId = parseInt(params.target.split("-").pop()!);
 
-    if (!attributeId || !categoryId) {
-      return;
-    }
+      if (!attributeId || !categoryId) {
+        return;
+      }
 
-    connect({
-      attributeId,
-      categoryId,
-    });
+      connect({
+        attributeId,
+        categoryId,
+      });
 
-    return setEdges((edgesSnapshot) =>
-      addEdge({ ...params, type: "custom-edge" }, edgesSnapshot),
-    );
-  }, []);
+      return setEdges((edgesSnapshot) =>
+        addEdge({ ...params, type: "custom-edge" }, edgesSnapshot),
+      );
+    },
+    [connect, setEdges],
+  );
 
   return (
     <div style={{ height: "100%", width: "100%" }}>

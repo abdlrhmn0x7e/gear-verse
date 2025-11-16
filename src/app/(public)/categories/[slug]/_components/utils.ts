@@ -1,6 +1,5 @@
 import {
   createLoader,
-  createParser,
   parseAsArrayOf,
   parseAsBoolean,
   parseAsInteger,

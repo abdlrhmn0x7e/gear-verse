@@ -3,9 +3,6 @@ import { db } from "~/server/db";
 import { attributeValues } from "~/server/db/schema/attributes";
 
 type CreateAttributeValueInput = typeof attributeValues.$inferInsert;
-type UpdateAttributeValueInput = Partial<CreateAttributeValueInput> & {
-  attributeId: number;
-};
 
 export const _attributeValues = {
   queries: {

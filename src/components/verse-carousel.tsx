@@ -29,7 +29,6 @@ export function VerseCarousel({
       return;
     }
 
-    setCurrentSlide(api.selectedScrollSnap());
     api.on("select", () => {
       setCurrentSlide(api.selectedScrollSnap());
     });

@@ -35,14 +35,14 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
     trpc.admin.attributes.mutations.update.mutationOptions(),
   );
 
-  const { setNodes, updateNodeData } = useReactFlow();
+  const { updateNodeData } = useReactFlow();
 
   function onSubmit(data: AttributeFormValues) {
     updateAttribute(
       { id: attribute.id, ...data },
       {
         onSuccess: (res) => {
-          queryClient.invalidateQueries(
+          void queryClient.invalidateQueries(
             trpc.admin.attributes.queries.getAll.queryFilter(),
           );
 

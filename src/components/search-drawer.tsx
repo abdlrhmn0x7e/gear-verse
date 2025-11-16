@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -29,7 +28,6 @@ import {
 
 export function SearchDrawer() {
   const [search, setSearch] = useState("");
-  const pathname = usePathname();
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
   const trpc = useTRPC();
@@ -45,10 +43,6 @@ export function SearchDrawer() {
       },
     }),
   );
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -82,7 +76,7 @@ export function SearchDrawer() {
 
           {productsPending && <ProductSearchLoading />}
           {productsError && <ProductSearchError />}
-          {products && products.data.length === 0 && <ProductSearchEmpty />}
+          {products?.data.length === 0 && <ProductSearchEmpty />}
 
           {products && products.data.length > 0 && (
             <ul className="flex flex-col gap-2">
@@ -90,6 +84,7 @@ export function SearchDrawer() {
                 <ProductSearchItem
                   key={`product-${product.id}-${idx}`}
                   product={product}
+                  onClick={() => setOpen(false)}
                   hover={null}
                   index={idx}
                 />

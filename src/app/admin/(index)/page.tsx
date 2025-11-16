@@ -36,6 +36,7 @@ import { OrdersTableHeader } from "../_components/tables/orders/header";
 import { OrderStatus } from "../_components/tables/orders/order-status";
 
 export default async function AdminPage() {
+  await requireAdmin();
   const [session, userCount, ordersCount, lastOrders] = await Promise.all([
     auth.api.getSession({
       headers: await headers(),

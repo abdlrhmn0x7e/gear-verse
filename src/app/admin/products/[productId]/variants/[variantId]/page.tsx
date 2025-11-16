@@ -1,16 +1,16 @@
 import { IconTag } from "@tabler/icons-react";
 import { TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "~/components/header";
+import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
+import { requireAdmin } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { EditVariant } from "./_components/edit-variant";
-import { Heading } from "~/components/heading";
-import { Separator } from "~/components/ui/separator";
-import Link from "next/link";
-import { Button } from "~/components/ui/button";
-import { requireAdmin } from "~/server/auth";
 
 export default async function AdminVariantPage({
   params,
@@ -52,7 +52,7 @@ export default async function AdminVariantPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-screen-xl space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         <Header
           title="Variant Details"
           description="View and edit the details of this product variant"

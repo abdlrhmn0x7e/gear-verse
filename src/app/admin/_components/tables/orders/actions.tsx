@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  CheckCircle2Icon,
-  ClockFadingIcon,
-  XCircleIcon,
-  PencilIcon,
-  SendIcon,
-  RotateCwIcon,
-  MoreHorizontal,
-} from "lucide-react";
+import { ClockFadingIcon, PencilIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import {
@@ -73,19 +65,34 @@ export function OrdersTableActions({ id }: { id: number }) {
 
             <DropdownMenuPortal>
               <DropdownMenuSubContent className="w-3xs">
-                <DropdownMenuItem onClick={() => changeStatus("PENDING")}>
+                <DropdownMenuItem
+                  onClick={() => changeStatus("PENDING")}
+                  disabled={isUpdatingOrder}
+                >
                   <OrderStatus variant="plain" status="PENDING" />
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeStatus("SHIPPED")}>
+                <DropdownMenuItem
+                  onClick={() => changeStatus("SHIPPED")}
+                  disabled={isUpdatingOrder}
+                >
                   <OrderStatus variant="plain" status="SHIPPED" />
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeStatus("DELIVERED")}>
+                <DropdownMenuItem
+                  onClick={() => changeStatus("DELIVERED")}
+                  disabled={isUpdatingOrder}
+                >
                   <OrderStatus variant="plain" status="DELIVERED" />
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeStatus("REFUNDED")}>
+                <DropdownMenuItem
+                  onClick={() => changeStatus("REFUNDED")}
+                  disabled={isUpdatingOrder}
+                >
                   <OrderStatus variant="plain" status="REFUNDED" />
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeStatus("CANCELLED")}>
+                <DropdownMenuItem
+                  onClick={() => changeStatus("CANCELLED")}
+                  disabled={isUpdatingOrder}
+                >
                   <OrderStatus variant="plain" status="CANCELLED" />
                 </DropdownMenuItem>
               </DropdownMenuSubContent>

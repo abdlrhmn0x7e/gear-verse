@@ -110,8 +110,9 @@ function AttributeValues({
         </EmptyMedia>
         <EmptyTitle>This is a Boolean Filter</EmptyTitle>
         <EmptyDescription>
-          You can't add values to a boolean it only has a true or false values
-          dumbass
+          {
+            "You can't add values to a boolean it only has a true or false values dumbass"
+          }
         </EmptyDescription>
       </EmptyHeader>
     </Empty>;

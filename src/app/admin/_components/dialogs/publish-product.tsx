@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,9 +10,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
 import { useTRPC } from "~/trpc/client";
 
 export function PublishProductDialog({

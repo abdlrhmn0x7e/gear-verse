@@ -1,5 +1,4 @@
 import { data } from "~/server/data-access";
-import type { Pagination } from "~/server/data-access/common/types";
 import { paginate } from "../helpers/pagination";
 import type { UsersGetPageInput } from "~/lib/schemas/contracts";
 import type { CreateUserInput } from "~/lib/schemas/entities/users";

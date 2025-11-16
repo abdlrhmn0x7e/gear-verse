@@ -2,7 +2,7 @@
 
 import { IconShoppingCart, IconShoppingCartPlus } from "@tabler/icons-react";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Tooltip,
@@ -43,7 +43,7 @@ export function AddToCartButton({
 
   const currentCartItem = useMemo(
     () => cart?.items.find((item) => item.productVariantId === variantId),
-    [cart, variantId, productId],
+    [cart, variantId],
   );
 
   const onSuccess = () => {

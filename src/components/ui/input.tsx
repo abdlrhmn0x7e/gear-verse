@@ -1,6 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import * as React from "react";
-import { useEffect } from "react";
 
 import { cn } from "~/lib/utils/index";
 
@@ -72,10 +71,6 @@ function NumberInput({
   const [steppedValue, setSteppedValue] = React.useState<number | undefined>(
     parseValue(value),
   );
-
-  useEffect(() => {
-    setSteppedValue(parseValue(value));
-  }, [value]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.stopPropagation();

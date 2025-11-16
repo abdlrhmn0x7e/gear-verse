@@ -42,6 +42,7 @@ export function MobileCategoryFilterItem({
       onCheckedChange={() => handleCategoryChange(category.slug)}
     >
       <div className="flex w-full items-center justify-center gap-2">
+        {/* eslint-disable-next-line react-hooks/static-components*/}
         {Icon && <Icon className="size-6" />}
         <p>{category.name}</p>
       </div>

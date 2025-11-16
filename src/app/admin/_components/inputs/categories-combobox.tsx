@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useTRPC } from "~/trpc/client";
 import type {
   Category,
   CategoryIconEnum,
@@ -228,6 +228,7 @@ const CategoryComboboxItem = ({
         onSelect={() => onItemSelect(category.id)}
         {...props}
       >
+        {/*eslint-disable-next-line react-hooks/static-components*/}
         {Icon && <Icon />}
         {category.name}
         <Check
@@ -258,6 +259,7 @@ const CategoryComboboxItem = ({
               setOpen(true);
             }}
           />
+          {/*eslint-disable-next-line react-hooks/static-components*/}
           {Icon && <Icon />}
           {category.name}
           <Check

@@ -32,9 +32,7 @@ export const _products = {
         throw new AppError("Thumbnail media ID is required", "BAD_REQUEST");
       }
 
-      const slug = seo?.urlHandler
-        ? seo?.urlHandler
-        : generateSlug(product.title);
+      const slug = seo?.urlHandler ?? generateSlug(product.title);
 
       const existingProduct =
         await data.admin.products.queries.findBySlug(slug);

@@ -1,9 +1,4 @@
-import {
-  CheckIcon,
-  CheckCheckIcon,
-  SlidersHorizontalIcon,
-  ToggleRightIcon,
-} from "lucide-react";
+import { CheckIcon, CheckCheckIcon, ToggleRightIcon } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import type { AttributeType } from "~/lib/schemas/entities/attribute";
 

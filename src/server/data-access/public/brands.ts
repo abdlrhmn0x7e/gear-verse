@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { and, eq, exists } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { brands, categories, media, products } from "~/server/db/schema";
 
 export const _brands = {

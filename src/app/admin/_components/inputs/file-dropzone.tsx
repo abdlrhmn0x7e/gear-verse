@@ -27,7 +27,6 @@ export interface FileDropZoneProps {
 
 export function FileDropzone({
   options = {},
-  value,
   onChange,
   className,
   showFiles = false,
@@ -35,7 +34,6 @@ export function FileDropzone({
   const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
   const addSelectedMedia = useMediaStore((state) => state.addSelectedMedia);
-  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
   const maxFiles = useMediaStore((state) => state.maxFiles);
   const deleteSelectedMedia = useMediaStore(
     (state) => state.deleteSelectedMedia,

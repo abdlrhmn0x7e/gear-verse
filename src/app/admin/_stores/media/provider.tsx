@@ -21,7 +21,8 @@ export const MediaStoreProvider = ({
   maxFiles,
 }: MediaStoreProviderProps) => {
   const storeRef = useRef<MediaStoreApi | null>(null);
-   
+
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
     storeRef.current = createMediaStore({
       selectedMedia: defaultMedia ?? [],
@@ -31,6 +32,7 @@ export const MediaStoreProvider = ({
   }
 
   return (
+    // eslint-disable-next-line react-hooks/refs
     <MediaStoreContext.Provider value={storeRef.current}>
       {children}
     </MediaStoreContext.Provider>

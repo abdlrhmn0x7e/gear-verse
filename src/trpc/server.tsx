@@ -1,3 +1,4 @@
+/** eslint-disable @typescript-eslint/no-explicit-any */
 import "server-only";
 
 import {
@@ -9,6 +10,7 @@ import { createTRPCContext } from "~/server/api/init";
 import { makeQueryClient } from "./query-client";
 import { appRouter } from "~/server/api/_app";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import type React from "react";
 
 // IMPORTANT: Create a stable getter for the query client that
 //            will return the same client during the same request.
@@ -32,13 +34,15 @@ export function HydrateClient({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
   queryOptions: T,
 ) {
   const queryClient = getQueryClient();
   if (queryOptions.queryKey[1]?.type === "infinite") {
-    void queryClient.prefetchInfiniteQuery(queryOptions as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    await queryClient.prefetchInfiniteQuery(queryOptions as any);
   } else {
-    void queryClient.prefetchQuery(queryOptions);
+    await queryClient.prefetchQuery(queryOptions);
   }
 }

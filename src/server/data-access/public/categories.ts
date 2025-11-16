@@ -125,13 +125,13 @@ export const _categories = {
         .where(isNull(categories.parent_id));
     },
 
-    async getProductsPage({
+    getProductsPage: async ({
       cursor,
       pageSize,
       filters,
       slug,
       sortBy,
-    }: Pagination & { filters?: CategoryProductsFilters; slug: string }) {
+    }: Pagination & { filters?: CategoryProductsFilters; slug: string }) => {
       const brandsMedia = alias(media, "brands_media");
 
       // this might need future refactoring I don't think this query is as optimal as it could be
@@ -280,9 +280,9 @@ export const _categories = {
     },
 
     helpers: {
-      existsFragmentForFilter(
+      existsFragmentForFilter: (
         filter: CategoryProductsFilters["attributes"][number],
-      ) {
+      ) => {
         // extract type & attr
         const [kind, attr] = filter.type.split(".", 2);
 

@@ -42,7 +42,7 @@ export function CustomEdge({
       attributeId,
       categoryId,
     });
-    deleteElements({ edges: [{ id: id ?? "edge" }] });
+    void deleteElements({ edges: [{ id: id ?? "edge" }] });
   }
 
   return (

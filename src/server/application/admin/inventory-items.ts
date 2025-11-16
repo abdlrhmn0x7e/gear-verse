@@ -3,10 +3,7 @@ import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
-import type {
-  UpdateInventoryItemInput,
-  UpdateManyInventoryItemsInput,
-} from "~/lib/schemas/entities/inventory-item";
+import type { UpdateManyInventoryItemsInput } from "~/lib/schemas/entities/inventory-item";
 
 export const _inventoryItems = {
   queries: {

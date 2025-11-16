@@ -2,10 +2,7 @@ import z from "zod";
 import { adminProcedure, createTRPCRouter } from "../../init";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
-import {
-  createAttributeValueInputSchema,
-  updateAttributeValueInputSchema,
-} from "~/lib/schemas/entities/attribute-value";
+import { createAttributeValueInputSchema } from "~/lib/schemas/entities/attribute-value";
 
 export const attributeValuesRouter = createTRPCRouter({
   queries: {
@@ -38,10 +35,6 @@ export const attributeValuesRouter = createTRPCRouter({
 
         return data;
       }),
-
-    update: adminProcedure
-      .input(updateAttributeValueInputSchema)
-      .mutation(({ ctx, input }) => {}),
 
     delete: adminProcedure
       .input(z.object({ id: z.number() }))

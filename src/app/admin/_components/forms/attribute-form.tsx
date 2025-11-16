@@ -20,12 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  CheckCheckIcon,
-  CheckIcon,
-  SlidersHorizontalIcon,
-  ToggleRightIcon,
-} from "lucide-react";
+import { CheckCheckIcon, CheckIcon, ToggleRightIcon } from "lucide-react";
 
 const attributeFormSchema = createAttributeInputSchema;
 export type AttributeFormValues = z.infer<typeof attributeFormSchema>;

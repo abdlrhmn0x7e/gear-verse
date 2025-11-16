@@ -75,7 +75,7 @@ export function EditOrderDrawer() {
         }
 
         toast.success("Order updated successfully");
-        setParams({ editId: null });
+        void setParams({ editId: null });
       },
     }),
   );
@@ -94,7 +94,7 @@ export function EditOrderDrawer() {
       return;
     }
 
-    setParams({ editId: null });
+    void setParams({ editId: null });
   }
 
   return (
