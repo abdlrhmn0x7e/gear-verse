@@ -6,9 +6,13 @@ import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { PackageIcon } from "lucide-react";
 import { app } from "~/server/application";
+import { cacheTag } from "next/cache";
 
 export async function RecentProducts() {
   "use cache";
+
+  cacheTag("recent-products");
+
   const products = await app.public.products.queries.getPage({ pageSize: 10 });
 
   return (

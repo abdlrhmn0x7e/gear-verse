@@ -1,3 +1,5 @@
+"use client";
+
 import { type Table as ReactTable } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
 import { TableHead, TableHeader, TableRow } from "~/components/ui/table";
@@ -9,8 +11,12 @@ type ProductRow =
 export function ProductsTableHeader({
   table,
 }: {
-  table: ReactTable<ProductRow>;
+  table?: ReactTable<ProductRow>;
 }) {
+  if (!table) {
+    return null;
+  }
+
   const allSelectedState = table.getIsAllPageRowsSelected()
     ? true
     : table.getIsSomePageRowsSelected()

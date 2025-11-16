@@ -15,7 +15,10 @@ async function deleteProductAndInvalidate(productId: number) {
     throw new AppError("Product not found", "NOT_FOUND");
   }
 
-  await invalidateCache(`products:${productId}`);
+  await Promise.all([
+    invalidateCache(`products:${productId}`),
+    invalidateCache("recent-products"),
+  ]);
   return deleted;
 }
 
@@ -66,7 +69,7 @@ export const _products = {
         );
       }
 
-      return data.admin.products.mutations.createDeep({
+      const created = await data.admin.products.mutations.createDeep({
         newProduct: {
           ...product,
           profit: product.price - originalCost,
@@ -87,6 +90,10 @@ export const _products = {
           quantity: product.inventory?.quantity ?? 0,
         },
       });
+
+      await invalidateCache("recent-products");
+
+      return created;
     },
 
     async editDeep(productId: number, input: UpdateProductInput) {
@@ -105,6 +112,7 @@ export const _products = {
             quantity: product.inventory?.quantity ?? 0, // there's always one inventory item for a product
           },
         });
+        await invalidateCache("recent-products");
       }
 
       // invalidate the brands filter per category if a brand edit exists
