@@ -495,13 +495,15 @@ export const _products = {
         const { id: productId } = product;
 
         // create product media relations
-        await tx.insert(productsMedia).values(
-          newProdcutMediaIds.map((mediaId, index) => ({
-            productId,
-            mediaId,
-            order: index + 1,
-          })),
-        );
+        if (newProdcutMediaIds.length > 0) {
+          await tx.insert(productsMedia).values(
+            newProdcutMediaIds.map((mediaId, index) => ({
+              productId,
+              mediaId,
+              order: index + 1,
+            })),
+          );
+        }
 
         // link attributes
         if (newAttributes && newAttributes.length !== 0) {

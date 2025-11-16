@@ -47,6 +47,8 @@ export const _products = {
         );
       }
 
+      console.log("rest media:", restMedia);
+
       return data.admin.products.mutations.createDeep({
         newProduct: {
           ...product,
