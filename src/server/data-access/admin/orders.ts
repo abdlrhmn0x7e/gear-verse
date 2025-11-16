@@ -226,7 +226,9 @@ export const _orders = {
             name: users.name,
             image: users.image,
           },
-          items: orderItemsVariantsJson.json,
+          items: sql<
+            OrderItem[]
+          >`coalesce(${orderItemsVariantsJson.json}, '[]'::jsonb)`,
         })
         .from(orders)
         .leftJoin(users, eq(orders.userId, users.id))
