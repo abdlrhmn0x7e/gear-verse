@@ -201,6 +201,25 @@ export const _products = {
         .then(([product]) => product);
     },
 
+    findMetadata: async (slug: string) => {
+      return db
+        .select({
+          title: products.title,
+          summary: products.summary,
+          thumbnailUrl: sql<string>`${media.url}`,
+          seo: {
+            pageTitle: seo.pageTitle,
+            metaDescription: seo.metaDescription,
+          },
+        })
+        .from(products)
+        .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(seo, eq(seo.urlHandler, products.slug))
+        .where(eq(products.slug, slug))
+        .limit(1)
+        .then(([product]) => product);
+    },
+
     findAllSlugs: async () => {
       return db
         .select({

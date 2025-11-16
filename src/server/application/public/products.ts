@@ -28,6 +28,24 @@ export const _products = {
       return product;
     },
 
+    findMetadata: async (slug: string) => {
+      const { data: product, error } = await tryCatch(
+        data.public.products.queries.findMetadata(slug),
+      );
+      if (error) {
+        console.error("Error getting product by slug:", error);
+        throw new AppError("Couldn't get product", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      if (!product) {
+        throw new AppError("Product not found", "NOT_FOUND");
+      }
+
+      return product;
+    },
+
     findAllSlugs: async () => {
       const slugs = await data.public.products.queries.findAllSlugs();
 

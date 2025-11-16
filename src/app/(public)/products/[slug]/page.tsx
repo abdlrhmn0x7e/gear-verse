@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
@@ -7,6 +8,36 @@ export async function generateStaticParams() {
   const slugs = await app.public.products.queries.findAllSlugs();
 
   return slugs;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/products/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const metadata = await app.public.products.queries.findMetadata(slug);
+
+  try {
+    return {
+      title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
+      description: metadata.seo?.metaDescription ?? metadata.summary,
+      openGraph: {
+        title: metadata.title,
+        description: metadata.seo?.metaDescription ?? metadata.summary,
+        images: [metadata.thumbnailUrl],
+      },
+
+      twitter: {
+        title: metadata.title,
+        description: metadata.seo?.metaDescription ?? metadata.summary,
+        images: [metadata.thumbnailUrl],
+      },
+    };
+  } catch {
+    return {
+      title: "Product Not Found",
+      description: "The requested product could not be found.",
+    };
+  }
 }
 
 export default async function ProductPage({
