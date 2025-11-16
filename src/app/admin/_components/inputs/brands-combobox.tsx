@@ -26,7 +26,14 @@ import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
 import { AddBrandDrawer } from "../drawers/add-brand";
-import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+import { IconTrash } from "@tabler/icons-react";
 
 export function BrandsCombobox({
   value,
@@ -207,6 +214,23 @@ export function BrandsCommand({
   hasNextPage: boolean;
   ref: (node?: Element | null) => void;
 }) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { mutate: deleteBrand, isPending: deletingBrand } = useMutation(
+    trpc.admin.brands.mutations.delete.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries(
+          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
+        );
+      },
+      onError: () => {
+        toast.error(
+          "This brand is associated with other products you can't delete it",
+        );
+      },
+    }),
+  );
+
   return (
     <Command>
       <CommandInput placeholder="Search brands" className="h-9" />
@@ -244,6 +268,17 @@ export function BrandsCommand({
                   value === brand.id ? "opacity-100" : "opacity-0",
                 )}
               />
+              <Button
+                size="icon"
+                variant="destructive-ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteBrand({ brandId: brand.id });
+                }}
+                disabled={deletingBrand}
+              >
+                <IconTrash />
+              </Button>
             </CommandItem>
           ))}
         </CommandGroup>

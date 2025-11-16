@@ -84,7 +84,10 @@ export function ProductsTableActions({
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive-ghost"
-              onClick={deleteDialog.trigger}
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteDialog.trigger();
+              }}
             >
               <TrashIcon /> Delete Product
             </DropdownMenuItem>

@@ -36,5 +36,24 @@ export const _brands = {
 
       return brand;
     },
+
+    delete: async (brandId: number) => {
+      const { data: brand, error } = await tryCatch(
+        data.admin.brands.mutations.delete(brandId),
+      );
+
+      if (error) {
+        throw new AppError("Could not delete brand", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      await Promise.all([
+        invalidateCache("filters"),
+        invalidateCache("brands"),
+      ]);
+
+      return brand;
+    },
   },
 };

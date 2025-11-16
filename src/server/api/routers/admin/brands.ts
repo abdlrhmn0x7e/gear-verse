@@ -3,6 +3,7 @@ import { brandsGetPageInputSchema } from "@schemas/contracts/admin/brands";
 import { createBrandInputSchema } from "~/lib/schemas/entities/brand";
 import { errorMap } from "../../error-map";
 import { tryCatch } from "~/lib/utils/try-catch";
+import z from "zod";
 
 export const brandsRouter = createTRPCRouter({
   /**
@@ -32,6 +33,19 @@ export const brandsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.brands.mutations.create(input),
+        );
+
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ brandId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.brands.mutations.delete(input.brandId),
         );
 
         if (error) {

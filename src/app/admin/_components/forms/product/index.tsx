@@ -123,6 +123,17 @@ export function ProductForm({
     name: "categoryId",
     defaultValue: defaultValues?.categoryId,
   });
+  const price = useWatch({
+    control: form.control,
+    name: "price",
+    defaultValue: defaultValues?.price,
+  });
+  const strikeThroughPrice = useWatch({
+    control: form.control,
+    name: "strikeThroughPrice",
+    defaultValue: defaultValues?.strikeThroughPrice,
+  });
+  console.log("Price", price, "STP", strikeThroughPrice);
 
   // you have to subscribe to the dirty fields here
   // accessing it directly from the onSubmit function won't work
@@ -357,6 +368,18 @@ export function ProductForm({
                         value={field.value ?? ""}
                       />
                     </FormControl>
+                    {strikeThroughPrice && price && (
+                      <FormDescription>
+                        this is a{" "}
+                        {Math.max(
+                          Math.ceil(
+                            ((strikeThroughPrice - price) / price) * 100,
+                          ),
+                          0,
+                        )}
+                        % Discount From the product&apos;s price
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

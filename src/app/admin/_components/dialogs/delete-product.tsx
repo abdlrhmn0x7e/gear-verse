@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,15 +31,16 @@ export function DeleteProductDialog({
     trpc.admin.products.mutations.delete.mutationOptions(),
   );
 
-  function handleDelete() {
+  function handleDelete(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
     deleteProduct(
       { id },
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void queryClient.invalidateQueries({
-            queryKey: trpc.admin.products.queries.getPage.queryKey(),
-          });
+          void queryClient.invalidateQueries(
+            trpc.admin.products.queries.getPage.infiniteQueryFilter(),
+          );
         },
       },
     );

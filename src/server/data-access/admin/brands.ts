@@ -25,5 +25,13 @@ export const _brands = {
         .returning({ id: brands.id })
         .then(([brand]) => brand);
     },
+
+    delete: (brandId: number) => {
+      return db
+        .delete(brands)
+        .where(eq(brands.id, brandId))
+        .returning({ id: brands.id })
+        .then(([brand]) => brand);
+    },
   },
 };

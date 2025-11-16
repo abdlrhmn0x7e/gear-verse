@@ -21,13 +21,13 @@ export async function generateMetadata({
       title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
       description: metadata.seo?.metaDescription ?? metadata.summary,
       openGraph: {
-        title: metadata.title,
+        title: metadata.seo?.pageTitle ?? metadata.title,
         description: metadata.seo?.metaDescription ?? metadata.summary,
         images: [metadata.thumbnailUrl],
       },
 
       twitter: {
-        title: metadata.title,
+        title: metadata.seo?.pageTitle ?? metadata.title,
         description: metadata.seo?.metaDescription ?? metadata.summary,
         images: [metadata.thumbnailUrl],
       },

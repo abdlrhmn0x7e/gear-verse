@@ -28,8 +28,6 @@ export function EditProduct({
   );
 
   function onSubmit(data: Partial<ProductFormValues>) {
-    console.log("Submitting data:", data);
-
     updateProduct(
       {
         id: product.id,
@@ -74,8 +72,10 @@ export function EditProduct({
 
       price: product.price,
       strikeThroughPrice: product.strikeThroughPrice ?? 0,
-      profit: product.profit,
-      margin: product.margin,
+      originalCost:
+        product.profit && product.price
+          ? product.price - product.profit
+          : undefined,
 
       categoryId: product.categoryId,
       brandId: product.brandId,

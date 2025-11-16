@@ -66,7 +66,7 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
           </div>
         </DrawerHeader>
 
-        <div className="mr-2 overflow-y-auto">{children}</div>
+        <div className="mr-2 overflow-y-auto pb-12">{children}</div>
       </DrawerContent>
     </Drawer>
   );

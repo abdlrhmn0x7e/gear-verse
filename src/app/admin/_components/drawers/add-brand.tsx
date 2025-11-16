@@ -16,10 +16,11 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { useDialog } from "~/hooks/use-dialog";
 
 export function AddBrandDrawer() {
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
+  const drawer = useDialog();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: createBrand, isPending: isCreatingBrand } = useMutation(
@@ -31,20 +32,14 @@ export function AddBrandDrawer() {
       onSuccess: () => {
         toast.success("Brand created successfully");
         void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.infiniteQueryFilter({
-            pageSize: 10,
-          }),
+          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
         );
-        setOpen(false);
+        drawer.dismiss();
       },
     });
   }
   return (
-    <Drawer
-      open={open}
-      onOpenChange={setOpen}
-      direction={isMobile ? "bottom" : "right"}
-    >
+    <Drawer {...drawer.props} direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="ghost" className="w-full rounded-t-none">
           <PlusCircleIcon />

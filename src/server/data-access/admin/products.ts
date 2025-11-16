@@ -678,20 +678,28 @@ export const _products = {
               ),
             );
           }
-
-          return tx
-            .update(products)
-            .set({ archived: true })
-            .where(eq(products.id, productId))
-            .returning({ id: products.id })
-            .then(([product]) => product);
         }
 
-        return tx
-          .delete(products)
+        // check if the product is in any orders
+        const productItems = await tx
+          .select({ id: orderItems.productId })
+          .from(orderItems)
+          .where(eq(orderItems.productId, productId));
+
+        const product = tx
+          .update(products)
+          .set({ archived: true })
           .where(eq(products.id, productId))
           .returning({ id: products.id })
           .then(([product]) => product);
+
+        return productItems.length === 0
+          ? tx
+              .delete(products)
+              .where(eq(products.id, productId))
+              .returning({ id: products.id })
+              .then(([product]) => product)
+          : product;
       });
     },
   },

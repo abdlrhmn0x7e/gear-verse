@@ -6,8 +6,8 @@ export const brandEntitySchema = z.object({
   name: z.string("Name is required").min(1, "Name is required"),
   slug: z.string("Slug is required").min(1, "Slug is required"),
   logoMediaId: z
-    .number("Logo media ID must be a number")
-    .nonnegative("Logo media ID must be positive"),
+    .number("Logo must be a provided")
+    .nonnegative("Logo is required"),
 
   createdAt: z.coerce.date("Created at must be a date"),
   updatedAt: z.coerce.date("Updated at must be a date"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { EditIcon } from "lucide-react";
+import { EditIcon, PackageOpenIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { Heading } from "~/components/heading";
@@ -24,6 +24,13 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 import { DeleteOrderDialog } from "../dialogs/delete-order";
 import { OrderStatus } from "../tables/orders/order-status";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -160,9 +167,20 @@ function OrderDrawerContent() {
           </div>
 
           <div className="flex flex-col gap-4">
-            {data?.items.map((item, index) => (
-              <OrderItem key={`${item.id}-${index}`} item={item} />
-            ))}
+            {data && data?.items.length > 0 ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <PackageOpenIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>No order items</EmptyTitle>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              data?.items.map((item, index) => (
+                <OrderItem key={`${item.id}-${index}`} item={item} />
+              ))
+            )}
           </div>
         </div>
       </div>
