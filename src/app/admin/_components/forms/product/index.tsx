@@ -472,7 +472,7 @@ export function ProductForm({
                     <FormControl>
                       <InputGroup>
                         <InputGroupAddon>
-                          <InputGroupText>
+                          <InputGroupText className="truncate">
                             {env.NEXT_PUBLIC_APP_URL.split("/")
                               .slice(1)
                               .join("/")
