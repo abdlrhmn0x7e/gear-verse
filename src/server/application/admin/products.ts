@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { AppError } from "~/lib/errors/app-error";
 import { data } from "~/server/data-access";
 import type { CreateProductInput, UpdateProductInput } from "@schemas/entities";
@@ -32,7 +33,9 @@ export const _products = {
         throw new AppError("Thumbnail media ID is required", "BAD_REQUEST");
       }
 
-      const slug = seo?.urlHandler ?? generateSlug(product.title);
+      const slug = seo?.urlHandler
+        ? seo.urlHandler
+        : generateSlug(product.title);
 
       const existingProduct =
         await data.admin.products.queries.findBySlug(slug);

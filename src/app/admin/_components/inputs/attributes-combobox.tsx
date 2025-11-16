@@ -121,7 +121,7 @@ export function AttributeCombobox({
           })}
         </ComboboxBadgeList>
         <ComboboxInput
-          placeholder="Select tricks..."
+          placeholder="Select attributes..."
           className="h-auto min-w-20 flex-1"
         />
         <ComboboxTrigger className="absolute top-2 right-2">
