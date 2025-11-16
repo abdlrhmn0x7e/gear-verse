@@ -479,10 +479,13 @@ export const _products = {
 
         // create the inventory item
         if (newInventoryItem) {
-          const [inventoryItem] = await tx.insert(inventoryItems).values({
-            productId: product.id,
-            ...newInventoryItem,
-          });
+          const [inventoryItem] = await tx
+            .insert(inventoryItems)
+            .values({
+              productId: product.id,
+              ...newInventoryItem,
+            })
+            .returning({ id: inventoryItems.id });
 
           if (!inventoryItem) {
             throw new Error("Failed to create inventory item");
