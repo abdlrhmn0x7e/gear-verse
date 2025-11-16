@@ -30,9 +30,11 @@ export function AddBrandDrawer() {
     createBrand(data, {
       onSuccess: () => {
         toast.success("Brand created successfully");
-        void queryClient.invalidateQueries({
-          queryKey: trpc.admin.brands.queries.getPage.queryKey(),
-        });
+        void queryClient.invalidateQueries(
+          trpc.admin.brands.queries.getPage.infiniteQueryFilter({
+            pageSize: 10,
+          }),
+        );
         setOpen(false);
       },
     });
