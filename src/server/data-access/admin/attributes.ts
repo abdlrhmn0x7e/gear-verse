@@ -1,4 +1,4 @@
-import { sql, asc, eq, and } from "drizzle-orm";
+import { sql, asc, eq, and, inArray } from "drizzle-orm";
 import { db } from "~/server/db";
 import { categories } from "~/server/db/schema";
 import {
@@ -25,28 +25,51 @@ export const _attributes = {
     },
 
     getCategoryAttributes: async (categoryId: number) => {
-      return db
-        .select({
-          id: attributes.id,
-          name: attributes.name,
-          slug: attributes.slug,
-          type: attributes.type,
-          valueId: attributeValues.id,
-          value: attributeValues.value,
-        })
-        .from(attributes)
-        .innerJoin(
-          attributeValues,
-          eq(attributes.id, attributeValues.attributeId),
-        )
-        .innerJoin(
-          categoryAttributes,
-          and(
-            eq(categoryAttributes.categoryId, categoryId),
-            eq(categoryAttributes.attributeId, attributes.id),
-          ),
-        )
-        .orderBy(asc(categoryAttributes.order));
+      return db.transaction(async (tx) => {
+        const parentCategoryIdQuery = sql<{ id: number }[]>`
+            WITH RECURSIVE all_children_categories AS (
+              SELECT c.parent_id
+              FROM categories as c
+              WHERE c.id = ${categoryId}
+
+              UNION ALL
+
+              SELECT c.id
+              FROM categories as c
+              INNER JOIN all_children_categories as acc
+                ON acc.parent_id = c.parent_id
+              WHERE c.parent_id IS NULL
+           )
+
+           SELECT parent_id FROM all_children_categories
+        `;
+        const parentId = await tx
+          .execute<{ parent_id: number }>(parentCategoryIdQuery)
+          .then(([result]) => result?.parent_id);
+
+        return tx
+          .select({
+            id: attributes.id,
+            name: attributes.name,
+            slug: attributes.slug,
+            type: attributes.type,
+            valueId: attributeValues.id,
+            value: attributeValues.value,
+          })
+          .from(attributes)
+          .innerJoin(
+            attributeValues,
+            eq(attributes.id, attributeValues.attributeId),
+          )
+          .innerJoin(
+            categoryAttributes,
+            and(
+              eq(categoryAttributes.attributeId, attributes.id),
+              eq(categoryAttributes.categoryId, parentId ?? categoryId),
+            ),
+          )
+          .orderBy(asc(categoryAttributes.order));
+      });
     },
 
     getAllWithValues() {

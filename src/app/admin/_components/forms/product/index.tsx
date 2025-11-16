@@ -145,6 +145,7 @@ export function ProductForm({
     }
 
     onSubmit?.(data);
+    form.reset();
   }
 
   return (
@@ -367,52 +368,23 @@ export function ProductForm({
                 )}
               />
 
-              <div className="grid grid-cols-2 items-start gap-4">
-                <FormField
-                  control={form.control}
-                  name="profit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profit</FormLabel>
-                      <FormControl>
-                        <PriceInput
-                          placeholder="Profit?!"
-                          {...field}
-                          value={field.value ?? 0}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="margin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Margin</FormLabel>
-                      <FormControl>
-                        <InputGroup>
-                          <InputGroupNumberInput
-                            placeholder="How much profit?"
-                            min={0}
-                            max={100}
-                            {...field}
-                            value={field.value ?? 0}
-                          />
-                          <InputGroupAddon>
-                            <p className="text-muted-foreground select-none">
-                              %
-                            </p>
-                          </InputGroupAddon>
-                        </InputGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="originalCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Original Cost</FormLabel>
+                    <FormControl>
+                      <PriceInput
+                        placeholder="0000.00069"
+                        {...field}
+                        value={field.value ?? 0}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 

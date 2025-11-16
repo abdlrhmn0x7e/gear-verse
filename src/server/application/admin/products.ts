@@ -26,7 +26,15 @@ export const _products = {
 
   mutations: {
     async createDeep(input: CreateProductInput) {
-      const { options, variants, seo, media, attributeIds, ...product } = input;
+      const {
+        options,
+        variants,
+        seo,
+        media,
+        attributeIds,
+        originalCost,
+        ...product
+      } = input;
 
       const [thumbnail, ...restMedia] = media;
       if (!thumbnail?.mediaId) {
@@ -47,11 +55,11 @@ export const _products = {
         );
       }
 
-      console.log("rest media:", restMedia);
-
       return data.admin.products.mutations.createDeep({
         newProduct: {
           ...product,
+          profit: product.price - originalCost,
+          margin: Math.ceil((product.price - originalCost) / product.price),
           slug,
           thumbnailMediaId: thumbnail.mediaId,
         },

@@ -37,6 +37,18 @@ export function AttributeCombobox({
     ),
   );
 
+  const comboboxValues = React.useMemo(() => {
+    if (!attributes) return [];
+
+    const selectedValues = attributes.filter((att) =>
+      value.includes(att.valueId),
+    );
+
+    return selectedValues.map(
+      (att) => `${att.name}-${att.value}-${att.valueId.toString()}`,
+    );
+  }, [value, attributes]);
+
   if (!categoryId) {
     return (
       <Combobox
@@ -44,7 +56,7 @@ export function AttributeCombobox({
         onValueChange={(value) =>
           onValueChange(value.map((val) => parseInt(val)))
         }
-        className="w-full p-0"
+        className="w-full"
         multiple
         autoHighlight
         disabled
@@ -98,7 +110,7 @@ export function AttributeCombobox({
 
   return (
     <Combobox
-      value={value.map((value) => value.toString())}
+      value={comboboxValues}
       onValueChange={handleChange}
       className="w-full p-0"
       multiple
@@ -107,15 +119,15 @@ export function AttributeCombobox({
       <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
         <ComboboxBadgeList>
           {value.map((item) => {
-            const option = attributes?.find((att) => att.valueId === item);
-            if (!option) return null;
+            const att = attributes?.find((att) => att.valueId === item);
+            if (!att) return null;
 
             return (
               <ComboboxBadgeItem
-                key={`${option.value}-${option.name}`}
-                value={item.toString()}
+                key={`${att.value}-${att.name}`}
+                value={`${att.name}-${att.value}-${att.valueId.toString()}`}
               >
-                {option.name} - {option.value}
+                {att.name} - {att.value}
               </ComboboxBadgeItem>
             );
           })}

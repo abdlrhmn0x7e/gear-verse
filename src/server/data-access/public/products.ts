@@ -58,11 +58,11 @@ export const _products = {
         const categoriesIds = new Set<number>();
         await Promise.all(
           filters.categories.map(async (categorySlug) => {
-            const slugs =
+            const ids =
               await _products.queries.helpers.getCategoryIdsBySlug(
                 categorySlug,
               );
-            slugs.forEach((slug) => categoriesIds.add(slug));
+            ids.forEach((id) => categoriesIds.add(id));
           }),
         );
 

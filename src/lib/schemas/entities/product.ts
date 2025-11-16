@@ -97,15 +97,9 @@ export const createProductInputSchema = productEntitySchema
     updatedAt: true,
   })
   .extend({
-    profit: z.coerce
-      .number<number>("Profit is required")
-      .nonnegative("Profit must be nonnegative")
-      .nullish(),
-    margin: z.coerce
-      .number<number>("Margin is required")
-      .nonnegative("Margin must be nonnegative")
-      .max(100, "Margin must be less than or equal to 100")
-      .nullish(),
+    originalCost: z.coerce
+      .number<number>("Original cost is required")
+      .nonnegative("Original cost must be nonnegative"),
     seo: z
       .object({
         pageTitle: z.string("Page title is required"),

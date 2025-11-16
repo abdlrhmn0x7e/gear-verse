@@ -31,6 +31,7 @@ export const _attributes = {
       );
 
       if (error) {
+        console.error("Error fetching category attributes:", error);
         throw new AppError("Failed to fetch category attributes", "INTERNAL", {
           cause: error,
         });
