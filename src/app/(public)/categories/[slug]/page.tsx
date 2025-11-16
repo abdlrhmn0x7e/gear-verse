@@ -18,7 +18,7 @@ export default async function CategoryPage({
       <aside className="sticky top-24 hidden h-fit lg:col-span-4 lg:block xl:col-span-3">
         <Card className="h-fit max-h-full p-4">
           <CardContent className="p-0 pb-4">
-            <ScrollArea>
+            <ScrollArea className="pr-4">
               <Filters slug={slug} />
             </ScrollArea>
           </CardContent>

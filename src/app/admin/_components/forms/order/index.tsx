@@ -5,7 +5,7 @@ import { IconDeviceGamepad, IconPackageOff } from "@tabler/icons-react";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import z from "zod";
+import type z from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Empty,

@@ -13,11 +13,11 @@ import { Separator } from "~/components/ui/separator";
 import { app } from "~/server/application";
 import type { RouterOutput } from "~/trpc/client";
 import {
-  BrandFilterItem,
-  CategoryFilterItem,
+  MobileBrandFilterItem,
+  MobileCategoryFilterItem,
   ClearAllButton,
-  PriceFilter,
-} from "./mobile-filter-items";
+  MobilePriceFilter,
+} from "~/components/features/products/base-mobile-filter-items";
 
 export async function MobileFilters() {
   const categoriesPromise = app.public.categories.queries.findAll({
@@ -49,7 +49,7 @@ export async function MobileFilters() {
           <Separator />
           <BrandFilter brands={brands} />
           <Separator />
-          <PriceFilter />
+          <MobilePriceFilter />
         </div>
       </DrawerContent>
     </Drawer>
@@ -72,7 +72,7 @@ function CategoryFilter({
       {categories && categories.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
-            <CategoryFilterItem
+            <MobileCategoryFilterItem
               key={`category-${category.slug}`}
               category={category}
             />
@@ -100,7 +100,7 @@ function BrandFilter({
       <div className="flex flex-wrap gap-2">
         {brands && brands.length > 0 ? (
           brands.map((brand) => (
-            <BrandFilterItem key={`brand-${brand.slug}`} brand={brand} />
+            <MobileBrandFilterItem key={`brand-${brand.slug}`} brand={brand} />
           ))
         ) : (
           <div>No brands found</div>

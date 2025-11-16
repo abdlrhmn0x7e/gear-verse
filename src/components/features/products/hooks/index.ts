@@ -7,7 +7,7 @@ import {
   parseAsStringEnum,
 } from "nuqs/server";
 
-export const allProductsSearchParams = {
+export const productsNuqsParsers = {
   categories: parseAsArrayOf(parseAsString),
   brands: parseAsArrayOf(parseAsString),
   minPrice: parseAsInteger,
@@ -16,7 +16,7 @@ export const allProductsSearchParams = {
 };
 
 export function useAllProductSearchParams() {
-  return useQueryStates(allProductsSearchParams, { shallow: true });
+  return useQueryStates(productsNuqsParsers, { shallow: true });
 }
 
-export const loadAllProductSearchParams = createLoader(allProductsSearchParams);
+export const loadAllProductSearchParams = createLoader(productsNuqsParsers);

@@ -1,4 +1,17 @@
-import { isNull, sql, eq, gt, or, count, and, desc } from "drizzle-orm";
+import {
+  isNull,
+  sql,
+  eq,
+  gt,
+  or,
+  count,
+  and,
+  desc,
+  inArray,
+  gte,
+  lte,
+  asc,
+} from "drizzle-orm";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { db } from "~/server/db";
 import {
@@ -117,10 +130,15 @@ export const _categories = {
       pageSize,
       filters,
       slug,
+      sortBy,
     }: Pagination & { filters?: CategoryProductsFilters; slug: string }) {
       const brandsMedia = alias(media, "brands_media");
+
+      // this might need future refactoring I don't think this query is as optimal as it could be
       const fragments =
-        filters?.map(_categories.queries.helpers.existsFragmentForFilter) ?? [];
+        filters?.attributes.map(
+          _categories.queries.helpers.existsFragmentForFilter,
+        ) ?? [];
 
       const preds = [
         gt(products.id, cursor ?? 0),
@@ -135,7 +153,33 @@ export const _categories = {
         coalesce((${variantsCTE.json} @@ '$.stock > 0'), false)
       )`;
 
-      const orderByClause = desc(products.id);
+      if (filters?.brands) {
+        preds.push(inArray(brands.slug, filters.brands));
+      }
+
+      if (filters?.price?.min) {
+        preds.push(gte(products.price, filters.price.min));
+      }
+      if (filters?.price?.max) {
+        preds.push(lte(products.price, filters.price.max));
+      }
+
+      // Default order by is newest (desc)
+      let orderByClause = desc(products.id);
+      switch (sortBy) {
+        case "price-asc":
+          orderByClause = asc(products.price);
+          break;
+        case "price-desc":
+          orderByClause = desc(products.price);
+          break;
+        case "newest":
+          orderByClause = desc(products.id);
+          break;
+        case "oldest":
+          orderByClause = asc(products.id);
+          break;
+      }
 
       return db
         .with(variantsCTE)
@@ -236,7 +280,9 @@ export const _categories = {
     },
 
     helpers: {
-      existsFragmentForFilter(filter: CategoryProductsFilters[number]) {
+      existsFragmentForFilter(
+        filter: CategoryProductsFilters["attributes"][number],
+      ) {
         // extract type & attr
         const [kind, attr] = filter.type.split(".", 2);
 

@@ -22,7 +22,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { ProductCard } from "~/components/product-card";
+import { ProductCard } from "~/components/features/products/product-card";
 
 export function ProductsCarousel({
   products,

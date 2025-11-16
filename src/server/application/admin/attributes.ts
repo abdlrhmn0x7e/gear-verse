@@ -69,7 +69,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("attribute-filters");
+      await invalidateCache("category-filters");
 
       return createdAttribute;
     },
@@ -84,7 +84,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("attribute-filters");
+      await invalidateCache("category-filters");
       return updatedAttribute;
     },
 
@@ -98,7 +98,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("attribute-filters");
+      await invalidateCache("category-filters");
       return deletedAttribute;
     },
 
@@ -113,7 +113,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("attribute-filters");
+      await invalidateCache("category-filters");
       return connection;
     },
 
@@ -127,7 +127,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("attribute-filters");
+      await invalidateCache("category-filters");
       return connection;
     },
   },

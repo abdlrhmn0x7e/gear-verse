@@ -1,15 +1,8 @@
-import { FolderXIcon, PackageOpenIcon } from "lucide-react";
 import { cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { Heading } from "~/components/heading";
 import { Card, CardContent } from "~/components/ui/card";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
+
 import { app } from "~/server/application";
 import {
   BrandFilterItem,
@@ -17,7 +10,11 @@ import {
   ItemsSkeleton,
   PriceFilter,
   PriceFilterSkeleton,
-} from "./filter-items";
+} from "~/components/features/products/base-filter-items";
+import {
+  BrandFilterEmptyState,
+  CategoryFilterEmptyState,
+} from "~/components/features/products/base-filter-items";
 
 export async function Filters() {
   "use cache";
@@ -77,39 +74,5 @@ export async function Filters() {
         </CardContent>
       </Card>
     </aside>
-  );
-}
-
-function CategoryFilterEmptyState() {
-  return (
-    <Empty className="gap-0 p-0 md:p-0">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <FolderXIcon />
-        </EmptyMedia>
-        <EmptyTitle>No categories found</EmptyTitle>
-        <EmptyDescription>
-          We couldn&apos;t find any categories to display at the moment. Please
-          check back later!
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  );
-}
-
-function BrandFilterEmptyState() {
-  return (
-    <Empty className="gap-0 p-0 md:p-0">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <PackageOpenIcon />
-        </EmptyMedia>
-        <EmptyTitle>No brands found</EmptyTitle>
-        <EmptyDescription>
-          We couldn&apos;t find any brands to display at the moment. Please
-          check back later!
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
   );
 }

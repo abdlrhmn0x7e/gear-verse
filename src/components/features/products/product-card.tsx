@@ -2,13 +2,13 @@ import { CheckCircleIcon, EyeIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import type { RouterOutput } from "~/trpc/client";
-import { Heading } from "./heading";
-import { ImageWithFallback } from "./image-with-fallback";
-import { AspectRatio } from "./ui/aspect-ratio";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
+import { Heading } from "../../heading";
+import { ImageWithFallback } from "../../image-with-fallback";
+import { AspectRatio } from "../../ui/aspect-ratio";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { Skeleton } from "../../ui/skeleton";
+import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
 
 export function ProductCard({
   product,

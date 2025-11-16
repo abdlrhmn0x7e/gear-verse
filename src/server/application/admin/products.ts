@@ -32,7 +32,7 @@ export const _products = {
         throw new AppError("Thumbnail media ID is required", "BAD_REQUEST");
       }
 
-      const slug = !!seo?.urlHandler
+      const slug = seo?.urlHandler
         ? seo?.urlHandler
         : generateSlug(product.title);
 
@@ -83,6 +83,11 @@ export const _products = {
             quantity: product.inventory?.quantity ?? 0, // there's always one inventory item for a product
           },
         });
+      }
+
+      // invalidate the brands filter per category if a brand edit exists
+      if (product.brandId) {
+        await invalidateCache("category-filters");
       }
 
       // variants and options are both required to update them both

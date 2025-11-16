@@ -35,7 +35,7 @@ export function EditProduct({
         id: product.id,
         data: {
           ...data,
-          inventory: Boolean(data.inventory)
+          inventory: data.inventory
             ? {
                 id: product.inventory?.id ?? 0, // always send the id even if it's not changed
                 quantity: data.inventory?.quantity ?? 0, //  there's always one inventory item for a product

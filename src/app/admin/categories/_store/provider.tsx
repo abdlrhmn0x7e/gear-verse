@@ -19,7 +19,7 @@ export const CategoryStoreProvider = ({
   children,
 }: CategoryStoreProviderProps) => {
   const storeRef = useRef<CategoryStoreApi | null>(null);
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+   
   if (storeRef.current === null) {
     storeRef.current = createCategoryStore({
       selectedCategory: null,

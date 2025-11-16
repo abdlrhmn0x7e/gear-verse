@@ -7,11 +7,18 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Slider } from "~/components/ui/slider";
-import { useAllProductSearchParams } from "./hooks";
+import { useAllProductSearchParams } from "~/components/features/products/hooks";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { FolderIcon } from "lucide-react";
+import { FolderIcon, FolderXIcon, PackageOpenIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 
 export function CategoryFilterItem({
   category,
@@ -131,20 +138,22 @@ export function PriceFilter() {
         {formatCurrency(filters.maxPrice ?? 99999)}
       </p>
 
-      <Slider
-        min={0}
-        max={99999}
-        value={[filters.minPrice ?? 0, filters.maxPrice ?? 99999]}
-        onValueChange={(value) => {
-          void setFilters((prev) => {
-            return {
-              ...prev,
-              minPrice: value[0],
-              maxPrice: value[1],
-            };
-          });
-        }}
-      />
+      <div className="px-1">
+        <Slider
+          min={0}
+          max={99999}
+          value={[filters.minPrice ?? 0, filters.maxPrice ?? 99999]}
+          onValueChange={(value) => {
+            void setFilters((prev) => {
+              return {
+                ...prev,
+                minPrice: value[0],
+                maxPrice: value[1],
+              };
+            });
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -159,5 +168,39 @@ export function PriceFilterSkeleton() {
 
       <Slider min={0} max={99999} value={[0, 99999]} disabled />
     </div>
+  );
+}
+
+export function CategoryFilterEmptyState() {
+  return (
+    <Empty className="gap-0 p-0 md:p-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <FolderXIcon />
+        </EmptyMedia>
+        <EmptyTitle>No categories found</EmptyTitle>
+        <EmptyDescription>
+          We couldn&apos;t find any categories to display at the moment. Please
+          check back later!
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
+export function BrandFilterEmptyState() {
+  return (
+    <Empty className="gap-0 p-0 md:p-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <PackageOpenIcon />
+        </EmptyMedia>
+        <EmptyTitle>No brands found</EmptyTitle>
+        <EmptyDescription>
+          We couldn&apos;t find any brands to display at the moment. Please
+          check back later!
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

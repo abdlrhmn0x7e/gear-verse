@@ -73,7 +73,7 @@ export function ProductsFilter() {
 
     void setFilters(
       (prev) => {
-        if (!Boolean(value)) {
+        if (!value) {
           return {
             ...prev,
             title: null,

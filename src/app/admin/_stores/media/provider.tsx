@@ -21,7 +21,7 @@ export const MediaStoreProvider = ({
   maxFiles,
 }: MediaStoreProviderProps) => {
   const storeRef = useRef<MediaStoreApi | null>(null);
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+   
   if (storeRef.current === null) {
     storeRef.current = createMediaStore({
       selectedMedia: defaultMedia ?? [],

@@ -1,5 +1,5 @@
 export type Pagination<
-  T extends Record<string, unknown> = {},
+  T extends Record<string, unknown> = Record<string, unknown>,
   J extends string = string,
 > = {
   cursor?: number;

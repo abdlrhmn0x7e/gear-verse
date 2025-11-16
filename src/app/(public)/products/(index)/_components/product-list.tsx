@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
 import { useTRPC } from "~/trpc/client";
-import { useAllProductSearchParams } from "./hooks";
+import { useAllProductSearchParams } from "~/components/features/products/hooks";
 import { useDebounce } from "~/hooks/use-debounce";
 import { Button } from "~/components/ui/button";
 import { ArrowUpRightIcon } from "lucide-react";
@@ -17,7 +17,10 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
-import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+} from "~/components/features/products/product-card";
 import Link from "next/link";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 

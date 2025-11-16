@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
 import { useTRPC } from "~/trpc/client";
@@ -15,24 +15,57 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconShoppingBagX } from "@tabler/icons-react";
-import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
+import {
+  ProductCard,
+  ProductCardSkeleton,
+} from "~/components/features/products/product-card";
 import Link from "next/link";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useQueryState, useQueryStates } from "nuqs";
 import { useSearchParams } from "next/navigation";
-import { getParsers } from "./utils";
+import {
+  getParsers,
+  type AttributeFilter,
+  type AttributeFilterKey,
+  type AttributeFilterValue,
+} from "./utils";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { useDebounce } from "~/hooks/use-debounce";
 
 export function ProductList({ slug }: { slug: string }) {
   const sp = useSearchParams();
   const [filters] = useQueryStates(getParsers(sp));
-  const parsedFilters = useDebounce(
-    Array.from(Object.entries(filters)).map(
-      ([key, value]) =>
-        ({ type: key, value }) as CategoryProductsFilters[number],
-    ),
+  const attributeFilters = useMemo(
+    () =>
+      Array.from(Object.entries(filters)).reduce(
+        (acc, [key, value]) => {
+          if (
+            key.startsWith("multi.") ||
+            key.startsWith("select.") ||
+            key.startsWith("bool.")
+          ) {
+            acc.push({
+              type: key,
+              value: value,
+            } as AttributeFilter<"multi">); // any placeholder generic just to satisfy ts
+          }
+
+          return acc;
+        },
+        [] as CategoryProductsFilters["attributes"],
+      ),
+    [filters],
   );
+  const parsedFilters = useDebounce({
+    brands: filters.brands ?? undefined,
+    attributes: attributeFilters,
+    price: filters.maxPrice
+      ? {
+          min: filters.minPrice ?? 0,
+          max: filters.maxPrice,
+        }
+      : undefined,
+  } satisfies CategoryProductsFilters);
 
   const trpc = useTRPC();
   const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(

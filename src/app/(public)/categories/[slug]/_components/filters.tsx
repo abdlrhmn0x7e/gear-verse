@@ -1,32 +1,47 @@
 import { cacheTag } from "next/cache";
-import { Heading } from "~/components/heading";
-import { api } from "~/trpc/server";
+import { Suspense } from "react";
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { IconFilterCancel } from "@tabler/icons-react";
-import { FilterItem } from "./filter-item";
+  BrandFilterEmptyState,
+  BrandFilterItem,
+  ItemsSkeleton,
+  PriceFilter,
+  PriceFilterSkeleton,
+} from "~/components/features/products/base-filter-items";
+import {
+  MobileBrandFilterItem,
+  MobilePriceFilter,
+} from "~/components/features/products/base-mobile-filter-items";
+import { Heading } from "~/components/heading";
 import { RadioGroup } from "~/components/ui/radio-group";
+import { cn } from "~/lib/utils";
+import { api } from "~/trpc/server";
+import { FilterItem } from "./filter-item";
 
-export async function Filters({ slug }: { slug: string }) {
+export async function Filters({
+  slug,
+  isMobile = false,
+}: {
+  slug: string;
+  isMobile?: boolean;
+}) {
   "use cache";
 
-  const attributes = await api.public.categories.queries.getAttributes({
-    slug,
-  });
+  const [attributes, brands] = await Promise.all([
+    api.public.categories.queries.getAttributes({
+      slug,
+    }),
 
-  cacheTag("attribute-filters", slug);
+    api.public.brands.queries.findAll({
+      filters: {
+        categorySlug: slug,
+      },
+    }),
+  ]);
 
-  if (attributes.length === 0) {
-    return <FiltersEmptyState />;
-  }
+  cacheTag("category-filters", slug);
 
   return (
-    <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-8">
+    <div className="flex flex-col gap-6 divide-y pb-8 [&>*:not(:last-child)]:pb-8">
       {attributes.length > 0 &&
         attributes.map((att) => {
           const WrapperElement = att.type === "SELECT" ? RadioGroup : "div";
@@ -34,20 +49,28 @@ export async function Filters({ slug }: { slug: string }) {
           return (
             <WrapperElement
               key={`attribute-${att.name}`}
-              className="flex flex-col gap-4 p-1"
+              className="gap-0 space-y-3"
             >
               {att.type !== "BOOLEAN" ? (
                 <>
                   <Heading level={4}>{att.name}</Heading>
-                  {att.values.map((val) => (
-                    <FilterItem
-                      key={`${att.name}-${val.value}`}
-                      label={val.value}
-                      keyName={att.slug ?? "unknown-key"}
-                      type={att.type ?? "MULTISELECT"}
-                      value={val.slug}
-                    />
-                  ))}
+                  <div
+                    className={cn(
+                      "flex flex-col gap-4 p-1",
+                      isMobile && "flex-row flex-wrap gap-2 p-0",
+                    )}
+                  >
+                    {att.values.map((val) => (
+                      <FilterItem
+                        key={`${att.name}-${val.value}`}
+                        label={val.value}
+                        keyName={att.slug ?? "unknown-key"}
+                        type={att.type ?? "MULTISELECT"}
+                        value={val.slug}
+                        isMobile={isMobile}
+                      />
+                    ))}
+                  </div>
                 </>
               ) : (
                 <FilterItem
@@ -55,28 +78,43 @@ export async function Filters({ slug }: { slug: string }) {
                   label={att.name ?? "Unknown Attribute"}
                   keyName={att.slug ?? "unknown-key"}
                   type={att.type ?? "MULTISELECT"}
+                  isMobile={isMobile}
                 />
               )}
             </WrapperElement>
           );
         })}
-    </div>
-  );
-}
 
-function FiltersEmptyState() {
-  return (
-    <Empty className="gap-0">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <IconFilterCancel />
-        </EmptyMedia>
-        <EmptyTitle>No filters found</EmptyTitle>
-        <EmptyDescription>
-          We couldn&apos;t find any filters to display at the moment. Please
-          check back later!
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
+      <div className="space-y-4">
+        <Heading level={4}>Brands</Heading>
+        <div
+          className={cn(
+            "flex flex-col gap-4 p-1",
+            isMobile && "flex-row flex-wrap gap-2",
+          )}
+        >
+          <Suspense fallback={<ItemsSkeleton />}>
+            {brands.length > 0 ? (
+              brands.map((brand) =>
+                isMobile ? (
+                  <MobileBrandFilterItem
+                    key={`brand-${brand.slug}`}
+                    brand={brand}
+                  />
+                ) : (
+                  <BrandFilterItem key={`brand-${brand.slug}`} brand={brand} />
+                ),
+              )
+            ) : (
+              <BrandFilterEmptyState />
+            )}
+          </Suspense>
+        </div>
+      </div>
+
+      <Suspense fallback={<PriceFilterSkeleton />}>
+        {isMobile ? <MobilePriceFilter /> : <PriceFilter />}
+      </Suspense>
+    </div>
   );
 }

@@ -21,12 +21,7 @@ export function AttributeTypeBadge({ type }: { type: AttributeType }) {
           <CheckCheckIcon /> Multi Select
         </Badge>
       );
-    case "RANGE":
-      return (
-        <Badge variant="warning">
-          <SlidersHorizontalIcon /> Range
-        </Badge>
-      );
+
     case "BOOLEAN":
       return (
         <Badge variant="default">

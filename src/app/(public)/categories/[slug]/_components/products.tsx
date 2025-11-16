@@ -4,8 +4,13 @@ import { cn } from "~/lib/utils";
 import { trpc, HydrateClient, prefetch } from "~/trpc/server";
 import { ProductList, ProductListSkeleton } from "./product-list";
 import { Skeleton } from "~/components/ui/skeleton";
-import type { Filters } from "./utils";
+import type {
+  AttributeFilter,
+  CategoryProductsFilters as NativeCategoryProductsFilters,
+} from "./utils";
+import { MobileFiltersDrawer } from "./mobile-filters-drawer";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
+import { ProductsSort } from "~/components/features/products/products-sort";
 
 export async function Products({
   className,
@@ -14,12 +19,38 @@ export async function Products({
 }: {
   className?: string;
   slug: string;
-  filters: Filters;
+  filters: NativeCategoryProductsFilters;
 }) {
   const categoryName = slug.split("-").pop()!;
-  const parsedFilters = Array.from(Object.entries(filters)).map(
-    ([key, value]) => ({ type: key, value }) as CategoryProductsFilters[number],
+  const attributeFilters = Array.from(Object.entries(filters)).reduce(
+    (acc, [key, value]) => {
+      if (
+        key.startsWith("multi.") ||
+        key.startsWith("select.") ||
+        key.startsWith("bool.")
+      ) {
+        acc.push({
+          type: key,
+          value: value,
+        } as unknown as AttributeFilter<"multi">); // any placeholder generic just to satisfy ts
+      }
+
+      return acc;
+    },
+    [] as CategoryProductsFilters["attributes"],
   );
+  const parsedFilters = {
+    brands: filters.brands ?? undefined,
+    attributes: attributeFilters,
+    price:
+      filters.minPrice && filters.maxPrice
+        ? {
+            min: filters.minPrice,
+            max: filters.maxPrice,
+          }
+        : undefined,
+  } satisfies CategoryProductsFilters;
+
   void prefetch(
     trpc.public.categories.queries.getProductsPage.infiniteQueryOptions({
       pageSize: 12,
@@ -32,6 +63,11 @@ export async function Products({
     <section id="products" className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <Heading level={3}>{categoryName}</Heading>
+        <div className="flex items-center gap-2">
+          <ProductsSort />
+
+          <MobileFiltersDrawer slug={slug} />
+        </div>
       </div>
 
       <HydrateClient>

@@ -1,20 +1,17 @@
 "use client";
 
-import { type ComponentProps, type PropsWithChildren } from "react";
 import { Heading } from "~/components/heading";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Label } from "~/components/ui/label";
 import { iconsMap } from "~/lib/icons-map";
-import { cn } from "~/lib/utils";
 import { type RouterOutput } from "~/trpc/client";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { useAllProductSearchParams } from "./hooks";
+import { useAllProductSearchParams } from "~/components/features/products/hooks";
 import { Slider } from "~/components/ui/slider";
 import { Button } from "~/components/ui/button";
 import { XIcon } from "lucide-react";
+import { CustomCheckbox } from "~/components/custom-checkbox";
 
-export function CategoryFilterItem({
+export function MobileCategoryFilterItem({
   category,
 }: {
   category: RouterOutput["public"]["categories"]["queries"]["findAll"][number];
@@ -52,7 +49,7 @@ export function CategoryFilterItem({
   );
 }
 
-export function BrandFilterItem({
+export function MobileBrandFilterItem({
   brand,
 }: {
   brand: RouterOutput["public"]["brands"]["queries"]["findAll"][number];
@@ -92,32 +89,12 @@ export function BrandFilterItem({
   );
 }
 
-export function CustomCheckbox({
-  id,
-  children,
-  className,
-  ...props
-}: PropsWithChildren<ComponentProps<typeof Checkbox>>) {
-  return (
-    <Label
-      htmlFor={`${id}-checkbox`}
-      className={cn(
-        "has-data[state=checked]:text-primary-foreground has-data-[state=checked]:bg-primary/50 has-data-[state=checked]:border-primary cursor-pointer rounded-lg border p-2 px-4 transition-all",
-        className,
-      )}
-    >
-      <Checkbox className="hidden" id={`${id}-checkbox`} {...props} />
-      {children}
-    </Label>
-  );
-}
-
-export function PriceFilter() {
+export function MobilePriceFilter() {
   const [filters, setFilters] = useAllProductSearchParams();
 
   return (
     <div className="flex flex-col gap-4">
-      <Heading level={2}>Price</Heading>
+      <Heading level={4}>Price</Heading>
       <p className="text-muted-foreground text-center text-lg">
         {formatCurrency(filters.minPrice ?? 0)} -{" "}
         {formatCurrency(filters.maxPrice ?? 9999)}

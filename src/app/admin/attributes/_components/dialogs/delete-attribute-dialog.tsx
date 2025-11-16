@@ -44,14 +44,7 @@ export function DeleteAttributeAlertDialog({
   );
 
   function handleDelete() {
-    deleteAttribute(
-      { id },
-      {
-        onSuccess: () => {
-          setNodes((nds) => nds.filter((node) => node.id !== slug));
-        },
-      },
-    );
+    deleteAttribute({ id });
   }
 
   return (

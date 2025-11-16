@@ -2,7 +2,8 @@
 
 import { useQueryState } from "nuqs";
 import { parseAsArrayOf, parseAsBoolean, parseAsString } from "nuqs/server";
-import { useEffectEvent, useLayoutEffect, useState } from "react";
+import { useEffectEvent, useLayoutEffect } from "react";
+import { CustomCheckbox } from "~/components/custom-checkbox";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { RadioGroupItem } from "~/components/ui/radio-group";
@@ -14,11 +15,13 @@ export function FilterItem({
   type,
   keyName,
   value,
+  isMobile = false,
 }: {
   label: string;
   keyName: string;
   value?: string;
   type: AttributeType;
+  isMobile?: boolean;
 }) {
   switch (type) {
     case "MULTISELECT": {
@@ -46,7 +49,15 @@ export function FilterItem({
         });
       };
 
-      return (
+      return isMobile ? (
+        <CustomCheckbox
+          id={`attribute-${keyName}-${value}-item`}
+          checked={checked}
+          onCheckedChange={handleChecked}
+        >
+          {label}
+        </CustomCheckbox>
+      ) : (
         <div className="flex items-center gap-2">
           <Checkbox
             id={`attribute-${keyName}-${value}-item`}
@@ -63,6 +74,7 @@ export function FilterItem({
         `select.${keyName}`,
         parseAsString.withOptions({ shallow: true }),
       );
+
       const unmount = useEffectEvent(() => {
         setFilter(null);
       });

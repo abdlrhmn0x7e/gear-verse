@@ -1,5 +1,6 @@
 import z from "zod";
 import { paginationSchema } from "../pagination";
+import { productsFilterSchema } from "./products";
 
 export const categoriesFilterSchema = z
   .object({
@@ -18,33 +19,26 @@ export type CategoriesFindAllInput = z.infer<
   typeof categoriesFindAllInputSchema
 >;
 
-const filters = [
-  {
-    type: "multi",
-    value: ["red", "blue"],
-  },
-  {
-    type: "select",
-    value: "lg",
-  },
-];
-
-export const categoryProductsFilterSchema = z.array(
-  z.union([
-    z.object({
-      type: z.templateLiteral(["multi.", z.string()]),
-      value: z.string().array(),
-    }),
-    z.object({
-      type: z.templateLiteral(["select.", z.string()]),
-      value: z.string(),
-    }),
-    z.object({
-      type: z.templateLiteral(["bool.", z.string()]),
-      value: z.boolean(),
-    }),
-  ]),
-);
+export const categoryProductsFilterSchema = productsFilterSchema
+  .omit({ categories: true })
+  .extend({
+    attributes: z.array(
+      z.union([
+        z.object({
+          type: z.templateLiteral(["multi.", z.string()]),
+          value: z.string().array(),
+        }),
+        z.object({
+          type: z.templateLiteral(["select.", z.string()]),
+          value: z.string(),
+        }),
+        z.object({
+          type: z.templateLiteral(["bool.", z.string()]),
+          value: z.boolean(),
+        }),
+      ]),
+    ),
+  });
 export type CategoryProductsFilters = z.infer<
   typeof categoryProductsFilterSchema
 >;

@@ -171,7 +171,7 @@ export const _productVariants = {
             .update(productVariants)
             .set({
               ...rest,
-              overridePrice: !Boolean(rest.overridePrice)
+              overridePrice: !rest.overridePrice
                 ? null
                 : rest.overridePrice,
             })
