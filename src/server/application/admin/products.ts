@@ -100,7 +100,10 @@ export const _products = {
       const { options, variants, ...product } = input;
 
       // invalidate the page cache for this product
-      await invalidateCache(`products:${productId}`);
+      await Promise.all([
+        invalidateCache(`products:${productId}`),
+        invalidateCache("recent-products"),
+      ]);
 
       // update the product if there are any changes
       if (Object.keys(product).length > 0) {
