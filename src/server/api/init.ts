@@ -2,6 +2,8 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import * as Sentry from "@sentry/node";
+
 import { auth } from "../auth";
 import { app } from "../application";
 import { cache } from "react";
@@ -95,6 +97,16 @@ const adminMiddleware = t.middleware(async ({ next, ctx }) => {
   return next({ ctx: { ...ctx, user } });
 });
 
-export const publicProcedure = t.procedure;
-export const protectedProcedure = t.procedure.use(authMiddleware);
-export const adminProcedure = t.procedure.use(adminMiddleware);
+const sentryMiddleware = t.middleware(
+  Sentry.trpcMiddleware({
+    attachRpcInput: true,
+  }),
+);
+
+export const publicProcedure = t.procedure.use(sentryMiddleware);
+export const protectedProcedure = t.procedure
+  .use(sentryMiddleware)
+  .use(authMiddleware);
+export const adminProcedure = t.procedure
+  .use(sentryMiddleware)
+  .use(adminMiddleware);

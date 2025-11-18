@@ -311,8 +311,77 @@ export const _orders = {
       itemsInput?: UpdateOrderItem[],
     ) => {
       return db.transaction(async (tx) => {
+        const old = await tx
+          .select({ status: orders.status })
+          .from(orders)
+          .where(eq(orders.id, id))
+          .limit(1)
+          .then(([res]) => res);
+
+        if (!old) {
+          throw new Error("This order does not exist");
+        }
+
         if (orderInput && Object.keys(orderInput).length > 0) {
           await tx.update(orders).set(orderInput).where(eq(orders.id, id));
+        }
+
+        // if the order is being cancelled, restock the items
+        if (old.status !== "CANCELLED" && orderInput?.status === "CANCELLED") {
+          const oldItems = await tx
+            .select({
+              productId: orderItems.productId,
+              productVariantId: orderItems.productVariantId,
+              quantity: orderItems.quantity,
+            })
+            .from(orderItems);
+          for (const item of oldItems) {
+            const preds = [eq(inventoryItems.productId, item.productId)];
+            if (item.productVariantId) {
+              preds.push(
+                eq(inventoryItems.productVariantId, item.productVariantId),
+              );
+            } else {
+              preds.push(isNull(inventoryItems.productVariantId));
+            }
+
+            await tx
+              .update(inventoryItems)
+              .set({
+                quantity: sql`${inventoryItems.quantity} + (${item.quantity})`,
+              })
+              .where(and(...preds));
+          }
+        }
+
+        // if the items are being from cancelled, adjust the stock accordingly
+        // this probably could be nicer but who cares meh
+        if (old.status === "CANCELLED" && orderInput?.status !== "CANCELLED") {
+          const oldItems = await tx
+            .select({
+              productId: orderItems.productId,
+              productVariantId: orderItems.productVariantId,
+              quantity: orderItems.quantity,
+            })
+            .from(orderItems);
+
+          for (const item of oldItems) {
+            const preds = [eq(inventoryItems.productId, item.productId)];
+            if (item.productVariantId) {
+              preds.push(
+                eq(inventoryItems.productVariantId, item.productVariantId),
+              );
+            } else {
+              preds.push(isNull(inventoryItems.productVariantId));
+            }
+
+            await tx
+              .update(inventoryItems)
+              .set({
+                quantity: sql`${inventoryItems.quantity} - (${item.quantity})`,
+              })
+              .where(and(...preds));
+          }
         }
 
         if (itemsInput && itemsInput.length > 0) {
@@ -362,8 +431,6 @@ export const _orders = {
             );
           });
 
-          console.log("Diff Map:", diffMap);
-
           for (const [key, quantity] of Array.from(diffMap.entries())) {
             const productId = Number(key.split("-")[1]);
             const productVariantId = Number(key.split("-")[2]);
@@ -379,7 +446,6 @@ export const _orders = {
               preds.push(eq(inventoryItems.productVariantId, productVariantId));
             }
 
-            console.log("Updating inventory item ", quantity);
             await tx
               .update(inventoryItems)
               .set({
