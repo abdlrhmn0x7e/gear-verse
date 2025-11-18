@@ -1,4 +1,4 @@
-import { sql, eq, gt, desc, and } from "drizzle-orm";
+import { sql, eq, gt, desc, and, ilike, isNull } from "drizzle-orm";
 import { db } from "~/server/db";
 import {
   orderItems,
@@ -28,13 +28,15 @@ export const _orders = {
       cursor,
       filters,
     }: Pagination<{
-      orderId: number;
+      phoneNumber: string;
       status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
-      paymentMethod: "COD";
+      paymentMethod: "COD" | "ONLINE";
     }>) => {
       const whereClause = [gt(orders.id, cursor ?? 0)];
-      if (filters?.orderId) {
-        whereClause.push(gt(orders.id, filters.orderId));
+      if (filters?.phoneNumber) {
+        whereClause.push(
+          ilike(addresses.phoneNumber, `%${filters.phoneNumber}%`),
+        );
       }
       if (filters?.status) {
         whereClause.push(eq(orders.status, filters.status));
@@ -268,6 +270,37 @@ export const _orders = {
             .values(itemsInput.map((item) => ({ ...item, orderId: order.id })));
         }
 
+        // update the product variants stock
+        for (const item of itemsInput) {
+          if (item.productVariantId) {
+            await tx
+              .update(inventoryItems)
+              .set({
+                quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
+              })
+              .where(
+                and(
+                  eq(inventoryItems.productId, item.productId),
+                  eq(inventoryItems.productVariantId, item.productVariantId),
+                ),
+              );
+
+            continue;
+          }
+
+          await tx
+            .update(inventoryItems)
+            .set({
+              quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
+            })
+            .where(
+              and(
+                eq(inventoryItems.productId, item.productId),
+                isNull(inventoryItems.productVariantId),
+              ),
+            );
+        }
+
         return order;
       });
     },
@@ -284,12 +317,76 @@ export const _orders = {
 
         if (itemsInput && itemsInput.length > 0) {
           // delete the old items
-          await tx.delete(orderItems).where(eq(orderItems.orderId, id));
+          const deleted = await tx
+            .delete(orderItems)
+            .where(eq(orderItems.orderId, id))
+            .returning({
+              quantity: orderItems.quantity,
+              productId: orderItems.productId,
+              productVariantId: orderItems.productVariantId,
+            });
 
           // create the new items
-          await tx
+          const created = await tx
             .insert(orderItems)
-            .values(itemsInput.map((item) => ({ ...item, orderId: id })));
+            .values(itemsInput.map((item) => ({ ...item, orderId: id })))
+            .returning({
+              quantity: orderItems.quantity,
+              productId: orderItems.productId,
+              productVariantId: orderItems.productVariantId,
+            });
+
+          // create a map for the diff between quantities and update the stock
+          const diffMap = new Map<string, number>();
+          deleted.forEach((item) =>
+            diffMap.set(
+              `item-${item.productId}-${item.productVariantId}`,
+              item.quantity,
+            ),
+          );
+          created.forEach((item) => {
+            const old = diffMap.get(
+              `item-${item.productId}-${item.productVariantId}`,
+            );
+            if (old) {
+              diffMap.set(
+                `item-${item.productId}-${item.productVariantId}`,
+                old - item.quantity,
+              );
+              return;
+            }
+
+            diffMap.set(
+              `item-${item.productId}-${item.productVariantId}`,
+              item.quantity,
+            );
+          });
+
+          console.log("Diff Map:", diffMap);
+
+          for (const [key, quantity] of Array.from(diffMap.entries())) {
+            const productId = Number(key.split("-")[1]);
+            const productVariantId = Number(key.split("-")[2]);
+
+            if (isNaN(productId)) {
+              throw new Error("A product id must be a number");
+            }
+
+            const preds = [eq(inventoryItems.productId, productId)];
+            if (isNaN(productVariantId)) {
+              preds.push(isNull(inventoryItems.productVariantId));
+            } else {
+              preds.push(eq(inventoryItems.productVariantId, productVariantId));
+            }
+
+            console.log("Updating inventory item ", quantity);
+            await tx
+              .update(inventoryItems)
+              .set({
+                quantity: sql`${inventoryItems.quantity} + (${quantity})`,
+              })
+              .where(and(...preds));
+          }
         }
 
         return { id };

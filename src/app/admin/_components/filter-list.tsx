@@ -32,13 +32,13 @@ type FilterValue = {
   brands: number[];
   categories: number[];
   status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
-  paymentMethod: "COD";
+  paymentMethod: "COD" | "ONLINE";
 };
 type FilterItemsValue = {
   brands: number;
   categories: number;
   status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
-  paymentMethod: "COD";
+  paymentMethod: "COD" | "ONLINE";
 };
 type FilterValueProp = {
   key: FilterKey;
@@ -185,10 +185,16 @@ export function FilterList({
                   </motion.li>
                 ))
               : value && (
-                  <motion.li key={`${key}-${value}`} variants={itemVariant}>
+                  <motion.li
+                    key={`${key}-${value}`}
+                    initial="hidden"
+                    whileInView="show"
+                    exit="hidden"
+                    variants={itemVariant}
+                  >
                     <Button
                       variant="destructive-outline"
-                      className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
+                      className="group h-9 cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
                       onClick={() => onRemove({ key, value })}
                     >
                       <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />

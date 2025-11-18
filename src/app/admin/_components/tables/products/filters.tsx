@@ -74,13 +74,11 @@ export function ProductsFilter() {
       (prev) => {
         if (!value) {
           return {
-            ...prev,
             title: null,
           };
         }
 
         return {
-          ...prev,
           title: value,
         };
       },

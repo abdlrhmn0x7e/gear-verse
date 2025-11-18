@@ -32,8 +32,16 @@ export function CreateOrderDrawer() {
         void queryClient.invalidateQueries(
           trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
         );
+        void queryClient.invalidateQueries(
+          trpc.admin.inventoryItems.queries.getPage.infiniteQueryFilter(),
+        );
         toast.success("Order created successfully");
         void setParams({ create: null });
+      },
+      onError: () => {
+        toast.error(
+          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+        );
       },
     }),
   );

@@ -28,14 +28,14 @@ export function OrdersFilter() {
 
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    void setFilters({ ...filters, search: value ? Number(value) : null });
+    void setFilters({ ...filters, search: !value ? null : value });
   }
 
   return (
     <div className="flex items-center gap-2">
       <SearchInput
         className="max-w-sm"
-        placeholder="Search by order ID"
+        placeholder="Search by phone number"
         value={filters.search ?? ""}
         onChange={handleSearchChange}
       >
@@ -44,7 +44,7 @@ export function OrdersFilter() {
             className={cn(isOpen && "dark:text-primary-foreground")}
             asChild
           >
-            <Button variant="ghost" size="icon-sm">
+            <Button variant="ghost" size="icon-sm" className="focus:ring-0">
               <ListFilterIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -63,7 +63,7 @@ export function OrdersFilter() {
                   Status
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent sideOffset={8} alignOffset={-36}>
+                  <DropdownMenuSubContent sideOffset={8} className="max-w-48">
                     {(
                       [
                         "PENDING",
@@ -92,8 +92,8 @@ export function OrdersFilter() {
                   Payment Method
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent sideOffset={8} alignOffset={-36}>
-                    {(["COD"] as const).map((method) => (
+                  <DropdownMenuSubContent sideOffset={8} className="max-w-48">
+                    {(["COD", "ONLINE"] as const).map((method) => (
                       <DropdownMenuItem
                         key={method}
                         onClick={() => {

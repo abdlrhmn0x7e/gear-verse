@@ -47,7 +47,7 @@ export function OrdersTable() {
       {
         pageSize: 15,
         filters: {
-          orderId: debouncedFilters.search ?? undefined,
+          phoneNumber: debouncedFilters.search ?? undefined,
           status: debouncedFilters.status ?? undefined,
           paymentMethod: debouncedFilters.paymentMethod ?? undefined,
         },

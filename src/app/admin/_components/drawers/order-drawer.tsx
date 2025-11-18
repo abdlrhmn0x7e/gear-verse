@@ -167,7 +167,7 @@ function OrderDrawerContent() {
           </div>
 
           <div className="flex flex-col gap-4">
-            {data && data?.items.length > 0 ? (
+            {data && data?.items.length === 0 ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">

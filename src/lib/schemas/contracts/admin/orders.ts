@@ -2,9 +2,9 @@ import z from "zod";
 import { paginationSchema } from "../pagination";
 
 export const ordersFilterSchema = z.object({
-  orderId: z.number(),
+  phoneNumber: z.string(),
   status: z.enum(["PENDING", "SHIPPED", "DELIVERED", "REFUNDED", "CANCELLED"]),
-  paymentMethod: z.enum(["COD"]),
+  paymentMethod: z.enum(["COD", "ONLINE"]),
 });
 export type OrdersFilter = z.infer<typeof ordersFilterSchema>;
 

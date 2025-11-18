@@ -3,11 +3,12 @@ import {
   createLoader,
   parseAsBoolean,
   parseAsInteger,
+  parseAsString,
   parseAsStringEnum,
 } from "nuqs/server";
 
 const orderSearchParams = {
-  search: parseAsInteger,
+  search: parseAsString,
   orderId: parseAsInteger,
   editId: parseAsInteger,
   status: parseAsStringEnum([
@@ -17,7 +18,7 @@ const orderSearchParams = {
     "REFUNDED",
     "CANCELLED",
   ]),
-  paymentMethod: parseAsStringEnum(["COD"]),
+  paymentMethod: parseAsStringEnum(["COD", "ONLINE"]),
   create: parseAsBoolean,
 };
 

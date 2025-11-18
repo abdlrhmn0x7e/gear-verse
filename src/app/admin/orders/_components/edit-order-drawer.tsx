@@ -65,6 +65,9 @@ export function EditOrderDrawer() {
         void queryClient.invalidateQueries(
           trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
         );
+        void queryClient.invalidateQueries(
+          trpc.admin.inventoryItems.queries.getPage.infiniteQueryFilter(),
+        );
 
         if (params.editId) {
           void queryClient.invalidateQueries(
@@ -76,6 +79,12 @@ export function EditOrderDrawer() {
 
         toast.success("Order updated successfully");
         void setParams({ editId: null });
+      },
+
+      onError: () => {
+        toast.error(
+          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+        );
       },
     }),
   );

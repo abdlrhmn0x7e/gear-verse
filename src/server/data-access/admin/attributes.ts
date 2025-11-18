@@ -204,7 +204,17 @@ export const _attributes = {
         /**
          * handle an edge case where an attribute becomes from Multi Select or a Select to Boolean
          */
-        if (input.type === "BOOLEAN") {
+        const [old] = await tx
+          .select({ type: attributes.type })
+          .from(attributes)
+          .where(eq(attributes.id, id))
+          .limit(1);
+
+        if (!old) {
+          throw new Error("This attribute doesn't exist");
+        }
+
+        if (old.type !== "BOOLEAN" && input.type === "BOOLEAN") {
           await tx
             .delete(attributeValues)
             .where(eq(attributeValues.attributeId, id));
@@ -213,6 +223,12 @@ export const _attributes = {
             slug: "true",
             attributeId: id,
           });
+        }
+
+        if (old.type === "BOOLEAN" && input.type !== "BOOLEAN") {
+          await tx
+            .delete(attributeValues)
+            .where(eq(attributeValues.attributeId, id));
         }
 
         return tx
