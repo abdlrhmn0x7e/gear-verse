@@ -1,4 +1,4 @@
-import { sql, asc, eq, and, inArray } from "drizzle-orm";
+import { sql, asc, eq, and } from "drizzle-orm";
 import { db } from "~/server/db";
 import { categories } from "~/server/db/schema";
 import {
@@ -199,18 +199,34 @@ export const _attributes = {
         );
     },
 
-    update(id: number, input: UpdateAttributeInput) {
-      return db
-        .update(attributes)
-        .set(input)
-        .where(eq(attributes.id, id))
-        .returning({
-          id: attributes.id,
-          name: attributes.name,
-          slug: attributes.slug,
-          type: attributes.type,
-        })
-        .then(([res]) => res);
+    async update(id: number, input: UpdateAttributeInput) {
+      return db.transaction(async (tx) => {
+        /**
+         * handle an edge case where an attribute becomes from Multi Select or a Select to Boolean
+         */
+        if (input.type === "BOOLEAN") {
+          await tx
+            .delete(attributeValues)
+            .where(eq(attributeValues.attributeId, id));
+          await tx.insert(attributeValues).values({
+            value: "true",
+            slug: "true",
+            attributeId: id,
+          });
+        }
+
+        return tx
+          .update(attributes)
+          .set(input)
+          .where(eq(attributes.id, id))
+          .returning({
+            id: attributes.id,
+            name: attributes.name,
+            slug: attributes.slug,
+            type: attributes.type,
+          })
+          .then(([res]) => res);
+      });
     },
 
     delete(id: number) {
