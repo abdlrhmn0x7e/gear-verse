@@ -7,6 +7,7 @@ import type {
   UpdateFullOrderInput,
 } from "~/lib/schemas/entities";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { invalidateCache } from "~/server/actions/cache";
 
 export const _orders = {
   queries: {
@@ -50,6 +51,14 @@ export const _orders = {
           cause: error,
         });
       }
+
+      const invalidationPromises = [];
+      for (const item of items) {
+        invalidationPromises.push(
+          invalidateCache(`products:${item.productId}`),
+        );
+      }
+      await Promise.all(invalidationPromises);
       return newOrder;
     },
 
@@ -65,20 +74,36 @@ export const _orders = {
         });
       }
 
+      if (items) {
+        const invalidationPromises = [];
+        for (const item of items) {
+          invalidationPromises.push(
+            invalidateCache(`products:${item.productId}`),
+          );
+        }
+        await Promise.all(invalidationPromises);
+      }
       return updatedOrder;
     },
 
     delete: async (id: number) => {
-      const { data: deletedOrder, error } = await tryCatch(
+      const { data: deleted, error } = await tryCatch(
         data.admin.orders.mutations.delete(id),
       );
       if (error) {
-        console.error("ERROR: ", error);
         throw new AppError("Failed to delete order", "INTERNAL", {
           cause: error,
         });
       }
-      return deletedOrder;
+      const invalidationPromises = [];
+      for (const item of deleted) {
+        invalidationPromises.push(
+          invalidateCache(`products:${item.productId}`),
+        );
+      }
+      await Promise.all(invalidationPromises);
+
+      return { id };
     },
   },
 };

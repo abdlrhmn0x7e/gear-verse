@@ -436,6 +436,8 @@ export const _orders = {
           .where(eq(orders.id, id))
           .returning({ id: orders.id })
           .then(([res]) => res);
+
+        return deleted;
       });
     },
   },
