@@ -5,8 +5,8 @@ import { OrderCardsSkeleton } from "./_components/order-cards";
 
 export default function OrdersLoading() {
   return (
-    <section className="min-h-screen py-32">
-      <MaxWidthWrapper className="space-y-6">
+    <section className="min-h-screen py-24">
+      <MaxWidthWrapper className="max-w-7xl space-y-6">
         <Header
           title="Orders"
           description="View your orders, review the details, and track the status."

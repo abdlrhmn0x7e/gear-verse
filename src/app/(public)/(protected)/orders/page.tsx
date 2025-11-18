@@ -17,7 +17,7 @@ export default async function OrdersPage({
   await requireAuth();
   void loadOrderSearchParams(searchParams);
   void prefetch(
-    trpc.public.orders.queries.getPage.queryOptions({ pageSize: 10 }),
+    trpc.public.orders.queries.getPage.infiniteQueryOptions({ pageSize: 10 }),
   );
 
   return (
