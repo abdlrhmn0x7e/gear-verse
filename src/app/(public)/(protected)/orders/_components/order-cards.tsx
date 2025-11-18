@@ -17,17 +17,23 @@ import { type RouterOutput } from "~/trpc/client";
 import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
 import { LoadMore } from "~/components/load-more";
 import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useTRPC } from "~/trpc/client";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { IconArrowUpRight, IconShoppingCartX } from "@tabler/icons-react";
+import Link from "next/link";
 
 export function OrderCards() {
   const trpc = useTRPC();
-  const {
-    data: orders,
-    hasNextPage,
-    fetchNextPage,
-  } = useSuspenseInfiniteQuery(
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
     trpc.public.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 10,
@@ -46,14 +52,39 @@ export function OrderCards() {
     }
   }, [inView, fetchNextPage]);
 
+  const orders = useMemo(() => data.pages.flatMap((page) => page.data), [data]);
+
+  if (orders.length === 0) {
+    return (
+      <Empty className="mt-24">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <IconShoppingCartX />
+          </EmptyMedia>
+          <EmptyTitle>No Orders Yet</EmptyTitle>
+          <EmptyDescription>
+            You haven&apos;t created any orders yet. Get started by creating
+            your first order.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button asChild>
+            <Link href="/products">
+              Checkout Our Products
+              <IconArrowUpRight />
+            </Link>
+          </Button>
+        </EmptyContent>
+      </Empty>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-        {orders.pages
-          .flatMap((page) => page.data)
-          .map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
+        {orders.map((order) => (
+          <OrderCard key={order.id} order={order} />
+        ))}
       </div>
 
       <LoadMore ref={ref} hasNextPage={hasNextPage} />
