@@ -108,6 +108,7 @@ function ProductListEmptyState() {
           asChild
           className="text-muted-foreground"
           size="sm"
+          disabled
         >
           <Link href="/contact">
             Contact Us
