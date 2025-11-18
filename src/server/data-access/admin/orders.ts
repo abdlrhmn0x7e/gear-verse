@@ -403,11 +403,40 @@ export const _orders = {
     },
 
     delete: async (id: number) => {
-      return db
-        .delete(orders)
-        .where(eq(orders.id, id))
-        .returning({ id: orders.id })
-        .then(([res]) => res);
+      return db.transaction(async (tx) => {
+        const deleted = await tx
+          .delete(orderItems)
+          .where(eq(orderItems.orderId, id))
+          .returning({
+            productId: orderItems.productId,
+            productVariantId: orderItems.productVariantId,
+            quantity: orderItems.quantity,
+          });
+
+        for (const item of deleted) {
+          const preds = [eq(inventoryItems.productId, item.productId)];
+          if (item.productVariantId) {
+            preds.push(
+              eq(inventoryItems.productVariantId, item.productVariantId),
+            );
+          } else {
+            preds.push(isNull(inventoryItems.productVariantId));
+          }
+
+          await tx
+            .update(inventoryItems)
+            .set({
+              quantity: sql`${inventoryItems.quantity} + ${item.quantity}`,
+            })
+            .where(and(...preds));
+        }
+
+        await tx
+          .delete(orders)
+          .where(eq(orders.id, id))
+          .returning({ id: orders.id })
+          .then(([res]) => res);
+      });
     },
   },
 };
