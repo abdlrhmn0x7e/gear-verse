@@ -7,3 +7,9 @@ export const paginationSchema = z.object({
     .nonnegative("Page size must be positive"),
 });
 export type Pagination = z.infer<typeof paginationSchema>;
+
+export type Paginate<T extends Record<string, unknown>> = {
+  nextCursor: string | null;
+} & {
+  data: T;
+};

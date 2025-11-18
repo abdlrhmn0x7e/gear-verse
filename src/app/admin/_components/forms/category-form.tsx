@@ -71,7 +71,7 @@ export function CategoryForm({
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-17">
+                    <SelectTrigger className="w-16 [&>span>div>span]:hidden">
                       <SelectValue placeholder="Select an icon" />
                     </SelectTrigger>
                   </FormControl>
@@ -82,7 +82,7 @@ export function CategoryForm({
                         <SelectItem key={key} value={key}>
                           <div className="flex items-center gap-2">
                             <Icon />
-                            <span className="capitalize">
+                            <span className="truncate">
                               {key.toLowerCase()}
                             </span>
                           </div>

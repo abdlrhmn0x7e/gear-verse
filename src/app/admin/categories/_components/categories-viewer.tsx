@@ -122,42 +122,7 @@ export function CategoriesViewer() {
     trpc.admin.products.mutations.editDeep.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(
-          trpc.admin.products.queries.getPage.queryFilter(),
-        );
-      },
-
-      // Optimistic updates
-      onMutate: async (data) => {
-        await queryClient.cancelQueries(
-          trpc.admin.products.queries.getPage.queryFilter(),
-        );
-        const oldProducts = queryClient.getQueryData(
-          trpc.admin.products.queries.getPage.queryKey(),
-        );
-        if (!oldProducts) return;
-
-        queryClient.setQueryData(
-          trpc.admin.products.queries.getPage.queryKey(),
-          {
-            ...oldProducts,
-            data: oldProducts.data.filter((p) => p.id !== data.id),
-          },
-        );
-
-        return { previousProducts: oldProducts };
-      },
-
-      onError: (_err, _newTodo, context) => {
-        if (!context) return;
-        queryClient.setQueryData(
-          trpc.admin.products.queries.getPage.queryKey(),
-          context.previousProducts,
-        );
-      },
-
-      onSettled: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.products.queries.getPage.queryFilter(),
+          trpc.admin.products.queries.getPage.infiniteQueryFilter(),
         );
       },
     }),
@@ -167,7 +132,7 @@ export function CategoriesViewer() {
     trpc.admin.categories.mutations.update.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(
-          trpc.admin.categories.queries.findAll.queryFilter(),
+          trpc.admin.categories.queries.findAll.infiniteQueryFilter(),
         );
       },
     }),
