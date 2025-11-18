@@ -12,6 +12,7 @@ import { _carts } from "./carts";
 import { _inventoryItems } from "./inventory-items";
 import { _attributes } from "./attributes";
 import { _attributeValues } from "./attribute-valus";
+import { _reviews } from "./reviews";
 
 export const _admin = {
   products: _products,
@@ -28,4 +29,5 @@ export const _admin = {
   inventoryItems: _inventoryItems,
   attributes: _attributes,
   attributeValues: _attributeValues,
+  reviews: _reviews,
 };

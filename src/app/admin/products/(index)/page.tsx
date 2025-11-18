@@ -13,6 +13,7 @@ import Link from "next/link";
 
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { requireAdmin } from "~/server/auth";
+import { Reviews } from "./_component/reviews";
 
 export default async function AdminProductsPage({
   searchParams,
@@ -59,6 +60,7 @@ export default async function AdminProductsPage({
           <ProductDetails
             className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
             slug={params.slug}
+            Reviews={(props) => <Reviews {...props} />}
             hideActions
           />
         )}

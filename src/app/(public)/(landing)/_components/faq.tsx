@@ -20,11 +20,6 @@ export function FAQ() {
         "Yes! We offer nationwide delivery across Egypt. Shipping times and costs may vary depending on your location. You can check the estimated delivery time during checkout.",
     },
     {
-      question: "What payment methods do you accept?",
-      answer:
-        "We accept multiple payment methods including Cash on Delivery (COD) and online payment options for your convenience. Choose the method that works best for you at checkout.",
-    },
-    {
       question: "What is your return policy?",
       answer:
         "We want you to be completely satisfied with your purchase. If you're not happy with your order, you can initiate a return or refund request. Please contact our support team for assistance with returns.",
@@ -42,7 +37,7 @@ export function FAQ() {
     {
       question: "How long does delivery take?",
       answer:
-        "Delivery times vary based on your location and product availability. Typically, orders are delivered within 3-7 business days for most areas in Egypt. Rush delivery options may be available for certain locations.",
+        "Delivery times vary based on your location and product availability. Typically, orders are delivered within 1-2 business days for most areas in Egypt. Rush delivery options may be available for certain locations.",
     },
     {
       question: "What if I receive a damaged or defective product?",

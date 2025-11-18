@@ -22,6 +22,11 @@ export const auth = betterAuth({
     },
   },
 
+  onAPIError: {
+    throw: false,
+    errorURL: "/",
+  },
+
   user: {
     modelName: "users",
   },

@@ -140,11 +140,11 @@ export function ProductListItem({
 
 function ProductListItemSkeleton() {
   return (
-    <div className="bg-card text-card-foreground relative flex gap-3 rounded-2xl border bg-clip-padding px-3 py-1 transition-all before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]">
+    <div className="bg-card text-card-foreground relative flex h-22 gap-3 rounded-2xl border bg-clip-padding px-3 py-1 transition-all before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]">
       <div className="flex items-center gap-3">
         <GripIcon className="size-4" />
 
-        <Skeleton className="size-16" />
+        <Skeleton className="size-18" />
       </div>
 
       <div className="mt-1 flex-1 space-y-1">

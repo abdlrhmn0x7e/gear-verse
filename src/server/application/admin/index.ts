@@ -9,6 +9,7 @@ import { _users } from "./users";
 import { _addresses } from "./addresses";
 import { _attributes } from "./attributes";
 import { _attributeValues } from "./attribute-values";
+import { _reviews } from "./reviews";
 
 export const _admin = {
   products: _products,
@@ -22,4 +23,5 @@ export const _admin = {
   addresses: _addresses,
   attributes: _attributes,
   attributeValues: _attributeValues,
+  reviews: _reviews,
 };

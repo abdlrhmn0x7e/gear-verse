@@ -10,6 +10,7 @@ import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 import { useQueryClient } from "node_modules/@tanstack/react-query/build/modern/QueryClientProvider";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function CompleteCheckout({
   children,
@@ -27,6 +28,12 @@ export function CompleteCheckout({
     trpc.public.checkout.mutations.complete.mutationOptions({
       onSuccess: (order) => {
         router.push(`/checkout/success?orderId=${order.id}`);
+      },
+
+      onError: () => {
+        toast.error(
+          "Something went wrong please make sure the items in your cart are still available in the store",
+        );
       },
     }),
   );
