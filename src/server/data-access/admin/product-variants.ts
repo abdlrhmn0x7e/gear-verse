@@ -175,11 +175,9 @@ export const _productVariants = {
             })
             .where(eq(productVariants.id, variant.id));
 
-          if (!stock) continue;
-
           await tx
             .update(inventoryItems)
-            .set({ quantity: stock })
+            .set({ quantity: stock ?? 0 })
             .where(eq(inventoryItems.productVariantId, id));
         }
       });
@@ -197,11 +195,9 @@ export const _productVariants = {
           })
           .where(eq(productVariants.id, input.id));
 
-        if (!stock) return { id };
-
         await tx
           .update(inventoryItems)
-          .set({ quantity: stock })
+          .set({ quantity: stock ?? 0 })
           .where(eq(inventoryItems.productVariantId, id));
 
         if (!values || values.length === 0) return { id };

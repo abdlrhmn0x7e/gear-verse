@@ -265,6 +265,14 @@ export const _products = {
           })),
         );
       }
+
+      /**
+       * if a variant got added to a non variance product
+       * delete the existing product item
+       */
+      if (variants) {
+        await data.admin.inventoryItems.mutations.delete(productId);
+      }
     },
 
     async delete(productId: number) {

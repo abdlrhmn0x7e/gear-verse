@@ -147,5 +147,27 @@ export const _inventoryItems = {
         return updatedItems;
       });
     },
+
+    delete(productId: number, variantId?: number) {
+      if (!variantId) {
+        return db
+          .delete(inventoryItems)
+          .where(
+            and(
+              eq(inventoryItems.productId, productId),
+              isNull(inventoryItems.productVariantId),
+            ),
+          );
+      }
+
+      return db
+        .delete(inventoryItems)
+        .where(
+          and(
+            eq(inventoryItems.productId, productId),
+            eq(inventoryItems.productVariantId, variantId),
+          ),
+        );
+    },
   },
 };
