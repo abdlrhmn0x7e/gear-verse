@@ -1,13 +1,13 @@
 import { IconShoppingBagX } from "@tabler/icons-react";
 import type { RouterOutput } from "~/trpc/client";
-import { api } from "~/trpc/server";
+import { app } from "~/server/application";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ImageWithFallback } from "../image-with-fallback";
 import { Skeleton } from "../ui/skeleton";
 import { NavLink } from "./nav";
 
 export async function ProductsMenuContent() {
-  const products = await api.public.products.queries.getPage({
+  const products = await app.public.products.queries.getPage({
     pageSize: 3,
   });
 

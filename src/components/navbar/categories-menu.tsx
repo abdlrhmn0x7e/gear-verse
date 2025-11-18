@@ -1,5 +1,5 @@
 /** eslint-disable react-hooks/static-components */
-import { api } from "~/trpc/server";
+import { app } from "~/server/application";
 import { Card, CardContent } from "../ui/card";
 import type { RouterOutput } from "~/trpc/client";
 import { iconsMap } from "~/lib/icons-map";
@@ -9,7 +9,7 @@ import Header from "../header";
 import { Heading } from "../heading";
 
 export async function CategoriesMenu() {
-  const categories = await api.public.categories.queries.findAll({
+  const categories = await app.public.categories.queries.findAll({
     filters: { root: true },
   });
 
