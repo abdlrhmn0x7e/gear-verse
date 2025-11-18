@@ -36,7 +36,7 @@ export function ProductCard({
           )}
 
           <AspectRatio
-            ratio={16 / 10}
+            ratio={1 / 1}
             className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))] border bg-white"
           >
             <ImageWithFallback
@@ -67,10 +67,6 @@ export function ProductCard({
               </div>
 
               <Heading level={4}>{product.title}</Heading>
-
-              <p className="text-muted-foreground line-clamp-3 text-sm lg:text-base">
-                {product.summary}
-              </p>
             </div>
 
             <p className="flex items-end gap-3">

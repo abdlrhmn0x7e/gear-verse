@@ -10,6 +10,8 @@ import { instrumentSans } from "~/fonts";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
+import * as Sentry from "@sentry/nextjs";
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: "Gear Verse",
@@ -35,6 +37,9 @@ export const metadata: Metadata = {
         url: "/favicon-light.ico",
       },
     ],
+  },
+  other: {
+    ...Sentry.getTraceData(),
   },
 };
 

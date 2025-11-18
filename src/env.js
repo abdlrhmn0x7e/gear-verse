@@ -14,10 +14,13 @@ export const env = createEnv({
     AWS_S3_REGION: z.string(),
     AWS_S3_ACCESS_KEY_ID: z.string(),
     AWS_S3_SECRET_ACCESS_KEY: z.string(),
+
+    SENTRY_AUTH_TOKEN: z.string(),
   },
 
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
+    NEXT_PUBLIC_SENTRY_DSN: z.string(),
   },
 
   runtimeEnv: {
@@ -35,7 +38,10 @@ export const env = createEnv({
     AWS_S3_ACCESS_KEY_ID: process.env.AWS_S3_ACCESS_KEY_ID,
     AWS_S3_SECRET_ACCESS_KEY: process.env.AWS_S3_SECRET_ACCESS_KEY,
 
+    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
