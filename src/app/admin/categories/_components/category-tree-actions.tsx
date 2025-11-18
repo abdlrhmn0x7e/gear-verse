@@ -58,6 +58,7 @@ export function CategoryTreeActions({
       <DropdownMenuContent
         side="right"
         align="start"
+        className="max-w-64"
         sideOffset={20}
         alignOffset={-8}
       >
@@ -74,7 +75,7 @@ export function CategoryTreeActions({
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          variant="destructive"
+          variant="destructive-ghost"
           onClick={() => deleteCategory({ id: categoryId })}
         >
           {isDeletingCategory ? <Spinner /> : <TrashIcon />}
