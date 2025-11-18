@@ -241,6 +241,7 @@ export function BrandsCommand({
             <CommandItem
               key={brand.id}
               value={brand.name}
+              className="h-9"
               onSelect={() => {
                 if (brand.id === value) {
                   onValueChange(0);
@@ -269,7 +270,7 @@ export function BrandsCommand({
                 )}
               />
               <Button
-                size="icon"
+                size="icon-sm"
                 variant="destructive-ghost"
                 onClick={(e) => {
                   e.stopPropagation();

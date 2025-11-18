@@ -113,13 +113,12 @@ export function ProductsFilter() {
             (category) => category !== value,
           );
           return {
-            ...prev,
             categories:
               filteredCategories.length > 0 ? filteredCategories : null,
           };
         }
 
-        return { ...prev, categories: [...(prev.categories ?? []), value] };
+        return { categories: [...(prev.categories ?? []), value] };
       },
       { limitUrlUpdates: debounce(500) },
     );
@@ -159,7 +158,7 @@ export function ProductsFilter() {
             className={cn(isOpen && "dark:text-primary-foreground")}
             asChild
           >
-            <Button variant="ghost" size="icon-sm">
+            <Button variant="ghost" size="icon-sm" className="focus:ring-0">
               <ListFilterIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -222,10 +221,10 @@ export function ProductsFilter() {
         </DropdownMenu>
       </SearchInput>
 
-      {brands && (
+      {categories && filteredBrands && (
         <FilterList
           brands={filteredBrands}
-          categories={categories ?? []}
+          categories={categories}
           filters={[
             {
               key: "brands",
@@ -236,7 +235,7 @@ export function ProductsFilter() {
               value: filters.categories ?? [],
             },
           ]}
-          loading={brandsPending}
+          loading={brandsPending || categoriesPending}
           onRemove={handleFilterRemove}
         />
       )}

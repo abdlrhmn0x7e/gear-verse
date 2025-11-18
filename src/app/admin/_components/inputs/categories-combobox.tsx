@@ -181,7 +181,6 @@ export function CategoriesCommand({
               key={category.id}
               category={category}
               setValue={setValue}
-              setParentComboboxOpen={setOpen}
               selectedValue={value ?? null}
             />
           ))}
@@ -194,30 +193,17 @@ export function CategoriesCommand({
 const CategoryComboboxItem = ({
   category,
   setValue,
-  setParentComboboxOpen,
   selectedValue,
   ...props
 }: {
   category: CategoryTree;
   setValue: (value: number) => void;
   selectedValue: number | null;
-  setParentComboboxOpen: React.Dispatch<React.SetStateAction<boolean>>;
 } & React.ComponentProps<typeof CommandItem>) => {
-  const [open, setOpen] = React.useState(false);
   const Icon = iconsMap.get(category.icon);
 
   function onItemSelect(categoryId: number) {
     setValue(categoryId);
-    setParentComboboxOpen(false);
-  }
-
-  function handleItemSelect(categoryId: number) {
-    if (!open) {
-      setOpen(true);
-      return;
-    }
-
-    onItemSelect(categoryId);
   }
 
   if (!category.children) {
@@ -241,35 +227,25 @@ const CategoryComboboxItem = ({
     );
   }
   return (
-    <Collapsible
-      className="group/collapsible [&[data-state=open]>div>svg:first-child]:rotate-90"
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <CollapsibleTrigger asChild>
-        <CommandItem
-          value={`${category.id}-${category.name}`}
-          onSelect={() => handleItemSelect(category.id)}
-          {...props}
-        >
-          <ChevronRightIcon
-            className="transition-transform"
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpen(true);
-            }}
-          />
-          {/*eslint-disable-next-line react-hooks/static-components*/}
-          {Icon && <Icon />}
-          {category.name}
-          <Check
-            className={cn(
-              "ml-auto",
-              category.id === selectedValue ? "opacity-100" : "opacity-0",
-            )}
-          />
-        </CommandItem>
-      </CollapsibleTrigger>
+    <Collapsible className="group/collapsible [&[data-state=open]>div>button>svg:first-child]:rotate-90">
+      <CommandItem
+        value={`${category.id}-${category.name}`}
+        onSelect={() => onItemSelect(category.id)}
+        {...props}
+      >
+        <CollapsibleTrigger onClick={(e) => e.stopPropagation()}>
+          <ChevronRightIcon className="transition-transform" />
+        </CollapsibleTrigger>
+        {/*eslint-disable-next-line react-hooks/static-components*/}
+        {Icon && <Icon />}
+        {category.name}
+        <Check
+          className={cn(
+            "ml-auto",
+            category.id === selectedValue ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </CommandItem>
 
       <CollapsibleContent className="pl-6">
         {category.children.map((child) => (
@@ -277,7 +253,6 @@ const CategoryComboboxItem = ({
             key={child.id}
             category={child}
             setValue={setValue}
-            setParentComboboxOpen={setParentComboboxOpen}
             selectedValue={selectedValue}
             {...props}
           />

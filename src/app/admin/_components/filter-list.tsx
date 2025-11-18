@@ -1,5 +1,5 @@
 import { ChevronRightIcon, XIcon } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -11,7 +11,7 @@ import { PaymentMethod } from "~/app/(public)/(protected)/_components/payment-me
 import type { CategoryTree } from "~/lib/schemas/entities";
 
 const itemVariant = {
-  hidden: { y: 10, opacity: 0 },
+  hidden: { y: 50, opacity: 0 },
   show: { y: 0, opacity: 1 },
 };
 
@@ -152,46 +152,54 @@ export function FilterList({
       animate="show"
       className="flex space-x-2"
     >
-      {loading ? (
-        <div className="flex items-center gap-2">
-          <motion.li key="1" variants={itemVariant}>
-            <Skeleton className="h-8 w-[100px]" />
-          </motion.li>
-          <motion.li key="2" variants={itemVariant}>
-            <Skeleton className="h-8 w-[100px]" />
-          </motion.li>
-        </div>
-      ) : (
-        filters.map(({ key, value }) =>
-          Array.isArray(value)
-            ? value?.map((value) => (
-                <motion.li key={`${key}-${value}`} variants={itemVariant}>
-                  <Button
-                    variant="destructive-outline"
-                    className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
-                    onClick={() => onRemove({ key, value })}
+      <AnimatePresence mode="popLayout">
+        {loading ? (
+          <div className="flex items-center gap-2">
+            <motion.li key="1" variants={itemVariant}>
+              <Skeleton className="h-8 w-[100px]" />
+            </motion.li>
+            <motion.li key="2" variants={itemVariant}>
+              <Skeleton className="h-8 w-[100px]" />
+            </motion.li>
+          </div>
+        ) : (
+          filters.map(({ key, value }) =>
+            Array.isArray(value)
+              ? value?.map((value) => (
+                  <motion.li
+                    key={`${key}-${value}`}
+                    initial="hidden"
+                    whileInView="show"
+                    exit="hidden"
+                    variants={itemVariant}
                   >
-                    <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
+                    <Button
+                      variant="destructive-outline"
+                      className="group h-9 cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
+                      onClick={() => onRemove({ key, value })}
+                    >
+                      <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
 
-                    {renderFilter({ key, value })}
-                  </Button>
-                </motion.li>
-              ))
-            : value && (
-                <motion.li key={`${key}-${value}`} variants={itemVariant}>
-                  <Button
-                    variant="destructive-outline"
-                    className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
-                    onClick={() => onRemove({ key, value })}
-                  >
-                    <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
+                      {renderFilter({ key, value })}
+                    </Button>
+                  </motion.li>
+                ))
+              : value && (
+                  <motion.li key={`${key}-${value}`} variants={itemVariant}>
+                    <Button
+                      variant="destructive-outline"
+                      className="group cursor-pointer has-[>svg]:px-0 has-[>svg]:pr-4 has-[>svg]:pl-0"
+                      onClick={() => onRemove({ key, value })}
+                    >
+                      <XIcon className="ml-0 size-0 scale-0 transition-all group-hover:ml-2 group-hover:size-4 group-hover:scale-100" />
 
-                    {renderFilter({ key, value })}
-                  </Button>
-                </motion.li>
-              ),
-        )
-      )}
+                      {renderFilter({ key, value })}
+                    </Button>
+                  </motion.li>
+                ),
+          )
+        )}
+      </AnimatePresence>
     </motion.ul>
   );
 }
