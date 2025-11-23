@@ -189,15 +189,6 @@ Visit `http://localhost:3000` for the storefront and `/admin` for the admin dash
 - Sentry instrumentation for server + edge runtimes (`src/sentry.server.config.ts`, `src/sentry.edge.config.ts`, `src/instrumentation*.ts`).
 - Add your Sentry DSN in env files to enable tracing locally and in production.
 
-## Deployment Checklist
-
-- [ ] Configure environment variables (DB, auth providers, S3, Sentry, base URLs).
-- [ ] Run `bun db:migrate` against the target database.
-- [ ] Provide S3 bucket + CORS rules for presigned uploads.
-- [ ] Flag Better Auth admin emails/roles.
-- [ ] Upload real storefront/admin screenshots to replace placeholders.
-- [ ] Enable Sentry project + releases for observability.
-
 ## Contributing
 
 1. Fork and create a feature branch (`git checkout -b feature/my-change`).
