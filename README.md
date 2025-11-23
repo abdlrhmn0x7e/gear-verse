@@ -1,8 +1,6 @@
-# Gear Verse
-
-_A production-grade e-commerce platform for gaming and tech gear built with a layered architecture and modern developer experience._
-
 ![Hero Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/header.jpg)
+
+<p align="center"><em>A production-grade e-commerce platform for gaming and tech gear built with a layered architecture and modern developer experience.</em></p>
 
 ## Table of Contents
 
