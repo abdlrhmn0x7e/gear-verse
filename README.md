@@ -1,6 +1,6 @@
 ![Hero Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/header.jpg)
 
-<p align="center"><em>A production-grade e-commerce platform for gaming and tech gear built with a layered architecture and modern developer experience.</em></p>
+<p align="center"><em>A modern, full-stack e-commerce platform for gaming and tech gear.</em></p>
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ Gear Verse is a full-stack reference implementation that mirrors how a real comm
 
 | View                                                                                                   | Description                                                                      |
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| ![Storefront Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/storefront.png) | Landing page, product listing/detail, category pages, reviews, variant selection |
+| ![Storefront Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/landing.png)    | Landing page, product listing/detail, category pages, reviews, variant selection |
 | ![Admin Dashboard Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/admin.png) | Catalog CRUD, orders, fulfillment queues, inventory adjustments, quick actions   |
 
 ## Architecture
