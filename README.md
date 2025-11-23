@@ -14,7 +14,6 @@
 - [Getting Started](#getting-started)
 - [Scripts](#scripts)
 - [Observability](#observability)
-- [Deployment Checklist](#deployment-checklist)
 - [Contributing](#contributing)
 
 ## Why Gear Verse
