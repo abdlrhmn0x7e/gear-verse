@@ -1,271 +1,209 @@
 # Gear Verse
 
-A full‑stack, production‑style e‑commerce platform for gaming and tech gear.
+_A production-grade e-commerce platform for gaming and tech gear built with a layered architecture and modern developer experience._
 
-Gear Verse includes a customer‑facing storefront and a full admin dashboard, built with a layered architecture (presentation → application → data‑access → database) and modern tooling (Next.js App Router, TRPC, Drizzle ORM, Better Auth, S3, and Sentry).
+![Hero Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/header.jpg)
 
----
+## Table of Contents
 
-## 1. What This Project Demonstrates
+- [Why Gear Verse](#why-gear-verse)
+- [Highlights](#highlights)
+- [Screens & Flows](#screens--flows)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Layout](#project-layout)
+- [Domain & Features](#domain--features)
+- [Getting Started](#getting-started)
+- [Scripts](#scripts)
+- [Observability](#observability)
+- [Deployment Checklist](#deployment-checklist)
+- [Contributing](#contributing)
 
-- **Realistic e‑commerce domain**: products, variants, categories, carts, orders, inventory, reviews, brands.
-- **Layered backend**:
-  - `app/` – Next.js routing and UI
-  - `server/api` – TRPC routers
-  - `server/application` – business use‑cases
-  - `server/data-access` – DB queries
-  - `server/db/schema` – Drizzle models
-- **Modern auth** with Better Auth, including **anonymous → registered user migration**.
-- **File uploads** via S3 presigned URLs.
-- **Observability** with Sentry and typed error mapping.
-- **Polished admin UX** with dashboards, tables, and quick actions.
+## Why Gear Verse
 
-All of this is implemented in the repo you’re looking at; the diagrams below map directly to concrete files.
+Gear Verse is a full-stack reference implementation that mirrors how a real commerce engineering team would structure a codebase. It enforces clear boundaries (presentation -> application -> data-access -> database), typed APIs, rigorous auth, file uploads, and observability from the start.
 
----
+## Highlights
 
-## 2. Tech Stack
+- Realistic commerce surface area: products, variants, categories, carts, inventory, orders, reviews, brands, SEO metadata, and admin workflows.
+- Layered backend with TRPC + Drizzle + Postgres so transport logic never leaks into domain rules.
+- Better Auth with anonymous-to-registered migration keeps carts, addresses, and orders in sync when a guest signs up.
+- Presigned S3 uploads, media management, and polished admin UX for catalog/inventory operations.
+- First-class observability via typed domain errors mapped to TRPC plus Sentry tracing.
+- Modern frontend DX: Next.js App Router, React Server Components, Tailwind CSS 4, Radix UI, @tanstack/react-query, and zustand.
 
-- **Framework**: `Next.js 16` (App Router, Server Components)
-- **Language**: `TypeScript 5`
-- **Runtime / tooling**:
-  - Bun (used in CI commands)
-  - Node.js 20+
-- **UI**:
-  - React 19 (Server + Client Components)
-  - Tailwind CSS 4 (`src/styles/globals.css`)
-  - Radix primitives and custom UI components under `src/components/ui`
-  - Feature components under `src/components/features`
-- **Data & state**:
-  - `@tanstack/react-query` & TRPC hooks for client data
-  - `zustand` and React context (`src/stores/variant-selection`, etc.)
-- **Forms & validation**:
-  - `react-hook-form`
-  - `zod` schemas in `src/lib/schemas`
-- **Backend**:
-  - TRPC v11 (`src/server/api/_app.ts`, `src/server/api/routers/*`)
-  - Drizzle ORM (`src/server/db/schema/*.ts`, `src/server/db/index.ts`)
-  - Postgres (via `postgres` driver)
-  - Better Auth (`src/server/auth.ts`)
-  - S3 via AWS SDK (`src/lib/s3.ts`)
-- **Observability**:
-  - Sentry (`src/sentry.server.config.ts`, `src/sentry.edge.config.ts`, `src/instrumentation.ts`)
-- **Tooling**:
-  - ESLint 9 + `eslint-config-next` (`eslint.config.js`)
-  - Prettier + Tailwind plugin (`prettier.config.js`)
-  - Tailwind 4 (`tailwind.config.js`, `postcss.config.js`)
+## Screens & Flows
 
----
+| View                                                                                                   | Description                                                                      |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ![Storefront Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/storefront.png) | Landing page, product listing/detail, category pages, reviews, variant selection |
+| ![Admin Dashboard Placeholder](https://github.com/abdlrhmn0x7e/gear-verse/blob/main/gallery/admin.png) | Catalog CRUD, orders, fulfillment queues, inventory adjustments, quick actions   |
 
-## 3. Project Structure (with Pointers)
+## Architecture
 
-```text
+- **Next.js App Router (`src/app`)** handles routing, layouts, and React Server Components.
+- **TRPC layer (`src/server/api`)** exposes typed procedures that orchestrate application use-cases.
+- **Application layer (`src/server/application`)** enforces business rules per bounded context (products, checkout, admin, etc.).
+- **Data-access layer (`src/server/data-access`)** centralizes Drizzle ORM queries, pagination, and joins.
+- **Database schema (`src/server/db/schema`)** models catalog, users, carts, orders, media, SEO, and supporting tables.
+
+## Tech Stack
+
+| Area               | Tools                                                         |
+| ------------------ | ------------------------------------------------------------- |
+| Framework          | Next.js 16, React 19 (RSC + Client Components)                |
+| Language           | TypeScript 5 (strict)                                         |
+| Runtime & Package  | Node.js 20+, Bun (CI) or PNPM                                 |
+| Styling            | Tailwind CSS 4, design tokens in `src/styles`                 |
+| UI Primitives      | Radix + custom components under `src/components/ui`           |
+| Data Fetching      | TRPC v11, `@tanstack/react-query`, server actions             |
+| State              | `zustand` + feature stores under `src/stores`                 |
+| Forms & Validation | `react-hook-form`, Zod schemas in `src/lib/schemas`           |
+| Auth               | Better Auth + plugins (`src/server/auth.ts`)                  |
+| Storage            | AWS S3 via presigned uploads (`src/lib/s3.ts`)                |
+| ORM & DB           | Drizzle ORM + Postgres (`src/server/db`)                      |
+| Observability      | Sentry (`src/sentry.*`, `src/instrumentation*.ts`)            |
+| Tooling            | ESLint 9, Prettier + Tailwind plugin, TypeScript project refs |
+
+## Project Layout
+
+```
 src/
   app/
-    (public)/              # Storefront & landing pages
-      (landing)/page.tsx   # Hero, recent products, testimonials
-      products/            # Product list & detail pages
-      categories/          # Category listing & SEO pages
-    admin/                 # Admin dashboard & CRUD UIs
-      (index)/page.tsx     # Admin home/dashboard
-      products/            # Product & variant management
-      orders/              # Orders list & detail
-      inventory/           # Inventory management
-    api/
-      auth/                # Better Auth route handler
-      trpc/                # TRPC handler
-    layout.tsx             # App shell (navbar/footer/theme)
-
-  components/              # Reusable UI & feature components
-  hooks/                   # Client hooks
-  lib/                     # Schemas, utils, S3 client, etc.
+    (public)/(landing)/     # Marketing hero, featured products, testimonials
+    (public)/products/      # Product listing + detail pages (RSC + client islands)
+    (public)/categories/    # Category landing + SEO
+    admin/                  # Admin dashboard, CRUD flows, reports
+    api/auth/               # Better Auth route handler
+    api/trpc/               # TRPC handler
+  components/               # UI primitives + feature widgets
+  hooks/                    # Client hooks (React Query, forms, etc.)
+  lib/                      # Schemas, utilities, S3 helpers
   server/
-    api/                   # TRPC routers and init
-    application/           # Use‑cases (admin + public)
-    data-access/           # DB access per feature
-    db/                    # Drizzle ORM schema + db init
-    auth.ts                # Better Auth config and guards
-
-  stores/                  # Zustand stores (e.g. variant selection)
-  styles/                  # Global styles
-  trpc/                    # TRPC client + server helpers
+    api/                    # TRPC routers + router init
+    application/            # Use-cases per domain (public/admin)
+    data-access/            # Drizzle query builders per aggregate
+    db/                     # Schema + database bootstrap
+    auth.ts                 # Better Auth config and guards
+  stores/                   # Zustand stores (e.g., variant selection)
+  styles/                   # Tailwind + globals
+  trpc/                     # Client/server TRPC helpers
 ```
 
-Key entry points that match the diagrams below:
+Key entry points:
 
-- Landing / marketing: `src/app/(public)/(landing)/page.tsx`
-- Admin dashboard: `src/app/admin/(index)/page.tsx`
-- TRPC root: `src/server/api/_app.ts`
-- Public routers: `src/server/api/routers/public/*.ts`
-- Public application layer: `src/server/application/public/*.ts`
-- Public data‑access: `src/server/data-access/public/*.ts`
-- Product schema: `src/server/db/schema/products.ts`
-- Auth: `src/server/auth.ts`
-- S3: `src/lib/s3.ts`
+- `src/app/(public)/(landing)/page.tsx` – storefront hero, featured products, testimonials.
+- `src/app/admin/(index)/page.tsx` – authenticated admin dashboard shell.
+- `src/server/api/_app.ts` – TRPC root, wiring public + admin routers.
+- `src/server/application/public/*` – public-facing use-cases.
+- `src/server/data-access/public/*` – composable Drizzle queries for storefront flows.
+- `src/server/db/schema/products.ts` – product + variant modeling.
+- `src/server/auth.ts` – Better Auth setup, anonymous migration logic, guards.
 
----
+## Domain & Features
 
-## 4. Architecture Diagrams
+- **Catalog**: products, categories, brands, media, SEO metadata.
+- **Variants & Inventory**: attribute sets (size/color), stock tracking, low-stock alerts.
+- **Carts & Checkout**: anonymous carts, migration to registered users, order + line items.
+- **Reviews**: rating submissions, moderation hooks.
+- **Admin Operations**: dashboards, quick actions for inventory updates, order state transitions.
 
-### 4.1 High‑Level Backend Layers
+### Layer Responsibilities
 
-```text
-[ Browser / Client Components ]
-                |
-                v
-[ Next.js App Router (src/app) ]
-  - page.tsx / layout.tsx
-  - server components & actions
-                |
-                v
-[ TRPC API (src/server/api) ]
-  - appRouter (admin, public)
-  - routers/* (products, orders, carts, ...)
-                |
-                v
-[ Application Layer (src/server/application) ]
-  - Use‑cases per domain (products, checkout, orders)
-  - Cross‑cutting domain rules
-                |
-                v
-[ Data‑Access Layer (src/server/data-access) ]
-  - Drizzle queries per aggregate
-  - Pagination, filtering, joins
-                |
-                v
-[ Database (src/server/db/schema + Postgres) ]
-  - Products, categories, variants, inventory
-  - Carts, orders, users, addresses, reviews, brands
+```
+[ Client (RSC + client components) ]
+              |
+              v
+[ TRPC Routers ] -> orchestrate use-cases and enforce auth
+              v
+[ Application Layer ] -> domain rules, validation, orchestration
+              v
+[ Data-Access Layer ] -> Drizzle queries, pagination, joins
+              v
+[ Postgres ] -> normalized schema from catalog to checkout
 ```
 
-This is not just theoretical – each layer has its own directory and files wired together via TRPC.
+## Getting Started
 
-
-### 4.3 Auth & Anonymous User Migration
-
-Concrete file: `src/server/auth.ts`
-
-```text
-[ Better Auth config ]
-(baseURL, drizzleAdapter(db), social providers)
-        |
-        | plugins: admin(), anonymous()
-        v
-[ Anonymous plugin onLinkAccount ]
-        |
-        |  When an anonymous user signs up or logs in:
-        |    - Run a DB transaction
-        |    - Delete any existing cart for the new user
-        |    - Move carts, addresses, orders from
-        |      anonymous user → new user
-        |    - Delete anonymous user record
-        v
-[ requireAuth / requireAdmin guards ]
-  - used in admin pages like
-    src/app/admin/(index)/page.tsx
-  - non‑admin or unauthenticated → 404 (notFound())
-```
-
-This ensures carts and order history created before authentication follow the user after they create an account – something many demo apps skip.
-
-## 5. Domain Model Overview
-
-Based on `src/server/db/schema/*.ts`, the core domain entities are:
-
-- `products.ts` – base product info
-- `attributes.ts` – product attributes (e.g., size, color)
-- `brands.ts` – product brands
-- `categories.ts` – product categories
-- `products-media.ts` / `media.ts` – media linked to products
-- `inventory.ts` – stock data
-- `carts.ts` – shopping carts
-- `orders.ts` – orders and line items
-- `users.ts` / `addresses.ts` – customers and their addresses
-- `reviews.ts` – product reviews
-- `seo.ts` – SEO metadata
-
----
-
-## 6. Error Handling & Observability
-
-- **Domain errors**: `src/server/lib/errors/app-error.ts` defines typed error classes.
-- **TRPC error mapping**: `src/server/api/error-map.ts` converts those to TRPC errors.
-- **Sentry**:
-  - Server configuration: `src/sentry.server.config.ts`
-  - Edge/runtime configuration: `src/sentry.edge.config.ts`
-  - Instrumentation hooks: `src/instrumentation.ts`, `src/instrumentation-client.ts`
-
-The combination gives you:
-
-- Centralized domain error handling.
-- Type‑safe error responses to the client.
-- Central logging and tracing of issues in Sentry.
-
----
-
-## 7. Getting Started (Local)
-
-### Prerequisites
+### 1. Prerequisites
 
 - Node.js 20+
-- Bun (or your preferred package manager)
+- Bun (preferred) or PNPM
 - Postgres database
-- AWS S3 bucket (optional but needed for real uploads)
+- AWS S3 bucket (for real uploads)
+- Sentry project (optional but recommended)
 
-### 1. Install Dependencies
+### 2. Install Dependencies
 
 ```bash
-bun install
-# or
-pnpm install
+bun install   # or pnpm install
 ```
 
-### 2. Configure Environment
-
-Copy example env files and edit values:
+### 3. Configure Environment
 
 ```bash
 find . -type f -name ".env.example" -exec sh -c 'cp "$1" "${1%.*}"' _ {} \;
 ```
 
-Fill in variables for:
+Set database URLs, Better Auth secrets, OAuth providers, S3 credentials, and (optionally) Sentry DSNs.
 
-- Database connection URL
-- Auth configuration (Better Auth, Google OAuth, etc.)
-- AWS S3 (`AWS_S3_REGION`, `AWS_S3_ACCESS_KEY_ID`, `AWS_S3_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET_NAME`)
-- Sentry DSN (optional)
-
-### 3. Run Migrations
+### 4. Database Schema
 
 ```bash
-bun db:migrate
+bun db:migrate     # apply existing migrations
+# bun db:generate  # create a new migration after schema edits
 ```
 
-(Use `bun db:generate` if you change schema.)
-
-### 4. Start Dev Server
+### 5. Run the App
 
 ```bash
 bun dev
 ```
 
-Visit `http://localhost:3000` for the storefront and `/admin` for the admin dashboard (after seeding or creating an admin user).
+Visit `http://localhost:3000` for the storefront and `/admin` for the admin dashboard (ensure you have an admin user or seed data).
 
----
+### 6. Optional Tooling
 
-## 8. Scripts Overview
+- `bun typecheck` – TypeScript in `--noEmit` mode.
+- `bun lint` / `bun lint:fix` – ESLint (configured via `eslint.config.js`).
+- `bun format:write` – Prettier + Tailwind plugin.
 
-From `package.json`:
+## Scripts
 
-- `bun dev` – Run Next.js dev server
-- `bun build` – Production build
-- `bun preview` – Build then start (`next build && next start`)
-- `bun start` – Run built app
-- `bun typecheck` – TypeScript typecheck (`tsc --noEmit`)
-- `bun lint` – `next lint`
-- `bun lint:fix` – ESLint with `--fix`
-- `bun db:generate` – Generate Drizzle migrations
-- `bun db:migrate` – Run migrations
-- `bun db:push` – Push schema to DB
-- `bun db:studio` – Drizzle Studio
-- `bun format:check` / `bun format:write` – Prettier
+| Command                                 | Description                     |
+| --------------------------------------- | ------------------------------- |
+| `bun dev`                               | Start Next.js dev server        |
+| `bun build`                             | Production build (`next build`) |
+| `bun preview`                           | Build then `next start`         |
+| `bun start`                             | Serve built app                 |
+| `bun typecheck`                         | `tsc --noEmit`                  |
+| `bun lint` / `bun lint:fix`             | ESLint (with optional auto-fix) |
+| `bun db:generate`                       | Generate Drizzle migrations     |
+| `bun db:migrate`                        | Apply migrations                |
+| `bun db:push`                           | Push schema directly to DB      |
+| `bun db:studio`                         | Launch Drizzle Studio           |
+| `bun format:check` / `bun format:write` | Prettier                        |
+
+## Observability
+
+- Typed domain errors live in `src/server/lib/errors/app-error.ts`.
+- Central TRPC error mapping via `src/server/api/error-map.ts`.
+- Sentry instrumentation for server + edge runtimes (`src/sentry.server.config.ts`, `src/sentry.edge.config.ts`, `src/instrumentation*.ts`).
+- Add your Sentry DSN in env files to enable tracing locally and in production.
+
+## Deployment Checklist
+
+- [ ] Configure environment variables (DB, auth providers, S3, Sentry, base URLs).
+- [ ] Run `bun db:migrate` against the target database.
+- [ ] Provide S3 bucket + CORS rules for presigned uploads.
+- [ ] Flag Better Auth admin emails/roles.
+- [ ] Upload real storefront/admin screenshots to replace placeholders.
+- [ ] Enable Sentry project + releases for observability.
+
+## Contributing
+
+1. Fork and create a feature branch (`git checkout -b feature/my-change`).
+2. Install dependencies and run `bun dev`.
+3. Add or update tests where applicable.
+4. Lint & typecheck (`bun lint`, `bun typecheck`).
+5. Open a PR with context, screenshots (swap placeholders), and test notes.
