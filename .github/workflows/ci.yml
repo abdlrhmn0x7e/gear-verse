@@ -16,8 +16,11 @@ jobs:
         shell: bash
         run: find . -type f -name ".env.example" -exec sh -c 'cp "$1" "${1%.*}"' _ {} \;
 
-      - name: Typecheck
-        run: bun typecheck
+      - name: Build
+        run: bun run build
 
       - name: Lint
         run: bun lint
+
+      - name: Typecheck
+        run: bun typecheck
