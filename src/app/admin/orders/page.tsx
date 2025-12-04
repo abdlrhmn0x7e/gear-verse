@@ -9,10 +9,13 @@ import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
 import { CreateOrderDrawer } from "./_components/create-order-drawer";
 import { EditOrderDrawer } from "./_components/edit-order-drawer";
 import { requireAdmin } from "~/server/auth";
+import type { SearchParams } from "nuqs/server";
 
 export default async function AdminOrdersPage({
   searchParams,
-}: PageProps<"/admin/orders">) {
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await requireAdmin();
   const params = await loadOrderSearchParams(searchParams);
   void prefetch(

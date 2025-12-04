@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { Products, ProductsSkeleton } from "./_components/products";
 import { loadFilterSearchParams } from "./_components/utils";
 import { app } from "~/server/application";
+import type { SearchParams } from "nuqs/server";
 
 export async function generateStaticParams() {
   const slugs = await app.public.categories.queries.findAllSlugs();
@@ -15,7 +16,10 @@ export async function generateStaticParams() {
 export default async function CategoryPage({
   params,
   searchParams,
-}: PageProps<"/categories/[slug]">) {
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: SearchParams;
+}) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const loadedSps = loadFilterSearchParams(sp as Record<string, string>);
 

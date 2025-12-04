@@ -14,7 +14,9 @@ import { EditVariant } from "./_components/edit-variant";
 
 export default async function AdminVariantPage({
   params,
-}: PageProps<"/admin/products/[productId]/variants/[variantId]">) {
+}: {
+  params: Promise<{ productId: string; variantId: string }>;
+}) {
   await requireAdmin();
   const { productId, variantId } = await params;
 

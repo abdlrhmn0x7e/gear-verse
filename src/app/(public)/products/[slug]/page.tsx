@@ -12,7 +12,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/products/[slug]">): Promise<Metadata> {
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const metadata = await app.public.products.queries.findMetadata(slug);
 
@@ -42,7 +44,9 @@ export async function generateMetadata({
 
 export default async function ProductPage({
   params,
-}: PageProps<"/products/[slug]">) {
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
 
   return (

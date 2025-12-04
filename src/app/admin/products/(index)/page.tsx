@@ -14,10 +14,13 @@ import Link from "next/link";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { requireAdmin } from "~/server/auth";
 import { Reviews } from "./_component/reviews";
+import type { SearchParams } from "nuqs/server";
 
 export default async function AdminProductsPage({
   searchParams,
-}: PageProps<"/admin/products">) {
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await requireAdmin();
 
   const params = await loadProductSearchParams(searchParams);
