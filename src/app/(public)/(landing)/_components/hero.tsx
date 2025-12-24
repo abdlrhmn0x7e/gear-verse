@@ -297,7 +297,8 @@ async function CustomerSummary() {
 
           <p>
             <span className="font-medium">
-              {+(customersSummary?.count ?? 0) + 240}
+              {+(customersSummary?.count ?? 0) +
+                (customersSummary?.count ? 240 : 0)}
             </span>{" "}
             Happy Customers
             <svg className="stroke-primary w-6 stroke-8" viewBox="0 0 100 20">

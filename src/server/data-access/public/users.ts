@@ -21,12 +21,13 @@ export const _users = {
         .with(latestUsersCte)
         .select({
           summary: sql<Array<{ name: string; image: string | null }>>`(
-                      SELECT json_agg(
-                        jsonb_build_object(
-                          'name', ${latestUsersCte.name},
-                          'image', ${latestUsersCte.image}
-                        )
-                      )
+                      SELECT coalesce(
+                        json_agg(
+                          jsonb_build_object(
+                            'name', ${latestUsersCte.name},
+                            'image', ${latestUsersCte.image}
+                          )
+                        ), '[]'::json)
                       FROM ${latestUsersCte}
                    )`.as("summary"),
 
