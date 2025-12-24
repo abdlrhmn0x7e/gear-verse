@@ -7,9 +7,14 @@ import { Products, ProductsSkeleton } from "./_components/products";
 import { loadFilterSearchParams } from "./_components/utils";
 import { app } from "~/server/application";
 import type { SearchParams } from "nuqs/server";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   const slugs = await app.public.categories.queries.findAllSlugs();
+  if (slugs.length === 0) {
+    return [{ slug: "__placeholder__" }];
+  }
+
   return slugs;
 }
 
@@ -18,10 +23,14 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const loadedSps = loadFilterSearchParams(sp as Record<string, string>);
+
+  if (slug === "__placeholder__") {
+    return notFound();
+  }
 
   return (
     <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">

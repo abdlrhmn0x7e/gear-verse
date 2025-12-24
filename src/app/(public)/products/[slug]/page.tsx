@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
@@ -6,6 +7,10 @@ import { app } from "~/server/application";
 
 export async function generateStaticParams() {
   const slugs = await app.public.products.queries.findAllSlugs();
+  console.log("Product slugs for static params:", slugs);
+  if (slugs.length === 0) {
+    return [{ slug: "__placeholder__" }];
+  }
 
   return slugs;
 }
@@ -16,6 +21,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === "__placeholder__") {
+    return notFound();
+  }
+
   const metadata = await app.public.products.queries.findMetadata(slug);
 
   try {
