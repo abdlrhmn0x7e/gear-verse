@@ -1,6 +1,5 @@
-import { PackageIcon, TriangleAlertIcon } from "lucide-react";
+import { TriangleAlertIcon } from "lucide-react";
 import { AddProduct } from "./_components/add-product";
-import Header from "../../../../components/header";
 import { requireAdmin } from "~/server/auth";
 
 export default async function AdminProductsAddPage() {
@@ -17,14 +16,7 @@ export default async function AdminProductsAddPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-6">
-        <Header
-          title="Add Product"
-          description="Add a new product to your store"
-          headingLevel={5}
-          Icon={PackageIcon}
-        />
-
+      <div className="mx-auto max-w-7xl">
         <AddProduct />
       </div>
     </section>

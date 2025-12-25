@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
   useForm,
   useFormContext,
   useWatch,
+  type UseFormReturn,
 } from "react-hook-form";
 import z from "zod";
 
@@ -80,10 +82,12 @@ export function ProductForm({
   onSubmit,
   onSubmitPartial,
   defaultValues,
+  onFormReady,
 }: {
   onSubmit?: (data: ProductFormValues) => void;
   onSubmitPartial?: (data: Partial<ProductFormValues>) => void;
   defaultValues?: Partial<ProductFormValues>;
+  onFormReady?: (form: UseFormReturn<ProductFormValues>) => void;
 }) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -100,6 +104,10 @@ export function ProductForm({
       options: [],
     },
   });
+
+  useEffect(() => {
+    onFormReady?.(form);
+  }, [form, onFormReady]);
 
   const {
     fields: mediaFields,

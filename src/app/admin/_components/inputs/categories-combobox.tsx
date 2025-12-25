@@ -37,9 +37,11 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Spinner } from "~/components/spinner";
+import { Separator } from "~/components/ui/separator";
 import { iconsMap } from "~/lib/icons-map";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { useQuery } from "@tanstack/react-query";
+import { AddCategoryDrawer } from "../drawers/add-category";
 
 export function CategoriesCombobox({
   value,
@@ -154,6 +156,10 @@ export function CategoriesCombobox({
           setOpen={setOpen}
           value={value ?? null}
         />
+
+        <Separator />
+
+        <AddCategoryDrawer />
       </PopoverContent>
     </Popover>
   );
@@ -171,7 +177,7 @@ export function CategoriesCommand({
   value: number | null;
 }) {
   return (
-    <Command className="mb-4">
+    <Command>
       <CommandInput placeholder="Search category..." className="h-9" />
       <CommandList>
         <CommandEmpty>No category found.</CommandEmpty>
