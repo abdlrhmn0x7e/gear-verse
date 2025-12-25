@@ -178,6 +178,7 @@ export const _products = {
           variants: sql<
             FullVariant[]
           >`coalesce(${fullVariantsCTE.json}, '[]'::jsonb)`,
+          thumbnailUrl: sql<string>`${media.url}`,
           media: sql<
             string[]
           >`coalesce(${productMediaSubQuery.json}, '[]'::jsonb)`,
@@ -196,7 +197,7 @@ export const _products = {
           productMediaSubQuery,
           eq(productMediaSubQuery.productId, products.id),
         )
-
+        .leftJoin(media, eq(media.id, products.thumbnailMediaId))
         .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
 

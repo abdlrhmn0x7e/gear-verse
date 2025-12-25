@@ -109,6 +109,7 @@ export function MediaFields({
               );
               setSelectedMedia(newMedia);
               setValue("media", newMedia);
+              setCheckedMedia([]);
             }}
           >
             <TrashIcon />

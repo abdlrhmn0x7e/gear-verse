@@ -19,12 +19,12 @@ function Checkbox({
       )}
       {...props}
     >
-      <span className="ring-primary group-data-[state=checked]:bg-primary group-data-[state=checked]:ring-primary absolute inset-0 z-0 bg-clip-padding ring-0 transition-shadow duration-100 ease-in-out ring-inset group-data-[state=checked]:ring-8" />
+      <span className="ring-primary group-data-[state=checked]:bg-primary group-data-[state=indeterminate]:bg-primary group-data-[state=checked]:ring-primary group-data-[state=indeterminate]:ring-primary absolute inset-0 z-0 bg-clip-padding ring-0 transition-shadow duration-100 ease-in-out ring-inset group-data-[state=checked]:ring-8 group-data-[state=indeterminate]:ring-8" />
       <CheckboxPrimitive.Indicator className="relative z-10 flex items-center justify-center text-current">
         <MinusIcon className="hidden h-4 w-4 group-data-[state=indeterminate]:block" />
         <svg
           viewBox="0 0 16 16"
-          className="text-primary-foreground"
+          className="text-primary-foreground hidden group-data-[state=checked]:block"
           shapeRendering="geometricPrecision"
           textRendering="geometricPrecision"
         >

@@ -93,7 +93,7 @@ export function EditProduct({
           }
         : undefined,
 
-      media: product.media,
+      media: [product.thumbnail, ...product.media],
       attributeIds: product.attributeIds,
       options: product.options,
       variants: product.variants,

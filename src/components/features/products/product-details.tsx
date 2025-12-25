@@ -1,4 +1,9 @@
-import { CheckCircleIcon, InfoIcon, MessageCircleIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  GalleryThumbnails,
+  InfoIcon,
+  MessageCircleIcon,
+} from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense, type JSX } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -62,7 +67,7 @@ export async function ProductDetails({
       >
         {/* Image Carousel Section */}
         <ProductCarousel
-          media={product.media}
+          media={[product.thumbnailUrl, ...product.media]}
           brand={product.brand}
           variantLength={product.variants.length}
         />

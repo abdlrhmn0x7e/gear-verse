@@ -353,6 +353,10 @@ export const _products = {
           >`coalesce(${fullVariantQuery.json}, '[]'::jsonb)`,
           options: optionsQuery.options,
 
+          thumbnail: {
+            mediaId: sql<number>`${media.id}`,
+            url: sql<string>`${media.url}`,
+          },
           media: productMediaQuery.json,
 
           attributeIds: sql<
@@ -364,6 +368,7 @@ export const _products = {
           productMediaQuery,
           eq(productMediaQuery.productId, products.id),
         )
+        .leftJoin(media, eq(media.id, products.thumbnailMediaId))
         .leftJoin(
           productAttributesQuery,
           eq(productAttributesQuery.productId, products.id),
