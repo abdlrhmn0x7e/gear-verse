@@ -132,13 +132,15 @@ export function OrdersTable() {
                   </TableCell>
                 </TableRow>
               )}
-              <TableRow>
-                <TableCell colSpan={ordersColumns.length}>
-                  <div className="flex flex-col items-center justify-center">
-                    <LoadMore ref={ref} hasNextPage={hasNextPage} />
-                  </div>
-                </TableCell>
-              </TableRow>
+              {hasNextPage && (
+                <TableRow>
+                  <TableCell colSpan={ordersColumns.length}>
+                    <div className="flex flex-col items-center justify-center">
+                      <LoadMore ref={ref} hasNextPage={hasNextPage} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>

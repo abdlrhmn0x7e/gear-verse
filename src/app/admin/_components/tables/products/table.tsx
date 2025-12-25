@@ -195,13 +195,15 @@ export function ProductsTable() {
                   </TableCell>
                 </TableRow>
               )}
-              <TableRow>
-                <TableCell colSpan={productColumns.length}>
-                  <div className="flex flex-col items-center justify-center">
-                    <LoadMore ref={ref} hasNextPage={hasNextPage} />
-                  </div>
-                </TableCell>
-              </TableRow>
+              {hasNextPage && (
+                <TableRow>
+                  <TableCell colSpan={productColumns.length}>
+                    <div className="flex flex-col items-center justify-center">
+                      <LoadMore ref={ref} hasNextPage={hasNextPage} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
