@@ -17,6 +17,13 @@ import { Heading } from "~/components/heading";
 import { PaymentMethod } from "~/components/payment-method";
 import { Button } from "~/components/ui/button";
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import {
   Frame,
   FrameDescription,
   FrameHeader,
@@ -139,6 +146,22 @@ function LastOrdersTable({
 }: {
   orders: RouterOutput["admin"]["orders"]["queries"]["getPage"]["data"];
 }) {
+  if (orders.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <ShoppingCartIcon />
+          </EmptyMedia>
+          <EmptyTitle>No orders yet</EmptyTitle>
+          <EmptyDescription>
+            When customers place orders, they will appear here.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
   return (
     <Table>
       <OrdersTableHeader hideActions />
