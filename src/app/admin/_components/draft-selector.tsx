@@ -25,11 +25,11 @@ import { cn } from "~/lib/utils";
 type DraftSelectorProps = {
   drafts: ProductDraft[];
   activeDraft: ProductDraft | null;
-  isHydrated: boolean;
   onSelectDraft: (draftId: string) => void;
   onCreateDraft: () => void;
   onDeleteDraft: (draftId: string) => void;
   onRenameDraft: (draftId: string, name: string) => void;
+  isHydrated: boolean;
 };
 
 function formatTimeAgo(timestamp: number): string {
@@ -44,7 +44,6 @@ function formatTimeAgo(timestamp: number): string {
 export function DraftSelector({
   drafts,
   activeDraft,
-  isHydrated,
   onSelectDraft,
   onCreateDraft,
   onDeleteDraft,
@@ -87,12 +86,7 @@ export function DraftSelector({
           suppressHydrationWarning
         >
           <FileTextIcon className="size-4" />
-          {isHydrated ? (activeDraft?.name ?? "Drafts") : "Drafts"}
-          {isHydrated && drafts.length > 0 && (
-            <span className="bg-muted text-muted-foreground ml-1 rounded-full px-1.5 py-0.5 text-xs">
-              {drafts.length}
-            </span>
-          )}
+          Drafts
           <ChevronDownIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -105,7 +99,7 @@ export function DraftSelector({
             No drafts yet. Start typing to auto-save.
           </div>
         ) : (
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 space-y-1 overflow-y-auto">
             {drafts.map((draft) => (
               <div
                 key={draft.id}

@@ -8,7 +8,6 @@ import {
   type ProductDraft,
 } from "~/app/admin/_stores/draft";
 import type { ProductFormValues } from "~/app/admin/_components/forms/product";
-import { useDebounce } from "./use-debounce";
 
 type UseProductDraftOptions = {
   form: UseFormReturn<ProductFormValues> | null;
@@ -53,10 +52,8 @@ export function useProductDraft({
   const [isHydrated, setIsHydrated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [formValues, setFormValues] =
-    useState<ProductFormValues>(EMPTY_FORM_VALUES);
-  const isInitialMount = useRef(true);
-  const previousValuesRef = useRef<string>("");
+  const suppressionRef = useRef(false);
+  const lastSavedSnapshotRef = useRef<string>(safeStringify(EMPTY_FORM_VALUES));
 
   const drafts = useDraftStore((s) => s.drafts);
   const activeDraftId = useDraftStore((s) => s.activeDraftId);
@@ -69,103 +66,129 @@ export function useProductDraft({
   const cleanExpiredDrafts = useDraftStore((s) => s.cleanExpiredDrafts);
 
   useEffect(() => {
-    if (!form) return;
+    cleanExpiredDrafts();
+    setIsHydrated(true);
+  }, [cleanExpiredDrafts]);
 
-    const subscription = form.watch((values) => {
-      setFormValues(values as ProductFormValues);
-    });
+  const [scheduleAutoSave, cancelAutoSave] = useDebouncedEffectEvent(
+    (values: ProductFormValues) => {
+      if (!enabled || !isHydrated || suppressionRef.current) {
+        setIsSaving(false);
+        return;
+      }
 
-    return () => subscription.unsubscribe();
-  }, [form]);
+      if (!hasMeaningfulContent(values)) {
+        setIsSaving(false);
+        return;
+      }
 
-  const debouncedValues = useDebounce(
-    formValues,
+      if (activeDraftId) {
+        updateDraft(activeDraftId, values);
+      } else {
+        createDraftInStore(values);
+      }
+
+      lastSavedSnapshotRef.current = safeStringify(values);
+      setLastSaved(new Date());
+      setIsSaving(false);
+    },
     DRAFT_CONFIG.AUTO_SAVE_DELAY_MS,
   );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsHydrated(true);
-    cleanExpiredDrafts();
-  }, [cleanExpiredDrafts]);
+    if (!enabled) {
+      cancelAutoSave();
+      setIsSaving(false);
+    }
+  }, [enabled, cancelAutoSave]);
 
   useEffect(() => {
-    if (!enabled || !isHydrated) {
-      return;
-    }
+    if (!form || !enabled) return;
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      previousValuesRef.current = JSON.stringify(debouncedValues);
-      return;
-    }
+    const subscription = form.watch((values) => {
+      if (!values || suppressionRef.current) {
+        return;
+      }
 
-    const currentValuesStr = JSON.stringify(debouncedValues);
-    if (currentValuesStr === previousValuesRef.current) {
-      return;
-    }
-    previousValuesRef.current = currentValuesStr;
+      const typedValues = values as ProductFormValues;
+      const serialized = safeStringify(typedValues);
+      if (serialized === lastSavedSnapshotRef.current) {
+        return;
+      }
 
-    const hasContent =
-      debouncedValues.title?.trim() ||
-      debouncedValues.summary?.trim() ||
-      (debouncedValues.media && debouncedValues.media.length > 0) ||
-      (debouncedValues.options && debouncedValues.options.length > 0);
+      setIsSaving(true);
+      scheduleAutoSave(typedValues);
+    });
 
-    if (!hasContent) return;
+    return () => subscription.unsubscribe();
+  }, [form, enabled, scheduleAutoSave]);
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsSaving(true);
+  const suppressAutoSave = useCallback(
+    (operation: () => void) => {
+      suppressionRef.current = true;
+      cancelAutoSave();
+      setIsSaving(false);
 
-    if (activeDraftId) {
-      updateDraft(activeDraftId, debouncedValues);
-    } else {
-      createDraftInStore(debouncedValues);
-    }
+      try {
+        operation();
+      } finally {
+        setTimeout(() => {
+          suppressionRef.current = false;
+        }, 0);
+      }
+    },
+    [cancelAutoSave],
+  );
 
-    setLastSaved(new Date());
-    setIsSaving(false);
-  }, [
-    debouncedValues,
-    activeDraftId,
-    enabled,
-    isHydrated,
-    updateDraft,
-    createDraftInStore,
-  ]);
+  const resetFormValues = useCallback(
+    (values: ProductFormValues) => {
+      if (!form) return;
+
+      suppressAutoSave(() => {
+        form.reset(values);
+      });
+    },
+    [form, suppressAutoSave],
+  );
 
   const createNewDraft = useCallback(() => {
-    form?.reset(EMPTY_FORM_VALUES);
+    resetFormValues(EMPTY_FORM_VALUES);
     createDraftInStore();
+    lastSavedSnapshotRef.current = safeStringify(EMPTY_FORM_VALUES);
     setLastSaved(null);
-    previousValuesRef.current = JSON.stringify(EMPTY_FORM_VALUES);
-  }, [form, createDraftInStore]);
+  }, [resetFormValues, createDraftInStore]);
 
   const switchToDraft = useCallback(
     (draftId: string) => {
       const draft = drafts.find((d) => d.id === draftId);
-      if (draft) {
-        setActiveDraft(draftId);
-        form?.reset(draft.data as ProductFormValues);
-        setLastSaved(new Date(draft.updatedAt));
-        previousValuesRef.current = JSON.stringify(draft.data);
-      }
+      if (!draft) return;
+
+      const draftValues = {
+        ...EMPTY_FORM_VALUES,
+        ...draft.data,
+      } as ProductFormValues;
+
+      setActiveDraft(draftId);
+      resetFormValues(draftValues);
+      setLastSaved(new Date(draft.updatedAt));
+      lastSavedSnapshotRef.current = safeStringify(draftValues);
     },
-    [drafts, setActiveDraft, form],
+    [drafts, resetFormValues, setActiveDraft],
   );
 
   const handleDeleteDraft = useCallback(
     (draftId: string) => {
-      const isActive = draftId === activeDraftId;
+      const wasActive = draftId === activeDraftId;
       deleteDraftFromStore(draftId);
 
-      if (isActive) {
-        form?.reset(EMPTY_FORM_VALUES);
+      if (wasActive) {
+        setActiveDraft(null);
+        resetFormValues(EMPTY_FORM_VALUES);
         setLastSaved(null);
-        previousValuesRef.current = JSON.stringify(EMPTY_FORM_VALUES);
+        lastSavedSnapshotRef.current = safeStringify(EMPTY_FORM_VALUES);
       }
     },
-    [activeDraftId, deleteDraftFromStore, form],
+    [activeDraftId, deleteDraftFromStore, resetFormValues, setActiveDraft],
   );
 
   const handleRenameDraft = useCallback(
@@ -179,19 +202,24 @@ export function useProductDraft({
     if (activeDraftId) {
       deleteDraftFromStore(activeDraftId);
     }
+
     setActiveDraft(null);
-    form?.reset(EMPTY_FORM_VALUES);
+    resetFormValues(EMPTY_FORM_VALUES);
     setLastSaved(null);
-    previousValuesRef.current = JSON.stringify(EMPTY_FORM_VALUES);
-  }, [activeDraftId, deleteDraftFromStore, setActiveDraft, form]);
+    lastSavedSnapshotRef.current = safeStringify(EMPTY_FORM_VALUES);
+  }, [activeDraftId, deleteDraftFromStore, resetFormValues, setActiveDraft]);
 
   const clearDraftOnSubmit = useCallback(() => {
+    cancelAutoSave();
+    setIsSaving(false);
+
     if (activeDraftId) {
       deleteDraftFromStore(activeDraftId);
     }
+
     setActiveDraft(null);
-    setLastSaved(null);
-  }, [activeDraftId, deleteDraftFromStore, setActiveDraft]);
+    lastSavedSnapshotRef.current = safeStringify(EMPTY_FORM_VALUES);
+  }, [activeDraftId, cancelAutoSave, deleteDraftFromStore, setActiveDraft]);
 
   return {
     isHydrated,
@@ -209,4 +237,54 @@ export function useProductDraft({
 
     hasDraftsToRestore: drafts.length > 0 && !activeDraftId,
   };
+}
+
+function hasMeaningfulContent(values: ProductFormValues) {
+  return (
+    Boolean(values.title?.trim()) ||
+    Boolean(values.summary?.trim()) ||
+    (Array.isArray(values.media) && values.media.length > 0) ||
+    (Array.isArray(values.options) && values.options.length > 0)
+  );
+}
+
+function safeStringify(values: ProductFormValues) {
+  try {
+    return JSON.stringify(values);
+  } catch {
+    return "";
+  }
+}
+
+function useDebouncedEffectEvent<T extends (...args: never[]) => void>(
+  handler: T,
+  delay: number,
+) {
+  const handlerRef = useRef(handler);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
+
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => cancel, [cancel]);
+
+  const trigger = useCallback(
+    (...args: Parameters<T>) => {
+      cancel();
+      timeoutRef.current = setTimeout(() => {
+        handlerRef.current(...args);
+      }, delay);
+    },
+    [cancel, delay],
+  );
+
+  return [trigger, cancel] as const;
 }

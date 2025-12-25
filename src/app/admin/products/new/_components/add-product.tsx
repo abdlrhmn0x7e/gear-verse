@@ -4,10 +4,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, PackageIcon, SaveIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-import { RestoreDraftDialog } from "~/app/admin/_components/dialogs/restore-draft";
 import { DraftSelector } from "~/app/admin/_components/draft-selector";
 import { DraftStatus } from "~/app/admin/_components/draft-status";
 import {
@@ -28,8 +27,6 @@ export function AddProduct() {
   const [form, setForm] = useState<UseFormReturn<ProductFormValues> | null>(
     null,
   );
-  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
-  const hasShownRestoreDialog = useRef(false);
 
   const draft = useProductDraft({
     form,
@@ -42,17 +39,6 @@ export function AddProduct() {
     },
     [],
   );
-
-  useEffect(() => {
-    if (
-      draft.isHydrated &&
-      draft.hasDraftsToRestore &&
-      !hasShownRestoreDialog.current
-    ) {
-      hasShownRestoreDialog.current = true;
-      setShowRestoreDialog(true);
-    }
-  }, [draft.isHydrated, draft.hasDraftsToRestore]);
 
   const { mutate: createProduct, isPending: isCreatingProduct } = useMutation(
     trpc.admin.products.mutations.createDeep.mutationOptions({
@@ -75,22 +61,12 @@ export function AddProduct() {
     createProduct(data);
   }
 
-  function handleRestoreDraft(draftId: string) {
-    draft.switchToDraft(draftId);
-    setShowRestoreDialog(false);
-  }
-
-  function handleStartFresh() {
-    draft.discardCurrentDraft();
-    setShowRestoreDialog(false);
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="from-card to-accent rounded-lg bg-radial-[at_50%_75%] p-px">
-            <div className="to-card from-accent flex size-10 items-center justify-center rounded-[calc(var(--radius)-2px)] bg-radial-[at_25%_25%]">
+            <div className="to-card from-accent flex size-10 items-center justify-center rounded-md bg-radial-[at_25%_25%]">
               <PackageIcon className="text-foreground size-5" />
             </div>
           </div>
@@ -121,14 +97,6 @@ export function AddProduct() {
       </div>
 
       <ProductForm onSubmit={onSubmit} onFormReady={handleFormReady} />
-
-      <RestoreDraftDialog
-        open={showRestoreDialog}
-        onOpenChange={setShowRestoreDialog}
-        drafts={draft.allDrafts}
-        onSelectDraft={handleRestoreDraft}
-        onStartFresh={handleStartFresh}
-      />
 
       <motion.div
         className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"

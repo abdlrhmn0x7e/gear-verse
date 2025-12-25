@@ -241,7 +241,7 @@ export function CategoriesViewer() {
                 {isPendingCategories ? (
                   <CategoryTreeSkeleton />
                 ) : categories?.length === 0 ? (
-                  <CategoryTreeEmptyState />
+                  !showAddCategory && <CategoryTreeEmptyState />
                 ) : (
                   categories?.map((category) => (
                     <CategoryTree
