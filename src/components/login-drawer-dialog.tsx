@@ -15,6 +15,7 @@ import { authClient } from "~/lib/auth-client";
 import { Button } from "./ui/button";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { Logo } from "./logo";
+import { invalidateCache } from "~/server/actions/cache";
 
 export function LoginDrawerDialog({
   children,
@@ -25,11 +26,13 @@ export function LoginDrawerDialog({
   onOpenChange?: (open: boolean) => void;
 }>) {
   const { mutate: signInWithGoogle, isPending: isSigningIn } = useMutation({
-    mutationFn: () =>
-      authClient.signIn.social({
+    mutationFn: async () => {
+      await authClient.signIn.social({
         provider: "google",
         callbackURL: "/",
-      }),
+      });
+      void invalidateCache("customer-summary");
+    },
     onSuccess: () => {
       onOpenChange?.(false);
     },

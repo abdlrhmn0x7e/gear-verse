@@ -20,6 +20,7 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { app } from "~/server/application";
+import { cacheLife } from "next/cache";
 
 const FEATURES = [
   "Customs Cleared & Insured",
@@ -269,6 +270,7 @@ async function CustomerSummary() {
   "use cache";
 
   cacheTag("customer-summary");
+  cacheLife("days");
 
   const customersSummary =
     await app.public.customers.queries.getCustomerSummary();
