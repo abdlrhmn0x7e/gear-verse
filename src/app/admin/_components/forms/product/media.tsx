@@ -108,7 +108,7 @@ export function MediaFields({
                 (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
               );
               setSelectedMedia(newMedia);
-              setValue("media", newMedia);
+              setValue("media", newMedia, { shouldDirty: true });
               setCheckedMedia([]);
             }}
           >
@@ -153,7 +153,7 @@ export function MediaFields({
                 </div>
               ))}
 
-              <MediaDialog onChange={() => setValue("media", selectedMedia)}>
+              <MediaDialog onChange={() => setValue("media", selectedMedia, { shouldDirty: true })}>
                 <button
                   type="button"
                   className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"

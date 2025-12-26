@@ -5,8 +5,13 @@ import { AspectRatio } from "../ui/aspect-ratio";
 import { ImageWithFallback } from "../image-with-fallback";
 import { Skeleton } from "../ui/skeleton";
 import { NavLink } from "./nav";
+import { cacheTag } from "next/cache";
 
 export async function ProductsMenuContent() {
+  "use cache";
+
+  cacheTag("products-menu");
+
   const products = await app.public.products.queries.getPage({
     pageSize: 3,
   });

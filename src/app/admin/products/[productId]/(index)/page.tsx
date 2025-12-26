@@ -25,6 +25,7 @@ export default async function EditProductPage({
       id: parsedId,
     }),
   );
+  console.log("product", product);
   if (error instanceof AppError && error.kind === "NOT_FOUND") {
     return notFound();
   }

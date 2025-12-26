@@ -9,6 +9,7 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
+import { cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -265,6 +266,10 @@ function CustomerSummerSkeleton() {
 }
 
 async function CustomerSummary() {
+  "use cache";
+
+  cacheTag("customer-summary");
+
   const customersSummary =
     await app.public.customers.queries.getCustomerSummary();
 

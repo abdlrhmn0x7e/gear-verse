@@ -7,7 +7,6 @@ import { app } from "~/server/application";
 
 export async function generateStaticParams() {
   const slugs = await app.public.products.queries.findAllSlugs();
-  console.log("Product slugs for static params:", slugs);
   if (slugs.length === 0) {
     return [{ slug: "__placeholder__" }];
   }

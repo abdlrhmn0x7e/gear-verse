@@ -7,8 +7,13 @@ import { IconCategory } from "@tabler/icons-react";
 import { NavLink } from "./nav";
 import Header from "../header";
 import { Heading } from "../heading";
+import { cacheTag } from "next/cache";
 
 export async function CategoriesMenu() {
+  "use cache";
+
+  cacheTag("categories-menu");
+
   const categories = await app.public.categories.queries.findAll({
     filters: { root: true },
   });

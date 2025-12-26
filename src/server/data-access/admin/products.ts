@@ -181,11 +181,14 @@ export const _products = {
         .select({
           productId: productMediaCTE.productId,
           json: sql<{ mediaId: number; url: string }[]>`
-            jsonb_agg(
-              jsonb_build_object(
-                'mediaId', ${productMediaCTE.mediaId},
-                'url', ${productMediaCTE.url}
-              )
+            coalesce(
+              jsonb_agg(
+                jsonb_build_object(
+                  'mediaId', ${productMediaCTE.mediaId},
+                  'url', ${productMediaCTE.url}
+                )
+              ),
+              '[]'::jsonb
             )
           `.as("product_media_json"),
         })
@@ -357,7 +360,9 @@ export const _products = {
             mediaId: sql<number>`${media.id}`,
             url: sql<string>`${media.url}`,
           },
-          media: productMediaQuery.json,
+          media: sql<
+            { mediaId: number; url: string }[]
+          >`coalesce(${productMediaQuery.json}, '[]'::jsonb)`,
 
           attributeIds: sql<
             number[]
@@ -592,24 +597,28 @@ export const _products = {
         }
 
         if (mediaData && mediaData.length > 0) {
+          const [thumbnailId, ...restMediaIds] = mediaData;
+
           // delete the old media relations
           await tx
             .delete(productsMedia)
             .where(eq(productsMedia.productId, productId));
 
-          // create the new media relations
-          await tx.insert(productsMedia).values(
-            mediaData.map((mediaId, index) => ({
-              productId,
-              mediaId,
-              order: index + 1,
-            })),
-          );
+          // create the new media relations (excluding thumbnail)
+          if (restMediaIds.length > 0) {
+            await tx.insert(productsMedia).values(
+              restMediaIds.map((mediaId, index) => ({
+                productId,
+                mediaId,
+                order: index + 1,
+              })),
+            );
+          }
 
           // update the product's thumbnail to be the first media item
           await tx
             .update(products)
-            .set({ thumbnailMediaId: mediaData[0] })
+            .set({ thumbnailMediaId: thumbnailId })
             .where(eq(products.id, productId));
         }
 
