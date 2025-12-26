@@ -18,6 +18,7 @@ async function deleteProductAndInvalidate(productId: number) {
   await Promise.all([
     invalidateCache(`products:${productId}`),
     invalidateCache("recent-products"),
+    invalidateCache("products-menu"),
   ]);
   return deleted;
 }
@@ -92,6 +93,7 @@ export const _products = {
       });
 
       await invalidateCache("recent-products");
+      await invalidateCache("products-menu");
 
       return created;
     },
@@ -103,6 +105,7 @@ export const _products = {
       await Promise.all([
         invalidateCache(`products:${productId}`),
         invalidateCache("recent-products"),
+        invalidateCache("products-menu"),
       ]);
 
       // update the product if there are any changes
@@ -116,6 +119,7 @@ export const _products = {
           },
         });
         await invalidateCache("recent-products");
+        await invalidateCache("products-menu");
       }
 
       // invalidate the brands filter per category if a brand edit exists
