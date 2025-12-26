@@ -74,14 +74,14 @@ export function VerseCarousel({
             <button
               key={index}
               className={cn(
-                "hover:border-primary size-20 flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all",
+                "hover:border-primary size-20 shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all",
                 currentSlide === index && "border-primary",
               )}
               onClick={() => {
                 api?.scrollTo(index);
               }}
             >
-              <div className="relative h-full w-full">
+              <div className="relative h-full w-full bg-white">
                 <SuspendableImage
                   src={photo}
                   alt={`Product Thumbnail ${index + 1}`}
