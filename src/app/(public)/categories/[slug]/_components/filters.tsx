@@ -14,7 +14,7 @@ import {
 import { Heading } from "~/components/heading";
 import { RadioGroup } from "~/components/ui/radio-group";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/server";
+import { app } from "~/server/application";
 import { FilterItem } from "./filter-item";
 import { ClearAllFiltersButton } from "./clear-all-filters-button";
 
@@ -28,11 +28,8 @@ export async function Filters({
   "use cache";
 
   const [attributes, brands] = await Promise.all([
-    api.public.categories.queries.getAttributes({
-      slug,
-    }),
-
-    api.public.brands.queries.findAll({
+    app.public.categories.queries.getAttributes(slug),
+    app.public.brands.queries.findAll({
       filters: {
         categorySlug: slug,
       },
