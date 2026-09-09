@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
+import { cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
 import { app } from "~/server/application";
+
+async function findProductMetadata(slug: string) {
+  "use cache";
+
+  const metadata = await app.public.products.queries.findMetadata(slug);
+  cacheTag(`products:${metadata.id}`);
+
+  return metadata;
+}
 
 export async function generateStaticParams() {
   const slugs = await app.public.products.queries.findAllSlugs();
@@ -24,7 +34,7 @@ export async function generateMetadata({
     return notFound();
   }
 
-  const metadata = await app.public.products.queries.findMetadata(slug);
+  const metadata = await findProductMetadata(slug);
 
   try {
     return {

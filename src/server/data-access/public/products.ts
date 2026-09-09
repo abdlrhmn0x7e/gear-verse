@@ -209,6 +209,7 @@ export const _products = {
     findMetadata: async (slug: string) => {
       return db
         .select({
+          id: products.id,
           title: products.title,
           summary: products.summary,
           thumbnailUrl: sql<string>`${media.url}`,
