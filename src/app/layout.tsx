@@ -6,7 +6,7 @@ import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { instrumentSans } from "~/fonts";
+import { jetBrainsMono, nunitoSans } from "~/fonts";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
@@ -56,7 +56,11 @@ export default function RootLayout({
       </head> */}
 
       <body
-        className={cn(instrumentSans.className, "flex min-h-screen flex-col")}
+        className={cn(
+          nunitoSans.variable,
+          jetBrainsMono.variable,
+          "flex min-h-screen flex-col font-sans antialiased",
+        )}
       >
         <NuqsAdapter>
           <ThemeProvider
