@@ -24,6 +24,8 @@ export async function Products({
   const categoryName = slug.split("-").pop()!;
   const attributeFilters = Array.from(Object.entries(filters)).reduce(
     (acc, [key, value]) => {
+      if (value === null || value === undefined) return acc;
+
       if (
         key.startsWith("multi.") ||
         key.startsWith("select.") ||

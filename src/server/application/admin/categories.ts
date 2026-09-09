@@ -71,6 +71,7 @@ export const _categories = {
       }
 
       await invalidateCache("filters");
+      await invalidateCache("category-filters");
       await invalidateCache("categories-menu");
       return createdCategory;
     },
@@ -95,6 +96,7 @@ export const _categories = {
       }
 
       await invalidateCache("filters");
+      await invalidateCache("category-filters");
       await invalidateCache("categories-menu");
       return updatedCategory;
     },
@@ -111,6 +113,7 @@ export const _categories = {
       }
 
       await invalidateCache("categories");
+      await invalidateCache("category-filters");
       await invalidateCache("categories-menu");
       return deletedCategories;
     },

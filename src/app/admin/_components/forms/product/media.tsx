@@ -195,7 +195,7 @@ function MediaItem({
     <AspectRatio ratio={1} className="size-32">
       <div
         className={cn(
-          "pointer-events-none size-full overflow-hidden rounded-md border select-none",
+          "pointer-events-none size-full overflow-hidden rounded-md border bg-white select-none",
           className,
         )}
       >

@@ -123,7 +123,7 @@ export function VariantForm({
                         defaultMedia={field.value ? [field.value] : undefined}
                       >
                         <MediaDialog
-                          onChange={(media) => field.onChange(media[0] ?? null)}
+                          onChange={(media) => field.onChange(media[0])}
                         >
                           <button
                             type="button"

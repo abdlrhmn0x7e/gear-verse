@@ -21,9 +21,6 @@ export const _inventoryItems = {
       cursor,
       filters,
     }: Pagination<{ inventorySearch: string | null }>) => {
-      const whereClause = cursor
-        ? [lt(inventoryItems.id, cursor), eq(products.archived, false)]
-        : [];
       const variantValuesCTE = db.$with("variant_values").as(
         db
           .select({
@@ -60,6 +57,9 @@ export const _inventoryItems = {
             title: products.title,
             thumbnailUrl: variantMedia.url,
             values: variantValuesCTE.values,
+            archived: sql<boolean>`(${productVariants.archived} OR ${products.archived})`.as(
+              "archived",
+            ),
           })
           .from(productVariants)
           .leftJoin(products, eq(productVariants.productId, products.id))
@@ -72,6 +72,16 @@ export const _inventoryItems = {
             eq(productVariants.id, variantValuesCTE.id),
           ),
       );
+
+      // hide inventory of archived products and archived variants
+      // (product-level rows join `products`, variant rows join the variants CTE)
+      const whereClause = [
+        sql`coalesce(${products.archived}, ${variantsCTE.archived}, false) = false`,
+      ];
+
+      if (cursor) {
+        whereClause.push(lt(inventoryItems.id, cursor));
+      }
 
       if (filters?.inventorySearch) {
         whereClause.push(

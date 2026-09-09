@@ -14,6 +14,9 @@ export function useCategoryProductsFilters() {
     () =>
       Array.from(Object.entries(filters)).reduce(
         (acc, [key, value]) => {
+          // nuqs yields `null` for cleared keys, those must not be sent as filters
+          if (value === null || value === undefined) return acc;
+
           if (
             key.startsWith("multi.") ||
             key.startsWith("select.") ||

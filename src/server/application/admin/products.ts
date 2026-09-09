@@ -60,14 +60,27 @@ export const _products = {
         ? seo.urlHandler
         : generateSlug(product.title);
 
-      const existingProduct =
-        await data.admin.products.queries.findBySlug(slug);
+      const existingProduct = await data.admin.products.queries.findBySlug(
+        slug,
+        { includeArchived: true },
+      );
 
-      if (existingProduct) {
+      if (existingProduct && !existingProduct.archived) {
         throw new AppError(
           "This Product already exists, please use a different title or provide a Url Handler",
           "CONFLICT",
         );
+      }
+
+      /**
+       * A deleted product that is still referenced by orders is kept as an
+       * archived row (see data-access `delete`), so its slug is still taken.
+       * Release the slug so the new product can be created with it.
+       */
+      if (existingProduct?.archived) {
+        await data.admin.products.mutations.update(existingProduct.id, {
+          slug: `${slug}-archived-${existingProduct.id}`,
+        });
       }
 
       const created = await data.admin.products.mutations.createDeep({

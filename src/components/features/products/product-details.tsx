@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/frame";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
-import { formatCurrency } from "~/lib/utils/format-currency";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
@@ -92,13 +91,10 @@ export async function ProductDetails({
             <FramePanel>
               <h2 className="text-sm font-semibold">Pricing</h2>
               <div className="space-x-2 text-center lg:text-left">
-                <ProductPrice originalPrice={product.price} />
-
-                {product.strikeThroughPrice ? (
-                  <span className="text-muted-foreground line-through">
-                    {formatCurrency(product.strikeThroughPrice ?? 0)}
-                  </span>
-                ) : null}
+                <ProductPrice
+                  originalPrice={product.price}
+                  strikeThroughPrice={product.strikeThroughPrice}
+                />
               </div>
             </FramePanel>
 
@@ -134,6 +130,8 @@ export async function ProductDetails({
                     size="lg"
                     variant="outline"
                     productId={product.id}
+                    productStock={product.stock}
+                    hasVariants={hasVariants}
                   />
 
                   <BuyNowButton

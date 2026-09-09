@@ -121,6 +121,25 @@ export const _categories = {
         .where(isNull(categories.parent_id));
     },
 
+    /**
+     * Direct sub-categories of the category identified by `slug`
+     */
+    async findChildren(slug: string) {
+      const parent = alias(categories, "parent_category");
+
+      return db
+        .select({
+          id: categories.id,
+          name: categories.name,
+          icon: categories.icon,
+          slug: categories.slug,
+        })
+        .from(categories)
+        .innerJoin(parent, eq(categories.parent_id, parent.id))
+        .where(eq(parent.slug, slug))
+        .orderBy(asc(categories.name));
+    },
+
     async getRoots() {
       return db
         .select({

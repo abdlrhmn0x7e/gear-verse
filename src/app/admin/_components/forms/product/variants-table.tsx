@@ -108,7 +108,7 @@ export function VariantsTable({
                     child.thumbnail.url && (
                       <div
                         key={`variant-agg-${row.id}-${index}`}
-                        className="absolute top-0 left-0 size-12 overflow-hidden rounded-md border"
+                        className="absolute top-0 left-0 size-12 overflow-hidden rounded-md border bg-white"
                         style={{
                           zIndex: index,
                           rotate: `${index * 20}deg`,
@@ -353,7 +353,7 @@ function VariantMediaDialog({ index }: { index: number }) {
       <Image
         src={variant.thumbnail.url}
         alt="Thumbnail"
-        className="size-full object-cover"
+        className="size-full bg-white object-cover"
         width={100}
         height={100}
       />

@@ -24,6 +24,11 @@ export function BuyNowButton({
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
+  const hasVariants = product.variants.length > 0;
+  const stock = hasVariants
+    ? (selectedVariant?.stock ?? 0)
+    : (product.stock ?? 0);
+  const outOfStock = stock <= 0;
   const { data: cart } = useQuery(
     trpc.public.carts.queries.find.queryOptions(),
   );
@@ -39,11 +44,13 @@ export function BuyNowButton({
   );
 
   function handleClick() {
-    if (!selectedVariant) return;
+    if (outOfStock) return;
+    if (hasVariants && !selectedVariant) return;
+
     addItem(
       {
         productId: product.id,
-        productVariantId: selectedVariant.id ?? null,
+        productVariantId: selectedVariant?.id ?? null,
       },
       {
         onSuccess: () => {
@@ -71,7 +78,7 @@ export function BuyNowButton({
       className={cn("w-full lg:flex-1", className)}
       size="lg"
       onClick={handleClick}
-      // disabled={addingItem || (selectedVariant?.stock ?? 0) <= 0}
+      disabled={addingItem || outOfStock}
       {...props}
     >
       {addingItem ? <Spinner /> : <IconBasketDollar />}

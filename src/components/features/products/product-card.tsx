@@ -11,27 +11,33 @@ import { Skeleton } from "../../ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
 import { IconCircleDashedPercentage } from "@tabler/icons-react";
 
+export function getDiscountPercentage(
+  price: number,
+  strikeThroughPrice: number | null | undefined,
+) {
+  if (!strikeThroughPrice || strikeThroughPrice <= price) return 0;
+  return Math.round(((strikeThroughPrice - price) / strikeThroughPrice) * 100);
+}
+
 export function ProductCard({
   product,
 }: {
   product: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
+  const discount = getDiscountPercentage(
+    product.price,
+    product.strikeThroughPrice,
+  );
+  const hasDiscount = discount > 0;
+
   return (
     <Link href={`/products/${product.slug}`} className="group">
       <Card className="h-full gap-1 p-1">
         <CardHeader className="relative p-0">
-          {!!product.strikeThroughPrice && (
+          {hasDiscount && (
             <Badge className="absolute top-2 right-2 z-10 px-1 font-medium">
               <IconCircleDashedPercentage />
-              {Math.max(
-                Math.ceil(
-                  ((product.strikeThroughPrice - product.price) /
-                    product.price) *
-                    100,
-                ),
-                0,
-              )}
-              % Discount
+              {discount}% Off
             </Badge>
           )}
 
@@ -73,9 +79,9 @@ export function ProductCard({
               <span className="text-foreground dark:text-primary-foreground text-xl font-semibold">
                 {formatCurrency(product.price)}
               </span>
-              {!!product.strikeThroughPrice && (
+              {hasDiscount && (
                 <span className="text-muted-foreground line-through">
-                  {formatCurrency(product.strikeThroughPrice)}
+                  {formatCurrency(product.strikeThroughPrice!)}
                 </span>
               )}
             </p>
@@ -142,7 +148,7 @@ export function ProductCardSkeleton() {
     <Card className="h-full gap-1 p-1">
       <CardHeader className="p-0">
         <AspectRatio
-          ratio={16 / 10}
+          ratio={1 / 1}
           className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
         >
           <Skeleton className="size-full rounded-none border-none" />

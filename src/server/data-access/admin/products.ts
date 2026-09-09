@@ -393,13 +393,21 @@ export const _products = {
         .then((rows) => rows[0]);
     },
 
-    findBySlug: async (slug: string) => {
+    findBySlug: async (
+      slug: string,
+      { includeArchived = false }: { includeArchived?: boolean } = {},
+    ) => {
       return db
         .select({
           id: products.id,
+          archived: products.archived,
         })
         .from(products)
-        .where(and(eq(products.slug, slug), eq(products.archived, false)))
+        .where(
+          includeArchived
+            ? eq(products.slug, slug)
+            : and(eq(products.slug, slug), eq(products.archived, false)),
+        )
         .limit(1)
         .then((rows) => rows[0]);
     },

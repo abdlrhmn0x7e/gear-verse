@@ -7,8 +7,12 @@ import Link from "next/link";
 
 function NavTrigger({
   children,
+  href,
   ...props
-}: React.ComponentProps<typeof NavigationMenu.Trigger>) {
+}: React.ComponentProps<typeof NavigationMenu.Trigger> & {
+  /** when provided, clicking the trigger navigates instead of only toggling the menu */
+  href?: React.ComponentProps<typeof Link>["href"];
+}) {
   return (
     <NavigationMenu.Trigger
       autoFocus={false}
@@ -20,8 +24,9 @@ function NavTrigger({
         variant="ghost"
         className="data-[state=open]:border-border"
         size="lg"
+        asChild={!!href}
       >
-        {children}
+        {href ? <Link href={href}>{children}</Link> : children}
       </Button>
     </NavigationMenu.Trigger>
   );

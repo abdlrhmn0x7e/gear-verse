@@ -57,6 +57,7 @@ import {
 import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
+import { getDiscountPercentage } from "~/components/features/products/product-card";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -377,14 +378,9 @@ export function ProductForm({
                     </FormControl>
                     {!!strikeThroughPrice && !!price && (
                       <FormDescription>
-                        this is a{" "}
-                        {Math.max(
-                          Math.ceil(
-                            ((strikeThroughPrice - price) / price) * 100,
-                          ),
-                          0,
-                        )}
-                        % Discount From the product&apos;s price
+                        {strikeThroughPrice > price
+                          ? `this is a ${getDiscountPercentage(price, strikeThroughPrice)}% Discount From the product's price`
+                          : "the strike through price must be higher than the price to show as a discount"}
                       </FormDescription>
                     )}
                     <FormMessage />

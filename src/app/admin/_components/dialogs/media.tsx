@@ -86,7 +86,10 @@ export function MediaDialog({
               value={viewKind}
               onValueChange={(value) => setViewKind(value as "list" | "grid")}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-9 w-fit shrink-0"
+                aria-label="Change media view"
+              >
                 {viewKind === "grid" ? <GridIcon /> : <ListIcon />}
               </SelectTrigger>
               <SelectContent>

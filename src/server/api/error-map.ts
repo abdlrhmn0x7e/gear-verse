@@ -42,9 +42,31 @@ export function errorMap(error: unknown) {
     }
   }
 
+  if (isUniqueViolation(error)) {
+    return new TRPCError({
+      code: "CONFLICT",
+      message: "This record already exists, please check for duplicates",
+      cause: error,
+    });
+  }
+
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
     message: "Internal server error",
     cause: error,
   });
+}
+
+/**
+ * Postgres raises `23505` (unique_violation) when an insert/update hits a
+ * unique index. Drizzle re-throws the driver error, sometimes wrapped as `cause`.
+ */
+function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+
+  const code = (error as { code?: unknown }).code;
+  if (code === "23505") return true;
+
+  const cause = (error as { cause?: unknown }).cause;
+  return cause !== error && isUniqueViolation(cause);
 }

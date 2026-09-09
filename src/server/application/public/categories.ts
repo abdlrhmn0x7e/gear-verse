@@ -29,6 +29,18 @@ export const _categories = {
       return roots;
     },
 
+    getChildren: async (slug: string) => {
+      const { data: children, error } = await tryCatch(
+        data.public.categories.queries.findChildren(slug),
+      );
+      if (error) {
+        throw new AppError("Failed to fetch sub-categories", "INTERNAL", {
+          cause: error,
+        });
+      }
+      return children;
+    },
+
     getProductsPage: async (input: CategoryProductsInput) => {
       return paginate({
         input,

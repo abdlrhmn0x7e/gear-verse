@@ -94,7 +94,7 @@ export function EditProduct({
         : undefined,
 
       media: [product.thumbnail, ...product.media],
-      attributeIds: product.attributeIds,
+      attributeIds: product.attributeIds ?? [],
       options: product.options,
       variants: product.variants,
     }),

@@ -45,12 +45,10 @@ export function Navbar() {
 
               <NavigationMenu.List className="hidden w-full items-center gap-2 lg:flex">
                 <NavigationMenu.Item value="explore">
-                  <Link href="/products" passHref>
-                    <NavTrigger>
-                      <IconShoppingBagPlus />
-                      <span>Explore Our Store</span>
-                    </NavTrigger>
-                  </Link>
+                  <NavTrigger href="/products">
+                    <IconShoppingBagPlus />
+                    <span>Explore Our Store</span>
+                  </NavTrigger>
 
                   <NavContent className="grid grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                     <div className="col-span-2 space-y-3">

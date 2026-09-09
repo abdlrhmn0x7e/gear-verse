@@ -18,9 +18,14 @@ import { DrawerTrigger } from "~/components/ui/drawer";
 
 export function AddToCartButton({
   productId,
+  productStock,
+  hasVariants,
   ...props
 }: React.ComponentProps<typeof Button> & {
   productId: number;
+  /** product-level stock, used when the product has no variants */
+  productStock: number | null;
+  hasVariants: boolean;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -28,7 +33,8 @@ export function AddToCartButton({
   // Get variant data from store
   const variant = useVariantSelectionStore((state) => state.selectedVariant);
   const variantId = variant?.id;
-  const stock = variant?.stock ?? 0;
+  const stock = hasVariants ? (variant?.stock ?? 0) : (productStock ?? 0);
+  const outOfStock = stock <= 0;
 
   const { mutate: addToCart, isPending: addingToCart } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions(),
@@ -85,7 +91,7 @@ export function AddToCartButton({
       <div
         className={cn(
           "peer:bg-red-500 has-[>div:hover]:bg-accent relative flex size-full flex-1 items-center justify-between gap-3 rounded-lg border p-px transition-all has-[>div:hover]:cursor-pointer",
-          (removingFromCart || addingToCart || stock === 0) &&
+          (removingFromCart || addingToCart || outOfStock) &&
             "pointer-events-none opacity-50",
         )}
         role="button"
@@ -142,11 +148,11 @@ export function AddToCartButton({
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={addingToCart || stock <= 0}
+      disabled={addingToCart || outOfStock}
       {...props}
     >
       <IconShoppingCartPlus />
-      Add to Cart
+      {outOfStock ? "Out of Stock" : "Add to Cart"}
     </Button>
   );
 }

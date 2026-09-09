@@ -17,6 +17,7 @@ import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 import { FilterItem } from "./filter-item";
 import { ClearAllFiltersButton } from "./clear-all-filters-button";
+import { SubCategoryFilterItem } from "./sub-category-filter-item";
 
 export async function Filters({
   slug,
@@ -27,7 +28,8 @@ export async function Filters({
 }) {
   "use cache";
 
-  const [attributes, brands] = await Promise.all([
+  const [subCategories, attributes, brands] = await Promise.all([
+    app.public.categories.queries.getChildren(slug),
     app.public.categories.queries.getAttributes(slug),
     app.public.brands.queries.findAll({
       filters: {
@@ -40,6 +42,26 @@ export async function Filters({
 
   return (
     <div className="flex flex-col gap-6 divide-y pb-8 [&>*:not(:last-child)]:pb-8">
+      {subCategories.length > 0 && (
+        <div className="space-y-4">
+          <Heading level={4}>Sub Categories</Heading>
+          <div
+            className={cn(
+              "flex flex-col gap-2 p-1",
+              isMobile && "flex-row flex-wrap gap-2 p-0",
+            )}
+          >
+            {subCategories.map((category) => (
+              <SubCategoryFilterItem
+                key={`sub-category-${category.slug}`}
+                category={category}
+                isMobile={isMobile}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {attributes.length > 0 &&
         attributes.map((att) => {
           const WrapperElement = att.type === "SELECT" ? RadioGroup : "div";

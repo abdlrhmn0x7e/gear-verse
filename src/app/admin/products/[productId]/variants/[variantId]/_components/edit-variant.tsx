@@ -41,10 +41,12 @@ export function EditVariant({
           [name]: value,
         })),
         overridePrice: variant.overridePrice ?? 0,
-        thumbnail: {
-          mediaId: variant.thumbnail?.id ?? 0,
-          url: variant.thumbnail?.url ?? "",
-        },
+        thumbnail: variant.thumbnail
+          ? {
+              mediaId: variant.thumbnail.id,
+              url: variant.thumbnail.url,
+            }
+          : undefined,
       }}
     />
   );

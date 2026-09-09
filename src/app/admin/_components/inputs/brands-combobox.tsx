@@ -253,7 +253,7 @@ export function BrandsCommand({
                 setOpen(false);
               }}
             >
-              <div className="bg-muted size-6 overflow-hidden rounded-sm border">
+              <div className="size-6 overflow-hidden rounded-sm border bg-white">
                 <Image
                   src={brand.logo?.url ?? ""}
                   alt={brand.name}

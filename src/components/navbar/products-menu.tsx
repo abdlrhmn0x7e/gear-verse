@@ -45,11 +45,11 @@ function ProductCard({
   products: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
 }) {
   return (
-    <NavLink href={`/products/${products.slug}`}>
-      <div className="group bg-card h-full space-y-3 rounded-lg border p-1">
+    <NavLink href={`/products/${products.slug}`} className="block h-full">
+      <div className="group bg-card flex h-full flex-col gap-3 rounded-lg border p-1">
         <AspectRatio
           ratio={16 / 9}
-          className="w-full overflow-hidden rounded-lg border bg-white"
+          className="w-full shrink-0 overflow-hidden rounded-lg border bg-white"
         >
           <ImageWithFallback
             src={products.thumbnailUrl}
@@ -60,9 +60,9 @@ function ProductCard({
           />
         </AspectRatio>
 
-        <div className="px-2 pb-3">
+        <div className="flex-1 px-2 pb-3">
           <h4 className="line-clamp-1 font-medium">{products.title}</h4>
-          <p className="text-muted-foreground line-clamp-3 text-sm">
+          <p className="text-muted-foreground line-clamp-2 text-sm">
             {products.summary}
           </p>
         </div>
@@ -83,17 +83,18 @@ export function ProductsMenuSkeleton() {
 
 function ProductCardSkeleton() {
   return (
-    <div className="bg-card space-y-3 overflow-hidden rounded-lg border p-1">
+    <div className="bg-card flex h-full flex-col gap-3 overflow-hidden rounded-lg border p-1">
       <AspectRatio
         ratio={16 / 9}
-        className="w-full overflow-hidden rounded-lg border"
+        className="w-full shrink-0 overflow-hidden rounded-lg border"
       >
         <Skeleton className="size-full rounded-md" />
       </AspectRatio>
 
-      <div className="space-y-1 px-2 pb-3">
-        <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-2 w-24" />
+      <div className="flex-1 space-y-2 px-2 pb-3">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-3/4" />
       </div>
     </div>
   );
