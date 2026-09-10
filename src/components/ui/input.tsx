@@ -64,10 +64,13 @@ function NumberInput({
 }: React.ComponentProps<typeof Input> & {
   step?: number;
   value: string | number;
-  onValueChange?: (value: number) => void;
+  onValueChange?: (value: number | undefined) => void;
 }) {
-  function parseValue(value: string | number) {
-    return typeof value === "number" ? value : parseInt(value);
+  function parseValue(value: string | number): number | undefined {
+    if (value === "") return undefined;
+
+    const parsedValue = typeof value === "number" ? value : Number(value);
+    return Number.isNaN(parsedValue) ? undefined : parsedValue;
   }
 
   const [steppedValue, setSteppedValue] = React.useState<number | undefined>(
@@ -77,8 +80,10 @@ function NumberInput({
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.stopPropagation();
     e.preventDefault();
-    setSteppedValue(parseValue(e.target.value));
+    const nextValue = parseValue(e.target.value);
+    setSteppedValue(nextValue);
     onChange?.(e);
+    onValueChange?.(nextValue);
   }
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {

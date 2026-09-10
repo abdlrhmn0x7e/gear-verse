@@ -56,9 +56,6 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="How much you got?"
-                    onChange={(e) => {
-                      field.onChange(e);
-                    }}
                     onValueChange={field.onChange}
                     value={field.value}
                   />
