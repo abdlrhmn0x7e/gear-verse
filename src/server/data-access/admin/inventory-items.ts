@@ -57,9 +57,10 @@ export const _inventoryItems = {
             title: products.title,
             thumbnailUrl: variantMedia.url,
             values: variantValuesCTE.values,
-            archived: sql<boolean>`(${productVariants.archived} OR ${products.archived})`.as(
-              "archived",
-            ),
+            variantArchived:
+              sql<boolean>`(${productVariants.archived} OR ${products.archived})`.as(
+                "variant_archived",
+              ),
           })
           .from(productVariants)
           .leftJoin(products, eq(productVariants.productId, products.id))
@@ -76,7 +77,7 @@ export const _inventoryItems = {
       // hide inventory of archived products and archived variants
       // (product-level rows join `products`, variant rows join the variants CTE)
       const whereClause = [
-        sql`coalesce(${products.archived}, ${variantsCTE.archived}, false) = false`,
+        sql`coalesce(${products.archived}, ${variantsCTE.variantArchived}, false) = false`,
       ];
 
       if (cursor) {
