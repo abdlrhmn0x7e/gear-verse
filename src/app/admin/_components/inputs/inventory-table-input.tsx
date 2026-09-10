@@ -59,6 +59,7 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
                     onChange={(e) => {
                       field.onChange(e);
                     }}
+                    onValueChange={field.onChange}
                     value={field.value}
                   />
                 </Field>

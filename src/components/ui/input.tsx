@@ -58,11 +58,13 @@ function NumberInput({
   step = 1,
   value,
   onChange,
+  onValueChange,
   onFocus,
   ...props
 }: React.ComponentProps<typeof Input> & {
   step?: number;
   value: string | number;
+  onValueChange?: (value: number) => void;
 }) {
   function parseValue(value: string | number) {
     return typeof value === "number" ? value : parseInt(value);
@@ -87,12 +89,16 @@ function NumberInput({
 
   function handleIncrement(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setSteppedValue((prev) => (prev ? prev + step : step));
+    const nextValue = steppedValue ? steppedValue + step : step;
+    setSteppedValue(nextValue);
+    onValueChange?.(nextValue);
   }
 
   function handleDecrement(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setSteppedValue((prev) => (prev ? prev - step : 0));
+    const nextValue = steppedValue ? steppedValue - step : 0;
+    setSteppedValue(nextValue);
+    onValueChange?.(nextValue);
   }
 
   return (
