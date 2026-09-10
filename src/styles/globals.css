@@ -41,7 +41,7 @@
   --font-sans: var(--font-nunito-sans), sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
-  --radius: 0.5rem;
+  --radius: 1rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
   --shadow-blur: 12px;
@@ -110,7 +110,7 @@
   --font-mono:
     SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
     monospace;
-  --radius: 0.5rem;
+  --radius: 1rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
   --shadow-blur: 16px;
