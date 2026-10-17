@@ -1,34 +1,35 @@
 "use client";
 
-import { Button } from "~/components/ui/button";
-import { IconBasketDollar } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { Spinner } from "~/components/spinner";
-import { cn } from "~/lib/utils";
-import { toast } from "sonner";
-import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import Link from "next/link";
-import { ArrowBigUpIcon } from "lucide-react";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Spinner } from "~/components/spinner";
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import { useTRPC } from "~/trpc/client";
+import { findCartLine } from "./hooks/use-selected-stock";
 
 export function BuyNowButton({
+  productId,
+  disabled,
+  disabledLabel,
+  size = "xl",
   className,
-  product,
-  ...props
-}: React.ComponentProps<typeof Button> & {
-  product: RouterOutput["public"]["products"]["queries"]["findBySlug"];
+}: {
+  productId: number;
+  disabled: boolean;
+  /** what the button says when the selected item can't be bought */
+  disabledLabel: string;
+  size?: "xl" | "lg";
+  className?: string;
 }) {
   const trpc = useTRPC();
   const router = useRouter();
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
-  const hasVariants = product.variants.length > 0;
-  const stock = hasVariants
-    ? (selectedVariant?.stock ?? 0)
-    : (product.stock ?? 0);
-  const outOfStock = stock <= 0;
   const { data: cart } = useQuery(
     trpc.public.carts.queries.find.queryOptions(),
   );
@@ -38,51 +39,33 @@ export function BuyNowButton({
         router.push("/checkout");
       },
       onError: () => {
-        toast.warning("You can't buy and add an item at the same time!");
+        toast.error("Couldn't start checkout. Try again.");
       },
     }),
   );
 
-  function handleClick() {
-    if (outOfStock) return;
-    if (hasVariants && !selectedVariant) return;
-
-    addItem(
-      {
-        productId: product.id,
-        productVariantId: selectedVariant?.id ?? null,
-      },
-      {
-        onSuccess: () => {
-          router.push("/checkout");
-        },
-      },
-    );
-  }
-
-  if (
-    cart?.items.find((item) => item.productVariantId === selectedVariant?.id)
-  ) {
+  if (findCartLine(cart, productId, selectedVariant?.id)) {
     return (
-      <Button className="w-full lg:flex-1" size="lg" asChild {...props}>
-        <Link href="/checkout">
-          <ArrowBigUpIcon />
-          Checkout
-        </Link>
+      <Button size={size} className={cn("w-full", className)} asChild>
+        <Link href="/checkout">Go to checkout</Link>
       </Button>
     );
   }
 
   return (
     <Button
-      className={cn("w-full lg:flex-1", className)}
-      size="lg"
-      onClick={handleClick}
-      disabled={addingItem || outOfStock}
-      {...props}
+      size={size}
+      className={cn("w-full", className)}
+      onClick={() =>
+        addItem({
+          productId,
+          productVariantId: selectedVariant?.id ?? null,
+        })
+      }
+      disabled={addingItem || disabled}
     >
-      {addingItem ? <Spinner /> : <IconBasketDollar />}
-      Buy Now
+      {addingItem && <Spinner />}
+      {disabled ? disabledLabel : "Buy now"}
     </Button>
   );
 }

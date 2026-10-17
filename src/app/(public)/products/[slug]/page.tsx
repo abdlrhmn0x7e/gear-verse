@@ -68,15 +68,15 @@ export default async function ProductPage({
   const { slug } = await params;
 
   return (
-    <section className="py-24">
+    <div className="pt-24 pb-12 md:pt-28">
       <ProductDetails
         slug={slug}
         Reviews={({ productId }) => (
-          <Suspense fallback={<div>Loading reviews...</div>}>
+          <Suspense fallback={<p className="text-muted-foreground">Loading reviews…</p>}>
             <Reviews productId={productId} />
           </Suspense>
         )}
       />
-    </section>
+    </div>
   );
 }

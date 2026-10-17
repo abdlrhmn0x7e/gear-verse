@@ -1,38 +1,56 @@
-import {
-  CheckCircleIcon,
-  GalleryThumbnails,
-  InfoIcon,
-  MessageCircleIcon,
-} from "lucide-react";
+import { cacheTag } from "next/cache";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type JSX } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductDescription } from "~/components/product-description";
 import {
-  Frame,
-  FrameDescription,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "~/components/ui/frame";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
-import { AddToCartButton } from "./add-to-cart-button";
-import { BuyNowButton } from "./buy-now-button";
-import { ProductBrandBadge } from "./product-brand-badge";
-import { ProductCarousel } from "./product-carousel";
-import { ProductPrice } from "./product-price";
+import { TRUST_PROMISES } from "../trust/trust-promises";
+import {
+  ProductCard,
+  productGridClassName,
+  type ProductCardItem,
+} from "./product-card";
+import { ProductGallery } from "./product-gallery";
 import { ProductVariantSelector } from "./product-variant-selector";
-import { cacheTag } from "next/cache";
+import { PurchasePanel } from "./purchase-panel";
 
-const WHY_US = [
-  "1~2 Days Delivery",
-  "100% Satisfaction Guarantee",
-  "Customs Cleared & Insured",
-  "Money Back Guarantee",
+/** Condensed from the FAQ answers, so the product page repeats policies the store already states. */
+const POLICY_ROWS = [
+  {
+    value: "delivery",
+    title: "Delivery",
+    body: "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
+  },
+  {
+    value: "authenticity",
+    title: "Authenticity & warranty",
+    body: "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
+  },
+  {
+    value: "returns",
+    title: "Returns & refunds",
+    body: "Not happy with your order? Contact our support team to start a return or refund. If something arrives damaged or defective, send us photos and we'll replace it or refund you in full.",
+  },
 ];
 
 export async function ProductDetails({
@@ -44,6 +62,7 @@ export async function ProductDetails({
   slug: string;
   className?: string;
   Reviews?: (props: { productId: number }) => JSX.Element;
+  /** admin preview: no buying, breadcrumb or related products */
   hideActions?: boolean;
 }) {
   "use cache";
@@ -57,123 +76,185 @@ export async function ProductDetails({
 
   cacheTag(`products:${product.id}`);
 
-  const hasVariants = product.variants && product.variants.length > 0;
+  const hasVariants = product.variants.length > 0;
+  const categoryPath = findCategoryPath(
+    await getCategoryTree(),
+    (node) => node.id === product.categoryId,
+  );
+  const category = categoryPath.at(-1);
 
   return (
     <VariantSelectionStoreProvider>
-      <MaxWidthWrapper
-        className={cn("relative space-y-4 lg:grid lg:grid-cols-2", className)}
-      >
-        {/* Image Carousel Section */}
-        <ProductCarousel
-          media={[product.thumbnailUrl, ...product.media]}
-          brand={product.brand}
-          variantLength={product.variants.length}
-        />
-
-        {/* Content Section */}
-        <div className="space-y-6">
-          <Frame className="w-full">
-            <FrameHeader>
-              <div className="flex items-center justify-between gap-2">
-                <FrameTitle className="text-2xl font-bold">
+      <MaxWidthWrapper className={cn("@container flex flex-col gap-8", className)}>
+        {!hideActions && (
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/products">Store</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {category && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href={`/categories/${category.slug}`}>
+                        {category.name}
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </>
+              )}
+              <BreadcrumbSeparator />
+              <BreadcrumbItem className="min-w-0">
+                <BreadcrumbPage className="truncate">
                   {product.title}
-                </FrameTitle>
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        )}
 
-                <ProductBrandBadge
-                  brand={product.brand}
-                  className="hidden lg:flex"
-                />
-              </div>
-              <FrameDescription>{product.summary}</FrameDescription>
-            </FrameHeader>
+        <div className="grid gap-10 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @4xl:gap-16">
+          <div className="@4xl:sticky @4xl:top-24 @4xl:self-start">
+            <ProductGallery
+              media={[product.thumbnailUrl, ...product.media]}
+              title={product.title}
+              variantCount={product.variants.length}
+            />
+          </div>
 
-            <FramePanel>
-              <h2 className="text-sm font-semibold">Pricing</h2>
-              <div className="space-x-2 text-center lg:text-left">
-                <ProductPrice
-                  originalPrice={product.price}
-                  strikeThroughPrice={product.strikeThroughPrice}
-                />
-              </div>
-            </FramePanel>
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
+              {product.brand.name && (
+                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <ImageWithFallback
+                    src={product.brand.logoUrl}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="size-6 rounded-full border-none bg-white [&_img]:object-contain"
+                  />
+                  {product.brand.name}
+                </div>
+              )}
+              <h1 className="text-headline-sm md:text-[2.5rem] md:leading-[1.1] text-balance">
+                {product.title}
+              </h1>
+              {product.summary && (
+                <p className="text-muted-foreground text-body-lg text-pretty">
+                  {product.summary}
+                </p>
+              )}
+            </div>
 
             {hasVariants && (
-              <FramePanel>
-                <h2 className="text-sm font-semibold">Variants</h2>
-                <ProductVariantSelector variants={product.variants} />
-              </FramePanel>
+              <ProductVariantSelector variants={product.variants} />
             )}
 
-            {!hasVariants && (
-              <FramePanel>
-                <h2 className="text-sm font-semibold">Why Us?</h2>
-                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {WHY_US.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-center gap-3 text-sm font-medium"
-                    >
-                      <CheckCircleIcon className="size-4 text-green-500" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </FramePanel>
-            )}
+            <PurchasePanel
+              productId={product.id}
+              productTitle={product.title}
+              productStock={product.stock}
+              hasVariants={hasVariants}
+              price={product.price}
+              strikeThroughPrice={product.strikeThroughPrice}
+              showActions={!hideActions}
+            />
 
-            {!hideActions && (
-              <FramePanel>
-                <div className="flex flex-col gap-2 lg:flex-row">
-                  <AddToCartButton
-                    className="peer w-full lg:flex-1"
-                    size="lg"
-                    variant="outline"
-                    productId={product.id}
-                    productStock={product.stock}
-                    hasVariants={hasVariants}
+            <ul className="flex flex-col gap-3 text-sm">
+              {TRUST_PROMISES.map((promise) => (
+                <li key={promise.title} className="flex items-start gap-3">
+                  <promise.icon
+                    className="mt-0.5 size-4 shrink-0"
+                    strokeWidth={1.5}
+                    aria-hidden
                   />
+                  <span>
+                    <span className="font-medium">{promise.title}.</span>{" "}
+                    <span className="text-muted-foreground">
+                      {promise.description}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
 
-                  <BuyNowButton
-                    className="peer-disabled:pointer-events-none peer-disabled:opacity-50"
-                    product={product}
-                  />
-                </div>
-              </FramePanel>
-            )}
-          </Frame>
-
-          <Tabs defaultValue="details" className="space-y-4">
-            <TabsList className="w-full">
-              <TabsTrigger value="details">
-                <InfoIcon />
-                Details
-              </TabsTrigger>
-              {Reviews && (
-                <TabsTrigger value="reviews">
-                  <MessageCircleIcon />
-                  Reviews
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <TabsContent value="details">
-              <Suspense>
-                <ProductDescription
-                  description={product.description}
-                  className="m-0"
-                />
-              </Suspense>
-            </TabsContent>
-
-            {Reviews && (
-              <TabsContent value="reviews">
-                <Reviews productId={product.id} />
-              </TabsContent>
-            )}
-          </Tabs>
+            <Accordion type="single" collapsible className="border-t">
+              {POLICY_ROWS.map((row) => (
+                <AccordionItem key={row.value} value={row.value}>
+                  <AccordionTrigger>{row.title}</AccordionTrigger>
+                  <AccordionContent>
+                    <p>{row.body}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
+
+        <section
+          aria-labelledby="details-heading"
+          className="grid gap-8 border-t pt-12 md:pt-16 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] @4xl:gap-16"
+        >
+          <h2 id="details-heading" className="text-headline-sm text-balance">
+            Details
+          </h2>
+          <Suspense>
+            <ProductDescription description={product.description} />
+          </Suspense>
+        </section>
+
+        {Reviews && (
+          <section
+            aria-label="Reviews"
+            className="border-t pt-12 md:pt-16"
+          >
+            <Reviews productId={product.id} />
+          </section>
+        )}
+
+        {!hideActions && category && (
+          <RelatedProducts
+            productId={product.id}
+            categorySlug={category.slug}
+          />
+        )}
       </MaxWidthWrapper>
     </VariantSelectionStoreProvider>
+  );
+}
+
+async function RelatedProducts({
+  productId,
+  categorySlug,
+}: {
+  productId: number;
+  categorySlug: string;
+}) {
+  const page = await app.public.products.queries.getPage({
+    pageSize: 5,
+    filters: { categories: [categorySlug] },
+  });
+  const related: ProductCardItem[] = page.data
+    .filter((item) => item.id !== productId)
+    .slice(0, 4);
+  if (related.length === 0) return null;
+
+  return (
+    <section
+      aria-labelledby="related-heading"
+      className="space-y-10 border-t pt-12 md:pt-16"
+    >
+      <h2 id="related-heading" className="text-headline-sm text-balance">
+        You might also like
+      </h2>
+      <div className={productGridClassName}>
+        {related.map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
+    </section>
   );
 }

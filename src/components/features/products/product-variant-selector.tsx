@@ -122,8 +122,14 @@ export function ProductVariantSelector({
   }, [variantsMap, defaultValues, setSelectedVariant]);
 
   return Object.entries(options).map(([optionName, values], index) => (
-    <div key={optionName} className="mb-4">
-      <h4 className="mb-2 font-medium">{optionName}</h4>
+    <fieldset key={optionName} className="flex flex-col gap-3">
+      <legend className="mb-3 text-sm">
+        <span className="font-medium">{optionName}</span>
+        <span className="text-muted-foreground">
+          {" "}
+          · {selectedValues[index]}
+        </span>
+      </legend>
       {index === 0 ? (
         <PrimaryOptionValueButton
           values={values}
@@ -137,10 +143,11 @@ export function ProductVariantSelector({
           }
         />
       ) : (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-2">
           {Array.from(values).map((value) => (
             <Button
               variant={selectedValues.includes(value) ? "default" : "outline"}
+              aria-pressed={selectedValues.includes(value)}
               onClick={() => handleOptionValueSelect(optionName, value)}
               key={`value-button-${value}`}
             >
@@ -149,7 +156,7 @@ export function ProductVariantSelector({
           ))}
         </div>
       )}
-    </div>
+    </fieldset>
   ));
 }
 
@@ -169,16 +176,18 @@ function PrimaryOptionValueButton({
   const parsedValues = Array.from(values);
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-3">
       {parsedValues.map((value) => (
         <div
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1.5"
           key={`option-value-fragment-${value}`}
         >
           <button
-            data-active={selectedValues.includes(value)}
+            type="button"
+            aria-pressed={selectedValues.includes(value)}
+            aria-label={value}
             className={cn(
-              "ring-primary size-16 cursor-pointer overflow-hidden rounded-md transition-shadow outline-none hover:ring-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[active=true]:ring-2",
+              "image-well size-16 cursor-pointer overflow-hidden rounded-2xl outline-2 outline-offset-2 outline-transparent transition-[outline-color] duration-150 hover:outline-border focus-visible:outline-focus aria-pressed:outline-foreground",
               className,
             )}
             onClick={() => handleOptionValueSelect?.(value)}
@@ -188,13 +197,13 @@ function PrimaryOptionValueButton({
                 variantThumbnails.find((vt) => vt.value === value)
                   ?.thumbnailUrl ?? ""
               }
-              alt={value}
-              className="size-full"
+              alt=""
+              className="size-full rounded-none border-none bg-transparent p-1.5 [&_img]:object-contain"
               width={128}
               height={128}
             />
           </button>
-          <span className="text-muted-foreground text-sm font-medium">
+          <span aria-hidden className="text-muted-foreground text-xs">
             {value}
           </span>
         </div>
