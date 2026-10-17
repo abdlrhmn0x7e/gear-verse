@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  columnSizingFeature,
+  columnVisibilityFeature,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  tableFeatures,
+  useTable,
   type ColumnDef,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -25,10 +27,15 @@ type TableInventoryItem = Omit<
   "productId" | "productVariantId" | "createdAt" | "updatedAt"
 >;
 
+const features = tableFeatures({
+  columnSizingFeature,
+  columnVisibilityFeature,
+});
+
 export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
   const form = useFormContext<{ inventory: InventoryItem }>();
 
-  const columns = useMemo<ColumnDef<TableInventoryItem>[]>(
+  const columns = useMemo<ColumnDef<typeof features, TableInventoryItem>[]>(
     () => [
       {
         accessorKey: "id",
@@ -38,7 +45,6 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
         },
       },
       {
-        accessorKey: "",
         header: "Location",
         cell: "Your basement",
       },
@@ -70,10 +76,10 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
     [],
   );
 
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
   });
 
   return (

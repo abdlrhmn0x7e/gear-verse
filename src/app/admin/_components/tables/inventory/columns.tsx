@@ -11,10 +11,14 @@ import { Badge } from "~/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { type InventoryItemFormValues } from "../../forms/inventory-item-form";
 import type { RouterOutput } from "~/trpc/client";
+import type { DataTableFeatures } from "~/lib/table-features";
 
 type TableInventoryItem =
   RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
-export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
+export function useInventoryTableColumns(): ColumnDef<
+  DataTableFeatures,
+  TableInventoryItem
+>[] {
   return [
     {
       accessorKey: "product",
@@ -49,7 +53,6 @@ export function useInventoryTableColumns(): ColumnDef<TableInventoryItem>[] {
       },
     },
     {
-      accessorKey: "",
       header: "Location",
       cell: "Your basement",
     },

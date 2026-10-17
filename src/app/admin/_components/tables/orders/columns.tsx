@@ -10,8 +10,10 @@ import { PaymentMethod } from "~/components/payment-method";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { OrdersTableActions } from "./actions";
+import type { DataTableFeatures } from "~/lib/table-features";
 
 export const ordersColumns: ColumnDef<
+  DataTableFeatures,
   RouterOutput["admin"]["orders"]["queries"]["getPage"]["data"][number]
 >[] = [
   {

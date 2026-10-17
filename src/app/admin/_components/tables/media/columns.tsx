@@ -12,10 +12,11 @@ import { Checkbox } from "~/components/ui/checkbox";
 import type { RouterOutput } from "~/trpc/client";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
+import type { DataTableFeatures } from "~/lib/table-features";
 
 type Media =
   RouterOutput["admin"]["media"]["queries"]["getPage"]["data"][number];
-export const mediaColumns: ColumnDef<Media>[] = [
+export const mediaColumns: ColumnDef<DataTableFeatures, Media>[] = [
   {
     id: "select",
     cell: ({ row }) => {

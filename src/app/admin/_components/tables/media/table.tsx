@@ -2,11 +2,10 @@
 
 import {
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  useTable,
+  type ColumnVisibilityState,
   type Row,
   type RowSelectionState,
-  type VisibilityState,
 } from "@tanstack/react-table";
 
 // UI & Icons
@@ -19,6 +18,10 @@ import { MediaTableHeader } from "./header";
 import { type RouterOutput } from "~/trpc/client";
 import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
+import {
+  dataTableFeatures,
+  type DataTableFeatures,
+} from "~/lib/table-features";
 import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
@@ -39,7 +42,8 @@ export function MediaTable({
   const [lastSelectedRowId, setLastSelectedRowId] = useState<string | null>(
     null,
   );
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    useState<ColumnVisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     selectedMedia.reduce((acc, media) => {
       acc[media.mediaId.toString()] = true;
@@ -47,10 +51,10 @@ export function MediaTable({
     }, {} as RowSelectionState),
   );
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns: mediaColumns,
-    getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id.toString(),
     onColumnVisibilityChange: setColumnVisibility,
     enableRowSelection: maxFiles
@@ -65,7 +69,10 @@ export function MediaTable({
     },
   });
 
-  const handleRowClick = (row: Row<Media>, event: React.MouseEvent) => {
+  const handleRowClick = (
+    row: Row<DataTableFeatures, Media>,
+    event: React.MouseEvent,
+  ) => {
     if (maxFiles === 1) {
       setRowSelection({ [row.id.toString()]: true });
       return;

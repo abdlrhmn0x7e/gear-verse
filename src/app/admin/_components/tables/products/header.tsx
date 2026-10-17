@@ -1,8 +1,9 @@
 "use client";
 
-import { type Table as ReactTable } from "@tanstack/react-table";
+import { type ReactTable } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
 import { TableHead, TableHeader, TableRow } from "~/components/ui/table";
+import type { DataTableFeatures } from "~/lib/table-features";
 import type { RouterOutput } from "~/trpc/client";
 
 type ProductRow =
@@ -11,7 +12,7 @@ type ProductRow =
 export function ProductsTableHeader({
   table,
 }: {
-  table?: ReactTable<ProductRow>;
+  table?: ReactTable<DataTableFeatures, ProductRow>;
 }) {
   if (!table) {
     return null;

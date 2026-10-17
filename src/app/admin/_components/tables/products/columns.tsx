@@ -11,8 +11,10 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductsTableActions } from "./actions";
 import { Badge } from "~/components/ui/badge";
 import { Checkbox } from "~/components/ui/checkbox";
+import type { DataTableFeatures } from "~/lib/table-features";
 
 export const productColumns: ColumnDef<
+  DataTableFeatures,
   RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number]
 >[] = [
   {
@@ -39,7 +41,6 @@ export const productColumns: ColumnDef<
         onClick={(event) => event.stopPropagation()}
       />
     ),
-    enableSorting: false,
     enableHiding: false,
   },
   {

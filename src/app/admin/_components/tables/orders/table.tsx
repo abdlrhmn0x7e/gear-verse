@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, useTable } from "@tanstack/react-table";
 
 // React & Next
 import { useEffect, useMemo } from "react";
@@ -31,6 +27,7 @@ import { ordersColumns } from "./columns";
 import { OrdersTableHeader } from "./header";
 import { OrdersFilter } from "./filters";
 import { cn } from "~/lib/utils";
+import { dataTableFeatures } from "~/lib/table-features";
 import { LoadMore } from "~/components/load-more";
 
 export function OrdersTable() {
@@ -66,10 +63,10 @@ export function OrdersTable() {
 
   const { ref, inView } = useInView();
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: ordersData,
     columns: ordersColumns,
-    getCoreRowModel: getCoreRowModel(),
   });
 
   useEffect(() => {

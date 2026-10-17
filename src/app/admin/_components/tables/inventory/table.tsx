@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, useTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { InventoryTableHeader } from "./header";
 import { useInventoryTableColumns } from "./columns";
@@ -20,6 +16,7 @@ import { useTRPC } from "~/trpc/client";
 import { useDebounce } from "~/hooks/use-debounce";
 import { LoadMore } from "~/components/load-more";
 import { PackageOpenIcon } from "lucide-react";
+import { dataTableFeatures } from "~/lib/table-features";
 
 export function InventoryTable() {
   const [params] = useInventorySearchParams();
@@ -53,10 +50,10 @@ export function InventoryTable() {
   }, [inView, hasNextPage, fetchNextPage]);
 
   const columns = useInventoryTableColumns();
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
   });
 
   return (

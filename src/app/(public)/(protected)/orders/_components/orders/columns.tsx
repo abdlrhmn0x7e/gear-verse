@@ -8,8 +8,10 @@ import { CalendarIcon, EyeIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "~/components/ui/button";
 import { PaymentMethod } from "../../../_components/payment-method";
+import type { DataTableFeatures } from "~/lib/table-features";
 
 export const ordersColumns: ColumnDef<
+  DataTableFeatures,
   RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number]
 >[] = [
   {

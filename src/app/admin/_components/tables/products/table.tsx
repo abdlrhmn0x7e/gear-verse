@@ -2,8 +2,7 @@
 
 import {
   flexRender,
-  getCoreRowModel,
-  useReactTable,
+  useTable,
   type RowSelectionState,
 } from "@tanstack/react-table";
 
@@ -33,6 +32,7 @@ import { ProductsFilter } from "./filters";
 import { ProductsTableHeader } from "./header";
 import { ProductsTableSkeleton } from "./skeleton";
 import { cn } from "~/lib/utils";
+import { dataTableFeatures } from "~/lib/table-features";
 import { LoadMore } from "~/components/load-more";
 import { useTRPC } from "~/trpc/client";
 import { BulkDeleteProductsDialog } from "../../dialogs/bulk-delete-products";
@@ -70,10 +70,10 @@ export function ProductsTable() {
     [products],
   );
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: productsData,
     columns: productColumns,
-    getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
     state: {

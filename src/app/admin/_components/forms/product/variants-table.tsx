@@ -1,14 +1,19 @@
 "use client";
 
 import {
-  type AggregationFn,
   type ColumnDef,
   type ExpandedState,
+  columnGroupingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  constructAggregationFn,
+  createExpandedRowModel,
+  createGroupedRowModel,
   flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getGroupedRowModel,
-  useReactTable,
+  rowAggregationFeature,
+  rowExpandingFeature,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import React from "react";
 import {
@@ -43,6 +48,22 @@ export type VariantsTableData = {
   stock: number;
 };
 
+const features = tableFeatures({
+  columnGroupingFeature,
+  rowAggregationFeature,
+  rowExpandingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  groupedRowModel: createGroupedRowModel(),
+  expandedRowModel: createExpandedRowModel(),
+  aggregationFns: {
+    getChildRows: constructAggregationFn({
+      aggregate: ({ rows }) =>
+        rows.map((row) => row.original as VariantsTableData),
+    }),
+  },
+});
+
 export function VariantsTable({
   data,
   groupByOption,
@@ -64,7 +85,9 @@ export function VariantsTable({
     [],
   );
 
-  const columns = React.useMemo<ColumnDef<VariantsTableData>[]>(
+  const columns = React.useMemo<
+    ColumnDef<typeof features, VariantsTableData>[]
+  >(
     () => [
       {
         id: "groupBy",
@@ -81,8 +104,7 @@ export function VariantsTable({
         header: "Variant",
         minSize: 200,
         maxSize: 400,
-        aggregationFn:
-          "getChildRows" as unknown as AggregationFn<VariantsTableData>, //
+        aggregationFn: "getChildRows",
         aggregatedCell: ({ row, getValue }) => {
           const childRows = getValue<VariantsTableData[]>();
           const optionValue =
@@ -232,22 +254,17 @@ export function VariantsTable({
   );
 
   const grouping = React.useMemo(() => ["groupBy"], []);
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getGroupedRowModel: getGroupedRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
     state: { grouping, expanded },
     onExpandedChange: setExpanded,
+    // Leaf rows toggle expanded state too; it drives their bg-muted highlight.
+    getRowCanExpand: () => true,
     getRowId,
     autoResetExpanded: false,
     groupedColumnMode: "remove",
-    aggregationFns: {
-      getChildRows: (_, __, childRows) =>
-        childRows.map((row) => row.original as VariantsTableData),
-    },
-    autoResetPageIndex: false,
   });
 
   return (
@@ -303,7 +320,8 @@ export function VariantsTable({
                   maxWidth: `${cell.column.getSize()}px`,
                 }}
               >
-                {cell.getIsAggregated()
+                {/* getIsAggregated() is false for Price and Stock, which have no aggregationFn */}
+                {row.getIsGrouped()
                   ? flexRender(
                       cell.column.columnDef.aggregatedCell,
                       cell.getContext(),

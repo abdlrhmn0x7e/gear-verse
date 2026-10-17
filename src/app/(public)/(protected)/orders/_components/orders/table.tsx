@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, useTable } from "@tanstack/react-table";
 
 // UI & Icons
 import { PackageOpenIcon } from "lucide-react";
@@ -19,6 +15,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
+import { dataTableFeatures } from "~/lib/table-features";
 
 export function OrdersTable() {
   const [, setParams] = useOrdersSearchParams();
@@ -36,10 +33,10 @@ export function OrdersTable() {
 
   const orders = useMemo(() => data.pages.flatMap((page) => page.data), [data]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: orders,
     columns: ordersColumns,
-    getCoreRowModel: getCoreRowModel(),
   });
 
   const { ref, inView } = useInView();
