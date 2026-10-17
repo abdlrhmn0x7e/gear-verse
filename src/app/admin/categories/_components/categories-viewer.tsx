@@ -208,14 +208,14 @@ export function CategoriesViewer() {
       <Card className="size-full gap-1 p-2">
         <CardContent className="size-full p-0">
           <ResizablePanelGroup
-            direction="horizontal"
+            orientation="horizontal"
             className="h-full overflow-hidden rounded-lg"
           >
             {/* Category Tree */}
             <ResizablePanel
               className="relative flex h-full flex-col gap-2 px-3 py-1"
-              defaultSize={25}
-              minSize={15}
+              defaultSize="25%"
+              minSize="15%"
             >
               <div className="h-fit space-y-1">
                 <div className="flex items-center justify-between gap-2">
@@ -274,7 +274,7 @@ export function CategoriesViewer() {
 
             <ResizableHandle withHandle className="bg-transparent" />
 
-            <ResizablePanel defaultSize={75} className="size-full">
+            <ResizablePanel defaultSize="75%" className="size-full">
               <Card className="bg-background size-full gap-1 p-2">
                 <CardHeader className="p-0">
                   <div className="bg-background flex w-full items-center justify-between gap-2 border-b p-4">
