@@ -25,7 +25,7 @@ export function ProductDescription({
   return (
     <div
       className={cn(
-        "prose prose-pink prose-headings:font-medium prose-headings:tracking-tight prose-strong:font-medium max-w-[68ch] focus-visible:outline-none",
+        "prose prose-pink prose-headings:font-medium prose-headings:tracking-tight prose-strong:font-medium max-w-[68ch] self-start focus-visible:outline-none [&_img]:h-auto [&_img]:w-auto [&_img]:max-w-full",
         className,
       )}
     >
