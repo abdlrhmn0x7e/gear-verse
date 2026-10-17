@@ -7,7 +7,7 @@
       "dependencies": {
         "@aws-sdk/client-s3": "^3.1152.0",
         "@aws-sdk/s3-request-presigner": "^3.1152.0",
-        "@diceui/combobox": "1.2.2",
+        "@diceui/combobox": "^2.0.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/modifiers": "^9.0.0",
         "@dnd-kit/sortable": "^10.0.0",
@@ -196,9 +196,9 @@
 
     "@date-fns/tz": ["@date-fns/tz@1.5.0", "", {}, "sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg=="],
 
-    "@diceui/combobox": ["@diceui/combobox@1.2.2", "", { "dependencies": { "@diceui/shared": "0.12.0", "@floating-ui/react": "^0.27.4" }, "peerDependencies": { "@types/react": "*", "@types/react-dom": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-eLagbQr+1u1xGW/YSmTqjvxJ/lBAU1RLUYn1SsI0T9Wnzi3D9fbXTVuhoRYx29Z2ne/+RzVZXzcu3HdqdMHo1A=="],
+    "@diceui/combobox": ["@diceui/combobox@2.0.0", "", { "dependencies": { "@diceui/shared": "1.0.0", "@floating-ui/react": "^0.27.20" }, "peerDependencies": { "@types/react": "*", "@types/react-dom": "*", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-Pv1iRvUNf1RajM2m+KNk8NVwn1VNcUwpXA+Sm/ykIwxrXM9eMfM7tPdk81yAWfulX96E6wL+L/3cjhFGZJL4+A=="],
 
-    "@diceui/shared": ["@diceui/shared@0.12.0", "", { "peerDependencies": { "@floating-ui/react": "^0.27.4", "@types/react": "*", "@types/react-dom": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-aJ+gxHTleFD8b9DgXOb7G0sHymW8nMK4C3KXDMca4+PPl1NsfRG/Lnb2dN8vq44XOb/W7Wjn3gmgakXAOzgrJA=="],
+    "@diceui/shared": ["@diceui/shared@1.0.0", "", { "peerDependencies": { "@floating-ui/react": "^0.27.4", "@types/react": "*", "@types/react-dom": "*", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-zs7RGEUVUBmyIKFmJWxHrsnD5kSwXV8DbFZnQmxGD0Rv0yDOlnXUpZIUdljEiTXYBMNKGb2KHET6Nks4MG0sOA=="],
 
     "@dnd-kit/accessibility": ["@dnd-kit/accessibility@3.1.1", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0" } }, "sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw=="],
 
