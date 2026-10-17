@@ -1,13 +1,6 @@
 "use client";
 
 import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  SkullIcon,
-  SparklesIcon,
-} from "lucide-react";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -40,44 +33,23 @@ export function ProductsSort() {
   return (
     <Select
       defaultValue="default"
-      value={filters.sortBy ?? "default"}
+      // "newest" is also the default order, so both share one option
+      value={
+        !filters.sortBy || filters.sortBy === "newest"
+          ? "default"
+          : filters.sortBy
+      }
       onValueChange={handleSortChange}
     >
-      <SelectTrigger className="sm:w-xs">
+      <SelectTrigger aria-label="Sort products" className="min-w-44">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
 
-      <SelectContent>
-        <SelectItem value="default">
-          <div className="flex w-full items-center gap-2">
-            <ArrowUpDownIcon />
-            Default
-          </div>
-        </SelectItem>
-        <SelectItem value="newest">
-          <div className="flex w-full items-center gap-2">
-            <SparklesIcon />
-            Newest
-          </div>
-        </SelectItem>
-        <SelectItem value="oldest">
-          <div className="flex w-full items-center gap-2">
-            <SkullIcon />
-            Oldest
-          </div>
-        </SelectItem>
-        <SelectItem value="price-asc">
-          <div className="flex w-full items-center gap-2">
-            <ArrowUpIcon />
-            <span className="flex-1">Price: Low to High</span>
-          </div>
-        </SelectItem>
-        <SelectItem value="price-desc">
-          <div className="flex w-full items-center gap-2">
-            <ArrowDownIcon />
-            <span className="flex-1">Price: High to Low</span>
-          </div>
-        </SelectItem>
+      <SelectContent position="popper" align="end">
+        <SelectItem value="default">Sort: Newest</SelectItem>
+        <SelectItem value="oldest">Sort: Oldest</SelectItem>
+        <SelectItem value="price-asc">Sort: Price, low to high</SelectItem>
+        <SelectItem value="price-desc">Sort: Price, high to low</SelectItem>
       </SelectContent>
     </Select>
   );

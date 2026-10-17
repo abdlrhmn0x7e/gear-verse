@@ -1,27 +1,23 @@
 import { Suspense } from "react";
-import { Heading } from "~/components/heading";
-import { cn } from "~/lib/utils";
-import { trpc, HydrateClient, prefetch } from "~/trpc/server";
+import { MobileFiltersDrawer } from "~/components/features/products/mobile-filters-drawer";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { ProductList, ProductListSkeleton } from "./product-list";
-import { Skeleton } from "~/components/ui/skeleton";
 import type {
   AttributeFilter,
   CategoryProductsFilters as NativeCategoryProductsFilters,
 } from "./utils";
-import { MobileFiltersDrawer } from "./mobile-filters-drawer";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
-import { ProductsSort } from "~/components/features/products/products-sort";
 
 export async function Products({
-  className,
   slug,
   filters,
+  filtersPanel,
 }: {
-  className?: string;
   slug: string;
   filters: NativeCategoryProductsFilters;
+  /** the filter panel, rendered again inside the mobile sheet */
+  filtersPanel: React.ReactNode;
 }) {
-  const categoryName = slug.split("-").pop()!;
   const attributeFilters = Array.from(Object.entries(filters)).reduce(
     (acc, [key, value]) => {
       if (value === null || value === undefined) return acc;
@@ -44,13 +40,13 @@ export async function Products({
   const parsedFilters = {
     brands: filters.brands ?? undefined,
     attributes: attributeFilters,
-    price:
-      filters.minPrice && filters.maxPrice
-        ? {
-            min: filters.minPrice,
-            max: filters.maxPrice,
-          }
-        : undefined,
+    // mirrors useCategoryProductsFilters so the prefetch matches the client query
+    price: filters.maxPrice
+      ? {
+          min: filters.minPrice ?? 0,
+          max: filters.maxPrice,
+        }
+      : undefined,
   } satisfies CategoryProductsFilters;
 
   void prefetch(
@@ -65,14 +61,9 @@ export async function Products({
   );
 
   return (
-    <section id="products" className={cn("space-y-4", className)}>
-      <div className="flex items-center justify-between">
-        <Heading level={3}>{categoryName}</Heading>
-        <div className="flex items-center gap-2">
-          <ProductsSort />
-
-          <MobileFiltersDrawer slug={slug} />
-        </div>
+    <section aria-label="Products" className="min-w-0 space-y-8">
+      <div className="lg:hidden">
+        <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
       </div>
 
       <HydrateClient>
@@ -84,15 +75,9 @@ export async function Products({
   );
 }
 
-export function ProductsSkeleton({ className }: { className?: string }) {
+export function ProductsSkeleton() {
   return (
-    <section id="products" className={cn("space-y-4", className)}>
-      <div className="flex items-center justify-between">
-        <Heading level={3}>All Products</Heading>
-
-        <Skeleton className="h-9 w-24" />
-      </div>
-
+    <section aria-label="Products">
       <ProductListSkeleton />
     </section>
   );

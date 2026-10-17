@@ -1,8 +1,9 @@
 import type { SearchParams } from "nuqs/server";
+import { Suspense } from "react";
+import { CategoryChips } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
-import { Suspense } from "react";
 
 export default function ProductsPage({
   searchParams,
@@ -10,19 +11,34 @@ export default function ProductsPage({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <MaxWidthWrapper className="relative grid min-h-screen grid-cols-1 gap-8 py-16 pt-24 lg:grid-cols-12 lg:pt-32">
-      <div className="relative hidden h-fit lg:col-span-4 lg:block xl:col-span-3">
-        <Filters />
+    <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
+      <header className="max-w-2xl space-y-3">
+        <h1 className="text-headline-sm md:text-display-sm text-balance">
+          Store
+        </h1>
+        <p className="text-muted-foreground text-body-lg text-pretty">
+          Hand-imported gear from international brands, in stock and ready to
+          ship in Egypt.
+        </p>
+      </header>
+
+      <div className="mt-8">
+        <CategoryChips activeSlug={null} />
       </div>
 
-      <Suspense
-        fallback={<ProductsSkeleton className="lg:col-span-8 xl:col-span-9" />}
-      >
-        <Products
-          className="lg:col-span-8 xl:col-span-9"
-          searchParams={searchParams}
-        />
-      </Suspense>
+      <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
+        <aside aria-label="Filters" className="hidden lg:block">
+          <div className="sticky top-24">
+            <Suspense>
+              <Filters />
+            </Suspense>
+          </div>
+        </aside>
+
+        <Suspense fallback={<ProductsSkeleton />}>
+          <Products searchParams={searchParams} filters={<Filters />} />
+        </Suspense>
+      </div>
     </MaxWidthWrapper>
   );
 }

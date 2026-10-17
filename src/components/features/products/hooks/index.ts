@@ -20,3 +20,22 @@ export function useAllProductSearchParams() {
 }
 
 export const loadAllProductSearchParams = createLoader(productsNuqsParsers);
+
+type ProductsSearchParams = Awaited<ReturnType<typeof loadAllProductSearchParams>>;
+
+/** One mapping from URL filters to the products query, shared by the server prefetch and the client list. */
+export function toProductsPageInput(filters: ProductsSearchParams) {
+  const hasPrice = filters.minPrice !== null || filters.maxPrice !== null;
+
+  return {
+    pageSize: 12,
+    filters: {
+      brands: filters.brands ?? undefined,
+      categories: filters.categories ?? undefined,
+      price: hasPrice
+        ? { min: filters.minPrice ?? 0, max: filters.maxPrice ?? 99999 }
+        : undefined,
+    },
+    sortBy: filters.sortBy ?? undefined,
+  };
+}

@@ -3,8 +3,7 @@
 import { useQueryState } from "nuqs";
 import { parseAsArrayOf, parseAsBoolean, parseAsString } from "nuqs/server";
 import { useEffectEvent, useLayoutEffect } from "react";
-import { CustomCheckbox } from "~/components/custom-checkbox";
-import { Checkbox } from "~/components/ui/checkbox";
+import { FilterChip } from "~/components/features/products/filter-chip";
 import { Label } from "~/components/ui/label";
 import { RadioGroupItem } from "~/components/ui/radio-group";
 import { Switch } from "~/components/ui/switch";
@@ -15,7 +14,6 @@ interface ItemProps {
   keyName: string;
   value?: string;
   type: AttributeType;
-  isMobile?: boolean;
 }
 
 export function FilterItem(props: ItemProps) {
@@ -34,17 +32,12 @@ export function FilterItem(props: ItemProps) {
   }
 }
 
-function MultiSelectItem({ label, keyName, value, isMobile }: ItemProps) {
+function MultiSelectItem({ label, keyName, value }: ItemProps) {
   const [filter, setFilter] = useQueryState(
     `multi.${keyName}`,
     parseAsArrayOf(parseAsString).withOptions({ shallow: true }),
   );
   const checked = filter?.includes(value ?? "unknown") ?? false;
-
-  // const unmount = useEffectEvent(() => {
-  //   setFilter(null);
-  // });
-  // useLayoutEffect(() => unmount(), []);
 
   const handleChecked = (checked: boolean) => {
     void setFilter((prev) => {
@@ -59,23 +52,10 @@ function MultiSelectItem({ label, keyName, value, isMobile }: ItemProps) {
     });
   };
 
-  return isMobile ? (
-    <CustomCheckbox
-      id={`attribute-${keyName}-${value}-item`}
-      checked={checked}
-      onCheckedChange={handleChecked}
-    >
+  return (
+    <FilterChip pressed={checked} onPressedChange={handleChecked}>
       {label}
-    </CustomCheckbox>
-  ) : (
-    <div className="flex items-center gap-2">
-      <Checkbox
-        id={`attribute-${keyName}-${value}-item`}
-        checked={checked}
-        onCheckedChange={handleChecked}
-      />
-      <Label htmlFor={`attribute-${keyName}-${value}-item`}>{label}</Label>
-    </div>
+    </FilterChip>
   );
 }
 
