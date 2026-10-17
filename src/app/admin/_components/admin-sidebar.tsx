@@ -22,8 +22,7 @@ import {
 } from "../../../components/product-search-dialog";
 import { Kbd } from "~/components/ui/kbd";
 import {
-  type IconProps,
-  type Icon,
+  type TablerIcon,
   IconTag,
   IconHomeFilled,
   IconTagFilled,
@@ -46,10 +45,8 @@ export type AdminSidebarItemItem = {
 export type AdminSidebarItem = {
   title: string;
   url: string;
-  icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
-  iconFilled: React.ForwardRefExoticComponent<
-    IconProps & React.RefAttributes<Icon>
-  >;
+  icon: TablerIcon;
+  iconFilled: TablerIcon;
   items?: AdminSidebarItemItem[];
 };
 

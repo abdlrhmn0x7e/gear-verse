@@ -54,11 +54,14 @@ export async function Products({
   } satisfies CategoryProductsFilters;
 
   void prefetch(
-    trpc.public.categories.queries.getProductsPage.infiniteQueryOptions({
-      pageSize: 12,
-      slug,
-      filters: parsedFilters,
-    }),
+    trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
+      {
+        pageSize: 12,
+        slug,
+        filters: parsedFilters,
+      },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    ),
   );
 
   return (

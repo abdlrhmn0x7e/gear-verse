@@ -166,7 +166,7 @@ export function useProductDraft({
       const draftValues = {
         ...EMPTY_FORM_VALUES,
         ...draft.data,
-      } as ProductFormValues;
+      };
 
       setActiveDraft(draftId);
       resetFormValues(draftValues);

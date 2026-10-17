@@ -14,16 +14,11 @@ import {
   IconPlug,
   IconRecharging,
   IconUsb,
-  type Icon,
-  type IconProps,
+  type TablerIcon,
 } from "@tabler/icons-react";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import type { CategoryIconEnum } from "./schemas/entities/category";
 
-export const iconsMap = new Map<
-  CategoryIconEnum,
-  ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>
->([
+export const iconsMap = new Map<CategoryIconEnum, TablerIcon>([
   ["KEYBOARDS", IconKeyboard],
   ["MICE", IconMouse],
   ["MONITORS", IconDeviceDesktop],

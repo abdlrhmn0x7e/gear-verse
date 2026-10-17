@@ -18,12 +18,15 @@ export default async function AdminInventoryPage({
   await requireAdmin();
   const filters = await loadInventorySearchParams(searchParams);
   void prefetch(
-    trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions({
-      pageSize: 15,
-      filters: {
-        inventorySearch: filters.inventorySearch ?? undefined,
+    trpc.admin.inventoryItems.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 15,
+        filters: {
+          inventorySearch: filters.inventorySearch ?? undefined,
+        },
       },
-    }),
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    ),
   );
 
   return (

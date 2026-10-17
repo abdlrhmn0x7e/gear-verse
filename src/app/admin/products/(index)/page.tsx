@@ -25,14 +25,17 @@ export default async function AdminProductsPage({
 
   const params = await loadProductSearchParams(searchParams);
   void prefetch(
-    trpc.admin.products.queries.getPage.infiniteQueryOptions({
-      pageSize: 15,
-      filters: {
-        title: params.title ?? undefined,
-        brands: params.brands ?? undefined,
-        categories: params.categories ?? undefined,
+    trpc.admin.products.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 15,
+        filters: {
+          title: params.title ?? undefined,
+          brands: params.brands ?? undefined,
+          categories: params.categories ?? undefined,
+        },
       },
-    }),
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    ),
   );
 
   return (

@@ -157,8 +157,8 @@ export function CategoriesViewer() {
       return;
     }
 
-    const activeInfo = parseDndId(active.id as string);
-    const overInfo = parseDndId(over?.id as string | undefined);
+    const activeInfo = parseDndId(active.id);
+    const overInfo = parseDndId(over?.id);
 
     if (!activeInfo || !overInfo) {
       setActiveId(null);

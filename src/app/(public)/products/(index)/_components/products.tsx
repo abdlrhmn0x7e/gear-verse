@@ -18,20 +18,23 @@ export async function Products({
 }) {
   const filters = await loadAllProductSearchParams(searchParams);
   void prefetch(
-    trpc.public.products.queries.getPage.infiniteQueryOptions({
-      pageSize: 12,
-      filters: {
-        brands: filters.brands ?? undefined,
-        categories: filters.categories ?? undefined,
-        price:
-          filters.maxPrice && filters.minPrice
-            ? {
-                min: filters.minPrice,
-                max: filters.maxPrice,
-              }
-            : undefined,
+    trpc.public.products.queries.getPage.infiniteQueryOptions(
+      {
+        pageSize: 12,
+        filters: {
+          brands: filters.brands ?? undefined,
+          categories: filters.categories ?? undefined,
+          price:
+            filters.maxPrice && filters.minPrice
+              ? {
+                  min: filters.minPrice,
+                  max: filters.maxPrice,
+                }
+              : undefined,
+        },
       },
-    }),
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    ),
   );
 
   return (

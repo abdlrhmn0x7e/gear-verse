@@ -1,6 +1,5 @@
-import type { Icon, IconProps } from "@tabler/icons-react";
+import type { TablerIcon } from "@tabler/icons-react";
 import type { LucideIcon } from "lucide-react";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import { Heading } from "~/components/heading";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
@@ -14,7 +13,7 @@ export default function Header({
 }: {
   title: string;
   description: string;
-  Icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
+  Icon: LucideIcon | TablerIcon;
   className?: string;
   headingLevel?: 3 | 4 | 5;
 }) {

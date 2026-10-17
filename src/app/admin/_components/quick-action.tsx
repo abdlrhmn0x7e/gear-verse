@@ -1,8 +1,6 @@
-import type { IconProps } from "@tabler/icons-react";
+import type { TablerIcon } from "@tabler/icons-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
-import type { Icon } from "@tabler/icons-react";
 
 export function QuickAction({
   title,
@@ -13,7 +11,7 @@ export function QuickAction({
   title: string;
   description: string;
   href: string;
-  Icon: LucideIcon | ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
+  Icon: LucideIcon | TablerIcon;
 }) {
   return (
     <Link
