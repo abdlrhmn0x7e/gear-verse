@@ -96,7 +96,7 @@ function FeaturedProduct({
             )}
           </p>
         </div>
-        <span className="surface-solid flex size-10 shrink-0 items-center justify-center rounded-full transition-[scale] duration-150 group-active:scale-[0.96]">
+        <span className="surface-solid flex size-10 shrink-0 items-center justify-center rounded-full transition-[scale] duration-150 motion-safe:group-active:scale-[0.96]">
           <ArrowRightIcon className="size-4" aria-hidden />
         </span>
       </div>

@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 
 const chipClassName =
-  "inline-flex h-10 shrink-0 items-center rounded-full px-5 text-sm font-medium whitespace-nowrap transition-[scale,background-color] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:scale-[0.96]";
+  "inline-flex h-10 shrink-0 items-center rounded-full px-5 text-sm font-medium whitespace-nowrap transition-[scale,background-color] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-safe:active:scale-[0.96]";
 
 /** Category navigation for the store and category pages; `activeSlug` null means "All products". */
 export async function CategoryChips({

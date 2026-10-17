@@ -27,7 +27,10 @@ export async function Products({
   );
 
   return (
-    <section aria-label="Products" className="min-w-0 space-y-8">
+    <section aria-labelledby="products-heading" className="min-w-0 space-y-8">
+      <h2 id="products-heading" className="sr-only">
+        Products
+      </h2>
       <div className="flex items-center justify-between gap-3 lg:justify-end">
         <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
         <Suspense fallback={<Skeleton className="h-9 w-44 rounded-full" />}>

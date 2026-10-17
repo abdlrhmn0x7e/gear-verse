@@ -61,7 +61,10 @@ export async function Products({
   );
 
   return (
-    <section aria-label="Products" className="min-w-0 space-y-8">
+    <section aria-labelledby="products-heading" className="min-w-0 space-y-8">
+      <h2 id="products-heading" className="sr-only">
+        Products
+      </h2>
       <div className="lg:hidden">
         <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
       </div>
