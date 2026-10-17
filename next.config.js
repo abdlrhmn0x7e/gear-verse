@@ -3,7 +3,7 @@
  * for Docker builds.
  */
 import "./src/env.js";
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import { env } from "./src/env.js";
 
 /** @type {import("next").NextConfig} */
@@ -41,8 +41,9 @@ export default withSentryConfig(config, {
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+  },
 
   // Avoid Ad Blockers
   tunnelRoute: true,
