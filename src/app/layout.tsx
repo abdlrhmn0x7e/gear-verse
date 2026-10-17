@@ -5,12 +5,16 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { jetBrainsMono, nunitoSans } from "~/fonts";
+import { jetBrainsMono } from "~/fonts";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
 import * as Sentry from "@sentry/nextjs";
+import { Geist } from "next/font/google";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
@@ -47,7 +51,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", geist.variable)}
+    >
       {/* <head>
         <script
           crossOrigin="anonymous"
@@ -57,7 +65,6 @@ export default function RootLayout({
 
       <body
         className={cn(
-          nunitoSans.variable,
           jetBrainsMono.variable,
           "flex min-h-screen flex-col font-sans antialiased",
         )}
@@ -70,7 +77,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <TRPCReactProvider>
-              {children}
+              <TooltipProvider>{children}</TooltipProvider>
               <Toaster richColors />
             </TRPCReactProvider>
           </ThemeProvider>

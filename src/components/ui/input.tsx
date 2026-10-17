@@ -1,57 +1,51 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import * as React from "react";
+import { cn } from "cn";
 
-import { cn } from "~/lib/utils/index";
-
-function Input({
-  className,
-  size,
-  type,
-  ...props
-}: React.ComponentProps<"input"> & { size?: "sm" | "lg" }) {
-  return (
-    <span
-      data-slot="input-control"
-      className={cn(
-        "border-input bg-background ring-ring/24 has-focus-visible:border-ring has-aria-invalid:border-destructive/36 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 relative inline-flex w-full rounded-lg border bg-clip-padding text-base/5 transition-[color,background-color,box-shadow,border-color] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:before:shadow-sm has-focus-visible:ring-[3px] has-disabled:opacity-64 has-aria-invalid:before:shadow-none sm:text-sm dark:bg-clip-border dark:shadow-black/24 dark:not-has-disabled:shadow-sm dark:not-has-disabled:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
-        className,
-      )}
-    >
-      <PrimitiveInput
-        className={className}
-        size={size}
-        type={type}
-        {...props}
-      />
-    </span>
-  );
-}
-
-export function PrimitiveInput({
-  className,
-  size,
-  type,
-  ...props
-}: React.ComponentProps<"input"> & { size?: "sm" | "lg" }) {
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
+      type={type}
+      data-slot="input"
       className={cn(
-        "placeholder:text-muted-foreground/64 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] py-[calc(--spacing(1.5)-1px)] outline-none",
-        size === "sm" &&
-          "px-[calc(--spacing(2.5)-1px)] py-[calc(--spacing(1)-1px)]",
-        size === "lg" && "py-[calc(--spacing(2)-1px)]",
-        type === "search" &&
-          "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
-        type === "file" &&
-          "text-muted-foreground file:text-foreground file:me-3 file:bg-transparent file:text-sm file:font-medium",
+        "bg-input/50 file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 rounded-3xl border border-transparent px-3 py-1 text-base transition-[color,box-shadow,background-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-3 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-3 md:text-sm",
         className,
       )}
-      size={typeof size === "number" ? size : undefined}
-      type={type}
       {...props}
     />
   );
 }
+
+function NumberInputStepper({
+  onIncrement,
+  onDecrement,
+}: {
+  onIncrement: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onDecrement: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+  return (
+    <div className="absolute top-1.5 right-3 bottom-1.5 flex flex-col gap-0.5 overflow-hidden rounded-lg opacity-0 transition-opacity group-hover:opacity-100">
+      <button
+        type="button"
+        className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
+        onClick={onIncrement}
+      >
+        <ChevronUpIcon />
+      </button>
+
+      <button
+        type="button"
+        className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
+        onClick={onDecrement}
+      >
+        <ChevronDownIcon />
+      </button>
+    </div>
+  );
+}
+
+const numberInputClassName =
+  "pr-9 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
 function NumberInput({
   className,
@@ -109,13 +103,10 @@ function NumberInput({
   return (
     <div
       data-slot="input-control"
-      className={cn(
-        "group border-input bg-background ring-ring/24 has-focus-visible:border-ring has-aria-invalid:border-destructive/36 has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 dark:bg-input/32 dark:has-aria-invalid:ring-destructive/24 relative inline-flex w-full rounded-lg border bg-clip-padding pr-6 text-base/5 transition-[color,background-color,box-shadow,border-color] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:before:shadow-sm has-focus-visible:ring-[3px] has-disabled:opacity-64 has-aria-invalid:before:shadow-none sm:text-sm dark:bg-clip-border dark:shadow-black/24 dark:not-has-disabled:shadow-sm dark:not-has-disabled:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
-        className,
-      )}
+      className={cn("group relative w-full", className)}
     >
-      <PrimitiveInput
-        className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      <Input
+        className={numberInputClassName}
         type="number"
         value={steppedValue ?? ""}
         onChange={handleChange}
@@ -123,25 +114,12 @@ function NumberInput({
         {...props}
       />
 
-      <div className="absolute top-1 right-2 bottom-1 flex flex-col gap-0.5 overflow-hidden rounded-[3px] opacity-0 transition-opacity group-hover:opacity-100">
-        <button
-          type="button"
-          className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
-          onClick={handleIncrement}
-        >
-          <ChevronUpIcon />
-        </button>
-
-        <button
-          type="button"
-          className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
-          onClick={handleDecrement}
-        >
-          <ChevronDownIcon />
-        </button>
-      </div>
+      <NumberInputStepper
+        onIncrement={handleIncrement}
+        onDecrement={handleDecrement}
+      />
     </div>
   );
 }
 
-export { Input, NumberInput };
+export { Input, NumberInput, NumberInputStepper, numberInputClassName };

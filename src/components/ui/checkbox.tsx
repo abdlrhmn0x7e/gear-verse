@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "cn";
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
-import { MinusIcon } from "lucide-react";
-
-import { cn } from "~/lib/utils";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Tick02Icon } from "@hugeicons/core-free-icons";
 
 function Checkbox({
   className,
@@ -12,35 +12,18 @@ function Checkbox({
 }: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
   return (
     <CheckboxPrimitive.Root
+      data-slot="checkbox"
       className={cn(
-        "group peer border-border bg-background focus-visible:ring-ring data-[state=checked]:border-primary data-[state=indeterminate]:border-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:text-primary-foreground relative h-4 w-4 shrink-0 overflow-hidden rounded border shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
-        "cursor-pointer",
+        "peer bg-input/90 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground group-has-[:focus-visible]/field-label:data-checked:border-primary dark:data-checked:bg-primary relative flex size-4 shrink-0 items-center justify-center rounded-[5px] border border-transparent transition-shadow outline-none group-has-disabled/field:opacity-50 group-has-[:focus-visible]/field-label:ring-0 group-has-[:focus-visible]/field-label:not-data-checked:border-transparent after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-3",
         className,
       )}
       {...props}
     >
-      <span className="ring-primary group-data-[state=checked]:bg-primary group-data-[state=indeterminate]:bg-primary group-data-[state=checked]:ring-primary group-data-[state=indeterminate]:ring-primary absolute inset-0 z-0 bg-clip-padding ring-0 transition-shadow duration-100 ease-in-out ring-inset group-data-[state=checked]:ring-8 group-data-[state=indeterminate]:ring-8" />
-      <CheckboxPrimitive.Indicator className="relative z-10 flex items-center justify-center text-current">
-        <MinusIcon className="hidden h-4 w-4 group-data-[state=indeterminate]:block" />
-        <svg
-          viewBox="0 0 16 16"
-          className="text-primary-foreground hidden group-data-[state=checked]:block"
-          shapeRendering="geometricPrecision"
-          textRendering="geometricPrecision"
-        >
-          <path
-            d="M1.5,5.5L3.44655,8.22517C3.72862,8.62007,4.30578,8.64717,4.62362,8.28044L10.5,1.5"
-            transform="translate(2 2.980376)"
-            className="group-data-[state=checked]:animate-checkbox-path transition-[stroke-dasharray]"
-            opacity="100"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            pathLength="1"
-          ></path>
-        </svg>
+      <CheckboxPrimitive.Indicator
+        data-slot="checkbox-indicator"
+        className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
+      >
+        <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

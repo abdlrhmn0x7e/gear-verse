@@ -60,7 +60,6 @@ export function ProductsTableActions({
           <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
           <DropdownMenuGroup className="max-w-3xs space-y-1">
             <DropdownMenuItem
-              variant="ghost"
               className="w-full justify-start"
               onClick={(e) => e.stopPropagation()}
               asChild
@@ -72,7 +71,6 @@ export function ProductsTableActions({
             </DropdownMenuItem>
 
             <DropdownMenuItem
-              variant="ghost"
               className="w-full justify-start"
               onClick={handleCopyProductLink}
             >
@@ -90,7 +88,7 @@ export function ProductsTableActions({
               {published ? "Unpublish product" : "Publish product"}
             </DropdownMenuItem>
             <DropdownMenuItem
-              variant="destructive-ghost"
+              variant="destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 deleteDialog.trigger();

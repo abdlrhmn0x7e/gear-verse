@@ -1,11 +1,21 @@
 import * as React from "react";
-import { Slot as SlotPrimitive } from "radix-ui";
-import { ChevronRight, MoreHorizontal } from "lucide-react";
+import { cn } from "cn";
+import { Slot } from "radix-ui";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  ArrowRight01Icon,
+  MoreHorizontalCircle01Icon,
+} from "@hugeicons/core-free-icons";
 
-import { cn } from "~/lib/utils";
-
-function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
-  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
+function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
+  return (
+    <nav
+      aria-label="breadcrumb"
+      data-slot="breadcrumb"
+      className={cn(className)}
+      {...props}
+    />
+  );
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
@@ -13,7 +23,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm wrap-break-word sm:gap-2.5",
         className,
       )}
       {...props}
@@ -38,7 +48,7 @@ function BreadcrumbLink({
 }: React.ComponentProps<"a"> & {
   asChild?: boolean;
 }) {
-  const Comp = asChild ? SlotPrimitive.Slot : "a";
+  const Comp = asChild ? Slot.Root : "a";
 
   return (
     <Comp
@@ -75,7 +85,7 @@ function BreadcrumbSeparator({
       className={cn("[&>svg]:size-3.5", className)}
       {...props}
     >
-      {children ?? <ChevronRight />}
+      {children ?? <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} />}
     </li>
   );
 }
@@ -89,10 +99,13 @@ function BreadcrumbEllipsis({
       data-slot="breadcrumb-ellipsis"
       role="presentation"
       aria-hidden="true"
-      className={cn("flex size-9 items-center justify-center", className)}
+      className={cn(
+        "flex size-5 items-center justify-center [&>svg]:size-4",
+        className,
+      )}
       {...props}
     >
-      <MoreHorizontal className="size-4" />
+      <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
       <span className="sr-only">More</span>
     </span>
   );

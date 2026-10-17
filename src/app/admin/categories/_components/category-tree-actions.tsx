@@ -75,7 +75,7 @@ export function CategoryTreeActions({
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          variant="destructive-ghost"
+          variant="destructive"
           onClick={() => deleteCategory({ id: categoryId })}
         >
           {isDeletingCategory ? <Spinner /> : <TrashIcon />}

@@ -1,40 +1,38 @@
 import * as React from "react";
-import { Slot as SlotPrimitive } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
-
-import { cn } from "~/lib/utils/index";
+import { cn } from "cn";
+import { Slot } from "radix-ui";
 
 const buttonVariants = cva(
-  "disabled:cursor-not-allowed relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow] outline-none before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-64 pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default:
-          "border-primary bg-primary text-primary-foreground not-disabled:shadow-sm not-disabled:inset-shadow-[0_1px_--theme(--color-white/16%)] not-disabled:before:shadow-sm not-disabled:before:shadow-primary/32 hover:bg-primary/90 active:inset-shadow-[0_1px_--theme(--color-black/8%)] active:before:shadow-xs data-pressed:inset-shadow-[0_1px_--theme(--color-black/8%)] data-pressed:before:shadow-xs dark:shadow-black/24 dark:before:hidden",
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
         outline:
-          "border-border bg-background shadow-xs not-disabled:not-active:not-data-pressed:before:shadow-[0_1px_--theme(--color-black/4%)] dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/4%)] dark:not-disabled:not-active:not-data-pressed:before:shadow-[0_-1px_--theme(--color-white/8%)] [&:is(:disabled,:active,[data-pressed])]:shadow-none [&:is(:hover,[data-pressed])]:bg-accent/50 dark:[&:is(:hover,[data-pressed])]:bg-input/64",
+          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30",
         secondary:
-          "border-secondary bg-secondary text-secondary-foreground hover:bg-secondary/90 data-pressed:bg-secondary/90",
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        ghost:
+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
-          "border-destructive bg-destructive text-white not-disabled:shadow-sm not-disabled:inset-shadow-[0_1px_--theme(--color-white/16%)] not-disabled:before:shadow-sm not-disabled:before:shadow-destructive/32 hover:bg-destructive/90 active:inset-shadow-[0_1px_--theme(--color-black/8%)] active:before:shadow-xs data-pressed:bg-destructive/90 data-pressed:inset-shadow-[0_1px_--theme(--color-black/8%)] data-pressed:before:shadow-xs dark:shadow-black/24 dark:before:hidden",
+          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "text-primary underline-offset-4 hover:underline",
         "destructive-outline":
-          "border-border bg-background not-disabled:before:shadow-sm hover:border-destructive/32 hover:bg-destructive/4 active:before:shadow-xs data-pressed:border-destructive/32 data-pressed:bg-destructive/4 data-pressed:before:shadow-xs dark:shadow-black/24 dark:not-hover:bg-input/32 dark:not-disabled:shadow-sm dark:not-in-data-[slot=group]:bg-clip-border dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:active:shadow-none dark:data-pressed:shadow-none dark:data-pressed:not-hover:bg-input/32",
+          "border-border bg-background hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive dark:bg-transparent dark:hover:bg-destructive/20",
         "destructive-ghost":
-          "border-transparent bg-transparent hover:border-destructive/32 hover:bg-destructive/4",
-        ghost: "hover:bg-accent data-pressed:bg-accent",
-        link: "dark:text-primary-foreground underline-offset-4 hover:underline",
+          "hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20",
       },
       size: {
         default:
-          "min-h-8 px-[calc(--spacing(3)-1px)] py-[calc(--spacing(1.5)-1px)]",
-        xs: "min-h-6 gap-1 rounded-md px-[calc(--spacing(2)-1px)] py-[calc(--spacing(1)-1px)] text-xs before:rounded-[calc(var(--radius-md)-1px)] [&_svg:not([class*='size-'])]:size-3",
-        sm: "min-h-7 gap-1.5 px-[calc(--spacing(2.5)-1px)] py-[calc(--spacing(1)-1px)]",
-        lg: "min-h-9 px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2)-1px)]",
-        xl: "min-h-10 px-[calc(--spacing(4)-1px)] py-[calc(--spacing(2)-1px)] text-base [&_svg:not([class*='size-'])]:size-4.5",
-        icon: "size-8 rounded-full",
-        "icon-sm": "size-7 rounded-full",
-        "icon-xs": "size-5 rounded-full [&_svg:not([class*='size-'])]:size-3",
-        "icon-lg": "size-9 rounded-full",
+          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+        xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        lg: "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        icon: "size-9",
+        "icon-xs": "size-6 [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
       },
     },
     defaultVariants: {
@@ -46,19 +44,21 @@ const buttonVariants = cva(
 
 function Button({
   className,
-  variant,
-  size,
+  variant = "default",
+  size = "default",
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {
-  const Comp = asChild ? SlotPrimitive.Slot : "button";
+  const Comp = asChild ? Slot.Root : "button";
 
   return (
     <Comp
       data-slot="button"
+      data-variant={variant}
+      data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
