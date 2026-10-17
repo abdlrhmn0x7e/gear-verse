@@ -44,6 +44,7 @@ export const sessions = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    impersonatedBy: text("impersonated_by"),
     userId: bigint("user_id", { mode: "number" })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),

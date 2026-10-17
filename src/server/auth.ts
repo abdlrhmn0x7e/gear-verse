@@ -53,7 +53,15 @@ export const auth = betterAuth({
 
   plugins: [
     nextCookies(),
-    admin(),
+    admin({
+      schema: {
+        user: {
+          fields: {
+            banExpires: "banExpiresAt",
+          },
+        },
+      },
+    }),
     anonymous({
       onLinkAccount: async ({ anonymousUser, newUser }) => {
         const parsedAnonymousUserId = Number(anonymousUser.user.id);
