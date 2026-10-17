@@ -4,7 +4,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
-import { Toaster } from "sonner";
+import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { jetBrainsMono } from "~/fonts";

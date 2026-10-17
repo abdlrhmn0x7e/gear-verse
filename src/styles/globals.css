@@ -473,13 +473,15 @@
 }
 
 /* Outlined controls and floating surfaces: hairline border, soft drop shadow and a 1px lip.
-   Interactive states only apply to buttons and links, so popovers and dialogs stay static. */
+   Interactive states only apply to buttons and links, so popovers and dialogs stay static.
+   Floating surfaces set --surface-radius to match their rounded-* class (it shapes the lip),
+   and --surface-shadow instead of shadow-*, since two utilities writing box-shadow have no guaranteed order. */
 @utility surface-control {
   position: relative;
   border: 1px solid var(--input);
   background-color: var(--popover);
   background-clip: padding-box;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  box-shadow: var(--surface-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 
   &::before {
     content: "";
