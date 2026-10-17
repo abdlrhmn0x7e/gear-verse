@@ -8,8 +8,7 @@ import { useTRPC } from "~/trpc/client";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
-import { useQueryClient } from "node_modules/@tanstack/react-query/build/modern/QueryClientProvider";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function CompleteCheckout({

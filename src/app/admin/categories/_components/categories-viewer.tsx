@@ -37,9 +37,13 @@ import { CategoryProductList, ProductListItem } from "./products-grid";
 import { iconsMap } from "~/lib/icons-map";
 import { cn } from "~/lib/utils";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { useInfiniteQuery } from "node_modules/@tanstack/react-query/build/modern/useInfiniteQuery";
 import { useTRPC } from "~/trpc/client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export function CategoriesViewer() {
   const trpc = useTRPC();

@@ -27,7 +27,6 @@
     "incremental": true,
     "noErrorTruncation": true,
     /* Path Aliases */
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"],
       "@schemas/*": ["./src/lib/schemas/*"],
