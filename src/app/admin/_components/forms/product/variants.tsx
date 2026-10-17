@@ -31,9 +31,15 @@ export function Variants({
     defaultValue: optionsDefaultValues, // for some weird reason I had to pass it explicitly
   });
   const debouncedOptions = useDebounce(options, 500);
-  const [groupByOption, setGroupByOption] = useState<string>(
-    debouncedOptions?.[0]?.name ?? "loading...",
+  const [selectedGroupByOption, setGroupByOption] = useState<string | null>(
+    null,
   );
+  // fall back to the first option when nothing is selected or the selected option was removed
+  const groupByOption =
+    selectedGroupByOption &&
+    debouncedOptions?.some((option) => option.name === selectedGroupByOption)
+      ? selectedGroupByOption
+      : (debouncedOptions?.[0]?.name ?? "loading...");
 
   const valuesMap = useMemo(() => {
     if (
@@ -67,13 +73,6 @@ export function Variants({
 
     return cartesianProduct(values);
   }, [debouncedOptions]);
-
-  useEffect(() => {
-    const firstName = debouncedOptions?.[0]?.name ?? "";
-    if (firstName && firstName !== groupByOption) {
-      setGroupByOption(firstName);
-    }
-  }, [debouncedOptions, groupByOption]);
 
   useEffect(() => {
     if (valuesMap.size === 0) {

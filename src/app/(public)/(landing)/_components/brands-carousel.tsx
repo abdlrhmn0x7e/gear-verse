@@ -22,6 +22,7 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import { type RouterOutput } from "~/trpc/client";
+import { useCarouselProgress } from "~/hooks/use-carousel-progress";
 import { Progress } from "~/components/ui/progress";
 
 export function BrandsCarousel({
@@ -30,20 +31,8 @@ export function BrandsCarousel({
   brands: RouterOutput["public"]["brands"]["queries"]["findAll"];
 }) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
-  const [current, setCurrent] = React.useState(0);
-  const [count, setCount] = React.useState(0);
+  const { current, count } = useCarouselProgress(carouselApi);
   const progress = (current * 100) / count;
-
-  React.useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-    carouselApi.on("select", () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
 
   if (brands.length === 0) {
     return (

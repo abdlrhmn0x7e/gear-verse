@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { UseFormReturn } from "react-hook-form";
 import {
   useDraftStore,
@@ -49,7 +55,12 @@ export function useProductDraft({
   form,
   enabled = true,
 }: UseProductDraftOptions): UseProductDraftReturn {
-  const [isHydrated, setIsHydrated] = useState(false);
+  // false during SSR and hydration, true once rendering on the client
+  const isHydrated = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const suppressionRef = useRef(false);
@@ -67,7 +78,6 @@ export function useProductDraft({
 
   useEffect(() => {
     cleanExpiredDrafts();
-    setIsHydrated(true);
   }, [cleanExpiredDrafts]);
 
   const [scheduleAutoSave, cancelAutoSave] = useDebouncedEffectEvent(
@@ -95,10 +105,13 @@ export function useProductDraft({
     DRAFT_CONFIG.AUTO_SAVE_DELAY_MS,
   );
 
+  if (!enabled && isSaving) {
+    setIsSaving(false);
+  }
+
   useEffect(() => {
     if (!enabled) {
       cancelAutoSave();
-      setIsSaving(false);
     }
   }, [enabled, cancelAutoSave]);
 
@@ -237,6 +250,10 @@ export function useProductDraft({
 
     hasDraftsToRestore: drafts.length > 0 && !activeDraftId,
   };
+}
+
+function noopSubscribe() {
+  return () => undefined;
 }
 
 function hasMeaningfulContent(values: ProductFormValues) {

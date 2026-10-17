@@ -5,7 +5,7 @@ import type { ProductFormValues } from "~/app/admin/_components/forms/product";
 
 function generateDraftName(drafts: ProductDraft[]): string {
   const existingNumbers = drafts
-    .map((d) => d.name.match(/^Draft (\d+)$/)?.[1])
+    .map((d) => /^Draft (\d+)$/.exec(d.name)?.[1])
     .filter(Boolean)
     .map(Number);
 

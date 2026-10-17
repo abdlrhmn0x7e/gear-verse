@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffectEvent, useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -23,7 +23,6 @@ interface ProductVariantSelectorProps {
 export function ProductVariantSelector({
   variants,
 }: ProductVariantSelectorProps) {
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const setSelectedVariant = useVariantSelectionStore(
     (store) => store.setSelectedVariant,
   );
@@ -47,6 +46,20 @@ export function ProductVariantSelector({
       ),
     [variants],
   );
+
+  // the first value of each option is selected by default
+  const defaultValues = useMemo(
+    () => Object.values(options).map((valuesSet) => Array.from(valuesSet)[0]!),
+    [options],
+  );
+
+  // the selection is tied to the options it was made for, so it resets to the defaults when they change
+  const [selection, setSelection] = useState<{
+    options: typeof options;
+    values: string[];
+  } | null>(null);
+  const selectedValues =
+    selection?.options === options ? selection.values : defaultValues;
 
   // get the combination values key for a variant
   function getValuesKey(variant: Variant) {
@@ -84,7 +97,7 @@ export function ProductVariantSelector({
     );
 
     // it has to be in the same order, so we just switch out the value
-    setSelectedValues(newValues);
+    setSelection({ options, values: newValues });
 
     // update the selected variant
     updateSelectedVariant(newValues);
@@ -98,33 +111,15 @@ export function ProductVariantSelector({
     }
   }
 
-  // set the first value of each option as selected by default
-  const mountEffect = useEffectEvent(() => {
-    const defaultValues = Object.values(options).map((valuesSet) => {
-      return Array.from(valuesSet)[0]!;
-    });
-
-    setSelectedValues(defaultValues);
-
-    // update the selected variant - access the latest variantsMap from closure
-    const variantKey = defaultValues.join("-");
-    const selectedVariant = variantsMap.get(variantKey);
+  // sync the default variant to the store, and clear it on unmount
+  useLayoutEffect(() => {
+    const selectedVariant = variantsMap.get(defaultValues.join("-"));
     if (selectedVariant) {
       setSelectedVariant(selectedVariant);
     }
-  });
 
-  // cleanup effect
-  const unMountEffect = useEffectEvent(() => {
-    setSelectedValues([]);
-    setSelectedVariant(null);
-  });
-
-  useLayoutEffect(() => {
-    mountEffect();
-
-    return () => unMountEffect();
-  }, [variantsMap, options]);
+    return () => setSelectedVariant(null);
+  }, [variantsMap, defaultValues, setSelectedVariant]);
 
   return Object.entries(options).map(([optionName, values], index) => (
     <div key={optionName} className="mb-4">

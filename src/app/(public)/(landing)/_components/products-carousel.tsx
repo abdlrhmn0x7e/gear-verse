@@ -15,6 +15,7 @@ import { Progress } from "~/components/ui/progress";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { type RouterOutput } from "~/trpc/client";
+import { useCarouselProgress } from "~/hooks/use-carousel-progress";
 import {
   Empty,
   EmptyDescription,
@@ -30,20 +31,8 @@ export function ProductsCarousel({
   products: RouterOutput["public"]["products"]["queries"]["getPage"]["data"];
 }) {
   const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
-  const [current, setCurrent] = React.useState(0);
-  const [count, setCount] = React.useState(0);
+  const { current, count } = useCarouselProgress(carouselApi);
   const progress = (current * 100) / count;
-
-  React.useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-    carouselApi.on("select", () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
 
   if (products.length === 0) {
     return (

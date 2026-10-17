@@ -64,7 +64,10 @@ export function MediaTable({
       setRowSelection(selection);
     },
     state: {
-      columnVisibility,
+      // hide secondary columns to make room for the preview panel
+      columnVisibility: mediaPreviewUrl
+        ? { ...columnVisibility, mimeType: false, createdAt: false }
+        : columnVisibility,
       rowSelection,
     },
   });
@@ -96,23 +99,6 @@ export function MediaTable({
       setLastSelectedRowId(row.id);
     }
   };
-
-  useEffect(() => {
-    if (mediaPreviewUrl) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        mimeType: false,
-        createdAt: false,
-      }));
-      return;
-    }
-
-    setColumnVisibility((prev) => ({
-      ...prev,
-      mimeType: true,
-      createdAt: true,
-    }));
-  }, [mediaPreviewUrl]);
 
   useEffect(() => {
     setSelectedMedia(
