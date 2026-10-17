@@ -193,7 +193,7 @@ export const _carts = {
 
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
-        let stock = 0;
+        let stock: number;
 
         if (item.productVariantId) {
           const [variant] = await tx
