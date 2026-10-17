@@ -17,7 +17,7 @@ const linkClassName =
 
 export function Footer() {
   return (
-    <footer className="mx-auto w-full max-w-7xl px-4 pt-24 pb-8 md:px-6 lg:px-8">
+    <footer className="mx-auto w-full max-w-7xl px-4 pt-16 pb-8 md:px-6 lg:px-8">
       <div className="bg-card grid gap-12 rounded-3xl p-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] md:p-12">
         <div className="flex flex-col items-start gap-6">
           <Link

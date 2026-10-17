@@ -1,5 +1,5 @@
-import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { SOCIAL_LINKS } from "~/components/navbar/social-links";
 import {
   Accordion,
   AccordionContent,
@@ -7,12 +7,14 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
+const DISCORD_URL = SOCIAL_LINKS[0].url;
+
 export function FAQ() {
   const faq = [
     {
-      question: "What is GearVerse?",
+      question: "What is Gear Verse?",
       answer:
-        "GearVerse is your premier destination for gaming gear in Egypt. We provide access to the latest gaming accessories, peripherals, and equipment that might not be readily available locally, delivering them right to your doorstep.",
+        "Gear Verse is your premier destination for gaming gear in Egypt. We provide access to the latest gaming accessories, peripherals, and equipment that might not be readily available locally, delivering them right to your doorstep.",
     },
     {
       question: "Do you deliver anywhere in Egypt?",
@@ -46,21 +48,34 @@ export function FAQ() {
     },
   ];
   return (
-    <section className="relative py-24">
-      <MaxWidthWrapper className="max-w-4xl space-y-8">
-        <Heading level={1} className="text-center">
-          Frequently Asked Questions
-        </Heading>
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          defaultValue="item-1"
-        >
+    <section id="faq" className="py-12 md:py-16" aria-labelledby="faq-heading">
+      <MaxWidthWrapper className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
+        <div className="space-y-4">
+          <h2
+            id="faq-heading"
+            className="text-headline-sm md:text-headline text-balance"
+          >
+            Questions, answered
+          </h2>
+          <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
+            Anything else? Ask us on{" "}
+            <a
+              href={DISCORD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline decoration-from-font underline-offset-4"
+            >
+              Discord
+            </a>
+            .
+          </p>
+        </div>
+
+        <Accordion type="single" collapsible defaultValue="item-1">
           {faq.map((item, index) => (
-            <AccordionItem key={index} value={`item-${index + 1}`}>
+            <AccordionItem key={item.question} value={`item-${index + 1}`}>
               <AccordionTrigger>{item.question}</AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-4 text-balance">
+              <AccordionContent>
                 <p>{item.answer}</p>
               </AccordionContent>
             </AccordionItem>
