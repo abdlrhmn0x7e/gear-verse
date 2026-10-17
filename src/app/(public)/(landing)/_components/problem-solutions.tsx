@@ -105,10 +105,7 @@ function RequestIllustration() {
       <div className="absolute inset-0 z-10 -translate-y-48 p-8 opacity-0 transition-all duration-500 group-hover:-translate-y-0 group-hover:opacity-100">
         <div className="bg-card flex flex-col gap-2 rounded-xl border p-1">
           <div className="flex items-center gap-2">
-            <Logo
-              className="size-16 shrink-0 rounded-lg border"
-              transparent={false}
-            />
+            <Logo className="h-16 shrink-0" />
 
             <div className="flex flex-col">
               <p className="text-sm font-medium">Gear Verse</p>
