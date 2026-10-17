@@ -117,13 +117,11 @@ export async function ProductDetails({
         )}
 
         <div className="grid gap-10 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @4xl:gap-16">
-          <div className="@4xl:sticky @4xl:top-24 @4xl:self-start">
-            <ProductGallery
-              media={[product.thumbnailUrl, ...product.media]}
-              title={product.title}
-              variantCount={product.variants.length}
-            />
-          </div>
+          <ProductGallery
+            media={[product.thumbnailUrl, ...product.media]}
+            title={product.title}
+            variantCount={product.variants.length}
+          />
 
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-4">
