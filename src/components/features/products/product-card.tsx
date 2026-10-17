@@ -1,15 +1,12 @@
-import { CheckCircleIcon, EyeIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import type { RouterOutput } from "~/trpc/client";
-import { Heading } from "../../heading";
 import { ImageWithFallback } from "../../image-with-fallback";
-import { AspectRatio } from "../../ui/aspect-ratio";
 import { Badge } from "../../ui/badge";
-import { Button } from "../../ui/button";
 import { Skeleton } from "../../ui/skeleton";
-import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
-import { IconCircleDashedPercentage } from "@tabler/icons-react";
+
+export type ProductCardItem =
+  RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
 
 export function getDiscountPercentage(
   price: number,
@@ -21,189 +18,77 @@ export function getDiscountPercentage(
 
 export function ProductCard({
   product,
+  sizes = "(min-width: 1024px) 25vw, 50vw",
 }: {
-  product: RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
+  product: ProductCardItem;
+  sizes?: string;
 }) {
   const discount = getDiscountPercentage(
     product.price,
     product.strikeThroughPrice,
   );
-  const hasDiscount = discount > 0;
+  const optionCount = product.variants?.length ?? 0;
 
   return (
-    <Link href={`/products/${product.slug}`} className="group">
-      <Card className="h-full gap-1 p-1">
-        <CardHeader className="relative p-0">
-          {hasDiscount && (
-            <Badge className="absolute top-2 right-2 z-10 px-1 font-medium">
-              <IconCircleDashedPercentage />
-              {discount}% Off
-            </Badge>
+    <Link
+      href={`/products/${product.slug}`}
+      className="group flex flex-col gap-4 rounded-3xl outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+    >
+      <div className="image-well relative aspect-square overflow-hidden rounded-3xl">
+        {discount > 0 && (
+          <Badge variant="brand" className="absolute top-3 left-3 z-10">
+            Save {discount}%
+          </Badge>
+        )}
+        <ImageWithFallback
+          src={product.thumbnailUrl}
+          alt={product.title}
+          width={640}
+          height={640}
+          sizes={sizes}
+          className="size-full rounded-none border-none bg-transparent p-[12%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1 px-1">
+        {product.brand.name && (
+          <p className="text-muted-foreground text-sm">{product.brand.name}</p>
+        )}
+        <h3 className="line-clamp-2 font-medium text-pretty">
+          {product.title}
+        </h3>
+        <p className="mt-1 flex flex-wrap items-baseline gap-x-2 tabular-nums">
+          <span className="font-medium">{formatCurrency(product.price)}</span>
+          {discount > 0 && (
+            <s className="text-muted-foreground text-sm">
+              <span className="sr-only">Was </span>
+              {formatCurrency(product.strikeThroughPrice!)}
+            </s>
           )}
-
-          <AspectRatio
-            ratio={1 / 1}
-            className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))] border bg-white"
-          >
-            <ImageWithFallback
-              src={product.thumbnailUrl}
-              alt={product.title}
-              width={512}
-              height={512}
-              className="size-full rounded-none border-none"
-              priority
-            />
-          </AspectRatio>
-        </CardHeader>
-
-        <CardContent className="flex-1 space-y-3 p-0">
-          <div className="space-y-3 px-1">
-            <div>
-              <div className="flex items-center gap-2">
-                <ImageWithFallback
-                  src={product.brand.logoUrl}
-                  alt={product.brand.name ?? "unknown brand"}
-                  className="size-4 rounded-full"
-                  width={16}
-                  height={16}
-                />
-                <span className="lg:text-md mb-1 text-xs">
-                  {product.brand.name}
-                </span>
-              </div>
-
-              <Heading level={4}>{product.title}</Heading>
-            </div>
-
-            <p className="flex items-end gap-3">
-              <span className="text-foreground dark:text-primary-foreground text-xl font-semibold">
-                {formatCurrency(product.price)}
-              </span>
-              {hasDiscount && (
-                <span className="text-muted-foreground line-through">
-                  {formatCurrency(product.strikeThroughPrice!)}
-                </span>
-              )}
-            </p>
-
-            {!product.variants && (
-              <div className="space-y-2">
-                <p className="text-muted-foreground text-sm font-medium">
-                  No variants available
-                </p>
-              </div>
-            )}
-
-            {product.variants && product.variants.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-muted-foreground text-sm font-medium">
-                  Available in {product.variants.length} variants
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {product.variants.map((variant) => (
-                    <Badge
-                      key={`${variant.id}-${variant.values.join(", ")}`}
-                      variant="outline"
-                      className="px-1 py-px"
-                    >
-                      <ImageWithFallback
-                        src={variant.thumbnailUrl}
-                        alt={`${product.title} - ${variant.values.join(", ")}`}
-                        className="size-4 rounded-full"
-                        width={16}
-                        height={16}
-                      />
-
-                      <span className="capitalize">
-                        {Object.values(variant.values).slice(0, 2).join(", ")}
-                      </span>
-
-                      {variant.stock > 0 ? (
-                        <CheckCircleIcon className="size-3 text-green-500" />
-                      ) : (
-                        <XIcon className="size-3 text-red-500" />
-                      )}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-
-        <CardFooter className="mt-2 p-0">
-          <Button className="w-full">
-            <EyeIcon />
-            View Details
-          </Button>
-        </CardFooter>
-      </Card>
+        </p>
+        {optionCount > 1 && (
+          <p className="text-muted-foreground text-sm">
+            {optionCount} options
+          </p>
+        )}
+      </div>
     </Link>
   );
 }
 
 export function ProductCardSkeleton() {
   return (
-    <Card className="h-full gap-1 p-1">
-      <CardHeader className="p-0">
-        <AspectRatio
-          ratio={1 / 1}
-          className="overflow-hidden rounded-[calc(var(--radius)-var(--spacing))]"
-        >
-          <Skeleton className="size-full rounded-none border-none" />
-        </AspectRatio>
-      </CardHeader>
-
-      <CardContent className="flex-1 space-y-3 p-0">
-        <div className="space-y-3 px-1">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Skeleton className="size-4 rounded-full" />
-              <Skeleton className="h-4 w-1/3" />
-            </div>
-
-            <Skeleton className="h-5 w-full" />
-
-            <Skeleton className="h-4 w-full" />
-          </div>
-
-          <Skeleton className="h-7 w-full" />
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <p className="text-muted-foreground text-sm font-medium">
-                Available in
-              </p>
-              <Skeleton className="h-4 w-8" />
-              <p className="text-muted-foreground text-sm font-medium">
-                variants
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-1">
-              {Array.from({ length: 2 }).map((_, index) => (
-                <Badge
-                  key={`product-card-skeleton-variant-${index}`}
-                  variant="outline"
-                  className="px-1 py-px"
-                >
-                  <Skeleton className="size-4 rounded-full" />
-
-                  <Skeleton className="h-4 w-16" />
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-
-      <CardFooter className="mt-2 p-0">
-        <Button className="w-full" disabled>
-          <EyeIcon />
-          View Details
-        </Button>
-      </CardFooter>
-    </Card>
+    <div className="flex flex-col gap-4" aria-hidden>
+      <Skeleton className="aspect-square rounded-3xl" />
+      <div className="flex flex-col gap-2 px-1">
+        <Skeleton className="h-4 w-1/3" />
+        <Skeleton className="h-5 w-4/5" />
+        <Skeleton className="h-5 w-1/3" />
+      </div>
+    </div>
   );
 }
+
+/** Grid used by every product listing, so card widths match across home, store and category pages. */
+export const productGridClassName =
+  "grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-3 xl:grid-cols-4";
