@@ -1,128 +1,116 @@
 "use client";
 
-import { IconCategory, IconFolder, IconShoppingBag } from "@tabler/icons-react";
-import { HomeIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { usePathname } from "next/navigation";
+import { IconFolder } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/client";
-import {
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-  DrawerTrigger,
-} from "../ui/drawer";
-import { Skeleton } from "../ui/skeleton";
-import { Card, CardContent } from "../ui/card";
-import { iconsMap } from "~/lib/icons-map";
-import { Heading } from "../heading";
+import { MenuIcon } from "lucide-react";
+import Link from "next/link";
 import { useDialog } from "~/hooks/use-dialog";
+import { iconsMap } from "~/lib/icons-map";
+import { useTRPC } from "~/trpc/client";
+import { Logo } from "../logo";
+import { Button } from "../ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
+import { Skeleton } from "../ui/skeleton";
+import { SOCIAL_LINKS } from "./social-links";
 
-const NAV_ITEMS = [
-  {
-    title: "Home",
-    link: {
-      href: "/",
-    },
-    order: 1,
-    icon: HomeIcon,
-  },
-  {
-    title: "Products",
-    link: {
-      href: "/products",
-    },
-    order: 3,
-    icon: IconShoppingBag,
-  },
+const PRIMARY_LINKS = [
+  { title: "Home", href: "/" },
+  { title: "Store", href: "/products" },
+  { title: "FAQ", href: "/#faq" },
+  { title: "My orders", href: "/orders" },
 ];
 
 export function MobileNav() {
-  const pathname = usePathname();
-
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-      <nav className="bg-card/95 border-t p-2 backdrop-blur">
-        <ul className="grid grid-cols-3">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.title} className="flex items-center justify-center">
-              <Button
-                variant="ghost"
-                className={cn(
-                  "min-w-24 flex-col items-center gap-0 py-2",
-                  pathname === item.link.href &&
-                    "text-primary dark:text-accent-foreground",
-                )}
-                size="lg"
-                asChild
-              >
-                <Link href={item.link.href} key={item.title}>
-                  <item.icon className="size-6" />
-                  {item.title}
-                </Link>
-              </Button>
-            </li>
-          ))}
-          <li className="flex items-center justify-center">
-            <CategoriesDrawer />
-          </li>
-        </ul>
-      </nav>
-    </div>
-  );
-}
-
-function CategoriesDrawer() {
   const trpc = useTRPC();
-  const drawer = useDialog();
-  const { data: categories, isPending: categoriesPending } = useQuery(
+  const sheet = useDialog();
+  const { data: categories, isPending } = useQuery(
     trpc.public.categories.queries.findRoots.queryOptions(),
   );
 
   return (
-    <Drawer {...drawer.props}>
-      <DrawerTrigger asChild>
-        <Button
-          variant="ghost"
-          className="min-w-24 flex-col items-center gap-0 py-2"
-          size="lg"
-        >
-          <IconCategory className="size-6" />
-          Category
+    <Sheet {...sheet.props}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon-lg" className="md:hidden">
+          <MenuIcon />
+          <span className="sr-only">Open menu</span>
         </Button>
-      </DrawerTrigger>
-      <DrawerContent className="space-y-4">
-        <DrawerTitle className="text-center">Categories</DrawerTitle>
-        <DrawerDescription></DrawerDescription>
+      </SheetTrigger>
 
-        <DrawerBody className="grid max-h-[calc(100svh-4rem)] grid-cols-2 gap-3 overflow-y-auto">
-          {categoriesPending || !categories
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <Skeleton key={index} className="h-6 w-full" />
-              ))
-            : categories.map((cat) => {
-                const CategoryIcon = iconsMap.get(cat.icon) ?? IconFolder;
-                return (
-                  <Link
-                    key={cat.slug}
-                    href={`/categories/${cat.slug}`}
-                    onNavigate={() => drawer.dismiss()}
-                  >
-                    <Card className="ring-accent transition-shadow hover:ring-2">
-                      <CardContent className="flex flex-col items-center gap-2 text-center">
-                        <CategoryIcon />
-                        <Heading level={4}>{cat.name}</Heading>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-        </DrawerBody>
-      </DrawerContent>
-    </Drawer>
+      <SheetContent className="gap-0 overflow-y-auto">
+        <SheetHeader className="px-6 pt-5 pb-2">
+          <SheetTitle asChild>
+            <Link href="/" onNavigate={sheet.dismiss} className="w-fit">
+              <Logo className="h-9" />
+            </Link>
+          </SheetTitle>
+          <SheetDescription className="sr-only">
+            Site navigation
+          </SheetDescription>
+        </SheetHeader>
+
+        <nav aria-label="Mobile" className="flex flex-col gap-10 px-6 py-6">
+          <ul className="flex flex-col">
+            {PRIMARY_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onNavigate={sheet.dismiss}
+                  className="text-title block rounded-md py-2 outline-none focus-visible:outline-2 focus-visible:outline-focus"
+                >
+                  {link.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="space-y-3">
+            <p className="text-muted-foreground text-sm">Categories</p>
+            <ul className="grid grid-cols-2 gap-2">
+              {isPending || !categories
+                ? Array.from({ length: 4 }).map((_, index) => (
+                    <li key={index}>
+                      <Skeleton className="h-20 rounded-2xl" />
+                    </li>
+                  ))
+                : categories.map((category) => {
+                    const Icon = iconsMap.get(category.icon) ?? IconFolder;
+                    return (
+                      <li key={category.slug}>
+                        <Link
+                          href={`/categories/${category.slug}`}
+                          onNavigate={sheet.dismiss}
+                          className="bg-card active:bg-accent flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2 focus-visible:outline-focus"
+                        >
+                          <Icon className="size-5" stroke={1.75} aria-hidden />
+                          {category.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+            </ul>
+          </div>
+
+          <ul className="flex gap-2">
+            {SOCIAL_LINKS.map((link) => (
+              <li key={link.url}>
+                <Button variant="outline" size="icon-lg" asChild>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    <link.icon stroke={1.75} />
+                    <span className="sr-only">{link.label}</span>
+                  </a>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </SheetContent>
+    </Sheet>
   );
 }

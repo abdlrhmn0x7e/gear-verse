@@ -46,7 +46,7 @@ export function CompleteCheckout({
       <div className="flex items-center gap-2">
         <SparklesIcon className="mb-1 size-6" />
 
-        <Heading level={3} font="default" className="text-lg md:text-xl">
+        <Heading level={3} className="text-lg md:text-xl">
           Gear Verse
         </Heading>
       </div>

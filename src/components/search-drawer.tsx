@@ -47,13 +47,9 @@ export function SearchDrawer() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button
-          variant="outline"
-          size="lg"
-          className="dark:bg-card bg-card w-1/2 justify-start md:w-1/3 lg:hidden"
-        >
+        <Button variant="ghost" size="icon-lg" className="lg:hidden">
           <SearchIcon />
-          Search...
+          <span className="sr-only">Search products</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className="min-h-[75svh]">
@@ -63,7 +59,8 @@ export function SearchDrawer() {
         <div className="space-y-4 p-4">
           <InputGroup>
             <InputGroupInput
-              placeholder="Search..."
+              aria-label="Search products"
+              placeholder="Keyboards, mice, IEMs…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

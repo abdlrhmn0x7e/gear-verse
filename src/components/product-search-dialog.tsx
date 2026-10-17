@@ -69,20 +69,22 @@ export function ProductSearchDialog({
     >
       <div className="relative" ref={setTrigger}>
         <Dialog.Trigger asChild>
-          <div
-            className="group relative w-full cursor-text first:relative first:z-10 focus-visible:outline-none"
+          <button
+            type="button"
+            aria-label="Search products"
+            className="group relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             data-state={open ? "open" : "closed"}
           >
             {children}
 
-            <div
+            <span
               className={cn(
-                "bg-background absolute inset-0 rounded-lg border bg-clip-padding",
+                "surface-control absolute inset-0 rounded-full",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
               )}
             />
-          </div>
+          </button>
         </Dialog.Trigger>
 
         <div
@@ -122,7 +124,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "bg-background absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
+                "surface-control absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-radius:24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -227,7 +229,8 @@ function Content({ close }: { close: () => void }) {
 
         <input
           type="text"
-          placeholder="Search Products"
+          aria-label="Search products"
+          placeholder="Search products"
           className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

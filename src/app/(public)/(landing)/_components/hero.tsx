@@ -46,7 +46,6 @@ export function Hero() {
               <div className="space-y-3">
                 <Heading
                   level={1}
-                  font="default"
                   className="text-accent-foreground relative text-pretty"
                 >
                   The World&apos;s Best Gear{" "}

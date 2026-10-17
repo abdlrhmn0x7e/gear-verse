@@ -18,7 +18,7 @@ export async function AdminNav() {
   }
 
   return (
-    <Button variant="outline" size="icon-lg" asChild>
+    <Button variant="ghost" size="icon-lg" asChild>
       <Link href="/admin">
         <ShieldUserIcon />
         <span className="sr-only">Admin</span>

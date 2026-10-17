@@ -1,13 +1,8 @@
-/** eslint-disable react-hooks/static-components */
-import { app } from "~/server/application";
-import { Card, CardContent } from "../ui/card";
-import type { RouterOutput } from "~/trpc/client";
-import { iconsMap } from "~/lib/icons-map";
-import { IconCategory } from "@tabler/icons-react";
-import { NavLink } from "./nav";
-import Header from "../header";
-import { Heading } from "../heading";
+import { IconArrowRight, IconFolder } from "@tabler/icons-react";
 import { cacheTag } from "next/cache";
+import { iconsMap } from "~/lib/icons-map";
+import { app } from "~/server/application";
+import { NavLink } from "./nav";
 
 export async function CategoriesMenu() {
   "use cache";
@@ -19,39 +14,28 @@ export async function CategoriesMenu() {
   });
 
   return (
-    <div className="space-y-3 pb-12">
-      <Header
-        title="Categories"
-        description="Browse product categories"
-        Icon={IconCategory}
-        headingLevel={4}
-      />
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {categories.map((category) => {
+        const Icon = iconsMap.get(category.icon) ?? IconFolder;
+        return (
+          <NavLink
+            key={category.id}
+            href={`/categories/${category.slug}`}
+            className="bg-card hover:bg-accent group flex flex-col gap-6 rounded-2xl p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <Icon className="size-5" stroke={1.75} aria-hidden />
+            <span className="text-sm font-medium">{category.name}</span>
+          </NavLink>
+        );
+      })}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {categories.map((category) => (
-          <CategoryCard key={category.id} category={category} />
-        ))}
-      </div>
+      <NavLink
+        href="/products"
+        className="hover:bg-accent flex flex-col justify-between gap-6 rounded-2xl border p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        <IconArrowRight className="size-5" stroke={1.75} aria-hidden />
+        <span className="text-sm font-medium">Shop everything</span>
+      </NavLink>
     </div>
-  );
-}
-
-function CategoryCard({
-  category,
-}: {
-  category: RouterOutput["public"]["categories"]["queries"]["findAll"][number];
-}) {
-  const CategoryIcon = iconsMap.get(category.icon) ?? IconCategory;
-
-  return (
-    <NavLink href={`/categories/${category.slug}`}>
-      <Card className="ring-accent transition-shadow hover:ring-2">
-        <CardContent className="flex flex-col items-center gap-2 text-center">
-          {/* eslint-disable-next-line react-hooks/static-components*/}
-          <CategoryIcon />
-          <Heading level={4}>{category.name}</Heading>
-        </CardContent>
-      </Card>
-    </NavLink>
   );
 }

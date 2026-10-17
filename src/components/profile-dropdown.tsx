@@ -68,7 +68,10 @@ export function ProfileDropdown({ className }: { className?: string }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          className={cn("cursor-pointer rounded-full", className)}
+          className={cn(
+            "cursor-pointer rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+            className,
+          )}
         >
           <Avatar>
             <AvatarImage src={user.image ?? undefined} alt={user.name} />

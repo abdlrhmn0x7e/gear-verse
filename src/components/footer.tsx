@@ -1,82 +1,100 @@
+import { cacheTag } from "next/cache";
+import Link from "next/link";
 import { Suspense } from "react";
+import { app } from "~/server/application";
 import { CurrentYear } from "./current-year";
 import { Logo } from "./logo";
-import Link from "next/link";
-import {
-  IconBrandDiscord,
-  IconBrandFacebook,
-  IconBrandTiktok,
-} from "@tabler/icons-react";
+import { SOCIAL_LINKS } from "./navbar/social-links";
+import { Button } from "./ui/button";
 
-const STORE_LINKS = [
-  { title: "Home", href: "/" },
-  { title: "All Products", href: "/products" },
-  { title: "My Orders", href: "/orders" },
+const HELP_LINKS = [
+  { title: "FAQ", href: "/#faq" },
+  { title: "My orders", href: "/orders" },
 ];
 
-const SOCIAL_LINKS = [
-  {
-    label: "Join our Discord",
-    url: "https://discord.gg/CRDZxAD35N",
-    icon: IconBrandDiscord,
-  },
-  {
-    label: "Follow us on TikTok",
-    url: "https://www.tiktok.com/@gearverse.eg",
-    icon: IconBrandTiktok,
-  },
-  {
-    label: "Follow us on Facebook",
-    url: "https://www.facebook.com/profile.php?id=61575728973616",
-    icon: IconBrandFacebook,
-  },
-];
+const linkClassName =
+  "text-muted-foreground hover:text-foreground rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function Footer() {
   return (
-    <footer className="bg-muted pt-16 pb-24 md:py-16">
-      <div className="mx-auto max-w-5xl px-6">
-        <Link href="/" aria-label="go home" className="mx-auto block size-fit">
-          <Logo />
-        </Link>
+    <footer className="mx-auto w-full max-w-7xl px-4 pt-24 pb-8 md:px-6 lg:px-8">
+      <div className="bg-card grid gap-12 rounded-3xl p-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] md:p-12">
+        <div className="flex flex-col items-start gap-6">
+          <Link
+            href="/"
+            className="rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+          >
+            <Logo className="h-11" />
+          </Link>
+          <p className="text-muted-foreground max-w-xs text-pretty">
+            The world&apos;s best gear, hand-imported to Egypt. Customs
+            cleared, insured and delivered.
+          </p>
+          <ul className="flex gap-2">
+            {SOCIAL_LINKS.map((link) => (
+              <li key={link.url}>
+                <Button variant="outline" size="icon-lg" asChild>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    <link.icon stroke={1.75} />
+                    <span className="sr-only">{link.label}</span>
+                  </a>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <nav
-          aria-label="Footer"
-          className="mt-8 flex flex-wrap justify-center gap-6 text-sm"
-        >
-          {STORE_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-primary block font-medium"
-            >
-              {link.title}
-            </Link>
-          ))}
+        <nav aria-label="Shop" className="space-y-4">
+          <h2 className="text-sm font-medium">Shop</h2>
+          <ul className="space-y-3 text-sm">
+            <li>
+              <Link href="/products" className={linkClassName}>
+                All products
+              </Link>
+            </li>
+            <Suspense>
+              <CategoryLinks />
+            </Suspense>
+          </ul>
         </nav>
 
-        <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
-          {SOCIAL_LINKS.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              className="text-muted-foreground hover:text-primary block"
-            >
-              <link.icon size={20} />
-            </a>
-          ))}
-        </div>
-        <span className="text-muted-foreground block text-center text-sm">
-          ©{" "}
-          <Suspense>
-            <CurrentYear />
-          </Suspense>{" "}
-          Gear Verse, All rights reserved
-        </span>
+        <nav aria-label="Help" className="space-y-4">
+          <h2 className="text-sm font-medium">Help</h2>
+          <ul className="space-y-3 text-sm">
+            {HELP_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className={linkClassName}>
+                  {link.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
+
+      <p className="text-muted-foreground px-2 pt-6 text-sm">
+        ©{" "}
+        <Suspense>
+          <CurrentYear />
+        </Suspense>{" "}
+        Gear Verse. All rights reserved.
+      </p>
     </footer>
   );
+}
+
+async function CategoryLinks() {
+  "use cache";
+
+  cacheTag("categories-menu");
+
+  const categories = await app.public.categories.queries.findRoots();
+
+  return categories.map((category) => (
+    <li key={category.slug}>
+      <Link href={`/categories/${category.slug}`} className={linkClassName}>
+        {category.name}
+      </Link>
+    </li>
+  ));
 }
