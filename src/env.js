@@ -15,7 +15,8 @@ export const env = createEnv({
     AWS_S3_ACCESS_KEY_ID: z.string(),
     AWS_S3_SECRET_ACCESS_KEY: z.string(),
 
-    SENTRY_AUTH_TOKEN: z.string(),
+    // Sentry is optional: without a DSN the SDK stays disabled, without a token source maps are not uploaded
+    SENTRY_AUTH_TOKEN: z.string().optional(),
 
     UPSTASH_REDIS_REST_URL: z.string().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
@@ -23,7 +24,7 @@ export const env = createEnv({
 
   client: {
     NEXT_PUBLIC_APP_URL: z.url(),
-    NEXT_PUBLIC_SENTRY_DSN: z.string(),
+    NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   },
 
   runtimeEnv: {

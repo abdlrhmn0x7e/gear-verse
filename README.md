@@ -186,7 +186,7 @@ Visit `http://localhost:3000` for the storefront and `/admin` for the admin dash
 - Typed domain errors live in `src/server/lib/errors/app-error.ts`.
 - Central TRPC error mapping via `src/server/api/error-map.ts`.
 - Sentry instrumentation for server + edge runtimes (`src/sentry.server.config.ts`, `src/sentry.edge.config.ts`, `src/instrumentation*.ts`).
-- Add your Sentry DSN in env files to enable tracing locally and in production.
+- Sentry is optional: set `NEXT_PUBLIC_SENTRY_DSN` to enable error reporting and tracing, and `SENTRY_AUTH_TOKEN` to upload source maps at build time.
 
 ## Contributing
 

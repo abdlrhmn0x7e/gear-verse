@@ -38,6 +38,11 @@ export default withSentryConfig(config, {
   // Pass the auth token
   authToken: env.SENTRY_AUTH_TOKEN,
 
+  // Skip source map upload when no auth token is configured
+  sourcemaps: {
+    disable: !env.SENTRY_AUTH_TOKEN,
+  },
+
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
