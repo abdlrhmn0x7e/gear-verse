@@ -27,7 +27,7 @@ export default async function OrdersPage({
   );
 
   return (
-    <section className="min-h-screen py-24">
+    <section className="min-h-screen pt-28 pb-24 md:pt-36">
       <MaxWidthWrapper className="max-w-7xl space-y-6">
         <Header
           title="Orders"
