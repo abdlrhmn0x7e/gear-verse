@@ -38,12 +38,12 @@ export async function Hero() {
                 Shop the shelf
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
-              {/* jumps down to the request form, so it points down rather than onward */}
+              {/* a plain fragment link scrolls again when the URL already ends in #request; Link treats that as no navigation */}
               <Button
                 variant="outline"
                 size="xl"
                 nativeButton={false}
-                render={<Link href="/#request" />}
+                render={<a href="#request" />}
               >
                 Request an item
                 <ArrowDownIcon data-icon="inline-end" />
