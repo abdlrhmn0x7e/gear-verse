@@ -11,6 +11,7 @@ export default function OrdersLoading() {
           title="Orders"
           description="View your orders, review the details, and track the status."
           headingLevel={3}
+          headingAs={1}
           Icon={PackageOpenIcon}
         />
 

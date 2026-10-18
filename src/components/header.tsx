@@ -10,12 +10,15 @@ export default function Header({
   Icon,
   className,
   headingLevel = 3,
+  headingAs,
 }: {
   title: string;
   description: string;
   Icon: LucideIcon | TablerIcon;
   className?: string;
   headingLevel?: 3 | 4 | 5;
+  /** render the title as this heading level while keeping headingLevel's look */
+  headingAs?: 1 | 2 | 3 | 4 | 5 | 6;
 }) {
   return (
     <div
@@ -31,7 +34,9 @@ export default function Header({
       </div>
 
       <div>
-        <Heading level={headingLevel}>{title}</Heading>
+        <Heading level={headingLevel} as={headingAs}>
+          {title}
+        </Heading>
         <p
           className={cn(
             "text-muted-foreground text-sm",
