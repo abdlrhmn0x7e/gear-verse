@@ -1,8 +1,7 @@
 "use client";
 
 import { ChevronRight, FolderIcon } from "lucide-react";
-import { useRef, useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { type ElementType, createElement, useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,7 +15,6 @@ import {
 } from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
-import { createPortal } from "react-dom";
 import { EditCategory } from "./edit-category";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { CategoryTreeActions } from "./category-tree-actions";
@@ -31,59 +29,109 @@ import {
 } from "~/components/ui/empty";
 import { IconFolderX } from "@tabler/icons-react";
 
+/** A category's icon, or a folder for an icon the map doesn't know. */
+export function CategoryIcon({
+  icon,
+  className,
+}: {
+  icon: CategoryTree["icon"];
+  className?: string;
+}) {
+  const component: ElementType<{ className?: string }> =
+    iconsMap.get(icon) ?? FolderIcon;
+  return createElement(component, { className });
+}
+
+export function findCategory(
+  nodes: CategoryTree[],
+  id: number,
+): CategoryTree | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    const inChild = node.children ? findCategory(node.children, id) : undefined;
+    if (inChild) return inChild;
+  }
+  return undefined;
+}
+
+export function findParentCategory(
+  nodes: CategoryTree[],
+  id: number,
+  parent?: CategoryTree,
+): CategoryTree | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return parent;
+    const found = node.children
+      ? findParentCategory(node.children, id, node)
+      : undefined;
+    if (found) return found;
+  }
+  return undefined;
+}
+
+export function countCategories(nodes: CategoryTree[]): number {
+  return nodes.reduce(
+    (count, node) => count + 1 + countCategories(node.children ?? []),
+    0,
+  );
+}
+
+/** The branches holding a category whose name matches, each cut down to those matches. */
+export function filterCategories(
+  nodes: CategoryTree[],
+  query: string,
+): CategoryTree[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return nodes;
+
+  return nodes.flatMap((node) => {
+    if (node.name.toLowerCase().includes(needle)) return [node];
+    const children = filterCategories(node.children ?? [], needle);
+    return children.length > 0 ? [{ ...node, children }] : [];
+  });
+}
+
+/**
+ * One category and, folded under it, its sub-categories. A row selects the
+ * category, drags onto another to nest under it, and takes dropped products.
+ */
 export function CategoryTree({
   categories,
   parentCategory,
-  isDragging = false,
+  defaultOpen = false,
 }: {
   categories: CategoryTree;
   parentCategory?: CategoryTree;
-  isDragging?: boolean;
+  /** Unfold the whole branch, e.g. to show search matches. */
+  defaultOpen?: boolean;
 }) {
-  const { children, ...category } = categories;
-  const hasChildren = children && children.length > 0;
-
-  const addCategoryPortalRef = useRef<HTMLDivElement>(null);
-
-  if (!category) {
-    return null;
-  }
+  const { children } = categories;
+  const hasChildren = !!children && children.length > 0;
 
   if (!hasChildren) {
     return (
-      <div ref={addCategoryPortalRef}>
-        <CategoryTreeItem
-          categories={categories}
-          parentCategory={parentCategory}
-          addCategoryPortalRef={addCategoryPortalRef}
-        />
-      </div>
+      <CategoryTreeItem
+        categories={categories}
+        parentCategory={parentCategory}
+      />
     );
   }
 
   return (
-    <Collapsible
-      ref={addCategoryPortalRef}
-      className="group/collapsible [&[data-state=open]>div>div>button:nth-child(2)>svg:first-child]:rotate-90"
-    >
+    <Collapsible defaultOpen={defaultOpen}>
       <CategoryTreeItem
         categories={categories}
         parentCategory={parentCategory}
-        addCategoryPortalRef={addCategoryPortalRef}
       />
 
-      <CollapsibleContent>
-        {children?.map((subCategories, index) => (
-          <div
-            key={`category-tree-${category.id}-${index}`}
-            className="mt-1 ml-2"
-          >
-            <CategoryTree
-              categories={subCategories}
-              parentCategory={category}
-              isDragging={isDragging}
-            />
-          </div>
+      <CollapsibleContent className="border-border/70 ml-[1.0625rem] flex flex-col gap-px border-l pt-px pl-1.5">
+        {children.map((subCategory) => (
+          <CategoryTree
+            key={subCategory.id}
+            categories={subCategory}
+            parentCategory={categories}
+            defaultOpen={defaultOpen}
+          />
         ))}
       </CollapsibleContent>
     </Collapsible>
@@ -93,38 +141,27 @@ export function CategoryTree({
 function CategoryTreeItem({
   categories,
   parentCategory,
-  addCategoryPortalRef,
 }: {
   categories: CategoryTree;
   parentCategory?: CategoryTree;
-  addCategoryPortalRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
 
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
-  const setSelectedCategory = useCategoryStore(
-    (state) => state.setSelectedCategory,
+  const selectedCategoryId = useCategoryStore(
+    (state) => state.selectedCategoryId,
   );
-  const setParentCategory = useCategoryStore(
-    (state) => state.setParentCategory,
+  const setSelectedCategoryId = useCategoryStore(
+    (state) => state.setSelectedCategoryId,
   );
 
   const { children, ...category } = categories;
-  const Icon = iconsMap.get(category.icon) ?? FolderIcon;
-  const isActive = selectedCategory?.id === category.id;
-  const hasChildren = children && children.length > 0;
+  const isActive = selectedCategoryId === category.id;
+  const hasChildren = !!children && children.length > 0;
 
-  function handleCategorySelect() {
-    setSelectedCategory(category);
-    if (parentCategory) {
-      setParentCategory(parentCategory);
-    }
-  }
-
-  function renderCategoryContent() {
-    if (showEditForm) {
-      return (
+  if (showEditForm) {
+    return (
+      <div className="py-1 pl-1">
         <EditCategory
           id={category.id}
           defaultValues={{
@@ -135,107 +172,104 @@ function CategoryTreeItem({
           onSuccess={() => setShowEditForm(false)}
           cancel={() => setShowEditForm(false)}
         />
-      );
-    }
-
-    return (
-      <>
-        <button
-          onClick={handleCategorySelect}
-          className="flex size-full cursor-pointer items-center gap-2 py-2 focus-visible:outline-none"
-        >
-          <Icon />
-          {category.name}
-        </button>
-
-        <CategoryTreeActions
-          categoryId={category.id}
-          setShowAddForm={setShowAddForm}
-          setShowEditForm={setShowEditForm}
-        />
-      </>
+      </div>
     );
   }
 
   return (
-    <Droppable
-      id={`category:${category.id}`}
-      className="rounded-md"
-      classNameWhenOver="ring-2 ring-primary/40 bg-accent/40 rounded-md"
-    >
-      <DragableItem
+    <>
+      <Droppable
         id={`category:${category.id}`}
-        className={buttonVariants({
-          variant: "ghost",
-          className: cn(
-            "group w-full justify-between border border-transparent py-0 focus-visible:ring-0",
-            isActive && !showEditForm && "border-border bg-background",
-            hasChildren && "has-[button>svg]:px-3",
-            showEditForm &&
-              "hover:text-foreground h-fit hover:bg-transparent dark:hover:bg-transparent [&>button]:hidden [&>svg:nth-child(2)]:hidden",
-            "[&>button:first-child]:order-1",
-          ),
-        })}
-        withHandle
+        className="rounded-lg"
+        classNameWhenOver="bg-accent ring-2 ring-primary/30"
       >
-        {hasChildren ? (
-          <CollapsibleTrigger className="focus-visible:outline-none">
-            <ChevronRight className="transition-transform" />
-          </CollapsibleTrigger>
-        ) : (
-          <ChevronRight
-            className={cn(
-              "opacity-0 transition-all",
-              showAddForm && "rotate-90 opacity-100",
-            )}
-          />
-        )}
-
-        {renderCategoryContent()}
-
-        {showAddForm &&
-          // eslint-disable-next-line react-hooks/refs
-          addCategoryPortalRef.current &&
-          createPortal(
-            <div className="mt-1 ml-7 p-1">
-              <AddCategory
-                parentCategoryId={category.id}
-                onSuccess={() => setShowAddForm(false)}
-                cancel={() => setShowAddForm(false)}
-              />
-            </div>,
-            // eslint-disable-next-line react-hooks/refs
-            addCategoryPortalRef.current,
+        <DragableItem
+          id={`category:${category.id}`}
+          withHandle
+          handleClassName="text-muted-foreground order-last opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+          className={cn(
+            "hover:bg-accent/60 flex h-8 items-center gap-1 rounded-lg pr-1 pl-0.5 text-sm transition-colors",
+            isActive && "bg-accent hover:bg-accent text-foreground font-medium",
           )}
-      </DragableItem>
-    </Droppable>
+        >
+          {hasChildren ? (
+            <CollapsibleTrigger
+              aria-label={`Show sub-categories of ${category.name}`}
+              className="text-muted-foreground hover:text-foreground flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md focus-visible:outline-none [&[data-state=open]>svg]:rotate-90"
+            >
+              <ChevronRight className="size-4 transition-transform" />
+            </CollapsibleTrigger>
+          ) : (
+            <span className="size-6 shrink-0" />
+          )}
+
+          <button
+            type="button"
+            onClick={() => setSelectedCategoryId(category.id)}
+            aria-current={isActive ? "true" : undefined}
+            className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2 text-left focus-visible:outline-none"
+          >
+            <CategoryIcon
+              icon={category.icon}
+              className={cn(
+                "size-4 shrink-0",
+                !isActive && "text-muted-foreground",
+              )}
+            />
+            <span className="truncate">{category.name}</span>
+          </button>
+
+          <CategoryTreeActions
+            categoryId={category.id}
+            setShowAddForm={setShowAddForm}
+            setShowEditForm={setShowEditForm}
+          />
+        </DragableItem>
+      </Droppable>
+
+      {showAddForm && (
+        <div className="py-1 pl-7">
+          <AddCategory
+            parentCategoryId={category.id}
+            onSuccess={() => setShowAddForm(false)}
+            cancel={() => setShowAddForm(false)}
+          />
+        </div>
+      )}
+    </>
   );
 }
 
 export function CategoryTreeSkeleton() {
   return (
-    <div className="flex flex-col gap-2">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <Skeleton key={index} className="h-8 w-full" />
+    <div className="flex flex-col gap-1.5 px-1">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Skeleton key={index} className="h-7 w-full" />
       ))}
     </div>
   );
 }
 
-export function CategoryTreeEmptyState() {
+export function CategoryTreeEmptyState({
+  searched = false,
+}: {
+  searched?: boolean;
+}) {
   return (
-    <div className="flex flex-col gap-2">
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <IconFolderX />
-          </EmptyMedia>
-          <EmptyTitle>No categories found</EmptyTitle>
-          <EmptyDescription>
-            Get started by adding your first category.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    </div>
+    <Empty className="py-8">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconFolderX />
+        </EmptyMedia>
+        <EmptyTitle>
+          {searched ? "No matching categories" : "No categories found"}
+        </EmptyTitle>
+        <EmptyDescription>
+          {searched
+            ? "Try a different name."
+            : "Get started by adding your first category."}
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

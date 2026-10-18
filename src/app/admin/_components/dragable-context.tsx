@@ -91,11 +91,13 @@ export function DragableSortableContext({
 export function DragableItem({
   id,
   className,
+  handleClassName,
   withHandle = false,
   children,
 }: React.PropsWithChildren<{
   id: UniqueIdentifier;
   className?: string;
+  handleClassName?: string;
   withHandle?: boolean;
 }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -121,7 +123,10 @@ export function DragableItem({
       {withHandle && (
         <button
           aria-label="Drag to reorder"
-          className="cursor-grab focus-within:outline-none active:cursor-grabbing"
+          className={cn(
+            "cursor-grab focus-within:outline-none active:cursor-grabbing",
+            handleClassName,
+          )}
           {...listeners}
           {...attributes}
         >
