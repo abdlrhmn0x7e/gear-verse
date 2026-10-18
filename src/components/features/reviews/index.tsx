@@ -1,20 +1,21 @@
 import { AddReview } from "./add-review";
-import { CheckCircleIcon, MessageCircleOffIcon, UserIcon } from "lucide-react";
+import { CheckCircleIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
 import { StarRating } from "./star-rating";
 import { auth } from "~/server/auth";
 import { headers } from "next/headers";
 import { EditReview } from "./edit-reviews";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import {
-  Frame,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "~/components/ui/frame";
 import { app } from "~/server/application";
 import { DeleteReviewDialog } from "./delete-review";
+
+const dateFormat = new Intl.DateTimeFormat("en", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await app.public.reviews.queries.findAll(productId);
@@ -24,93 +25,100 @@ export async function Reviews({ productId }: { productId: number }) {
   const userHasReviewed = reviews.some(
     (review) => review.user?.id === Number(data?.user.id),
   );
+  const average =
+    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
   return (
-    <div className="space-y-4">
-      {!data && (
-        <Alert>
-          <UserIcon />
-          <AlertTitle>You can&apos;t review this product</AlertTitle>
-          <AlertDescription>
-            You must be logged in to review this product
-          </AlertDescription>
-        </Alert>
-      )}
+    <section
+      aria-labelledby="reviews-heading"
+      className="grid gap-8 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] @4xl:gap-16"
+    >
+      <div className="flex flex-col gap-3">
+        <h2 id="reviews-heading" className="text-headline-sm text-balance">
+          Reviews
+        </h2>
+        {reviews.length > 0 && (
+          <div className="flex items-center gap-3">
+            <span className="text-title tabular-nums">
+              {average.toFixed(1)}
+            </span>
+            <StarRating rating={Math.round(average)} />
+            <span className="text-muted-foreground text-sm">
+              {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+            </span>
+          </div>
+        )}
+      </div>
 
-      <Frame>
-        <FrameHeader>
-          <FrameTitle className="text-2xl font-semibold">
-            User Reviews ({reviews.length})
-          </FrameTitle>
+      <div className="flex flex-col gap-6">
+        {data && !userHasReviewed && <AddReview productId={productId} />}
 
-          {!userHasReviewed && (
-            <AddReview
-              productId={productId}
-              disabled={userHasReviewed || !data}
-            />
-          )}
-        </FrameHeader>
+        {!data && (
+          <p className="text-muted-foreground text-sm">
+            <LoginDrawerDialog>
+              <Button
+                variant="link"
+                className="h-auto border-0 p-0 align-baseline underline"
+              >
+                Sign in
+              </Button>
+            </LoginDrawerDialog>{" "}
+            to review this product.
+          </p>
+        )}
 
-        <FramePanel>
-          <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-6">
-            {reviews.length > 0 ? (
-              reviews.map((review, index) => (
-                <div
-                  key={`${review.user?.name}-${review.rating}-${index}`}
-                  className="flex items-start gap-3"
-                >
-                  <Avatar className="mt-1">
-                    <AvatarImage
-                      src={review.user?.image ?? undefined}
-                      alt={review.user?.name}
-                    />
+        {reviews.length > 0 ? (
+          <ul className="flex flex-col gap-4">
+            {reviews.map((review) => (
+              <li
+                key={review.id}
+                className="bg-card flex flex-col gap-4 rounded-3xl p-6"
+              >
+                <div className="flex items-start gap-3">
+                  <Avatar>
+                    <AvatarImage src={review.user?.image ?? undefined} alt="" />
                     <AvatarFallback>
                       {review.user?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="w-full space-y-1">
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <div>
-                        <p className="space-x-1 font-medium">
-                          <span>{review.user?.name} </span>
-                          {review.user?.verifiedPurchaser && (
-                            <Badge variant="success">
-                              <CheckCircleIcon />
-                              Verified Purchaser
-                            </Badge>
-                          )}
-                        </p>
-
-                        <div className="flex items-center gap-1">
-                          <StarRating rating={review.rating} />{" "}
-                          <span className="text-muted-foreground text-sm">
-                            ({review.rating} stars)
-                          </span>
-                        </div>
-                      </div>
-
-                      {review.user?.id === Number(data?.user.id) && (
-                        <div className="flex items-center gap-1">
-                          <EditReview review={review} productId={productId} />
-                          <DeleteReviewDialog id={review.id} />
-                        </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
+                      {review.user?.name}
+                      {review.user?.verifiedPurchaser && (
+                        <Badge variant="success">
+                          <CheckCircleIcon />
+                          Verified purchase
+                        </Badge>
                       )}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={review.rating} />
+                      <time
+                        dateTime={new Date(review.createdAt).toISOString()}
+                        className="text-muted-foreground text-xs"
+                      >
+                        {dateFormat.format(review.createdAt)}
+                      </time>
                     </div>
-
-                    <p className="text-muted-foreground">{review.comment}</p>
                   </div>
+
+                  {review.user?.id === Number(data?.user.id) && (
+                    <div className="-mt-1.5 -mr-2 flex items-center">
+                      <EditReview review={review} productId={productId} />
+                      <DeleteReviewDialog id={review.id} />
+                    </div>
+                  )}
                 </div>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3 py-12">
-                <MessageCircleOffIcon />
-                <p className="text-muted-foreground text-lg">No reviews yet</p>
-              </div>
-            )}
-          </div>
-        </FramePanel>
-      </Frame>
-    </div>
+
+                <p className="text-pretty">{review.comment}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground">No reviews yet.</p>
+        )}
+      </div>
+    </section>
   );
 }

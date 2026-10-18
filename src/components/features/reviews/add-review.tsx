@@ -6,19 +6,10 @@ import { SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
-import { cn } from "~/lib/utils";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function AddReview({
-  productId,
-  disabled,
-  className,
-}: {
-  productId: number;
-  disabled: boolean;
-  className?: string;
-}) {
+export function AddReview({ productId }: { productId: number }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -44,20 +35,15 @@ export function AddReview({
   }
 
   return (
-    <div
-      className={cn(
-        "relative",
-        disabled && "pointer-events-none opacity-50",
-        className,
-      )}
-    >
-      <ReviewForm onSubmit={onSubmit} disabled={disabled} />
+    <div className="relative">
+      <ReviewForm onSubmit={onSubmit} />
       <Button
         size="icon"
-        className="absolute right-2 bottom-2"
+        aria-label="Post review"
+        className="absolute right-3 bottom-3"
         type="submit"
         form="review-form"
-        disabled={isCreatingReview || disabled}
+        disabled={isCreatingReview}
       >
         {isCreatingReview ? <Spinner /> : <SendIcon />}
       </Button>

@@ -205,12 +205,9 @@ export async function ProductDetails({
         </section>
 
         {Reviews && (
-          <section
-            aria-label="Reviews"
-            className="border-t pt-12 md:pt-16"
-          >
+          <div className="border-t pt-12 md:pt-16">
             <Reviews productId={product.id} />
-          </section>
+          </div>
         )}
 
         {!hideActions && category && (
