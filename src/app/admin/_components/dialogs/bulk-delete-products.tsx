@@ -17,9 +17,11 @@ import {
 } from "~/components/ui/alert-dialog";
 import { useTRPC } from "~/trpc/client";
 
-type BulkDeleteProductsDialogProps = React.ComponentProps<typeof AlertDialog> & {
+type BulkDeleteProductsDialogProps = React.ComponentProps<
+  typeof AlertDialog
+> & {
   ids: number[];
-  Trigger: React.ReactNode;
+  Trigger: React.ReactElement;
   onDeleteSuccess?: (deletedIds: number[]) => void;
 };
 
@@ -41,7 +43,8 @@ export function BulkDeleteProductsDialog({
       { ids },
       {
         onSuccess: (deletedProducts) => {
-          const deletedIds = deletedProducts?.map((product) => product.id) ?? [];
+          const deletedIds =
+            deletedProducts?.map((product) => product.id) ?? [];
           toast.success(
             deletedIds.length === 1
               ? "Deleted 1 product"
@@ -58,14 +61,16 @@ export function BulkDeleteProductsDialog({
 
   return (
     <AlertDialog {...props}>
-      <AlertDialogTrigger asChild>{Trigger}</AlertDialogTrigger>
+      <AlertDialogTrigger render={Trigger} />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete selected products?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{" "}
-            {ids.length === 1 ? "the selected product" : `${ids.length} products`} and
-            remove their data from our servers.
+            {ids.length === 1
+              ? "the selected product"
+              : `${ids.length} products`}{" "}
+            and remove their data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -90,4 +95,3 @@ export function BulkDeleteProductsDialog({
     </AlertDialog>
   );
 }
-

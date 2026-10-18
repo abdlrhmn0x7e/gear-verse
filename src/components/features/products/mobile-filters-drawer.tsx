@@ -25,11 +25,11 @@ export function MobileFiltersDrawer({
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="outline" className="lg:hidden">
-          <SlidersHorizontalIcon data-icon="inline-start" />
-          Filters
-        </Button>
+      <DrawerTrigger
+        render={<Button variant="outline" className="lg:hidden" />}
+      >
+        <SlidersHorizontalIcon data-icon="inline-start" />
+        Filters
       </DrawerTrigger>
       <DrawerContent className="p-4">
         <DrawerHeader className="px-4 text-left">

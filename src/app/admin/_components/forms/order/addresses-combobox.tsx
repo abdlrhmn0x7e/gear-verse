@@ -113,14 +113,16 @@ export function AddressesCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          aria-expanded={open}
-          className={className}
-          disabled={disabled}
-        >
-          {renderValue(value)}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            aria-expanded={open}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {renderValue(value)}
       </PopoverTrigger>
       <PopoverContent>
         <AddressesCommand

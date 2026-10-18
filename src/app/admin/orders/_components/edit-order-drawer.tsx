@@ -95,11 +95,11 @@ export function EditOrderDrawer() {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={Boolean(params.editId)}
       onOpenChange={handleOpenChange}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+      <DrawerContent className="data-[swipe-direction=right]:sm:max-w-2xl">
         <DrawerHeader>
           <DrawerTitle>Edit Order</DrawerTitle>
           <DrawerDescription>Edit the details of the order.</DrawerDescription>

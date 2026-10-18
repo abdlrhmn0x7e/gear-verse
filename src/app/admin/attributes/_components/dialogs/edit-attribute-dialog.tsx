@@ -58,15 +58,17 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
 
   return (
     <Dialog {...dialog.props}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="focus-visible:ring-0"
-          aria-label={`Edit ${attribute.name}`}
-        >
-          <PencilIcon />
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="focus-visible:ring-0"
+            aria-label={`Edit ${attribute.name}`}
+          />
+        }
+      >
+        <PencilIcon />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -78,11 +80,9 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
         </DialogBody>
 
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">
-              <XIcon data-icon="inline-start" />
-              Cancel
-            </Button>
+          <DialogClose render={<Button variant="outline" />}>
+            <XIcon data-icon="inline-start" />
+            Cancel
           </DialogClose>
           <Button
             type="submit"

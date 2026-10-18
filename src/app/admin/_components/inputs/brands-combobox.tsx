@@ -97,33 +97,35 @@ export function BrandsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          suppressHydrationWarning
-          aria-expanded={open}
-          className={className}
-          disabled={disabled}
-        >
-          {selectedBrand ? (
-            <>
-              <ImageWithFallback
-                src={selectedBrand.logo?.url ?? ""}
-                alt=""
-                className="size-5 shrink-0 overflow-hidden rounded-sm border bg-white"
-                width={20}
-                height={20}
-              />
-              <span className="truncate">{selectedBrand.name}</span>
-            </>
-          ) : (
-            <>
-              <TargetIcon className="text-muted-foreground" />
-              <span className="text-muted-foreground truncate">
-                Select a brand
-              </span>
-            </>
-          )}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            suppressHydrationWarning
+            aria-expanded={open}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {selectedBrand ? (
+          <>
+            <ImageWithFallback
+              src={selectedBrand.logo?.url ?? ""}
+              alt=""
+              className="size-5 shrink-0 overflow-hidden rounded-sm border bg-white"
+              width={20}
+              height={20}
+            />
+            <span className="truncate">{selectedBrand.name}</span>
+          </>
+        ) : (
+          <>
+            <TargetIcon className="text-muted-foreground" />
+            <span className="text-muted-foreground truncate">
+              Select a brand
+            </span>
+          </>
+        )}
       </PopoverTrigger>
       <PopoverContent>
         <BrandsCommand

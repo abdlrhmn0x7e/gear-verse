@@ -349,11 +349,17 @@ function DeleteCategoryButton({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive-outline" size="sm" disabled={isPending}>
-          <Trash2Icon data-icon="inline-start" />
-          Delete
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant="destructive-outline"
+            size="sm"
+            disabled={isPending}
+          />
+        }
+      >
+        <Trash2Icon data-icon="inline-start" />
+        Delete
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

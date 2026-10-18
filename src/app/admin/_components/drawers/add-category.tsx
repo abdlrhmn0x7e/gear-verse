@@ -47,12 +47,10 @@ export function AddCategoryDrawer() {
   }
 
   return (
-    <Drawer {...drawer.props} direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="ghost">
-          <PlusIcon data-icon="inline-start" />
-          Add Category
-        </Button>
+    <Drawer {...drawer.props} swipeDirection={isMobile ? "down" : "right"}>
+      <DrawerTrigger render={<Button variant="ghost" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add Category
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>

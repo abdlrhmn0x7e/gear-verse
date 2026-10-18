@@ -25,10 +25,27 @@ import {
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 
+/** What a dialog's part and a drawer's both accept, so one call renders either */
+type SharedPartProps<P> = Omit<
+  P,
+  | "handle"
+  | "payload"
+  | "render"
+  | "className"
+  | "style"
+  | "children"
+  | "initialFocus"
+  | "finalFocus"
+> & {
+  className?: string;
+  render?: React.ReactElement;
+  children?: React.ReactNode;
+};
+
 export function DrawerDialogTrigger({
   children,
   ...props
-}: React.ComponentProps<typeof DialogTrigger>) {
+}: SharedPartProps<React.ComponentProps<typeof DialogTrigger>>) {
   const isMobile = useIsMobile();
   if (isMobile) {
     return <DrawerTrigger {...props}>{children}</DrawerTrigger>;
@@ -39,8 +56,9 @@ export function DrawerDialogTrigger({
 
 export function DrawerDialogContent({
   children,
+  showCloseButton,
   ...props
-}: React.ComponentProps<typeof DialogContent>) {
+}: SharedPartProps<React.ComponentProps<typeof DialogContent>>) {
   const isMobile = useIsMobile();
   if (isMobile) {
     return (
@@ -50,7 +68,11 @@ export function DrawerDialogContent({
     );
   }
 
-  return <DialogContent {...props}>{children}</DialogContent>;
+  return (
+    <DialogContent showCloseButton={showCloseButton} {...props}>
+      {children}
+    </DialogContent>
+  );
 }
 
 export function DrawerDialogHeader({
@@ -111,7 +133,12 @@ export function DrawerDialogFooter({
 export function DrawerDialog({
   children,
   ...props
-}: React.ComponentProps<typeof Dialog>) {
+}: {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: React.ReactNode;
+}) {
   const isMobile = useIsMobile();
 
   if (!isMobile) {

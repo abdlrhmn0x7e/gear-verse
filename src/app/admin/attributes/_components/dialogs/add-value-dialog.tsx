@@ -44,11 +44,9 @@ export function AddValueDialog({ attributeId }: { attributeId: number }) {
 
   return (
     <Dialog {...dialog.props}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <PlusIcon data-icon="inline-start" />
-          Add Value
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="sm" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add Value
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -59,11 +57,9 @@ export function AddValueDialog({ attributeId }: { attributeId: number }) {
           <AttributeValueForm onSubmit={onSubmit} />
         </DialogBody>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">
-              <XIcon data-icon="inline-start" />
-              Cancel
-            </Button>
+          <DialogClose render={<Button variant="outline" />}>
+            <XIcon data-icon="inline-start" />
+            Cancel
           </DialogClose>
           <Button
             type="submit"

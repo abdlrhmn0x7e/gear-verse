@@ -124,7 +124,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
 
   return (
     <>
-      <DrawerHeader className="flex-row items-start gap-4 text-start group-data-[vaul-drawer-direction=bottom]/drawer-content:text-start">
+      <DrawerHeader className="flex-row items-start gap-4 text-start group-data-[swipe-direction=down]/drawer-content:text-start">
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
             {product.published ? (
@@ -158,40 +158,40 @@ export async function ProductSummary({ slug }: { slug: string }) {
           {/* a div, since the brand logo renders block elements a <p> can't hold */}
           <DrawerDescription
             className="flex flex-wrap items-center gap-x-2 gap-y-1"
-            asChild
+            render={<div />}
           >
-            <div>
-              {product.brand.name && (
-                <span className="text-foreground flex items-center gap-1.5">
-                  <ImageWithFallback
-                    src={product.brand.logoUrl}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="size-5 rounded-full border-none bg-white [&_img]:object-contain"
-                  />
-                  {product.brand.name}
-                </span>
-              )}
-              {product.brand.name && categoryPath.length > 0 && (
-                <span aria-hidden>·</span>
-              )}
-              {categoryPath.length > 0 && (
-                <span>{categoryPath.map((node) => node.name).join(" › ")}</span>
-              )}
-            </div>
+            {product.brand.name && (
+              <span className="text-foreground flex items-center gap-1.5">
+                <ImageWithFallback
+                  src={product.brand.logoUrl}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="size-5 rounded-full border-none bg-white [&_img]:object-contain"
+                />
+                {product.brand.name}
+              </span>
+            )}
+            {product.brand.name && categoryPath.length > 0 && (
+              <span aria-hidden>·</span>
+            )}
+            {categoryPath.length > 0 && (
+              <span>{categoryPath.map((node) => node.name).join(" › ")}</span>
+            )}
           </DrawerDescription>
         </div>
 
-        <DrawerClose asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Close"
-            className="-me-2 -mt-1"
-          >
-            <XIcon />
-          </Button>
+        <DrawerClose
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Close"
+              className="-me-2 -mt-1"
+            />
+          }
+        >
+          <XIcon />
         </DrawerClose>
       </DrawerHeader>
 

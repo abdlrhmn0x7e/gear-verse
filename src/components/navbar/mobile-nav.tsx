@@ -49,20 +49,22 @@ export function MobileNav({
   useCloseOnBack(drawer.props.open, drawer.dismiss);
 
   return (
-    <Drawer direction="bottom" {...drawer.props}>
-      <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon-lg" className="md:hidden">
-          <MenuIcon />
-          <span className="sr-only">Open menu</span>
-        </Button>
+    <Drawer swipeDirection="down" {...drawer.props}>
+      <DrawerTrigger
+        render={<Button variant="ghost" size="icon-lg" className="md:hidden" />}
+      >
+        <MenuIcon />
+        <span className="sr-only">Open menu</span>
       </DrawerTrigger>
 
       <DrawerContent className="p-6">
         <DrawerHeader className="flex-row items-center justify-between gap-4 px-2 pt-2 pb-2 text-left">
-          <DrawerTitle asChild>
-            <Link href="/" onNavigate={drawer.dismiss} className="w-fit">
-              <Logo className="h-11" />
-            </Link>
+          <DrawerTitle
+            render={
+              <Link href="/" onNavigate={drawer.dismiss} className="w-fit" />
+            }
+          >
+            <Logo className="h-11" />
           </DrawerTitle>
           {whatsappNumber && (
             <WhatsAppNumberLink

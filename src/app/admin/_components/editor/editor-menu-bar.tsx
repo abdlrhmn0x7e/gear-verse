@@ -423,15 +423,17 @@ function ImageDrawerDialog({
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <DrawerDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                type="button"
-                aria-label="Add image"
-              >
-                <ImagePlusIcon />
-              </Button>
+            <DrawerDialogTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  type="button"
+                  aria-label="Add image"
+                />
+              }
+            >
+              <ImagePlusIcon />
             </DrawerDialogTrigger>
           </TooltipTrigger>
           <TooltipContent>Add image</TooltipContent>
@@ -470,28 +472,32 @@ function LinkDrawerDialog({
   return (
     <DrawerDialog open={open} onOpenChange={setOpen}>
       {disableTooltips ? (
-        <DrawerDialogTrigger asChild>
-          <Button
-            variant={isLink ? "default" : "ghost"}
-            size="icon"
-            type="button"
-            aria-label="Link"
-          >
-            <LinkIcon />
-          </Button>
+        <DrawerDialogTrigger
+          render={
+            <Button
+              variant={isLink ? "default" : "ghost"}
+              size="icon"
+              type="button"
+              aria-label="Link"
+            />
+          }
+        >
+          <LinkIcon />
         </DrawerDialogTrigger>
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <DrawerDialogTrigger asChild>
-              <Button
-                variant={isLink ? "default" : "ghost"}
-                size="icon"
-                type="button"
-                aria-label="Link"
-              >
-                <LinkIcon />
-              </Button>
+            <DrawerDialogTrigger
+              render={
+                <Button
+                  variant={isLink ? "default" : "ghost"}
+                  size="icon"
+                  type="button"
+                  aria-label="Link"
+                />
+              }
+            >
+              <LinkIcon />
             </DrawerDialogTrigger>
           </TooltipTrigger>
           <TooltipContent>Link</TooltipContent>

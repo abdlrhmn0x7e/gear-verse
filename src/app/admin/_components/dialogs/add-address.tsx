@@ -45,11 +45,9 @@ export function AddAddressDialog({ userId }: { userId: number }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost">
-          <PlusIcon data-icon="inline-start" />
-          Add Address
-        </Button>
+      <DialogTrigger render={<Button variant="ghost" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add Address
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto]">
         <DialogHeader>

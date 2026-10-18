@@ -56,21 +56,18 @@ export function SearchDrawer() {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon-lg" className="lg:hidden">
-          <SearchIcon />
-          <span className="sr-only">Search products</span>
-        </Button>
+      <DrawerTrigger
+        render={<Button variant="ghost" size="icon-lg" className="lg:hidden" />}
+      >
+        <SearchIcon />
+        <span className="sr-only">Search products</span>
       </DrawerTrigger>
-      {/* a fixed height rather than a min-height: vaul shrinks the drawer inline when the keyboard opens, and a
+      {/* a fixed height rather than a min-height: the drawer caps itself above the keyboard when it opens, and a
           min-height would win and push its top off screen */}
       <DrawerContent
         className="h-[75svh]"
         // the drawer exists to type into, so its field takes focus rather than the panel
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-          inputRef.current?.focus();
-        }}
+        initialFocus={inputRef}
       >
         <DrawerHeader>
           <DrawerTitle>Search products</DrawerTitle>

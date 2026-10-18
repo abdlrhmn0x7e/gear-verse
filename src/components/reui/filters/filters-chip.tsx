@@ -499,18 +499,16 @@ export function FilterValuePopover<V, O>({
         setOpen(next);
       }}
     >
-      {/* The trigger IS the segment, never a wrapper, and `asChild` keeps it
+      {/* The trigger IS the segment, never a wrapper, and `render` keeps it
           from becoming one. `ButtonGroup` fuses DIRECT children only
           (`[&>*:not(:last-child)]:rounded-r-none`,
           `[&>*:not(:first-child)]:border-l-0`), so a nested one keeps its own
           border and the chip reads as separate badges. */}
       <PopoverTrigger
-        asChild
         disabled={actions.disabled}
         {...filterReadOnlyProps(actions)}
-      >
-        {trigger}
-      </PopoverTrigger>
+        render={trigger}
+      />
       <PopoverContent align="start" className={cn("w-auto p-0", className)}>
         <FilterValueEditor<V, O>
           rule={rule}
@@ -621,28 +619,24 @@ export function FilterOperatorPopover<V, O>({
         setOpen(next);
       }}
     >
-      {/* `asChild` for the reason spelled out on the value popover's copy. */}
+      {/* `render` for the reason spelled out on the value popover's copy. */}
       <PopoverTrigger
-        asChild
         disabled={actions.disabled}
         {...filterReadOnlyProps(actions)}
-      >
-        {trigger}
-      </PopoverTrigger>
+        render={trigger}
+      />
       <PopoverContent
         align="start"
-        /* RADIX ONLY, the last hop of the handoff. Radix restores focus to
-           this trigger a macrotask AFTER the panel unmounts, which is after
-           `release` has opened the value editor; that restore pulls focus back
-           onto the condition segment and the value menu dismisses itself.
-           Suppressed only while the flag is up, and lowered as it is spent.
-           Base UI hands focus over in the other order and needs nothing. The
-           same guard `FiltersBuilder` runs for the field picker, for the same
-           reason, so the two move together. */
-        onCloseAutoFocus={(event) => {
-          if (!handoff.current) return;
+        /* The last hop of the handoff: returning focus to this trigger after
+           `release` has opened the value editor would pull focus back onto the
+           condition segment and dismiss the value menu. Suppressed only while
+           the flag is up, and lowered as it is spent. The same guard
+           `FiltersBuilder` runs for the field picker, for the same reason, so
+           the two move together. */
+        finalFocus={() => {
+          if (!handoff.current) return true;
           handoff.current = false;
-          event.preventDefault();
+          return false;
         }}
         /* `w-auto` with a FLOOR: a catalog sizes to its longest label, and a
            boolean field's "is" and "is not" would read as a scrap of paper. */

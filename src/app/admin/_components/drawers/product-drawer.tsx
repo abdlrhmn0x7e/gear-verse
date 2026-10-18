@@ -45,10 +45,9 @@ export function ProductDrawer({
     <Drawer
       open={!!params.slug}
       onOpenChange={handleOpenChange}
-      direction={isMobile ? "bottom" : "right"}
-      handleOnly={!isMobile}
+      swipeDirection={isMobile ? "down" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=bottom]:h-[85svh] data-[vaul-drawer-direction=bottom]:max-h-[85svh] data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+      <DrawerContent className="data-[swipe-direction=down]:h-[85svh] data-[swipe-direction=down]:max-h-[85svh] data-[swipe-direction=right]:sm:max-w-2xl">
         {isCurrent ? children : <ProductDrawerSkeleton />}
       </DrawerContent>
     </Drawer>

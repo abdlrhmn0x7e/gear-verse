@@ -50,10 +50,9 @@ export function OrderDrawer() {
     <Drawer
       open={!!params.orderId}
       onOpenChange={handleOpenChange}
-      direction={isMobile ? "bottom" : "right"}
-      handleOnly={!isMobile}
+      swipeDirection={isMobile ? "down" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-xl">
+      <DrawerContent className="data-[swipe-direction=right]:sm:max-w-xl">
         <OrderDrawerContent />
       </DrawerContent>
     </Drawer>

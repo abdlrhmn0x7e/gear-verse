@@ -13,7 +13,7 @@ import {
 } from "./ui/alert-dialog";
 
 interface DeleteDialogProps extends React.ComponentProps<typeof AlertDialog> {
-  Trigger: React.ReactNode;
+  Trigger: React.ReactElement;
   disabled?: boolean;
   entity: string;
   handleDelete?: () => void;
@@ -28,7 +28,7 @@ export function DeleteDialog({
 }: DeleteDialogProps) {
   return (
     <AlertDialog {...props}>
-      {Trigger && <AlertDialogTrigger asChild>{Trigger}</AlertDialogTrigger>}
+      {Trigger && <AlertDialogTrigger render={Trigger} />}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

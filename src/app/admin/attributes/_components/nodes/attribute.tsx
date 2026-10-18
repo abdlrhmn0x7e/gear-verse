@@ -37,34 +37,37 @@ type AttributeNode = Node<Attribute, "attribute">;
 export function AttributeNode(props: NodeProps<AttributeNode>) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <div
-          className={cn(
-            nodeSurface,
-            "group hover:ring-primary/40 dark:hover:ring-primary/40 relative flex min-w-24 cursor-pointer items-center gap-2 px-3 py-2 text-sm font-medium transition-shadow",
-          )}
-        >
-          <Badge
-            onClick={(e) => e.stopPropagation()}
-            className="absolute -top-7 left-1/2 max-h-6 -translate-x-1/2 px-1 text-xs font-medium opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
-            variant="outline"
-          >
-            <EditAttributeDialog attribute={props.data} />
-            <DeleteAttributeAlertDialog
-              id={props.data.id}
-              slug={props.data.slug}
-              name={props.data.name}
-            />
-          </Badge>
-          <IconKeyframe className="text-muted-foreground size-4 shrink-0" />
-          {props.data.name}
-          <AttributeTypeBadge type={props.data.type} />
-          <Handle
-            type="source"
-            position={Position.Right}
-            className={nodeHandle}
+      <PopoverTrigger
+        nativeButton={false}
+        render={
+          <div
+            className={cn(
+              nodeSurface,
+              "group hover:ring-primary/40 dark:hover:ring-primary/40 relative flex min-w-24 cursor-pointer items-center gap-2 px-3 py-2 text-sm font-medium transition-shadow",
+            )}
           />
-        </div>
+        }
+      >
+        <Badge
+          onClick={(e) => e.stopPropagation()}
+          className="absolute -top-7 left-1/2 max-h-6 -translate-x-1/2 px-1 text-xs font-medium opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
+          variant="outline"
+        >
+          <EditAttributeDialog attribute={props.data} />
+          <DeleteAttributeAlertDialog
+            id={props.data.id}
+            slug={props.data.slug}
+            name={props.data.name}
+          />
+        </Badge>
+        <IconKeyframe className="text-muted-foreground size-4 shrink-0" />
+        {props.data.name}
+        <AttributeTypeBadge type={props.data.type} />
+        <Handle
+          type="source"
+          position={Position.Right}
+          className={nodeHandle}
+        />
       </PopoverTrigger>
 
       <PopoverContent className="min-w-96 space-y-4" align="start">

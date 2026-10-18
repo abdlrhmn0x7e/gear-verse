@@ -135,15 +135,17 @@ export function ProductsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          aria-expanded={open}
-          aria-invalid={ariaInvalid}
-          className={className}
-          disabled={disabled}
-        >
-          {renderValue(value)}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            aria-expanded={open}
+            aria-invalid={ariaInvalid}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {renderValue(value)}
       </PopoverTrigger>
       <PopoverContent>
         <ProductsCommand

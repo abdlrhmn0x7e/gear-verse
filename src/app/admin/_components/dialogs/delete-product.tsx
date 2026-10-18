@@ -24,7 +24,7 @@ export function DeleteProductDialog({
 }: {
   id: number;
   onDeleteSuccess?: () => void;
-  Trigger?: React.ReactNode;
+  Trigger?: React.ReactElement;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -49,7 +49,7 @@ export function DeleteProductDialog({
 
   return (
     <AlertDialog {...props}>
-      {Trigger && <AlertDialogTrigger asChild>{Trigger}</AlertDialogTrigger>}
+      {Trigger && <AlertDialogTrigger render={Trigger} />}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
