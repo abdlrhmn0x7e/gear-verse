@@ -1,17 +1,14 @@
 import { db } from "~/server/db";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { brands, media, products } from "~/server/db/schema";
-import { _categories } from "./categories";
+import { getCategoryIdsBySlug } from "../common/category-ids";
 
 export const _brands = {
   queries: {
     findAll: async (filters?: Partial<{ categorySlug: string }>) => {
       if (filters?.categorySlug) {
         // brands with a live product in the category or any of its subcategories
-        const categoryIds =
-          await _categories.queries.helpers.getCategoryIdsBySlug(
-            filters.categorySlug,
-          );
+        const categoryIds = await getCategoryIdsBySlug(filters.categorySlug);
         if (categoryIds.length === 0) {
           return [];
         }
