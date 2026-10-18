@@ -57,7 +57,9 @@ export function SearchDrawer() {
           <span className="sr-only">Search products</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="min-h-[75svh]">
+      {/* a fixed height rather than a min-height: vaul shrinks the drawer inline when the keyboard opens, and a
+          min-height would win and push its top off screen */}
+      <DrawerContent className="h-[75svh]">
         <DrawerHeader>
           <DrawerTitle>Search products</DrawerTitle>
         </DrawerHeader>
