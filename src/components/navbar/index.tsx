@@ -11,8 +11,10 @@ import {
 import { SearchDrawer } from "~/components/search-drawer";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Kbd } from "~/components/ui/kbd";
+import { getStoreSettings } from "~/lib/store-settings";
 import { CartDrawer } from "../cart-drawer";
 import { ProfileDropdown } from "../profile-dropdown";
+import { pickSocialLinks } from "../social-links";
 import { AdminNav } from "./admin-nav";
 import { CategoriesMenu } from "./categories-menu";
 import { MobileNav } from "./mobile-nav";
@@ -93,7 +95,7 @@ export function Navbar() {
             </Suspense>
 
             <Suspense>
-              <MobileNav />
+              <StoreMobileNav />
             </Suspense>
           </div>
         </div>
@@ -102,4 +104,11 @@ export function Navbar() {
       </header>
     </NavigationMenu.Root>
   );
+}
+
+/** The menu drawer is a client component, so the store's contact details come down as props. */
+async function StoreMobileNav() {
+  const settings = await getStoreSettings();
+
+  return <MobileNav socialLinks={pickSocialLinks(settings)} />;
 }

@@ -25,7 +25,7 @@ import {
   DrawerTrigger,
 } from "../ui/drawer";
 import { Skeleton } from "../ui/skeleton";
-import { SOCIAL_LINKS } from "./social-links";
+import { SocialLinks, type SocialLinksSettings } from "../social-links";
 
 const PRIMARY_LINKS = [
   { title: "Home", href: "/" },
@@ -34,7 +34,11 @@ const PRIMARY_LINKS = [
   { title: "My orders", href: "/orders" },
 ];
 
-export function MobileNav() {
+export function MobileNav({
+  socialLinks,
+}: {
+  socialLinks: SocialLinksSettings;
+}) {
   const trpc = useTRPC();
   const drawer = useDialog();
   const loginDialog = useDialog();
@@ -123,22 +127,7 @@ export function MobileNav() {
                 <ThemeSegmentedControl />
               </div>
 
-              <ul className="flex gap-2">
-                {SOCIAL_LINKS.map((link) => (
-                  <li key={link.url}>
-                    <Button variant="outline" size="icon-lg" asChild>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <link.icon stroke={1.75} />
-                        <span className="sr-only">{link.label}</span>
-                      </a>
-                    </Button>
-                  </li>
-                ))}
-              </ul>
+              <SocialLinks links={socialLinks} />
             </nav>
           </DrawerBody>
         </DrawerContent>

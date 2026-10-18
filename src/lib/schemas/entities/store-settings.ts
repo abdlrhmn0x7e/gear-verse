@@ -16,13 +16,16 @@ export type StoreSettings = {
   updatedAt: Date | null;
 };
 
-/** What the store shows before anything is saved, mirroring the table's defaults. */
+/**
+ * What the store shows before anything is saved: the links the storefront
+ * carried before they became settings, so none disappear until an admin saves.
+ */
 export const defaultStoreSettings: StoreSettings = {
   whatsappNumber: null,
   instagramUrl: null,
-  facebookUrl: null,
-  tiktokUrl: null,
-  discordUrl: null,
+  facebookUrl: "https://www.facebook.com/profile.php?id=61575728973616",
+  tiktokUrl: "https://www.tiktok.com/@gearverse.eg",
+  discordUrl: "https://discord.gg/CRDZxAD35N",
   xUrl: null,
   youtubeUrl: null,
   lowStockThreshold: 2,

@@ -1,15 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { SOCIAL_LINKS } from "~/components/navbar/social-links";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-
-const DISCORD_URL = SOCIAL_LINKS[0].url;
+import { getStoreSettings } from "~/lib/store-settings";
 
 const POLICY_LINK = (
   <Link
@@ -20,7 +18,8 @@ const POLICY_LINK = (
   </Link>
 );
 
-export function FAQ() {
+export async function FAQ() {
+  const { discordUrl } = await getStoreSettings();
   const faq: { question: string; answer: ReactNode }[] = [
     {
       question: "What is Gear Verse?",
@@ -89,18 +88,20 @@ export function FAQ() {
           >
             Questions, answered
           </h2>
-          <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
-            Anything else? Ask us on{" "}
-            <a
-              href={DISCORD_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline decoration-from-font underline-offset-4"
-            >
-              Discord
-            </a>
-            .
-          </p>
+          {discordUrl && (
+            <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
+              Anything else? Ask us on{" "}
+              <a
+                href={discordUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground underline decoration-from-font underline-offset-4"
+              >
+                Discord
+              </a>
+              .
+            </p>
+          )}
         </div>
 
         <Accordion type="single" collapsible defaultValue="item-1">
