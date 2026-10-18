@@ -13,7 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "./spinner";
 import { authClient } from "~/lib/auth-client";
 import { Button } from "./ui/button";
-import { IconBrandGoogle } from "@tabler/icons-react";
+import { GoogleLogo } from "./google-logo";
 import { Logo } from "./logo";
 import { invalidateCache } from "~/server/actions/cache";
 
@@ -53,12 +53,19 @@ export function LoginDrawerDialog({
         </DrawerDialogHeader>
 
         <DrawerDialogBody className="flex flex-col items-center gap-3">
+          {/* Google's sign-in branding: neutral fill, grey hairline and the full-colour G, never the brand colour */}
           <Button
+            variant="ghost"
+            size="lg"
             onClick={() => signInWithGoogle()}
             disabled={isSigningIn}
-            className="w-full"
+            className="w-full border-[#747775] bg-white text-[#1F1F1F] hover:bg-[#EEEEEE] dark:border-[#8E918F] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#242425]"
           >
-            {isSigningIn ? <Spinner /> : <IconBrandGoogle />}
+            {isSigningIn ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <GoogleLogo data-icon="inline-start" className="size-[18px]" />
+            )}
             Continue with Google
           </Button>
           <p className="text-muted-foreground text-center text-sm">
