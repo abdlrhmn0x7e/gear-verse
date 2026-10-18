@@ -59,9 +59,9 @@ export const _orders = {
           .select({
             orderId: orders.id,
             totalValue:
-              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.as(
-                "totalValue",
-              ),
+              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`
+                .mapWith(Number)
+                .as("totalValue"),
           })
           .from(orders)
           .leftJoin(orderItems, eq(orders.id, orderItems.orderId))

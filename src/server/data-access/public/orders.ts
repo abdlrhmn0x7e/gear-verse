@@ -41,7 +41,10 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`,
+          totalPrice:
+            sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.mapWith(
+              Number,
+            ),
           createdAt: orders.createdAt,
         })
         .from(orders)
