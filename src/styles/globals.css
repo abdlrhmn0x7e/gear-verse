@@ -29,7 +29,7 @@
      the ramp with its aubergine tint. The in-between steps (75, 250, 350, 750, 850) exist for the dark theme */
   --neutral-50: oklch(0.99 0.0012 286);
   --neutral-75: oklch(0.97 0.0024 286);
-  --neutral-100: oklch(0.965 0.002 286);
+  --neutral-100: oklch(0.955 0.002 286);
   --neutral-200: oklch(0.925 0.0028 286);
   --neutral-250: oklch(0.88 0.004 286);
   --neutral-300: oklch(0.87 0.0036 286);
@@ -45,7 +45,9 @@
   --neutral-900: oklch(0.205 0.0056 286);
   --neutral-950: oklch(0.145 0.0032 286);
 
-  --background: var(--neutral-50);
+  /* pure white so cards (#f0f0f1) stand off it at 1.14:1; at #fcfcfc against #f3f3f5 (1.08:1) people could not tell
+     where sections ended */
+  --background: oklch(1 0 0);
   --foreground: var(--neutral-950);
   --card: var(--neutral-100);
   --card-foreground: var(--foreground);
@@ -103,6 +105,12 @@
   /* a light well in both themes: multiply makes white-backed photos vanish on a dark tile */
   --image-well: var(--neutral-100);
   --image-outline: oklch(0 0 0 / 0.1);
+
+  /* a full-width contrast tile (testimonials, closing call to action, footer), Apple's light/dark tile rhythm: deep plum on
+     the light page. Its content renders with the dark tokens (.dark.contrast-tile below): text 15.72:1, muted text 7.41:1,
+     muted on its cards 6.43:1 */
+  --contrast-tile: oklch(0.23 0.045 325);
+  --contrast-tile-card: oklch(0.28 0.05 325);
 
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -243,8 +251,26 @@
   --shadow-2xl: 0px 24px 64px -12px oklch(0 0 0 / 0.8);
 }
 
+/* On the dark page a darker tile barely shows (1.08:1), so the tile turns deep plum instead and the hue carries the
+   contrast: text 14.13:1, muted text 6.67:1, muted on its cards 5.43:1. Set on :root rather than .dark, which the tile
+   itself also carries. */
+:root.dark {
+  --contrast-tile: oklch(0.27 0.06 325);
+  --contrast-tile-card: oklch(0.33 0.065 325);
+}
+
+.dark.contrast-tile {
+  --card: var(--contrast-tile-card);
+  background-color: var(--contrast-tile);
+  color: var(--foreground);
+}
+
 /* Panels are the card gray, so a field or nested box inside one steps up to --raised (white in light, a lighter step
-   in dark) rather than sitting flat on its own colour. Floating menus are portalled out and keep the popover fill. */
+   in dark) rather than sitting flat on its own colour. Keyed to the card colour as well as the components, so a plain
+   div painted bg-card (the checkout's inline address form) gets it too. Floating menus are portalled out and keep the
+   popover fill. */
+.bg-card,
+.bg-popover,
 [data-slot="card"],
 [data-slot="dialog-content"],
 [data-slot="drawer-content"] {
@@ -278,6 +304,7 @@
   --color-tile: var(--tile);
   --color-tile-hover: var(--tile-hover);
   --color-raised: var(--raised);
+  --color-contrast-tile: var(--contrast-tile);
   --color-logo-tile: var(--logo-tile);
   --color-logo-tile-foreground: var(--logo-tile-foreground);
   --color-focus: var(--focus);

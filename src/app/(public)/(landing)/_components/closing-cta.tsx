@@ -7,7 +7,7 @@ export function ClosingCTA() {
   return (
     <section className="pt-8 pb-8 md:pb-16" aria-labelledby="cta-heading">
       <MaxWidthWrapper>
-        <div className="bg-card flex flex-col items-center gap-8 rounded-[2rem] px-6 py-16 text-center md:py-24">
+        <div className="dark contrast-tile flex flex-col items-center gap-8 rounded-[2rem] px-6 py-16 text-center md:py-24">
           <div className="max-w-2xl space-y-4">
             <h2
               id="cta-heading"

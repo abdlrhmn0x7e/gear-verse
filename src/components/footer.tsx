@@ -29,7 +29,7 @@ export async function Footer() {
       {/* with a Contact column, tablets give the brand its own row so the three link columns have room for the number */}
       <div
         className={cn(
-          "bg-card grid gap-12 rounded-3xl p-8 md:p-12",
+          "dark contrast-tile grid gap-12 rounded-3xl p-8 md:p-12",
           whatsappNumber
             ? "md:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
             : "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]",

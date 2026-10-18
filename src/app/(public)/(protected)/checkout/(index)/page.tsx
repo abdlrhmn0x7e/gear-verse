@@ -33,7 +33,8 @@ export default async function CheckoutPage() {
           </CompleteCheckout>
         </HydrateClient>
 
-        <div className="hidden xl:block">
+        {/* sticks under the navbar; taller than a laptop screen, so it scrolls on its own rather than cutting off the total */}
+        <div className="hidden [scrollbar-width:none] xl:sticky xl:top-24 xl:block xl:max-h-[calc(100dvh-7rem)] xl:self-start xl:overflow-y-auto xl:rounded-3xl">
           <OrderSummary cart={cart} cols={cols} />
         </div>
       </MaxWidthWrapper>
