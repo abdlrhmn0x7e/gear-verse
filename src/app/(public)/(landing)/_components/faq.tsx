@@ -42,7 +42,7 @@ export async function FAQ() {
         "A gear store in Egypt with a short list: keyboards, mice and IEMs we think are worth the money, in stock and delivered in 1–2 days. If you want something we don't carry, request it and we'll get it for you.",
     },
     {
-      question: "Can you get something you don't sell?",
+      question: "Can you get me something you don't sell?",
       answer: (
         <>
           Yes.{" "}
