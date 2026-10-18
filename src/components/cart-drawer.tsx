@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBagIcon } from "lucide-react";
+import { ArrowRightIcon, LockIcon, ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
 import { useTRPC } from "~/trpc/client";
 import { Button } from "./ui/button";
@@ -191,7 +191,10 @@ export function CartDrawer({
             </div>
             <DrawerClose asChild>
               <Button variant="outline" asChild>
-                <Link href="/products">Browse the store</Link>
+                <Link href="/products">
+                  Browse the store
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
               </Button>
             </DrawerClose>
           </div>
@@ -208,7 +211,10 @@ export function CartDrawer({
 
             <DrawerClose asChild>
               <Button size="xl" className="w-full" asChild>
-                <Link href="/checkout">Check out</Link>
+                <Link href="/checkout">
+                  <LockIcon data-icon="inline-start" />
+                  Check out
+                </Link>
               </Button>
             </DrawerClose>
 

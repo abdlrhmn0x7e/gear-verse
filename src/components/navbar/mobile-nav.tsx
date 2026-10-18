@@ -2,7 +2,7 @@
 
 import { IconFolder } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { LogOutIcon, MenuIcon } from "lucide-react";
+import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useDialog } from "~/hooks/use-dialog";
 import { authClient } from "~/lib/auth-client";
@@ -161,6 +161,7 @@ function MobileAccount({ onSignIn }: { onSignIn: () => void }) {
   if (!data || data.user.isAnonymous) {
     return (
       <Button variant="outline" size="xl" className="w-full" onClick={onSignIn}>
+        <LogInIcon data-icon="inline-start" />
         Sign in
       </Button>
     );
@@ -185,7 +186,11 @@ function MobileAccount({ onSignIn }: { onSignIn: () => void }) {
         disabled={isSigningOut}
         onClick={() => signOut()}
       >
-        {isSigningOut ? <Spinner /> : <LogOutIcon />}
+        {isSigningOut ? (
+          <Spinner data-icon="inline-start" />
+        ) : (
+          <LogOutIcon data-icon="inline-start" />
+        )}
         Sign out
       </Button>
     </div>

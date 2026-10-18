@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { LockIcon, ZapIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -47,7 +48,10 @@ export function BuyNowButton({
   if (findCartLine(cart, productId, selectedVariant?.id)) {
     return (
       <Button size={size} className={cn("w-full", className)} asChild>
-        <Link href="/checkout">Check out</Link>
+        <Link href="/checkout">
+          <LockIcon data-icon="inline-start" />
+          Check out
+        </Link>
       </Button>
     );
   }
@@ -64,7 +68,11 @@ export function BuyNowButton({
       }
       disabled={addingItem || disabled}
     >
-      {addingItem && <Spinner />}
+      {addingItem ? (
+        <Spinner data-icon="inline-start" />
+      ) : (
+        !disabled && <ZapIcon data-icon="inline-start" />
+      )}
       {disabled ? disabledLabel : "Buy now"}
     </Button>
   );

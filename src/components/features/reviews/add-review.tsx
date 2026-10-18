@@ -70,7 +70,11 @@ export function AddReview({ productId }: { productId: number }) {
 
         <DrawerDialogFooter>
           <Button type="submit" form="review-form" disabled={isCreatingReview}>
-            {isCreatingReview ? <Spinner /> : <SendIcon />}
+            {isCreatingReview ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <SendIcon data-icon="inline-start" />
+            )}
             Post review
           </Button>
         </DrawerDialogFooter>

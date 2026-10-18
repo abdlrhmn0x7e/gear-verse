@@ -84,7 +84,11 @@ export function EditReview({
             form={`review-form-${review.id}`}
             disabled={updatingReview}
           >
-            {updatingReview ? <Spinner /> : <SaveIcon />}
+            {updatingReview ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
             Save
           </Button>
         </DrawerDialogFooter>

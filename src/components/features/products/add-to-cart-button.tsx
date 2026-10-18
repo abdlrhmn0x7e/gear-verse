@@ -1,6 +1,8 @@
 "use client";
 
+import { IconShoppingBagPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRightIcon } from "lucide-react";
 import { toast } from "sonner";
 import { QuantityStepper } from "~/components/quantity-stepper";
 import { Button } from "~/components/ui/button";
@@ -67,6 +69,7 @@ export function AddToCartButton({
             <DrawerTrigger asChild>
               <Button variant="outline" size="xl" className="flex-1">
                 View cart
+                <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </DrawerTrigger>
           }
@@ -83,6 +86,7 @@ export function AddToCartButton({
       onClick={() => addToCart(item)}
       disabled={addingToCart || disabled}
     >
+      <IconShoppingBagPlus data-icon="inline-start" />
       Add to cart
     </Button>
   );

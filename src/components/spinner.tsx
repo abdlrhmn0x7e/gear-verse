@@ -14,8 +14,12 @@ const spinnerVariants = cva("animate-spin", {
 
 export function Spinner({
   size = "medium",
-}: {
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Loader>, "size"> & {
   size?: "small" | "medium" | "large" | "page";
 }) {
-  return <Loader className={spinnerVariants({ size })} />;
+  return (
+    <Loader className={spinnerVariants({ size, className })} {...props} />
+  );
 }

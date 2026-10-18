@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   CheckIcon,
+  LogInIcon,
   LogOutIcon,
   MonitorIcon,
   MoonIcon,
@@ -149,6 +150,7 @@ export function ProfileDropdown({ className }: { className?: string }) {
 function SignInButtonShape(props: React.ComponentProps<typeof Button>) {
   return (
     <Button variant="outline" {...props}>
+      <LogInIcon data-icon="inline-start" />
       Sign in
     </Button>
   );

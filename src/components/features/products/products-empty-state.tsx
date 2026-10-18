@@ -1,6 +1,6 @@
 "use client";
 
-import { PackageSearchIcon } from "lucide-react";
+import { ArrowRightIcon, PackageSearchIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
@@ -32,7 +32,10 @@ export function ProductsEmptyState({
       <div className="flex flex-col gap-3 sm:flex-row">
         {hasFilters && <Button onClick={onClearFilters}>Clear filters</Button>}
         <Button variant={hasFilters ? "outline" : "default"} asChild>
-          <Link href="/products">Browse all products</Link>
+          <Link href="/products">
+            Browse all products
+            <ArrowRightIcon data-icon="inline-end" />
+          </Link>
         </Button>
       </div>
     </div>

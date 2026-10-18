@@ -2,7 +2,7 @@
 
 import { Button } from "~/components/ui/button";
 import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
-import { ArrowBigUpDashIcon, SparklesIcon } from "lucide-react";
+import { LockIcon, SparklesIcon } from "lucide-react";
 import { Heading } from "~/components/heading";
 import { useTRPC } from "~/trpc/client";
 import { useRouter } from "next/navigation";
@@ -72,7 +72,11 @@ export function CompleteCheckout({
           form="checkout-form"
           disabled={!hasCartItems || checkoutPending}
         >
-          {checkoutPending ? <Spinner /> : <ArrowBigUpDashIcon />}
+          {checkoutPending ? (
+            <Spinner data-icon="inline-start" />
+          ) : (
+            <LockIcon data-icon="inline-start" />
+          )}
           Checkout
         </Button>
       </div>
