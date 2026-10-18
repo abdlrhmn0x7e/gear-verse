@@ -76,6 +76,8 @@ export function LocationField({
   const [isLookingUp, setIsLookingUp] = useState(false);
   const lookupTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lookupId = useRef(0);
+  // bumped by every locate request and every pin the customer places, so a late GPS reading never moves their pin
+  const locateRun = useRef(0);
 
   // when location is already allowed, open the map where the customer is,
   // without dropping a pin they didn't ask for
@@ -162,20 +164,41 @@ export function LocationField({
     }
 
     setLocate({ status: "locating" });
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coordinates = toCoordinates(position);
-        setFocus((current) => ({
-          coordinates,
-          zoom: STREET_ZOOM,
-          key: (current?.key ?? 0) + 1,
-        }));
-        handlePinChange(coordinates);
-      },
-      (error) => {
+    // A quick network fix (Wi-Fi or cell, about a second) drops the pin, then GPS refines it. Asking only for high
+    // accuracy left people waiting the whole timeout, and fails outright where no GPS exists; the error shows only
+    // when both readings fail.
+    const run = ++locateRun.current;
+    let placed = false;
+    let precise = false;
+    let failures = 0;
+    function place(position: GeolocationPosition, isPrecise: boolean) {
+      if (run !== locateRun.current || precise) return;
+      placed = true;
+      precise = isPrecise;
+      const coordinates = toCoordinates(position);
+      setFocus((current) => ({
+        coordinates,
+        zoom: STREET_ZOOM,
+        key: (current?.key ?? 0) + 1,
+      }));
+      handlePinChange(coordinates);
+    }
+    function fail(error: GeolocationPositionError) {
+      failures++;
+      if (run !== locateRun.current || placed) return;
+      if (error.code === error.PERMISSION_DENIED || failures === 2) {
         setLocate({ status: "error", reason: locateError(error) });
-      },
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
+      }
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => place(position, false),
+      fail,
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 10 * 60_000 },
+    );
+    navigator.geolocation.getCurrentPosition(
+      (position) => place(position, true),
+      fail,
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
     );
   }
 
@@ -222,7 +245,14 @@ export function LocationField({
         data-vaul-no-drag
         className="bg-input-background border-input relative h-52 overflow-hidden rounded-2xl border sm:h-60"
       >
-        <LocationMap pin={value} focus={focus} onPinChange={handlePinChange} />
+        <LocationMap
+          pin={value}
+          focus={focus}
+          onPinChange={(coordinates) => {
+            locateRun.current++;
+            handlePinChange(coordinates);
+          }}
+        />
         {!value && (
           <p className="bg-popover/90 text-foreground surface-floating pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap shadow-sm">
             Tap the map to drop a pin
