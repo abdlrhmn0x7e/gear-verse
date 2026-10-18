@@ -19,7 +19,7 @@ const HELP_LINKS = [
 
 // phones get a 44px row per link; the columns keep their spacing on desktop
 const linkClassName =
-  "text-muted-foreground hover:text-foreground active:text-foreground pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "text-muted-foreground hover:text-foreground active:text-foreground pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:min-w-11 pointer-coarse:items-center rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export async function Footer() {
   const settings = await getStoreSettings();
