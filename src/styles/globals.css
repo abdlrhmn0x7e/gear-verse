@@ -634,3 +634,10 @@ input:-webkit-autofill:active {
   /* Revert background color */
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* `outline-none` sets --tw-outline-style to none and `focus-visible:outline-2` draws with that same variable, so
+   without this no focus outline ever showed. Unlayered so it outranks the utilities; an element that wants no
+   outline on focus still sets outline-style itself (`focus-visible:outline-none`). */
+:focus-visible {
+  --tw-outline-style: solid;
+}
