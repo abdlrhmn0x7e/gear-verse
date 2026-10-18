@@ -150,8 +150,6 @@ export const _products = {
             logoUrl: brandsMedia.url,
           },
 
-          profit: products.profit,
-          margin: products.margin,
           variants: sql<
             FullVariant[]
           >`coalesce(${fullVariantsCTE.json}, '[]'::jsonb)`,
