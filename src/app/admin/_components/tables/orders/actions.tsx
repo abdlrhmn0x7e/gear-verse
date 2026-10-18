@@ -17,18 +17,23 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { DeleteOrderDialog } from "../../dialogs/delete-order";
 import { useTRPC } from "~/trpc/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useRefreshOrderViews } from "../../../_hooks/use-refresh-order-views";
 import type { OrderStatus as OrderStatusType } from "~/lib/schemas/entities";
 import { OrderStatus } from "./order-status";
 
 export function OrdersTableActions({ id }: { id: number }) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const { mutate: updateOrder, isPending: isUpdatingOrder } = useMutation(
     trpc.admin.orders.mutations.update.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
+        void refreshOrderViews();
+      },
+      onError: (error) => {
+        toast.error(
+          error.message || `Couldn't change order #${id}'s status. Try again.`,
         );
       },
     }),

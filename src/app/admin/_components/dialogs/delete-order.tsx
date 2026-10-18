@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Trash2Icon, XIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -14,7 +14,9 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
 import { useTRPC } from "~/trpc/client";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
 export function DeleteOrderDialog({
   id,
@@ -32,7 +34,7 @@ export function DeleteOrderDialog({
   onDeleteSuccess?: () => void;
 }) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const { mutate: deleteOrder, isPending } = useMutation(
     trpc.admin.orders.mutations.delete.mutationOptions(),
   );
@@ -43,8 +45,11 @@ export function DeleteOrderDialog({
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void queryClient.invalidateQueries(
-            trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
+          void refreshOrderViews();
+        },
+        onError: (error) => {
+          toast.error(
+            error.message || `Couldn't delete order #${id}. Try again.`,
           );
         },
       },

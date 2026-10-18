@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
@@ -19,21 +19,17 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
 import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
 export function CreateOrderDrawer() {
   const trpc = useTRPC();
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const [params, setParams] = useOrderSearchParams();
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
     trpc.admin.orders.mutations.create.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
-        );
-        void queryClient.invalidateQueries(
-          trpc.admin.inventoryItems.queries.getPage.infiniteQueryFilter(),
-        );
+        void refreshOrderViews();
         toast.success("Order created successfully");
         void setParams({ create: null });
       },
