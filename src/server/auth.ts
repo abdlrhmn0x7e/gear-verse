@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { data } from "./data-access";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { invalidateCache } from "./actions/cache";
 
 export const auth = betterAuth({
@@ -95,12 +96,17 @@ export const auth = betterAuth({
   ],
 });
 
+// better-auth checks its cookie cache against Date.now(). With partialPrefetching, headers() also resolves while a
+// prefetch is prerendered, so the session read waits for the real request instead of reading the clock there.
+export async function getSession() {
+  await connection();
+  return auth.api.getSession({ headers: await headers() });
+}
+
 export async function requireAuth() {
   "use server";
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session) {
     return notFound();
@@ -110,9 +116,7 @@ export async function requireAuth() {
 export async function requireAdmin() {
   "use server";
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (session?.user.role !== "admin") {
     return notFound();

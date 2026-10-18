@@ -4,17 +4,20 @@ import { ZodError } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { auth } from "../auth";
+import { getSession } from "../auth";
 import { app } from "../application";
 import { ratelimit } from "../ratelimit";
 import { cache } from "react";
 import { headers } from "next/headers";
+import { connection } from "next/server";
 
 /**
  * Get client IP address from request headers.
  * Checks common headers set by proxies/load balancers.
  */
 async function getClientIp(): Promise<string> {
+  // the limiter reads Date.now(), so wait for the request rather than a prefetch prerender (see getSession)
+  await connection();
   const headersList = await headers();
   return (
     headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -62,7 +65,7 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  const data = await auth.api.getSession({ headers: await headers() });
+  const data = await getSession();
   const user = data?.user
     ? {
         id: parseInt(data.user.id),
@@ -86,7 +89,7 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
 });
 
 const adminMiddleware = t.middleware(async ({ next, ctx }) => {
-  const data = await auth.api.getSession({ headers: await headers() });
+  const data = await getSession();
   const user = data?.user
     ? {
         id: parseInt(data.user.id),

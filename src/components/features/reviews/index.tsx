@@ -1,10 +1,9 @@
 import { CheckCircleIcon } from "lucide-react";
-import { headers } from "next/headers";
 import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { app } from "~/server/application";
-import { auth } from "~/server/auth";
+import { getSession } from "~/server/auth";
 import { TESTIMONIALS } from "../testimonials/testimonials";
 import { AddReview } from "./add-review";
 import { DeleteReviewDialog } from "./delete-review";
@@ -28,9 +27,7 @@ const cardClassName =
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await app.public.reviews.queries.findAll(productId);
-  const data = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const data = await getSession();
   const userHasReviewed = reviews.some(
     (review) => review.user?.id === Number(data?.user.id),
   );

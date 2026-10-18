@@ -1,13 +1,10 @@
-import { headers } from "next/headers";
-import { auth } from "~/server/auth";
+import { getSession } from "~/server/auth";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { ShieldUserIcon } from "lucide-react";
 
 export async function AdminNav() {
-  const data = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const data = await getSession();
 
   if (!data) {
     return null;

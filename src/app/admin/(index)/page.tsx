@@ -1,7 +1,6 @@
-import { headers } from "next/headers";
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
-import { auth, requireAdmin } from "~/server/auth";
+import { getSession, requireAdmin } from "~/server/auth";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { PageLayout } from "../_components/page-layout";
 import { DashboardActions, DashboardPanels } from "./_components/dashboard";
@@ -19,7 +18,7 @@ export default async function AdminPage({
 }) {
   await requireAdmin();
   const [session, { range }] = await Promise.all([
-    auth.api.getSession({ headers: await headers() }),
+    getSession(),
     loadDashboardSearchParams(searchParams),
   ]);
 
