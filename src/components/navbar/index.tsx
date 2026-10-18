@@ -1,11 +1,7 @@
-import {
-  IconCategoryFilled,
-  IconShoppingBagPlus,
-  IconShoppingCart,
-} from "@tabler/icons-react";
-import { ArrowRightCircleIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
 import { NavigationMenu } from "radix-ui";
+import { cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { Logo } from "~/components/logo";
 import {
@@ -14,129 +10,129 @@ import {
   ProductSearchPlaceholder,
 } from "~/components/product-search-dialog";
 import { SearchDrawer } from "~/components/search-drawer";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { ThemeToggle } from "~/components/theme-toggle";
+import { Kbd } from "~/components/ui/kbd";
+import { getStoreSettings } from "~/lib/store-settings";
+import { app } from "~/server/application";
 import { CartDrawer } from "../cart-drawer";
-import Header from "../header";
 import { ProfileDropdown } from "../profile-dropdown";
-import { Button } from "../ui/button";
-import { DrawerTrigger } from "../ui/drawer";
+import { pickSocialLinks } from "../social-links";
 import { AdminNav } from "./admin-nav";
 import { CategoriesMenu } from "./categories-menu";
 import { MobileNav } from "./mobile-nav";
-import { NavContent, NavLink, NavTrigger, NavViewport } from "./nav";
-import { NavContainer } from "./nav-container";
-import { ProductsMenuContent, ProductsMenuSkeleton } from "./products-menu";
-import { NavSocialLinks } from "./social-links";
+import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
 
 export function Navbar() {
   return (
-    <NavigationMenu.Root delayDuration={100}>
-      <header className="bg-background/90 fixed inset-x-0 top-0 z-50 h-auto w-full border-b backdrop-blur">
-        <NavContainer id="navigation-menu-portal">
-          <nav className="flex items-center justify-between">
-            <div className="flex flex-1 items-start gap-4">
-              <Link href="/">
-                <Logo />
-              </Link>
+    <NavigationMenu.Root delayDuration={100} className="contents">
+      {/* the blur and tint live on a layer that runs 4rem past the bar and eases out (a smoothstep) from just under the links to its
+          end, so the bar has no bottom edge and no band where it meets a dark panel; the links' row stays fully tinted, keeping
+          muted links at 5.02:1 over the plum panel. An open menu turns the same layer into the opaque popover surface, and the
+          fade starts in the menu's bottom padding */}
+      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="focus-visible:outline-focus shrink-0 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            <Logo className="h-10 translate-y-0.5" />
+          </Link>
 
-              <Suspense>
-                <SearchDrawer />
-              </Suspense>
+          <NavigationMenu.List className="hidden items-center md:flex">
+            <NavigationMenu.Item>
+              <NavTextLink href="/products">Store</NavTextLink>
+            </NavigationMenu.Item>
 
-              <NavigationMenu.List className="hidden w-full items-center gap-2 lg:flex">
-                <NavigationMenu.Item value="explore">
-                  <NavTrigger href="/products">
-                    <IconShoppingBagPlus />
-                    <span>Explore Our Store</span>
-                  </NavTrigger>
+            <NavigationMenu.Item value="categories">
+              <NavTextTrigger>
+                Categories
+                <ChevronDownIcon
+                  className="size-3.5 transition-[rotate] duration-200 ease-out group-data-[state=open]:rotate-180"
+                  aria-hidden
+                />
+              </NavTextTrigger>
+              <NavContent>
+                <CategoriesMenu />
+              </NavContent>
+            </NavigationMenu.Item>
 
-                  <NavContent className="grid grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                    <div className="col-span-2 space-y-3">
-                      <Header
-                        title="Recent Products"
-                        description="View our recent products"
-                        Icon={IconShoppingBagPlus}
-                        headingLevel={4}
-                      />
+            <NavigationMenu.Item>
+              <NavTextLink href="/#faq">FAQ</NavTextLink>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
 
-                      <Suspense fallback={<ProductsMenuSkeleton />}>
-                        <ProductsMenuContent />
-                      </Suspense>
-
-                      <Button variant="link" size="lg" asChild>
-                        <NavLink href="/products">
-                          <ArrowRightCircleIcon />
-                          View All Products
-                        </NavLink>
-                      </Button>
-                    </div>
-
-                    <NavSocialLinks />
-                  </NavContent>
-                </NavigationMenu.Item>
-
-                <NavigationMenu.Item value="categories">
-                  <NavigationMenu.Trigger autoFocus={false} asChild>
-                    <Button
-                      variant="ghost"
-                      className="data-[state=open]:border-border"
-                      size="lg"
-                    >
-                      <IconCategoryFilled />
-                      <span>Categories</span>
-                    </Button>
-                  </NavigationMenu.Trigger>
-
-                  <NavContent>
-                    <CategoriesMenu />
-                  </NavContent>
-                </NavigationMenu.Item>
-              </NavigationMenu.List>
-            </div>
-
-            <div className="flex items-center justify-end gap-2">
+          {/* icon buttons are 40px boxes around a 16px glyph, so they sit flush and the outlined shapes (search pill, sign-in pill or
+              avatar) take a 12px margin: every visible gap comes out at 24px. Cart stays last, beside where its drawer slides in;
+              the -me-3 puts the last glyph on the content edge, as the logo is on the other side. */}
+          <div className="ms-auto -me-3 flex items-center">
+            <div className="me-3 hidden lg:block">
               <ProductSearchDialog withOverlay={false}>
-                <div className="relative z-10 hidden w-full min-w-64 items-center gap-2 py-2 pr-16 pl-3 lg:flex">
-                  <ProductSearchIcon className="size-4" />
-                  <ProductSearchPlaceholder>
-                    Search Products
+                <span className="relative z-10 flex h-9 w-60 items-center gap-2 ps-4 pe-14">
+                  <ProductSearchIcon className="text-muted-foreground size-4" />
+                  <ProductSearchPlaceholder className="text-sm">
+                    Search products
                   </ProductSearchPlaceholder>
-                </div>
-
-                <KbdGroup className="absolute top-1/2 right-3 z-10 hidden -translate-y-1/2 lg:block">
-                  <Kbd>ctrl + K</Kbd>
-                </KbdGroup>
+                </span>
+                {/* the button names its shortcut with aria-keyshortcuts, so its name stays "Search products" */}
+                <Kbd
+                  aria-hidden
+                  className="absolute end-2 top-1/2 z-10 -translate-y-1/2"
+                >
+                  Ctrl K
+                </Kbd>
               </ProductSearchDialog>
-
-              <div className="flex items-center gap-1">
-                <Suspense fallback={null}>
-                  <AdminNav />
-                </Suspense>
-
-                <Suspense>
-                  <CartDrawer
-                    Trigger={
-                      <DrawerTrigger asChild>
-                        <Button variant="outline" size="icon-lg">
-                          <IconShoppingCart />
-                        </Button>
-                      </DrawerTrigger>
-                    }
-                  />
-                </Suspense>
-
-                <ProfileDropdown className="ml-1 border" />
-              </div>
             </div>
-          </nav>
 
-          <NavViewport />
-        </NavContainer>
+            <Suspense>
+              <SearchDrawer />
+            </Suspense>
+
+            <Suspense fallback={null}>
+              <AdminNav />
+            </Suspense>
+
+            {/* phones switch themes from the menu drawer, keeping the bar to search, cart and menu */}
+            <ThemeToggle className="hidden md:inline-flex" />
+
+            <ProfileDropdown className="mx-3 hidden md:inline-flex" />
+
+            <Suspense>
+              <CartDrawer />
+            </Suspense>
+
+            <Suspense>
+              <StoreMobileNav />
+            </Suspense>
+          </div>
+        </div>
+
+        <NavViewport />
       </header>
-
-      <Suspense>
-        <MobileNav />
-      </Suspense>
     </NavigationMenu.Root>
   );
+}
+
+/** The menu drawer is a client component, so the store's contact details and categories come down as props. */
+async function StoreMobileNav() {
+  const [settings, categories] = await Promise.all([
+    getStoreSettings(),
+    getMenuCategories(),
+  ]);
+
+  return (
+    <MobileNav
+      whatsappNumber={settings.whatsappNumber}
+      socialLinks={pickSocialLinks(settings)}
+      categories={categories}
+    />
+  );
+}
+
+async function getMenuCategories() {
+  "use cache";
+
+  cacheTag("categories-menu");
+
+  const categories = await app.public.categories.queries.findRoots();
+  return categories.map(({ name, slug, icon }) => ({ name, slug, icon }));
 }

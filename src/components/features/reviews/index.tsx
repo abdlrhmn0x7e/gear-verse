@@ -1,20 +1,30 @@
-import { AddReview } from "./add-review";
-import { CheckCircleIcon, MessageCircleOffIcon, UserIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
-import { StarRating } from "./star-rating";
-import { auth } from "~/server/auth";
+import { CheckCircleIcon } from "lucide-react";
 import { headers } from "next/headers";
-import { EditReview } from "./edit-reviews";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import {
-  Frame,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "~/components/ui/frame";
+import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { app } from "~/server/application";
+import { auth } from "~/server/auth";
+import { TESTIMONIALS } from "../testimonials/testimonials";
+import { AddReview } from "./add-review";
 import { DeleteReviewDialog } from "./delete-review";
+import { EditReview } from "./edit-reviews";
+import { StarRating } from "./star-rating";
+
+const dateFormat = new Intl.DateTimeFormat("en", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+/** Product without reviews: a few things customers said about the store, so the section still reassures. */
+const FALLBACK_TESTIMONIALS = TESTIMONIALS.slice(0, 3);
+
+// a snap row on phones so the next card peeks (like the home hero), three columns from tablets up
+const cardRowClassName =
+  "no-scrollbar -mx-6 -my-2 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 py-2 [contain:paint] md:m-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:p-0 md:[contain:none]";
+const cardClassName =
+  "bg-card flex min-h-72 w-[80vw] shrink-0 snap-start flex-col gap-6 rounded-3xl p-6 md:w-auto md:p-8";
 
 export async function Reviews({ productId }: { productId: number }) {
   const reviews = await app.public.reviews.queries.findAll(productId);
@@ -24,93 +34,114 @@ export async function Reviews({ productId }: { productId: number }) {
   const userHasReviewed = reviews.some(
     (review) => review.user?.id === Number(data?.user.id),
   );
+  const average =
+    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
   return (
-    <div className="space-y-4">
-      {!data && (
-        <Alert>
-          <UserIcon />
-          <AlertTitle>You can&apos;t review this product</AlertTitle>
-          <AlertDescription>
-            You must be logged in to review this product
-          </AlertDescription>
-        </Alert>
+    <section
+      aria-labelledby="reviews-heading"
+      className="flex flex-col gap-10 md:gap-12"
+    >
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h2 id="reviews-heading" className="text-headline-sm text-balance">
+          What customers are saying
+        </h2>
+        {reviews.length > 0 ? (
+          <div className="flex items-center gap-3">
+            <span className="text-title tabular-nums">
+              {average.toFixed(1)}
+            </span>
+            <StarRating rating={Math.round(average)} />
+            <span className="text-muted-foreground text-sm">
+              {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+            </span>
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-pretty">
+            No reviews for this product yet. Here&apos;s what customers say
+            about shopping with us.
+          </p>
+        )}
+      </div>
+
+      {reviews.length > 0 ? (
+        <ul className={cardRowClassName}>
+          {reviews.map((review) => (
+            <li key={review.id} className={cardClassName}>
+              <div className="flex items-center justify-between gap-2">
+                <StarRating rating={review.rating} size="sm" />
+                {review.user?.id === Number(data?.user.id) && (
+                  <div className="-my-2 -mr-2 flex items-center">
+                    <EditReview review={review} productId={productId} />
+                    <DeleteReviewDialog id={review.id} />
+                  </div>
+                )}
+              </div>
+
+              <blockquote
+                dir="auto"
+                className="text-muted-foreground text-body-lg leading-relaxed text-pretty"
+              >
+                {review.comment}
+              </blockquote>
+
+              <div className="mt-auto flex flex-col gap-1.5">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+                  {review.user?.name}
+                  {review.user?.verifiedPurchaser && (
+                    <Badge variant="success">
+                      <CheckCircleIcon />
+                      Verified purchase
+                    </Badge>
+                  )}
+                </p>
+                <time
+                  dateTime={new Date(review.createdAt).toISOString()}
+                  className="text-muted-foreground text-sm"
+                >
+                  {dateFormat.format(review.createdAt)}
+                </time>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul className={cardRowClassName}>
+          {FALLBACK_TESTIMONIALS.map((testimonial) => (
+            <li key={testimonial.name} className={cardClassName}>
+              <StarRating rating={testimonial.rating} size="sm" />
+              <blockquote
+                lang="ar"
+                dir="rtl"
+                className="text-muted-foreground text-body-lg leading-relaxed text-pretty"
+              >
+                {testimonial.content}
+              </blockquote>
+              <p className="mt-auto font-medium">{testimonial.name}</p>
+            </li>
+          ))}
+        </ul>
       )}
 
-      <Frame>
-        <FrameHeader>
-          <FrameTitle className="text-2xl font-semibold">
-            User Reviews ({reviews.length})
-          </FrameTitle>
+      {data && !userHasReviewed && (
+        <div className="self-center">
+          <AddReview productId={productId} />
+        </div>
+      )}
 
-          {!userHasReviewed && (
-            <AddReview
-              productId={productId}
-              disabled={userHasReviewed || !data}
-            />
-          )}
-        </FrameHeader>
-
-        <FramePanel>
-          <div className="flex flex-col gap-6 divide-y [&>*:not(:last-child)]:pb-6">
-            {reviews.length > 0 ? (
-              reviews.map((review, index) => (
-                <div
-                  key={`${review.user?.name}-${review.rating}-${index}`}
-                  className="flex items-start gap-3"
-                >
-                  <Avatar className="mt-1">
-                    <AvatarImage
-                      src={review.user?.image ?? undefined}
-                      alt={review.user?.name}
-                    />
-                    <AvatarFallback>
-                      {review.user?.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="w-full space-y-1">
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <div>
-                        <p className="space-x-1 font-medium">
-                          <span>{review.user?.name} </span>
-                          {review.user?.verifiedPurchaser && (
-                            <Badge variant="success">
-                              <CheckCircleIcon />
-                              Verified Purchaser
-                            </Badge>
-                          )}
-                        </p>
-
-                        <div className="flex items-center gap-1">
-                          <StarRating rating={review.rating} />{" "}
-                          <span className="text-muted-foreground text-sm">
-                            ({review.rating} stars)
-                          </span>
-                        </div>
-                      </div>
-
-                      {review.user?.id === Number(data?.user.id) && (
-                        <div className="flex items-center gap-1">
-                          <EditReview review={review} productId={productId} />
-                          <DeleteReviewDialog id={review.id} />
-                        </div>
-                      )}
-                    </div>
-
-                    <p className="text-muted-foreground">{review.comment}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3 py-12">
-                <MessageCircleOffIcon />
-                <p className="text-muted-foreground text-lg">No reviews yet</p>
-              </div>
-            )}
-          </div>
-        </FramePanel>
-      </Frame>
-    </div>
+      {!data && (
+        <p className="text-muted-foreground self-center text-sm">
+          <LoginDrawerDialog>
+            <Button
+              variant="link"
+              className="text-foreground h-auto border-0 p-0 align-baseline underline"
+            >
+              Sign in
+            </Button>
+          </LoginDrawerDialog>{" "}
+          to review this product.
+        </p>
+      )}
+    </section>
   );
 }

@@ -69,20 +69,22 @@ export function ProductSearchDialog({
     >
       <div className="relative" ref={setTrigger}>
         <Dialog.Trigger asChild>
-          <div
-            className="group relative w-full cursor-text first:relative first:z-10 focus-visible:outline-none"
+          <button
+            type="button"
+            aria-keyshortcuts="Control+K"
+            className="group relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             data-state={open ? "open" : "closed"}
           >
             {children}
 
-            <div
+            <span
               className={cn(
-                "bg-background absolute inset-0 rounded-lg border bg-clip-padding",
+                "surface-control surface-field absolute inset-0 rounded-full",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
               )}
             />
-          </div>
+          </button>
         </Dialog.Trigger>
 
         <div
@@ -104,7 +106,7 @@ export function ProductSearchDialog({
               "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           )}
         >
-          <Dialog.Title className="sr-only">Search Products</Dialog.Title>
+          <Dialog.Title className="sr-only">Search products</Dialog.Title>
 
           <div
             className={cn("h-[350px] rounded-lg", className)}
@@ -122,7 +124,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "bg-background absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-lg border bg-clip-padding",
+                "surface-control surface-floating absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -227,7 +229,8 @@ function Content({ close }: { close: () => void }) {
 
         <input
           type="text"
-          placeholder="Search Products"
+          aria-label="Search products"
+          placeholder="Search products"
           className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -252,7 +255,7 @@ function Content({ close }: { close: () => void }) {
       {data?.data.length === 0 && <ProductSearchEmpty />}
 
       {data && data.data.length > 0 && (
-        <ul className="flex flex-col gap-1">
+        <ul className="scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
           {data.data.map((product, index) => (
             <ProductSearchItem
               key={`${product.id}-${product.title}-${index}`}
@@ -286,9 +289,9 @@ export function ProductSearchError() {
         <EmptyMedia variant="icon">
           <IconShoppingBagX />
         </EmptyMedia>
-        <EmptyTitle>An Error Occurred</EmptyTitle>
+        <EmptyTitle>Unable to load products</EmptyTitle>
         <EmptyDescription>
-          An error occurred while fetching the products. Please try again later.
+          Check your connection and search again.
         </EmptyDescription>
       </EmptyHeader>
     </Empty>
@@ -333,18 +336,20 @@ export function ProductSearchItem({
     <li {...props} className="relative">
       <Link
         href={`/products/${product.slug}`}
-        className="relative z-10 flex items-center gap-2 rounded-md p-1"
+        className="relative z-10 flex items-center gap-3 rounded-xl p-1"
       >
-        <ImageWithFallback
-          src={product.thumbnailUrl}
-          alt={product.title}
-          className="size-16 shrink-0 rounded-sm"
-          width={128}
-          height={128}
-        />
+        <div className="image-well outline-image-outline size-16 shrink-0 overflow-hidden rounded-lg outline-1 -outline-offset-1">
+          <ImageWithFallback
+            src={product.thumbnailUrl}
+            alt={product.title}
+            className="size-full rounded-none border-none bg-transparent object-contain"
+            width={128}
+            height={128}
+          />
+        </div>
 
         <div className="flex size-full flex-1 flex-col">
-          <p className="text-foreground dark:text-primary-foreground text-sm font-medium">
+          <p className="text-foreground text-sm font-medium">
             {product.title}
           </p>
 
@@ -361,7 +366,7 @@ export function ProductSearchItem({
           transition={{
             duration: 0.1,
           }}
-          className="bg-accent/50 absolute inset-0 rounded-md"
+          className="bg-accent absolute inset-0 rounded-xl"
         />
       ) : null}
     </li>

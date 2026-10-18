@@ -60,7 +60,7 @@ export function EditReview({
   return (
     <DrawerDialog open={isOpen} onOpenChange={setIsOpen}>
       <DrawerDialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" aria-label="Edit review">
           <PencilIcon />
         </Button>
       </DrawerDialogTrigger>
@@ -84,7 +84,11 @@ export function EditReview({
             form={`review-form-${review.id}`}
             disabled={updatingReview}
           >
-            {updatingReview ? <Spinner /> : <SaveIcon />}
+            {updatingReview ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
             Save
           </Button>
         </DrawerDialogFooter>

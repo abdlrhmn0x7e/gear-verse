@@ -2,7 +2,7 @@
 
 import { useFormContext, type UseFieldArraySwap } from "react-hook-form";
 
-import { ImageIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -10,6 +10,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
+import type { SelectedMedia } from "../../../_stores/media/store";
 import { MediaDialog } from "../../dialogs/media";
 
 import {
@@ -35,7 +36,6 @@ export function MediaFields({
   media: ProductFormValues["media"];
   swap: UseFieldArraySwap;
 }) {
-  const selectedMedia = useMediaStore((state) => state.selectedMedia);
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -43,7 +43,27 @@ export function MediaFields({
     [],
   );
 
-  const { setValue } = useFormContext<ProductFormValues>();
+  const { getValues, setValue } = useFormContext<ProductFormValues>();
+
+  // The form owns the media and its order (the first is the thumbnail). The
+  // store only backs the picker, so it is seeded from the form each time the
+  // picker opens, and whatever comes back is merged into the form's order:
+  // media still picked keep their places, new picks go on the end.
+  function commitMedia(next: ProductFormValues["media"]) {
+    setValue("media", next, { shouldDirty: true });
+    setSelectedMedia(next);
+  }
+
+  function handlePicked(picked: SelectedMedia[]) {
+    const pickedIds = new Set(picked.map((m) => m.mediaId));
+    const kept = getValues("media").filter((m) => pickedIds.has(m.mediaId));
+    const keptIds = new Set(kept.map((m) => m.mediaId));
+    const added = picked
+      .filter((m) => !keptIds.has(m.mediaId))
+      .map(({ mediaId, url }) => ({ mediaId, url }));
+
+    commitMedia([...kept, ...added]);
+  }
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id);
@@ -89,7 +109,7 @@ export function MediaFields({
               }
               onCheckedChange={(checked) => {
                 if (checked) {
-                  setCheckedMedia(selectedMedia);
+                  setCheckedMedia(getValues("media"));
                 } else {
                   setCheckedMedia([]);
                 }
@@ -104,15 +124,15 @@ export function MediaFields({
             size="sm"
             type="button"
             onClick={() => {
-              const newMedia = selectedMedia.filter(
-                (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
+              commitMedia(
+                getValues("media").filter(
+                  (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
+                ),
               );
-              setSelectedMedia(newMedia);
-              setValue("media", newMedia, { shouldDirty: true });
               setCheckedMedia([]);
             }}
           >
-            <TrashIcon />
+            <Trash2Icon data-icon="inline-start" />
             Delete Selected
           </Button>
         </div>
@@ -153,9 +173,11 @@ export function MediaFields({
                 </div>
               ))}
 
-              <MediaDialog onChange={() => setValue("media", selectedMedia, { shouldDirty: true })}>
+              <MediaDialog onChange={handlePicked}>
                 <button
                   type="button"
+                  aria-label="Add media"
+                  onClick={() => setSelectedMedia(getValues("media"))}
                   className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"
                 >
                   <PlusIcon />

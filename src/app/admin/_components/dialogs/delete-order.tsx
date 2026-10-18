@@ -1,7 +1,7 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { TrashIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { Trash2Icon, XIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,9 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
 import { useTRPC } from "~/trpc/client";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
 export function DeleteOrderDialog({
   id,
@@ -32,7 +34,7 @@ export function DeleteOrderDialog({
   onDeleteSuccess?: () => void;
 }) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const { mutate: deleteOrder, isPending } = useMutation(
     trpc.admin.orders.mutations.delete.mutationOptions(),
   );
@@ -43,8 +45,11 @@ export function DeleteOrderDialog({
       {
         onSuccess: () => {
           onDeleteSuccess?.();
-          void queryClient.invalidateQueries(
-            trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
+          void refreshOrderViews();
+        },
+        onError: (error) => {
+          toast.error(
+            error.message || `Couldn't delete order #${id}. Try again.`,
           );
         },
       },
@@ -54,8 +59,13 @@ export function DeleteOrderDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild disabled={isPending}>
-        <Button variant={variant} size={size} className={className}>
-          <TrashIcon />
+        <Button
+          variant={variant}
+          size={size}
+          className={className}
+          aria-label={showText ? undefined : "Delete order"}
+        >
+          <Trash2Icon data-icon={showText ? "inline-start" : undefined} />
           {showText && "Delete order"}
         </Button>
       </AlertDialogTrigger>
@@ -68,9 +78,17 @@ export function DeleteOrderDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
-            Continue
+          <AlertDialogCancel>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={isPending}
+            onClick={handleDelete}
+          >
+            <Trash2Icon data-icon="inline-start" />
+            Delete order
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

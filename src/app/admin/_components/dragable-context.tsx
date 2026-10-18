@@ -91,11 +91,13 @@ export function DragableSortableContext({
 export function DragableItem({
   id,
   className,
+  handleClassName,
   withHandle = false,
   children,
 }: React.PropsWithChildren<{
   id: UniqueIdentifier;
   className?: string;
+  handleClassName?: string;
   withHandle?: boolean;
 }>) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -120,7 +122,11 @@ export function DragableItem({
     >
       {withHandle && (
         <button
-          className="cursor-grab focus-within:outline-none active:cursor-grabbing"
+          aria-label="Drag to reorder"
+          className={cn(
+            "cursor-grab focus-within:outline-none active:cursor-grabbing",
+            handleClassName,
+          )}
           {...listeners}
           {...attributes}
         >
@@ -188,6 +194,7 @@ export function SortableItemWithHandle({
     >
       <button
         type="button"
+        aria-label="Drag to reorder"
         className="cursor-grab focus-within:outline-none active:cursor-grabbing disabled:cursor-default disabled:opacity-50"
         disabled={disabled}
         {...listeners}
@@ -226,6 +233,7 @@ export function DragableOverlay({
         {withHandle && (
           <button
             type="button"
+            aria-label="Drag to reorder"
             className="cursor-grab focus-within:outline-none active:cursor-grabbing"
           >
             {vertical ? (

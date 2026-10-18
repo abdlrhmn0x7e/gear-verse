@@ -1,128 +1,190 @@
 "use client";
 
-import { IconCategory, IconFolder, IconShoppingBag } from "@tabler/icons-react";
-import { HomeIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { IconBrandWhatsapp, IconFolder } from "@tabler/icons-react";
+import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/client";
+import { useDialog } from "~/hooks/use-dialog";
+import { authClient } from "~/lib/auth-client";
+import { iconsMap } from "~/lib/icons-map";
+import type { CategoryIconEnum } from "~/lib/schemas/entities/category";
+import { LoginDrawerDialog } from "../login-drawer-dialog";
+import { Logo } from "../logo";
+import { useSignOut } from "../profile-dropdown";
+import { Spinner } from "../spinner";
+import { ThemeSegmentedControl } from "../theme-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 import {
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerDescription,
+  DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
 import { Skeleton } from "../ui/skeleton";
-import { Card, CardContent } from "../ui/card";
-import { iconsMap } from "~/lib/icons-map";
-import { Heading } from "../heading";
-import { useDialog } from "~/hooks/use-dialog";
+import { WhatsAppNumberLink } from "../whatsapp-number-link";
+import { SocialLinks, type SocialLinksSettings } from "../social-links";
 
-const NAV_ITEMS = [
-  {
-    title: "Home",
-    link: {
-      href: "/",
-    },
-    order: 1,
-    icon: HomeIcon,
-  },
-  {
-    title: "Products",
-    link: {
-      href: "/products",
-    },
-    order: 3,
-    icon: IconShoppingBag,
-  },
+const PRIMARY_LINKS = [
+  { title: "Home", href: "/" },
+  { title: "Store", href: "/products" },
+  { title: "FAQ", href: "/#faq" },
+  { title: "My orders", href: "/orders" },
 ];
 
-export function MobileNav() {
-  const pathname = usePathname();
+export function MobileNav({
+  whatsappNumber,
+  socialLinks,
+  categories,
+}: {
+  /** E.164; the menu leaves the number out when the store has none */
+  whatsappNumber: string | null;
+  socialLinks: SocialLinksSettings;
+  categories: { name: string; slug: string; icon: CategoryIconEnum }[];
+}) {
+  const drawer = useDialog();
+  const loginDialog = useDialog();
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-      <nav className="bg-card/95 border-t p-2 backdrop-blur">
-        <ul className="grid grid-cols-3">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.title} className="flex items-center justify-center">
-              <Button
-                variant="ghost"
-                className={cn(
-                  "min-w-24 flex-col items-center gap-0 py-2",
-                  pathname === item.link.href &&
-                    "text-primary dark:text-accent-foreground",
-                )}
-                size="lg"
-                asChild
+    <>
+      <Drawer direction="bottom" {...drawer.props}>
+        <DrawerTrigger asChild>
+          <Button variant="ghost" size="icon-lg" className="md:hidden">
+            <MenuIcon />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DrawerTrigger>
+
+        <DrawerContent className="p-6">
+          <DrawerHeader className="flex-row items-center justify-between gap-4 px-2 pt-2 pb-2 text-left">
+            <DrawerTitle asChild>
+              <Link href="/" onNavigate={drawer.dismiss} className="w-fit">
+                <Logo className="h-11" />
+              </Link>
+            </DrawerTitle>
+            {whatsappNumber && (
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                className="bg-tile active:bg-tile-hover inline-flex h-10 items-center gap-2 rounded-full px-3.5 text-sm font-medium tabular-nums"
               >
-                <Link href={item.link.href} key={item.title}>
-                  <item.icon className="size-6" />
-                  {item.title}
-                </Link>
-              </Button>
-            </li>
-          ))}
-          <li className="flex items-center justify-center">
-            <CategoriesDrawer />
-          </li>
-        </ul>
-      </nav>
-    </div>
+                <IconBrandWhatsapp
+                  className="size-5 shrink-0"
+                  stroke={1.75}
+                  aria-hidden
+                />
+              </WhatsAppNumberLink>
+            )}
+            <DrawerDescription className="sr-only">
+              Site navigation
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <DrawerBody className="px-2">
+            <nav aria-label="Mobile" className="flex flex-col gap-10 py-4">
+              <ul className="flex flex-col">
+                {PRIMARY_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onNavigate={drawer.dismiss}
+                      className="text-title focus-visible:outline-focus block rounded-md py-2 outline-none focus-visible:outline-2"
+                    >
+                      {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <MobileAccount
+                onSignIn={() => {
+                  drawer.dismiss();
+                  loginDialog.trigger();
+                }}
+              />
+
+              <div className="space-y-3">
+                <p className="text-muted-foreground text-sm">Categories</p>
+                <ul className="grid grid-cols-2 gap-2">
+                  {categories.map((category) => {
+                    const Icon = iconsMap.get(category.icon) ?? IconFolder;
+                    return (
+                      <li key={category.slug}>
+                        <Link
+                          href={`/categories/${category.slug}`}
+                          onNavigate={drawer.dismiss}
+                          className="bg-tile active:bg-tile-hover focus-visible:outline-focus flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2"
+                        >
+                          <Icon className="size-5" stroke={1.75} aria-hidden />
+                          {category.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-muted-foreground text-sm">Theme</p>
+                <ThemeSegmentedControl />
+              </div>
+
+              <SocialLinks links={socialLinks} />
+            </nav>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      {/* lives outside the menu so the menu can close before the sign-in drawer opens */}
+      <LoginDrawerDialog {...loginDialog.props} />
+    </>
   );
 }
 
-function CategoriesDrawer() {
-  const trpc = useTRPC();
-  const drawer = useDialog();
-  const { data: categories, isPending: categoriesPending } = useQuery(
-    trpc.public.categories.queries.findRoots.queryOptions(),
-  );
+function MobileAccount({ onSignIn }: { onSignIn: () => void }) {
+  const { data, isPending } = authClient.useSession();
+  const { mutate: signOut, isPending: isSigningOut } = useSignOut();
+
+  if (isPending) {
+    return <Skeleton className="h-12 rounded-full" />;
+  }
+
+  if (!data || data.user.isAnonymous) {
+    return (
+      <Button variant="outline" size="xl" className="w-full" onClick={onSignIn}>
+        <LogInIcon data-icon="inline-start" />
+        Sign in
+      </Button>
+    );
+  }
+
+  const { user } = data;
 
   return (
-    <Drawer {...drawer.props}>
-      <DrawerTrigger asChild>
-        <Button
-          variant="ghost"
-          className="min-w-24 flex-col items-center gap-0 py-2"
-          size="lg"
-        >
-          <IconCategory className="size-6" />
-          Category
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent className="space-y-4">
-        <DrawerTitle className="text-center">Categories</DrawerTitle>
-        <DrawerDescription></DrawerDescription>
-
-        <DrawerBody className="grid max-h-[calc(100svh-4rem)] grid-cols-2 gap-3 overflow-y-auto">
-          {categoriesPending || !categories
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <Skeleton key={index} className="h-6 w-full" />
-              ))
-            : categories.map((cat) => {
-                const CategoryIcon = iconsMap.get(cat.icon) ?? IconFolder;
-                return (
-                  <Link
-                    key={cat.slug}
-                    href={`/categories/${cat.slug}`}
-                    onNavigate={() => drawer.dismiss()}
-                  >
-                    <Card className="ring-accent transition-shadow hover:ring-2">
-                      <CardContent className="flex flex-col items-center gap-2 text-center">
-                        <CategoryIcon />
-                        <Heading level={4}>{cat.name}</Heading>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-        </DrawerBody>
-      </DrawerContent>
-    </Drawer>
+    <div className="flex items-center gap-3">
+      <Avatar size="lg">
+        <AvatarImage src={user.image ?? undefined} alt="" />
+        <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+      </Avatar>
+      <div className="grid min-w-0 flex-1 leading-tight">
+        <span className="truncate font-medium">{user.name}</span>
+        <span className="text-muted-foreground truncate text-sm">
+          {user.email}
+        </span>
+      </div>
+      <Button
+        variant="outline"
+        disabled={isSigningOut}
+        onClick={() => signOut()}
+      >
+        {isSigningOut ? (
+          <Spinner data-icon="inline-start" />
+        ) : (
+          <LogOutIcon data-icon="inline-start" />
+        )}
+        Sign out
+      </Button>
+    </div>
   );
 }

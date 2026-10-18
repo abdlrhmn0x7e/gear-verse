@@ -55,7 +55,7 @@ export function AddAddressDrawerDialog({
 
       <DrawerDialogContent>
         <DrawerDialogHeader>
-          <DrawerDialogTitle>Add Address</DrawerDialogTitle>
+          <DrawerDialogTitle>Add address</DrawerDialogTitle>
         </DrawerDialogHeader>
 
         <DrawerDialogBody>
@@ -64,8 +64,12 @@ export function AddAddressDrawerDialog({
 
         <DrawerDialogFooter>
           <Button type="submit" form="address-form" disabled={isAddingAddress}>
-            {isAddingAddress ? <Spinner /> : <IconHomePlus />}
-            Add Address
+            {isAddingAddress ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <IconHomePlus data-icon="inline-start" />
+            )}
+            Add address
           </Button>
         </DrawerDialogFooter>
       </DrawerDialogContent>

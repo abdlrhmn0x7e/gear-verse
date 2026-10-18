@@ -1,137 +1,169 @@
 "use client";
 
-import * as React from "react";
+import {
+  Archive02Icon,
+  FolderLibraryIcon,
+  Home01Icon,
+  Layers01Icon,
+  Settings01Icon,
+  ShoppingCart01Icon,
+  Tag01Icon,
+  UserMultipleIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
+import { Logo } from "~/components/logo";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
   SidebarMenuButton,
-  SidebarRail,
+  SidebarMenuItem,
+  useSidebar,
 } from "~/components/ui/sidebar";
-import { NavMain } from "./nav-main";
-import { SparklesIcon } from "lucide-react";
-import Link from "next/link";
-import { NavUser } from "./nav-user";
-import { KbdGroup } from "~/components/ui/kbd";
-import {
-  ProductSearchDialog,
-  ProductSearchIcon,
-  ProductSearchPlaceholder,
-} from "../../../components/product-search-dialog";
-import { Kbd } from "~/components/ui/kbd";
-import {
-  type TablerIcon,
-  IconTag,
-  IconHomeFilled,
-  IconTagFilled,
-  IconShoppingCartFilled,
-  IconHome,
-  IconShoppingCart,
-  IconArchive,
-  IconArchiveFilled,
-  IconCategoryFilled,
-  IconCategory,
-  IconKeyframes,
-  IconKeyframesFilled,
-} from "@tabler/icons-react";
+import { AccountMenu } from "./account-menu";
+import { LogoMark } from "./logo-mark";
 
-export type AdminSidebarItemItem = {
+type NavItem = {
   title: string;
-  url: string;
+  href: string;
+  icon: React.ComponentProps<typeof HugeiconsIcon>["icon"];
 };
 
-export type AdminSidebarItem = {
-  title: string;
-  url: string;
-  icon: TablerIcon;
-  iconFilled: TablerIcon;
-  items?: AdminSidebarItemItem[];
+type NavGroup = {
+  /** `null` for the opening group, which needs no heading of its own. */
+  label: string | null;
+  items: NavItem[];
 };
 
-const DASHBOARD_ITEMS = [
+const navGroups: NavGroup[] = [
   {
-    title: "Dashboard",
-    url: "/admin",
-    icon: IconHome,
-    iconFilled: IconHomeFilled,
+    label: null,
+    items: [{ title: "Dashboard", href: "/admin", icon: Home01Icon }],
   },
   {
-    title: "Products",
-    url: "/admin/products",
-    icon: IconTag,
-    iconFilled: IconTagFilled,
+    label: "Catalog",
+    items: [
+      { title: "Products", href: "/admin/products", icon: Tag01Icon },
+      { title: "Inventory", href: "/admin/inventory", icon: Archive02Icon },
+      {
+        title: "Categories",
+        href: "/admin/categories",
+        icon: FolderLibraryIcon,
+      },
+      { title: "Attributes", href: "/admin/attributes", icon: Layers01Icon },
+    ],
   },
   {
-    title: "Inventory",
-    url: "/admin/inventory",
-    icon: IconArchive,
-    iconFilled: IconArchiveFilled,
+    label: "Sales",
+    items: [
+      { title: "Orders", href: "/admin/orders", icon: ShoppingCart01Icon },
+    ],
   },
   {
-    title: "Categories",
-    url: "/admin/categories",
-    icon: IconCategory,
-    iconFilled: IconCategoryFilled,
+    label: "Settings",
+    items: [
+      { title: "Users", href: "/admin/users", icon: UserMultipleIcon },
+      {
+        title: "Store settings",
+        href: "/admin/settings",
+        icon: Settings01Icon,
+      },
+    ],
   },
-  {
-    title: "Attributes",
-    url: "/admin/attributes",
-    icon: IconKeyframes,
-    iconFilled: IconKeyframesFilled,
-  },
-  {
-    title: "Orders",
-    url: "/admin/orders",
-    icon: IconShoppingCart,
-    iconFilled: IconShoppingCartFilled,
-  },
-] satisfies AdminSidebarItem[];
+];
 
-export function AdminSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar() {
+  const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
+  // On a phone the navigation covers the page, so following a link closes it.
+  const closeMobile = () => setOpenMobile(false);
+
+  /**
+   * The most specific matching destination, not every matching one. "/admin"
+   * is a prefix of every page, so a plain prefix test lights up Dashboard
+   * everywhere. "/admin/products/12" still resolves to Products, since that
+   * is the longest entry that matches.
+   */
+  const activeHref = navGroups
+    .flatMap((group) => group.items.map((item) => item.href))
+    .filter((href) => pathname === href || pathname.startsWith(`${href}/`))
+    .reduce<string | null>(
+      (best, href) => (best && best.length >= href.length ? best : href),
+      null,
+    );
+
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
-        <SidebarMenuButton
-          size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-          asChild
-        >
-          <Link href="/">
-            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-sm">
-              <SparklesIcon className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">Gear Verse</span>
-              <span className="truncate text-xs">Admin</span>
-            </div>
-          </Link>
-        </SidebarMenuButton>
-
-        <ProductSearchDialog dialogClassName="inset-x-0">
-          <SidebarMenuButton className="group relative z-10 w-full cursor-text border-none hover:bg-transparent">
-            <ProductSearchIcon />
-            <ProductSearchPlaceholder>Search Products</ProductSearchPlaceholder>
-
-            <KbdGroup className="absolute top-1/2 right-3 z-10 -translate-y-1/2 pt-1 group-data-[sidebar-open=false]:hidden">
-              <Kbd>⌘ + K</Kbd>
-            </KbdGroup>
-          </SidebarMenuButton>
-        </ProductSearchDialog>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {/* A 48px row, the height of the card's top bar, so the logo sits on
+                that bar's centre line, centred across the rail like the folded
+                mark. Folded, the 32px icon button keeps the same line with 8px
+                above and below. */}
+            <SidebarMenuButton
+              size="lg"
+              tooltip="Gear Verse admin"
+              className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 justify-center px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
+              asChild
+            >
+              <Link
+                href="/admin"
+                aria-label="Gear Verse admin home"
+                onClick={closeMobile}
+              >
+                <LogoMark className="hidden h-6 group-data-[collapsible=icon]:block" />
+                <Logo className="h-10 w-auto group-data-[collapsible=icon]:hidden" />
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <NavMain data={DASHBOARD_ITEMS} />
+      {/* Groups sit close: a short heading is enough to separate them. */}
+      <SidebarContent className="gap-0">
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.label ?? "start"} className="py-1.5">
+            {group.label && (
+              <SidebarGroupLabel className="h-7 group-data-[collapsible=icon]:-mt-7">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      isActive={item.href === activeHref}
+                      tooltip={item.title}
+                      asChild
+                    >
+                      <Link href={item.href} onClick={closeMobile}>
+                        <HugeiconsIcon icon={item.icon} strokeWidth={1.5} />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser />
+        <SidebarMenu>
+          <AccountMenu />
+        </SidebarMenu>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }

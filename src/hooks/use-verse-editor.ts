@@ -1,21 +1,9 @@
-import { Bold } from "@tiptap/extension-bold";
-import Document from "@tiptap/extension-document";
-import { Heading } from "@tiptap/extension-heading";
-import { Highlight } from "@tiptap/extension-highlight";
-import { Image } from "@tiptap/extension-image";
-import { Italic } from "@tiptap/extension-italic";
-import { Link } from "@tiptap/extension-link";
-import { BulletList, ListItem, OrderedList } from "@tiptap/extension-list";
-import { Paragraph } from "@tiptap/extension-paragraph";
-import { Strike } from "@tiptap/extension-strike";
-import { Text } from "@tiptap/extension-text";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { Underline } from "@tiptap/extension-underline";
 import { UndoRedo } from "@tiptap/extensions";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { type JSONContent, useEditor } from "@tiptap/react";
 import { useMemo } from "react";
 import { toast } from "sonner";
+import { contentExtensions } from "~/lib/editor/content-extensions";
 import { useUploadFilesMutation } from "./mutations/use-upload-files-mutations";
 
 export function useVerseEditor({
@@ -30,42 +18,8 @@ export function useVerseEditor({
     return [
       UndoRedo,
 
-      Document,
-      Text,
-      Paragraph,
-      Heading.configure({
-        levels: [1, 2, 3],
-      }),
-      BulletList,
-      OrderedList,
-      ListItem,
+      ...contentExtensions,
 
-      Bold,
-      Italic,
-      Strike,
-      Underline,
-      Highlight,
-      Link.configure({
-        openOnClick: true,
-        autolink: true,
-        defaultProtocol: "https",
-        protocols: ["https", "http"],
-        HTMLAttributes: {
-          class: "text-primary cursor-pointer",
-        },
-      }),
-
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
-
-      Image.configure({
-        inline: false,
-        HTMLAttributes: {
-          class: "size-full object-contain rounded-md overflow-hidden",
-          width: "200px",
-        },
-      }),
       FileHandler.configure({
         allowedMimeTypes: [
           "image/png",
@@ -78,6 +32,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor
@@ -102,6 +57,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor
@@ -122,7 +78,8 @@ export function useVerseEditor({
   }, [uploadFiles]);
 
   const editor = useEditor({
-    content: defaultContent,
+    // a new product starts its description as {}, which isn't a document
+    content: defaultContent?.type ? defaultContent : undefined,
     onUpdate: ({ editor }) => {
       onUpdate?.(editor.getJSON());
     },

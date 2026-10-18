@@ -5,11 +5,12 @@ import {
   CategoryForm,
   type CategoryFormValues,
 } from "~/app/admin/_components/forms/category-form";
-import { SaveIcon } from "lucide-react";
+import { SaveIcon, XIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function EditCategory({
   id,
@@ -22,6 +23,7 @@ export function EditCategory({
   onSuccess: () => void;
   cancel: () => void;
 }) {
+  const formId = useId();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: updateCategory, isPending: isUpdatingCategory } = useMutation(
@@ -34,6 +36,9 @@ export function EditCategory({
           trpc.admin.categories.queries.findRoots.queryFilter(),
         );
         onSuccess();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Couldn't save the category");
       },
     }),
   );
@@ -62,19 +67,21 @@ export function EditCategory({
         defaultValues={defaultValues}
         onSubmit={onSubmit}
         showParentCombobox={false}
+        formId={formId}
       />
 
       <div className="flex items-center justify-between">
-        <Button variant="destructive" onClick={cancel}>
+        <Button variant="outline" onClick={cancel}>
+          <XIcon data-icon="inline-start" />
           Cancel
         </Button>
 
-        <Button
-          type="submit"
-          form="category-form"
-          disabled={isUpdatingCategory}
-        >
-          {isUpdatingCategory ? <Spinner /> : <SaveIcon />}
+        <Button type="submit" form={formId} disabled={isUpdatingCategory}>
+          {isUpdatingCategory ? (
+            <Spinner size="small" data-icon="inline-start" />
+          ) : (
+            <SaveIcon data-icon="inline-start" />
+          )}
           Save
         </Button>
       </div>

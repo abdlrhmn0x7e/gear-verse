@@ -1,6 +1,6 @@
 "use client";
 
-import { EyeIcon } from "lucide-react";
+import { ArrowRightIcon, EyeIcon } from "lucide-react";
 import { PaymentMethod } from "~/components/payment-method";
 import { Button } from "~/components/ui/button";
 import {
@@ -28,7 +28,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { IconArrowUpRight, IconShoppingCartX } from "@tabler/icons-react";
+import { IconShoppingCartX } from "@tabler/icons-react";
 import Link from "next/link";
 
 export function OrderCards() {
@@ -61,17 +61,16 @@ export function OrderCards() {
           <EmptyMedia variant="icon">
             <IconShoppingCartX />
           </EmptyMedia>
-          <EmptyTitle>No Orders Yet</EmptyTitle>
+          <EmptyTitle>No orders yet</EmptyTitle>
           <EmptyDescription>
-            You haven&apos;t created any orders yet. Get started by creating
-            your first order.
+            Orders you place show up here so you can follow them to your door.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button asChild>
             <Link href="/products">
-              Checkout Our Products
-              <IconArrowUpRight />
+              Browse the store
+              <ArrowRightIcon data-icon="inline-end" />
             </Link>
           </Button>
         </EmptyContent>
@@ -116,12 +115,12 @@ export function OrderCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Ordered At</p>
+          <p className="text-muted-foreground font-medium">Ordered on</p>
           <p className="text-lg font-medium">{formatDate(order.createdAt)}</p>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Total Amount</p>
+          <p className="text-muted-foreground font-medium">Total</p>
 
           <p className="text-lg font-medium">
             {formatCurrency(order.totalPrice)}
@@ -129,7 +128,7 @@ export function OrderCard({
         </div>
       </CardContent>
       <CardFooter className="justify-end">
-        <Button size="lg">
+        <Button variant="outline" size="lg">
           <EyeIcon />
           View Details
         </Button>

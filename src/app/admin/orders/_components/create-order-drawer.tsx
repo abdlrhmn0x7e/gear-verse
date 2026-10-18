@@ -1,7 +1,6 @@
 "use client";
 
-import { IconShoppingCartPlus } from "@tabler/icons-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
@@ -20,27 +19,24 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
 import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
 export function CreateOrderDrawer() {
   const trpc = useTRPC();
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const [params, setParams] = useOrderSearchParams();
   const { mutate: createOrder, isPending: isCreatingOrder } = useMutation(
     trpc.admin.orders.mutations.create.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
-        );
-        void queryClient.invalidateQueries(
-          trpc.admin.inventoryItems.queries.getPage.infiniteQueryFilter(),
-        );
+        void refreshOrderViews();
         toast.success("Order created successfully");
         void setParams({ create: null });
       },
-      onError: () => {
+      onError: (error) => {
         toast.error(
-          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+          error.message ||
+            "Couldn't create the order. Check each item has enough stock.",
         );
       },
     }),
@@ -65,8 +61,8 @@ export function CreateOrderDrawer() {
       onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>
-        <Button size="lg">
-          <PlusIcon />
+        <Button>
+          <PlusIcon data-icon="inline-start" />
           Create Order
         </Button>
       </DrawerTrigger>
@@ -83,7 +79,11 @@ export function CreateOrderDrawer() {
         </DrawerBody>
         <DrawerFooter>
           <Button type="submit" form="order-form" disabled={isCreatingOrder}>
-            {isCreatingOrder ? <Spinner /> : <IconShoppingCartPlus />}
+            {isCreatingOrder ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Create Order
           </Button>
         </DrawerFooter>

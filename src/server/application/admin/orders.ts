@@ -7,7 +7,26 @@ import type {
   UpdateFullOrderInput,
 } from "~/lib/schemas/entities";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { invalidateCache } from "~/server/actions/cache";
+import { invalidateProducts } from "~/server/actions/cache";
+
+const EMPTY_ORDER_MESSAGE =
+  "An order needs at least one item. Cancel the order instead.";
+
+/** An order may only ship to one of its own customer's addresses. */
+async function assertAddressBelongsToUser(addressId: number, userId: number) {
+  const ownerId = await data.admin.addresses.queries.findOwnerId(addressId);
+
+  if (ownerId === undefined) {
+    throw new AppError("That address doesn't exist", "BAD_REQUEST");
+  }
+
+  if (ownerId !== userId) {
+    throw new AppError(
+      "That address belongs to a different customer. Pick one of this customer's addresses.",
+      "BAD_REQUEST",
+    );
+  }
+}
 
 export const _orders = {
   queries: {
@@ -43,6 +62,11 @@ export const _orders = {
   mutations: {
     create: async (input: CreateFullOrderInput) => {
       const { items, ...order } = input;
+      if (items.length === 0) {
+        throw new AppError("An order needs at least one item.", "BAD_REQUEST");
+      }
+      await assertAddressBelongsToUser(order.addressId, order.userId);
+
       const { data: newOrder, error } = await tryCatch(
         data.admin.orders.mutations.create(order, items),
       );
@@ -52,18 +76,30 @@ export const _orders = {
         });
       }
 
-      const invalidationPromises = [];
-      for (const item of items) {
-        invalidationPromises.push(
-          invalidateCache(`products:${item.productId}`),
-        );
-      }
-      await Promise.all(invalidationPromises);
+      await invalidateProducts(items.map((item) => item.productId));
       return newOrder;
     },
 
     update: async (input: UpdateFullOrderInput & { id: number }) => {
       const { id, items, ...order } = input;
+      if (items?.length === 0) {
+        throw new AppError(EMPTY_ORDER_MESSAGE, "BAD_REQUEST");
+      }
+
+      // the form only sends dirty fields, so check the address against the
+      // order's current customer unless the customer is changing too
+      if (order.userId !== undefined || order.addressId !== undefined) {
+        const current = await data.admin.orders.queries.findOwnership(id);
+        if (!current) {
+          throw new AppError("Order not found", "NOT_FOUND");
+        }
+
+        await assertAddressBelongsToUser(
+          order.addressId ?? current.addressId,
+          order.userId ?? current.userId,
+        );
+      }
+
       const { data: updatedOrder, error } = await tryCatch(
         data.admin.orders.mutations.update(id, order, items),
       );
@@ -75,13 +111,7 @@ export const _orders = {
       }
 
       if (items) {
-        const invalidationPromises = [];
-        for (const item of items) {
-          invalidationPromises.push(
-            invalidateCache(`products:${item.productId}`),
-          );
-        }
-        await Promise.all(invalidationPromises);
+        await invalidateProducts(items.map((item) => item.productId));
       }
       return updatedOrder;
     },
@@ -95,13 +125,7 @@ export const _orders = {
           cause: error,
         });
       }
-      const invalidationPromises = [];
-      for (const item of deleted) {
-        invalidationPromises.push(
-          invalidateCache(`products:${item.productId}`),
-        );
-      }
-      await Promise.all(invalidationPromises);
+      await invalidateProducts(deleted.map((item) => item.productId));
 
       return { id };
     },

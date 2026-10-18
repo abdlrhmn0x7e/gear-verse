@@ -1,56 +1,15 @@
-import Image from "next/image";
 import { cn } from "~/lib/utils";
 
-export function Logo({
-  className,
-  width = 138,
-  height = 72,
-  transparent = true,
-}: {
-  className?: string;
-  width?: number;
-  height?: number;
-  transparent?: boolean;
-}) {
-  if (transparent) {
-    return (
-      <div className={cn("w-18 overflow-hidden", className)}>
-        <Image
-          src="/images/gear-dark-transparent.png"
-          alt="Gear Verse"
-          width={width}
-          height={height}
-          className="hidden size-full object-cover object-center dark:block"
-        />
-
-        <Image
-          src="/images/gear-light-transparent.png"
-          alt="Gear Verse"
-          width={width}
-          height={height}
-          className="block size-full object-cover object-center dark:hidden"
-        />
-      </div>
-    );
-  }
-
+/** The traced wordmark, painted with the current text color (the brand logo colour by default) so one asset serves both themes. */
+export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn("h-12 overflow-hidden", className)}>
-      <Image
-        src="/images/gear-dark.png"
-        alt="Gear Verse"
-        width={width}
-        height={height}
-        className="hidden size-full scale-150 object-cover object-center dark:block"
-      />
-
-      <Image
-        src="/images/gear-light.png"
-        alt="Gear Verse"
-        width={width}
-        height={height}
-        className="block size-full scale-150 object-cover object-center dark:hidden"
-      />
-    </div>
+    <span
+      role="img"
+      aria-label="Gear Verse"
+      className={cn(
+        "text-brand-logo block aspect-[5783/3525] h-11 shrink-0 bg-current [mask:url(/logo.svg)_center/contain_no-repeat] forced-colors:bg-[CanvasText]",
+        className,
+      )}
+    />
   );
 }

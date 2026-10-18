@@ -1,18 +1,15 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, SaveIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useFormState, type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import {
   ProductForm,
   type ProductFormValues,
 } from "~/app/admin/_components/forms/product";
-import { Spinner } from "~/components/spinner";
-import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { SaveBar } from "~/app/admin/_components/save-bar";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 export function EditProduct({
@@ -22,6 +19,12 @@ export function EditProduct({
 }) {
   const router = useRouter();
   const trpc = useTRPC();
+  const [form, setForm] = useState<UseFormReturn<ProductFormValues> | null>(
+    null,
+  );
+  // Discarding mounts a fresh form: the description editor, media, options
+  // and variants keep their own state, which a form reset doesn't reach.
+  const [formKey, setFormKey] = useState(0);
   const queryClient = useQueryClient();
   const { mutate: updateProduct, isPending: isUpdatingProduct } = useMutation(
     trpc.admin.products.mutations.editDeep.mutationOptions(),
@@ -45,7 +48,7 @@ export function EditProduct({
         onSuccess: () => {
           toast.success("Product updated successfully");
           void queryClient.invalidateQueries(
-            trpc.admin.products.queries.getPage.queryFilter(),
+            trpc.admin.products.queries.getPage.pathFilter(),
           );
           void queryClient.invalidateQueries(
             trpc.admin.products.queries.findById.queryFilter({
@@ -95,7 +98,7 @@ export function EditProduct({
 
       media: [product.thumbnail, ...product.media],
       attributeIds: product.attributeIds ?? [],
-      options: product.options,
+      options: product.options ?? [],
       variants: product.variants,
     }),
     [product],
@@ -103,70 +106,46 @@ export function EditProduct({
 
   return (
     <>
-      <ProductForm onSubmitPartial={onSubmit} defaultValues={defaultValues} />
+      <ProductForm
+        key={formKey}
+        onSubmitPartial={onSubmit}
+        defaultValues={defaultValues}
+        onFormReady={setForm}
+      />
 
-      <motion.div
-        className="fixed right-2 bottom-2 z-50 sm:right-10 sm:bottom-10"
-        layoutRoot
-      >
-        <motion.div className="flex flex-col gap-1" layout>
-          <motion.div
-            className={cn(
-              "bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm",
-              isUpdatingProduct && "scale-95 opacity-50",
-            )}
-            layout
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex-1">
-                <p className="font-medium">Have you finished?</p>
-                <p className="text-muted-foreground text-sm">
-                  Click the save button to save your product.
-                </p>
-              </div>
-
-              <Button
-                type="submit"
-                form="product-form"
-                disabled={isUpdatingProduct}
-              >
-                <SaveIcon size={16} />
-                Save Product
-              </Button>
-            </div>
-          </motion.div>
-
-          {isUpdatingProduct && (
-            <AnimatePresence>
-              <motion.div
-                className="bg-background/80 rounded-md border px-4 py-2 backdrop-blur-sm"
-                initial={{ opacity: 0, y: -40, scale: 0.95 }}
-                animate={{ opacity: 1, y: -30, scale: 1 }}
-                exit={{ opacity: 0, y: -40, scale: 0.95 }}
-                transition={{
-                  duration: 0.2,
-                  ease: "easeOut",
-                }}
-                layout
-              >
-                <div className="flex items-center gap-3">
-                  {isUpdatingProduct ? (
-                    <Spinner />
-                  ) : (
-                    <CheckIcon className="size-6 text-green-500" />
-                  )}
-                  <div>
-                    <p className="flex-1 font-medium">Updating product...</p>
-                    <p className="text-muted-foreground text-sm">
-                      Please be patient untill the process is complete.
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          )}
-        </motion.div>
-      </motion.div>
+      {form && (
+        <ProductSaveBar
+          form={form}
+          saving={isUpdatingProduct}
+          onDiscard={() => {
+            setForm(null);
+            setFormKey((key) => key + 1);
+          }}
+        />
+      )}
     </>
+  );
+}
+
+/** Shows while the product has unsaved edits; discarding puts back what was loaded. */
+function ProductSaveBar({
+  form,
+  saving,
+  onDiscard,
+}: {
+  form: UseFormReturn<ProductFormValues>;
+  saving: boolean;
+  onDiscard: () => void;
+}) {
+  const { isDirty } = useFormState({ control: form.control });
+
+  return (
+    <SaveBar
+      form="product-form"
+      visible={isDirty || saving}
+      saving={saving}
+      saveLabel="Save product"
+      onDiscard={onDiscard}
+    />
   );
 }

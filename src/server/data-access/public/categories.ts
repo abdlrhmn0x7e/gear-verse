@@ -6,7 +6,6 @@ import {
   or,
   count,
   and,
-  desc,
   inArray,
   gte,
   lte,
@@ -28,7 +27,13 @@ import {
 } from "~/server/db/schema/attributes";
 import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
+import { getCategoryIdsBySlug } from "../common/category-ids";
 import { variantsCTE } from "../common/cte";
+import { inStockSql } from "../common/in-stock";
+import {
+  getProductsOrdering,
+  type ProductsSortBy,
+} from "../common/products-ordering";
 import { alias } from "drizzle-orm/pg-core";
 
 export const _categories = {
@@ -112,13 +117,49 @@ export const _categories = {
       return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
     },
 
+    /** Every category, sub-categories included: each has its own page. */
     async findAllSlugs() {
       return db
         .select({
           slug: categories.slug,
         })
-        .from(categories)
-        .where(isNull(categories.parent_id));
+        .from(categories);
+    },
+
+    /**
+     * Categories, at any depth, whose page lists at least one product: one
+     * that is published, not archived and in stock, in the category or any
+     * of its sub-categories.
+     */
+    async findWithLiveProducts() {
+      return db.execute<{ id: number; slug: string; updatedAt: string }>(sql`
+        WITH RECURSIVE subtree AS (
+          SELECT id AS root_id, id FROM ${categories}
+
+          UNION ALL
+
+          SELECT subtree.root_id, child.id
+          FROM ${categories} AS child
+          INNER JOIN subtree ON child.parent_id = subtree.id
+        )
+        SELECT
+          c.id,
+          c.slug,
+          -- ISO in UTC, as drizzle reads these columns; the raw string would
+          -- be parsed as local time
+          to_char(c.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "updatedAt"
+        FROM ${categories} AS c
+        WHERE EXISTS (
+          SELECT 1
+          FROM subtree
+          INNER JOIN ${products} ON ${products.categoryId} = subtree.id
+          WHERE subtree.root_id = c.id
+            AND ${products.published} = true
+            AND ${products.archived} = false
+            AND ${inStockSql(products.id)}
+        )
+        ORDER BY c.id
+      `);
     },
 
     /**
@@ -159,7 +200,10 @@ export const _categories = {
       filters,
       slug,
       sortBy,
-    }: Pagination & { filters?: CategoryProductsFilters; slug: string }) => {
+    }: Pagination<Record<string, unknown>, ProductsSortBy> & {
+      filters?: CategoryProductsFilters;
+      slug: string;
+    }) => {
       const brandsMedia = alias(media, "brands_media");
 
       // this might need future refactoring I don't think this query is as optimal as it could be
@@ -167,12 +211,13 @@ export const _categories = {
         filters?.attributes.map(
           _categories.queries.helpers.existsFragmentForFilter,
         ) ?? [];
-      const categoryIds =
-        await _categories.queries.helpers.getCategoryIdsBySlug(slug);
+      const categoryIds = await getCategoryIdsBySlug(slug);
 
+      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const preds = [
-        gt(products.id, cursor ?? 0),
+        cursorWhere,
         eq(products.published, true),
+        eq(products.archived, false),
         inArray(categories.id, categoryIds),
         ...fragments,
       ];
@@ -192,23 +237,6 @@ export const _categories = {
       }
       if (filters?.price?.max) {
         preds.push(lte(products.price, filters.price.max));
-      }
-
-      // Default order by is newest (desc)
-      let orderByClause = desc(products.id);
-      switch (sortBy) {
-        case "price-asc":
-          orderByClause = asc(products.price);
-          break;
-        case "price-desc":
-          orderByClause = desc(products.price);
-          break;
-        case "newest":
-          orderByClause = desc(products.id);
-          break;
-        case "oldest":
-          orderByClause = asc(products.id);
-          break;
       }
 
       return db
@@ -246,7 +274,7 @@ export const _categories = {
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoin(variantsCTE, eq(variantsCTE.productId, products.id))
         .where(and(availabilityPredicate, ...preds))
-        .orderBy(orderByClause)
+        .orderBy(...orderBy)
         .limit(pageSize + 1);
     },
 
@@ -310,29 +338,6 @@ export const _categories = {
     },
 
     helpers: {
-      async getCategoryIdsBySlug(categorySlug: string) {
-        const childrenCategoriesIdsQuery = sql<{ id: string }[]>`
-              WITH RECURSIVE all_children_categories AS (
-                SELECT categories.id, categories.slug
-                FROM categories
-                WHERE slug = ${categorySlug}
-
-                UNION ALL
-
-                SELECT categories.id, categories.slug
-                FROM categories
-                INNER JOIN all_children_categories
-                  ON all_children_categories.id = categories.parent_id
-              )
-
-              SELECT id FROM all_children_categories
-            `;
-
-        return db
-          .execute<{ id: number }>(childrenCategoriesIdsQuery)
-          .then((result) => result.map((row) => row.id));
-      },
-
       existsFragmentForFilter: (
         filter: CategoryProductsFilters["attributes"][number],
       ) => {

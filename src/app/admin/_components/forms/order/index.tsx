@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDeviceGamepad, IconPackageOff } from "@tabler/icons-react";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import { Button } from "~/components/ui/button";
@@ -46,8 +46,19 @@ import { CustomersCombobox } from "./customers-combobox";
 import { ProductsCombobox } from "./products-combobox";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 
-const orderFormSchema = createFullOrderInputSchema;
-export type OrderFormValues = z.infer<typeof orderFormSchema>;
+const itemsSchema = createFullOrderInputSchema.shape.items;
+
+// the server rejects an order without items, so say so before it's sent
+const createOrderFormSchema = createFullOrderInputSchema.extend({
+  items: itemsSchema.min(1, "Add at least one item to the order."),
+});
+const editOrderFormSchema = createFullOrderInputSchema.extend({
+  items: itemsSchema.min(
+    1,
+    "An order needs at least one item. Cancel the order instead.",
+  ),
+});
+export type OrderFormValues = z.infer<typeof createOrderFormSchema>;
 
 const PAYMENT_METHODS = [
   {
@@ -72,7 +83,9 @@ export function OrderForm({
   defaultValues?: Partial<OrderFormValues>;
 }) {
   const form = useForm<OrderFormValues>({
-    resolver: zodResolver(orderFormSchema),
+    resolver: zodResolver(
+      defaultValues ? editOrderFormSchema : createOrderFormSchema,
+    ),
     defaultValues: defaultValues ?? {
       paymentMethod: "COD",
       status: "PENDING",
@@ -89,10 +102,9 @@ export function OrderForm({
   } = useFieldArray({
     control: form.control,
     name: "items",
-    rules: {
-      minLength: 1,
-    },
   });
+
+  const itemsError = form.formState.errors.items;
 
   const userId = useWatch({
     control: form.control,
@@ -229,7 +241,7 @@ export function OrderForm({
               type="button"
               onClick={handleAddItem}
             >
-              <PlusIcon />
+              <PlusIcon data-icon="inline-start" />
               Add Item
             </Button>
           </div>
@@ -276,10 +288,14 @@ export function OrderForm({
                       <Controller
                         control={form.control}
                         name={`items.${index}.quantity`}
-                        render={({ field, fieldState }) => (
+                        render={({
+                          field: { onChange, ...field },
+                          fieldState,
+                        }) => (
                           <Field data-invalid={fieldState.invalid}>
                             <NumberInput
                               {...field}
+                              onValueChange={onChange}
                               id={field.name}
                               aria-invalid={fieldState.invalid}
                               placeholder="1"
@@ -290,11 +306,13 @@ export function OrderForm({
                     </TableCell>
                     <TableCell>
                       <Button
+                        type="button"
                         variant="destructive-outline"
                         size="icon"
+                        aria-label="Remove item"
                         onClick={() => removeItem(index)}
                       >
-                        <TrashIcon />
+                        <Trash2Icon />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -314,6 +332,7 @@ export function OrderForm({
               </EmptyHeader>
             </Empty>
           )}
+          <FieldError errors={[itemsError?.root ?? itemsError]} />
         </FramePanel>
       </Frame>
     </form>

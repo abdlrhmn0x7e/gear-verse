@@ -6,7 +6,6 @@ import { userCartsRouter } from "./carts";
 import { userCheckoutRouter } from "./checkout";
 import { userOrdersRouter } from "./orders";
 import { userReviewsRouter } from "./reviews";
-import { userCustomersRouter } from "./customers";
 
 export const publicRouter = createTRPCRouter({
   products: userProductsRouter,
@@ -16,5 +15,4 @@ export const publicRouter = createTRPCRouter({
   checkout: userCheckoutRouter,
   orders: userOrdersRouter,
   reviews: userReviewsRouter,
-  customers: userCustomersRouter,
 });

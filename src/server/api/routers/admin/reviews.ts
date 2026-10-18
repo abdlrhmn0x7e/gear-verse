@@ -1,15 +1,11 @@
 import z from "zod";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/init";
+import { adminProcedure, createTRPCRouter } from "~/server/api/init";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
 
 export const reviewsRouter = createTRPCRouter({
   queries: {
-    findAll: publicProcedure
+    findAll: adminProcedure
       .input(
         z.object({
           productId: z.number(),
@@ -27,7 +23,7 @@ export const reviewsRouter = createTRPCRouter({
   },
 
   mutations: {
-    delete: protectedProcedure
+    delete: adminProcedure
       .input(
         z.object({
           id: z.number(),

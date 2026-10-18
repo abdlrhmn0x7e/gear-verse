@@ -1,53 +1,30 @@
 "use client";
 
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { LoadMore } from "~/components/load-more";
-import { useTRPC } from "~/trpc/client";
-import { useAllProductSearchParams } from "~/components/features/products/hooks";
-import { useDebounce } from "~/hooks/use-debounce";
-import { Button } from "~/components/ui/button";
-import { ArrowUpRightIcon } from "lucide-react";
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { IconShoppingBagX } from "@tabler/icons-react";
+  toProductsPageInput,
+  useAllProductSearchParams,
+} from "~/components/features/products/hooks";
 import {
   ProductCard,
   ProductCardSkeleton,
+  productGridClassName,
 } from "~/components/features/products/product-card";
-import Link from "next/link";
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { ProductsEmptyState } from "~/components/features/products/products-empty-state";
+import { LoadMore } from "~/components/load-more";
+import { useDebounce } from "~/hooks/use-debounce";
+import { useTRPC } from "~/trpc/client";
 
 export function ProductList() {
-  const [filters] = useAllProductSearchParams();
+  const [filters, setFilters] = useAllProductSearchParams();
   const debouncedFilters = useDebounce(filters);
   const trpc = useTRPC();
   const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
     trpc.public.products.queries.getPage.infiniteQueryOptions(
-      {
-        pageSize: 12,
-        filters: {
-          brands: debouncedFilters.brands ?? undefined,
-          categories: debouncedFilters.categories ?? undefined,
-          price:
-            filters.maxPrice && filters.minPrice
-              ? {
-                  min: filters.minPrice,
-                  max: filters.maxPrice,
-                }
-              : undefined,
-        },
-        sortBy: debouncedFilters.sortBy ?? undefined,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      },
+      toProductsPageInput(debouncedFilters),
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),
   );
   const products = data.pages.flatMap((page) => page.data);
@@ -61,12 +38,19 @@ export function ProductList() {
   }, [inView, fetchNextPage]);
 
   if (products.length === 0) {
-    return <ProductListEmptyState />;
+    return (
+      <ProductsEmptyState
+        hasFilters={Object.entries(filters).some(
+          ([key, value]) => key !== "sortBy" && value !== null,
+        )}
+        onClearFilters={() => void setFilters(null)}
+      />
+    );
   }
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+      <div className={productGridClassName}>
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -79,43 +63,10 @@ export function ProductList() {
 
 export function ProductListSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 pb-32 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 xl:grid-cols-3 2xl:grid-cols-3">
+    <div className={productGridClassName}>
       {Array.from({ length: 6 }).map((_, index) => (
-        <ProductCardSkeleton key={`product-card-skeleton-${index}`} />
+        <ProductCardSkeleton key={index} />
       ))}
     </div>
-  );
-}
-
-function ProductListEmptyState() {
-  return (
-    <Empty className="h-2/3">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <IconShoppingBagX />
-        </EmptyMedia>
-        <EmptyTitle>No Products Found</EmptyTitle>
-        <EmptyDescription>
-          We couldn&apos;t find any products to display at the moment. Please
-          check back later!
-        </EmptyDescription>
-      </EmptyHeader>
-
-      <EmptyContent className="flex-row items-center justify-center gap-0">
-        <p className="text-muted-foreground">Need Something Specific?</p>
-        <Button
-          variant="link"
-          asChild
-          className="text-muted-foreground"
-          size="sm"
-          disabled
-        >
-          <Link href="/contact">
-            Contact Us
-            <ArrowUpRightIcon />
-          </Link>
-        </Button>
-      </EmptyContent>
-    </Empty>
   );
 }

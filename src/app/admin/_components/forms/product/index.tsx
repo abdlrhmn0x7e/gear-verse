@@ -166,9 +166,9 @@ export function ProductForm({
       <form
         id="product-form"
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="mx-auto grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3"
+        className="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-3"
       >
-        <div className="space-y-8 lg:col-span-2">
+        <div className="min-w-0 space-y-8 lg:col-span-2">
           <Card>
             <CardContent className="space-y-6">
               <FormField
@@ -316,7 +316,7 @@ export function ProductForm({
           </Card>
         </div>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card className="gap-3">
             <CardHeader>
               <CardTitle>Status</CardTitle>
@@ -356,7 +356,7 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <PriceInput placeholder="0 dollarz" {...field} />
+                      <PriceInput placeholder="0" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -371,7 +371,7 @@ export function ProductForm({
                     <FormLabel>Strike Through Price (optional)</FormLabel>
                     <FormControl>
                       <PriceInput
-                        placeholder="0 dollaz?"
+                        placeholder="0"
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -379,8 +379,8 @@ export function ProductForm({
                     {!!strikeThroughPrice && !!price && (
                       <FormDescription>
                         {strikeThroughPrice > price
-                          ? `this is a ${getDiscountPercentage(price, strikeThroughPrice)}% Discount From the product's price`
-                          : "the strike through price must be higher than the price to show as a discount"}
+                          ? `Shows as ${getDiscountPercentage(price, strikeThroughPrice)}% off the price.`
+                          : "Set it above the price to show a discount."}
                       </FormDescription>
                     )}
                     <FormMessage />
@@ -396,7 +396,7 @@ export function ProductForm({
                     <FormLabel>Original Cost</FormLabel>
                     <FormControl>
                       <PriceInput
-                        placeholder="0000.00069"
+                        placeholder="0"
                         {...field}
                         value={field.value ?? 0}
                       />
@@ -499,11 +499,7 @@ export function ProductForm({
                       <InputGroup>
                         <InputGroupAddon>
                           <InputGroupText className="truncate">
-                            {env.NEXT_PUBLIC_APP_URL.split("/")
-                              .slice(1)
-                              .join("/")
-                              .slice(1)}
-                            /
+                            {new URL(env.NEXT_PUBLIC_APP_URL).host}/products/
                           </InputGroupText>
                         </InputGroupAddon>
                         <InputGroupInput
@@ -511,15 +507,11 @@ export function ProductForm({
                           className="pl-0.5"
                           {...field}
                         />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupText>.com</InputGroupText>
-                        </InputGroupAddon>
                       </InputGroup>
                     </FormControl>
                     <FormDescription>
-                      This will be used as the URL handler for the product. it
-                      should be a lowercase string with no spaces and unique per
-                      product.
+                      The end of the product&apos;s address. Use lowercase
+                      letters, numbers and hyphens, unique to this product.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

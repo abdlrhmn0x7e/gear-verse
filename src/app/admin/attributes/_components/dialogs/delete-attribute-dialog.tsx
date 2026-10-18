@@ -1,6 +1,6 @@
 "use client";
 
-import { IconTrash } from "@tabler/icons-react";
+import { Trash2Icon, XIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useReactFlow } from "@xyflow/react";
 import {
@@ -20,8 +20,13 @@ import { useTRPC } from "~/trpc/client";
 export function DeleteAttributeAlertDialog({
   id,
   slug,
+  name,
   ...props
-}: { id: number; slug: string } & React.ComponentProps<typeof AlertDialog>) {
+}: {
+  id: number;
+  slug: string;
+  name: string;
+} & React.ComponentProps<typeof AlertDialog>) {
   const trpc = useTRPC();
   const { deleteElements } = useReactFlow();
   const queryClient = useQueryClient();
@@ -55,8 +60,9 @@ export function DeleteAttributeAlertDialog({
           size="icon-xs"
           className="focus-visible:ring-0"
           disabled={isPending}
+          aria-label={`Delete ${name}`}
         >
-          <IconTrash />
+          <Trash2Icon />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -68,9 +74,17 @@ export function DeleteAttributeAlertDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
-            Continue
+          <AlertDialogCancel>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={isPending}
+            onClick={handleDelete}
+          >
+            <Trash2Icon data-icon="inline-start" />
+            Delete attribute
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

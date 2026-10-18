@@ -22,10 +22,7 @@ export const CategoryStoreProvider = ({
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (storeRef.current === null) {
-    storeRef.current = createCategoryStore({
-      selectedCategory: null,
-      parentCategory: null,
-    });
+    storeRef.current = createCategoryStore();
   }
 
   return (

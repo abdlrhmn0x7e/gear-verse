@@ -1,16 +1,4 @@
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  gte,
-  ilike,
-  inArray,
-  isNull,
-  lte,
-  sql,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, isNull, lte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -20,10 +8,17 @@ import {
   media,
   products,
   productsMedia,
+  reviews,
   seo,
 } from "~/server/db/schema";
+import { getCategoryIdsBySlug } from "../common/category-ids";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
+import { inStockSql } from "../common/in-stock";
 import type { Pagination } from "../common/types";
+import {
+  getProductsOrdering,
+  type ProductsSortBy,
+} from "../common/products-ordering";
 
 export const _products = {
   queries: {
@@ -42,11 +37,13 @@ export const _products = {
           max: number;
         };
       },
-      "price-asc" | "price-desc" | "newest" | "oldest"
+      ProductsSortBy
     >) => {
+      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const whereClause = [
-        gt(products.id, cursor ?? 0),
+        cursorWhere,
         eq(products.published, true),
+        eq(products.archived, false),
       ];
       if (filters?.title) {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
@@ -58,10 +55,7 @@ export const _products = {
         const categoriesIds = new Set<number>();
         await Promise.all(
           filters.categories.map(async (categorySlug) => {
-            const ids =
-              await _products.queries.helpers.getCategoryIdsBySlug(
-                categorySlug,
-              );
+            const ids = await getCategoryIdsBySlug(categorySlug);
             ids.forEach((id) => categoriesIds.add(id));
           }),
         );
@@ -74,23 +68,6 @@ export const _products = {
       }
       if (filters?.price?.max) {
         whereClause.push(lte(products.price, filters.price.max));
-      }
-
-      // Default order by is newest (desc)
-      let orderBy = desc(products.id);
-      switch (sortBy) {
-        case "price-asc":
-          orderBy = asc(products.price);
-          break;
-        case "price-desc":
-          orderBy = desc(products.price);
-          break;
-        case "newest":
-          orderBy = desc(products.id);
-          break;
-        case "oldest":
-          orderBy = asc(products.id);
-          break;
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -139,7 +116,7 @@ export const _products = {
           ),
         )
         .limit(pageSize + 1)
-        .orderBy(orderBy);
+        .orderBy(...orderBy);
     },
 
     findBySlug: async (slug: string) => {
@@ -173,8 +150,6 @@ export const _products = {
             logoUrl: brandsMedia.url,
           },
 
-          profit: products.profit,
-          margin: products.margin,
           variants: sql<
             FullVariant[]
           >`coalesce(${fullVariantsCTE.json}, '[]'::jsonb)`,
@@ -198,30 +173,86 @@ export const _products = {
           eq(productMediaSubQuery.productId, products.id),
         )
         .leftJoin(media, eq(media.id, products.thumbnailMediaId))
-        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productId, products.id),
+            isNull(inventoryItems.productVariantId),
+          ),
+        )
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
 
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
 
+    /**
+     * Everything the product page's metadata and structured data need, without
+     * the description or the variants.
+     */
     findMetadata: async (slug: string) => {
+      const productMedia = db
+        .select({
+          productId: productsMedia.productId,
+          urls: sql<string[]>`
+            jsonb_agg(${media.url} order by ${productsMedia.order}, ${productsMedia.id})
+          `.as("media_urls"),
+        })
+        .from(productsMedia)
+        .innerJoin(media, eq(productsMedia.mediaId, media.id))
+        .groupBy(productsMedia.productId)
+        .as("product_media");
+
       return db
         .select({
           id: products.id,
+          slug: products.slug,
           title: products.title,
           summary: products.summary,
+          price: products.price,
+          strikeThroughPrice: products.strikeThroughPrice,
+          categoryId: products.categoryId,
+          updatedAt: products.updatedAt,
+          brand: {
+            name: brands.name,
+          },
           thumbnailUrl: sql<string>`${media.url}`,
+          media: sql<string[]>`coalesce(${productMedia.urls}, '[]'::jsonb)`,
+          inStock: inStockSql(products.id),
+          reviews: {
+            count: sql<number>`(
+              select count(*)::int from ${reviews}
+              where ${reviews.productId} = ${products.id}
+            )`,
+            averageRating: sql<number | null>`(
+              select avg(${reviews.rating})::float from ${reviews}
+              where ${reviews.productId} = ${products.id}
+            )`,
+          },
           seo: {
             pageTitle: seo.pageTitle,
             metaDescription: seo.metaDescription,
           },
         })
         .from(products)
+        .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(productMedia, eq(productMedia.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
@@ -232,32 +263,7 @@ export const _products = {
           slug: products.slug,
         })
         .from(products)
-        .where(eq(products.published, true));
-    },
-
-    helpers: {
-      async getCategoryIdsBySlug(categorySlug: string) {
-        const childrenCategoriesIdsQuery = sql<{ id: string }[]>`
-              WITH RECURSIVE all_children_categories AS (
-                SELECT categories.id, categories.slug
-                FROM categories
-                WHERE slug = ${categorySlug}
-
-                UNION ALL
-
-                SELECT categories.id, categories.slug
-                FROM categories
-                INNER JOIN all_children_categories
-                  ON all_children_categories.id = categories.parent_id
-              )
-
-              SELECT id FROM all_children_categories
-            `;
-
-        return db
-          .execute<{ id: number }>(childrenCategoriesIdsQuery)
-          .then((result) => result.map((row) => row.id));
-      },
+        .where(and(eq(products.published, true), eq(products.archived, false)));
     },
   },
 };

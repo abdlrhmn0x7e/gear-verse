@@ -51,7 +51,10 @@ export function CategoryTreeActions({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="order-last ml-auto cursor-pointer p-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:outline-none data-[state=open]:opacity-100">
+      <DropdownMenuTrigger
+        aria-label="Category actions"
+        className="text-muted-foreground hover:text-foreground order-last flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none data-[state=open]:opacity-100"
+      >
         <EllipsisVerticalIcon className="size-4" />
       </DropdownMenuTrigger>
 

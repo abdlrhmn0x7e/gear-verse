@@ -1,9 +1,10 @@
 "use client";
 
 import {
-  CloudUploadIcon,
+  ImagesIcon,
   MousePointerClickIcon,
   UploadCloudIcon,
+  UploadIcon,
   XIcon,
 } from "lucide-react";
 import { useCallback } from "react";
@@ -12,6 +13,7 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { imageDropzoneOptions } from "./image-dropzone-options";
 import type { SelectedMedia } from "../../_stores/media/store";
 import { MediaDialog } from "../dialogs/media";
 import { useMediaStore } from "../../_stores/media/provider";
@@ -64,9 +66,7 @@ export function FileDropzone({
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDropAccepted,
     disabled: isPending,
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg"],
-    },
+    ...imageDropzoneOptions,
     noClick: true,
     ...options,
   });
@@ -108,13 +108,13 @@ export function FileDropzone({
             </p>
           </>
         ) : isPending ? (
-          <>
-            <Spinner size="page" />
+          <div className="flex items-center gap-2">
+            <Spinner size="small" className="text-muted-foreground" />
 
             <p className="text-muted-foreground text-sm select-none">
               Uploading files...
             </p>
-          </>
+          </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
@@ -125,14 +125,15 @@ export function FileDropzone({
               </p>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Button type="button" size="sm" onClick={open}>
-                <CloudUploadIcon />
+                <UploadIcon data-icon="inline-start" />
                 Click to select files
               </Button>
 
               <MediaDialog onChange={onChange}>
-                <Button type="button" variant="link" size="sm">
+                <Button type="button" variant="outline" size="sm">
+                  <ImagesIcon data-icon="inline-start" />
                   Select existing
                 </Button>
               </MediaDialog>
@@ -153,6 +154,8 @@ export function FileDropzone({
                 height={128}
               />
               <button
+                type="button"
+                aria-label="Remove image"
                 className="bg-muted absolute -top-1 -right-1 flex size-5 cursor-pointer items-center justify-center rounded-full border [&>svg]:size-3"
                 onClick={() => handleDelete(media.mediaId)}
               >

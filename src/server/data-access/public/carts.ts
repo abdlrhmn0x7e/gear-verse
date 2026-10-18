@@ -1,14 +1,17 @@
+import { AppError } from "~/lib/errors/app-error";
 import { db } from "~/server/db";
 import {
   cartItems,
   carts,
   inventoryItems,
   media,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   products,
   productVariants,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import { and, desc, eq, gt, isNull, isNotNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
@@ -31,9 +34,7 @@ export const _carts = {
         db
           .select({
             id: sql<number>`${productVariants.id}`.as("variant_values_id"),
-            values: sql<string[]>`
-            jsonb_agg(${productOptionValues.value})
-          `.as("values"),
+            values: orderedOptionValues.as("values"),
           })
           .from(productVariants)
           .leftJoin(
@@ -49,6 +50,10 @@ export const _carts = {
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
+          )
+          .leftJoin(
+            productOptions,
+            eq(productOptionValues.productOptionId, productOptions.id),
           )
           .groupBy(productVariants.id),
       );
@@ -86,6 +91,12 @@ export const _carts = {
             sql`coalesce(${variantsInventory.quantity}, ${productsInventory.quantity})`.as(
               "stock",
             ),
+
+          available: sql<boolean>`(
+            ${products.published}
+            AND NOT ${products.archived}
+            AND (${cartItems.productVariantId} IS NULL OR NOT ${productVariants.archived})
+          )`.as("available"),
         })
         .from(cartItems)
         .leftJoin(products, eq(cartItems.productId, products.id))
@@ -135,6 +146,7 @@ export const _carts = {
 
         quantity: number;
         stock: number;
+        available: boolean;
 
         price: number;
         thumbnailUrl: string;
@@ -153,6 +165,7 @@ export const _carts = {
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'stock', ${items.stock},
+                'available', ${items.available},
                 'title', ${items.title},
                 'price', ${items.price},
                 'thumbnailUrl', ${items.thumbnailUrl},
@@ -193,6 +206,37 @@ export const _carts = {
 
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
+        // only published, non-archived products (and live variants) can be bought
+        const [purchasable] = await tx
+          .select({ id: products.id })
+          .from(products)
+          .leftJoin(
+            productVariants,
+            and(
+              eq(productVariants.productId, products.id),
+              eq(productVariants.id, item.productVariantId ?? 0),
+            ),
+          )
+          .where(
+            and(
+              eq(products.id, item.productId),
+              eq(products.published, true),
+              eq(products.archived, false),
+              item.productVariantId
+                ? eq(productVariants.archived, false)
+                : undefined,
+            ),
+          )
+          .limit(1);
+
+        // bad requests reach the customer as is, so these say what went wrong
+        if (!purchasable) {
+          throw new AppError(
+            "This product is no longer available",
+            "BAD_REQUEST",
+          );
+        }
+
         let stock: number;
 
         if (item.productVariantId) {
@@ -223,8 +267,8 @@ export const _carts = {
           stock = product?.stock ?? 0;
         }
 
-        if (stock === 0) {
-          throw new Error("Product out of stock");
+        if (stock <= 0) {
+          throw new AppError("This product is out of stock", "BAD_REQUEST");
         }
 
         const target = item.productVariantId
@@ -246,8 +290,12 @@ export const _carts = {
           })
           .returning({ id: cartItems.id, quantity: cartItems.quantity });
 
+        // throwing rolls the quantity bump back
         if (stock < (updated?.quantity ?? 1)) {
-          throw new Error("Product out of stock");
+          throw new AppError(
+            `Only ${stock} left in stock, and your cart already has them all`,
+            "BAD_REQUEST",
+          );
         }
 
         return updated;
@@ -264,9 +312,11 @@ export const _carts = {
           eq(cartItems.cartId, cartId),
           eq(cartItems.productId, productId),
         ];
-        if (productVariantId) {
-          whereClause.push(eq(cartItems.productVariantId, productVariantId));
-        }
+        whereClause.push(
+          productVariantId
+            ? eq(cartItems.productVariantId, productVariantId)
+            : isNull(cartItems.productVariantId),
+        );
 
         const [updated] = await tx
           .update(cartItems)

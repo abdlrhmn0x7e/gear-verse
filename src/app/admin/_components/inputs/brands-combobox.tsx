@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, TargetIcon, XCircleIcon } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  TargetIcon,
+  Trash2Icon,
+  XCircleIcon,
+} from "lucide-react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -33,7 +39,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { IconTrash } from "@tabler/icons-react";
 
 export function BrandsCombobox({
   value,
@@ -220,7 +225,7 @@ export function BrandsCommand({
     trpc.admin.brands.mutations.delete.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
+          trpc.admin.brands.queries.getPage.pathFilter(),
         );
       },
       onError: () => {
@@ -277,8 +282,9 @@ export function BrandsCommand({
                   deleteBrand({ brandId: brand.id });
                 }}
                 disabled={deletingBrand}
+                aria-label={`Delete ${brand.name}`}
               >
-                <IconTrash />
+                <Trash2Icon />
               </Button>
             </CommandItem>
           ))}

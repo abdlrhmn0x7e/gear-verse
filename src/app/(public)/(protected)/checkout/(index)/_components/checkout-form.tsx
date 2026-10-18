@@ -35,6 +35,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 import { IconHomeOff, IconHomePlus } from "@tabler/icons-react";
 import { Button } from "~/components/ui/button";
+import { PayOnDelivery } from "~/components/features/payment/pay-on-delivery";
 import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
 import { useTRPC } from "~/trpc/client";
 import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
@@ -85,20 +86,27 @@ export function CheckoutForm({
           name="paymentMethod"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Payment Method</FormLabel>
+              <FormLabel>Payment method</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
-                  className="grid grid-cols-2 gap-2"
+                  className="grid gap-2 sm:grid-cols-2"
                 >
-                  <FormItem className="has-checked:bg-primary/10 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
+                  <FormItem className="has-checked:bg-primary/5 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
                     <FormControl>
                       <RadioGroupItem value="COD" className="hidden" />
                     </FormControl>
-                    <FormLabel className="flex items-center gap-2">
-                      <BanknoteIcon className="size-4" />
-                      Cash on Delivery
+                    <FormLabel className="flex flex-col items-start gap-1">
+                      <span className="flex items-center gap-2">
+                        <BanknoteIcon className="size-4" />
+                        Cash on delivery
+                      </span>
+                      <span className="text-muted-foreground text-xs font-normal">
+                        We&apos;ll contact you to confirm your order and the
+                        shipping fee, which you pay in advance by InstaPay or
+                        mobile wallet. The rest is paid to the courier.
+                      </span>
                     </FormLabel>
                   </FormItem>
 
@@ -112,11 +120,12 @@ export function CheckoutForm({
                     </FormControl>
                     <FormLabel className="flex items-center gap-2">
                       <CreditCardIcon className="size-4" />
-                      Online Payment (Soon)
+                      Online payment (soon)
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
+              <PayOnDelivery label="You can pay with" note={null} />
               <FormMessage />
             </FormItem>
           )}
@@ -148,11 +157,17 @@ export function CheckoutForm({
                         form.setValue("addressId", id);
                       }}
                     >
-                      <Button type="button">
+                      <Button type="button" variant="outline">
                         <IconHomePlus />
-                        Add Address
+                        Add address
                       </Button>
                     </AddAddressDrawerDialog>
+                    {/* without this, submitting with no address does nothing visible */}
+                    {fieldState.invalid && (
+                      <FieldError>
+                        Add an address to place your order.
+                      </FieldError>
+                    )}
                   </EmptyContent>
                 </Empty>
               ) : (
@@ -202,7 +217,7 @@ export function CheckoutForm({
                       className="ml-auto w-fit"
                     >
                       <IconHomePlus />
-                      Add Address
+                      Add address
                     </Button>
                   </AddAddressDrawerDialog>
                 </>
@@ -221,7 +236,7 @@ export function CheckoutFormSkeleton() {
       {/* Payment Method Section */}
       <div className="space-y-2">
         <Skeleton className="h-4 w-40" />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           <div className="rounded-lg border p-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />

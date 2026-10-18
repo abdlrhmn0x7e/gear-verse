@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "~/lib/utils";
 import { Slot } from "radix-ui";
 
 const badgeVariants = cva(
@@ -9,21 +9,23 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        brand: "bg-brand-subtle text-brand-text",
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-destructive/10 text-red-700 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:text-destructive dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
         outline:
           "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-brand-text underline-offset-4 hover:underline",
         info: "bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
         success:
-          "bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-300",
+          "bg-green-500/10 text-green-800 dark:bg-green-500/20 dark:text-green-300",
         warning:
           "bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
-        error: "bg-destructive/10 text-destructive dark:bg-destructive/20",
+        error:
+          "bg-destructive/10 text-red-700 dark:bg-destructive/20 dark:text-destructive",
       },
     },
     defaultVariants: {

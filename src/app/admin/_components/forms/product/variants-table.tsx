@@ -231,7 +231,7 @@ export function VariantsTable({
             <FormField
               control={form.control}
               name={`variants.${row.index}.stock`}
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormControl>
                     <NumberInput
@@ -239,6 +239,8 @@ export function VariantsTable({
                       min={0}
                       {...field}
                       value={field.value ?? 0}
+                      // unlike onChange, this also fires for the stepper arrows
+                      onValueChange={(value) => onChange(value ?? 0)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -363,7 +365,7 @@ function VariantMediaDialog({ index }: { index: number }) {
   function renderMedia() {
     if (!variant?.thumbnail.id) {
       return (
-        <ImagePlusIcon className="group-hover:text-primary-foreground size-4" />
+        <ImagePlusIcon className="group-hover:text-foreground size-4" />
       );
     }
 
@@ -383,6 +385,7 @@ function VariantMediaDialog({ index }: { index: number }) {
       <MediaDialog onChange={handleChange}>
         <button
           type="button"
+          aria-label="Choose variant thumbnail"
           className={cn(
             "group hover:bg-muted flex size-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed transition-all hover:opacity-80",
             form.formState.errors.variants?.[index]?.thumbnail &&

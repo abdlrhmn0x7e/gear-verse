@@ -1,6 +1,5 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronRightIcon, PowerOffIcon, RadioTowerIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
@@ -10,46 +9,35 @@ import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductsTableActions } from "./actions";
 import { Badge } from "~/components/ui/badge";
-import { Checkbox } from "~/components/ui/checkbox";
-import type { DataTableFeatures } from "~/lib/table-features";
+import {
+  DataGridTableRowSelect,
+  DataGridTableRowSelectAll,
+} from "~/components/reui/data-grid/data-grid-table";
+import type { ListColumn } from "../list-grid";
 
-export const productColumns: ColumnDef<
-  DataTableFeatures,
-  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number]
->[] = [
+export type ProductRow =
+  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
+
+export const productColumns: ListColumn<ProductRow>[] = [
   {
     id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected()
-            ? true
-            : table.getIsSomePageRowsSelected()
-              ? "indeterminate"
-              : false
-        }
-        aria-label="Select all products"
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        onClick={(event) => event.stopPropagation()}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        aria-label="Select product"
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        onClick={(event) => event.stopPropagation()}
-      />
-    ),
+    header: () => <DataGridTableRowSelectAll />,
+    cell: ({ row }) => <DataGridTableRowSelect row={row} />,
     enableHiding: false,
+    meta: { headerTitle: "Select", headerClassName: "w-10" },
   },
   {
     accessorKey: "id",
     header: "Product No.",
     cell: ({ row }) => {
       return (
-        <Button variant="link" className="p-0" asChild>
-          <Link href={`/admin/products/${row.original.id}`}>
+        // A real link, so the product can open in a new tab; the row itself
+        // opens the product drawer.
+        <Button variant="link" className="h-auto p-0" asChild>
+          <Link
+            href={`/admin/products/${row.original.id}`}
+            onClick={(event) => event.stopPropagation()}
+          >
             # {row.original.id}
           </Link>
         </Button>
@@ -58,6 +46,8 @@ export const productColumns: ColumnDef<
   },
   {
     accessorKey: "title",
+    header: "Product",
+    meta: { headerClassName: "w-full" },
     cell: ({ row }) => {
       const ParentIcon = row.original.category.parent
         ? iconsMap.get(row.original.category.parent.icon)
@@ -68,13 +58,15 @@ export const productColumns: ColumnDef<
           <ImageWithFallback
             src={row.original.thumbnail?.url}
             alt={row.original.title ?? "Product Thumbnail"}
-            className="bg-white"
+            className="shrink-0 bg-white"
             width={40}
             height={40}
           />
 
           <div className="text-muted-foreground text-sm">
-            <p className="font-medium">{row.original.title}</p>
+            <p className="text-foreground font-medium whitespace-normal">
+              {row.original.title}
+            </p>
             <div className="flex items-center gap-1">
               {row.original.category.parent && (
                 <>
@@ -97,6 +89,11 @@ export const productColumns: ColumnDef<
   },
   {
     accessorKey: "brand",
+    header: "Brand",
+    meta: {
+      headerClassName: "hidden md:table-cell",
+      cellClassName: "hidden md:table-cell",
+    },
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
@@ -114,6 +111,11 @@ export const productColumns: ColumnDef<
   },
   {
     accessorKey: "published",
+    header: "Published",
+    meta: {
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
+    },
     cell: ({ row }) => {
       if (row.original.published) {
         return (
@@ -133,14 +135,20 @@ export const productColumns: ColumnDef<
     },
   },
   {
-    accessorKey: "actions",
+    id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
+    meta: { headerTitle: "Actions", cellClassName: "text-right" },
     cell: ({ row }) => {
       return (
-        <ProductsTableActions
-          id={row.original.id}
-          slug={row.original.slug}
-          published={row.original.published}
-        />
+        // The menu portals out, but the trigger's click would still open the
+        // row's drawer.
+        <div onClick={(event) => event.stopPropagation()}>
+          <ProductsTableActions
+            id={row.original.id}
+            slug={row.original.slug}
+            published={row.original.published}
+          />
+        </div>
       );
     },
   },

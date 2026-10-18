@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircleIcon, TagIcon } from "lucide-react";
+import { PlusIcon, TagIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { CategoryForm, type CategoryFormValues } from "../forms/category-form";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export function AddCategoryDrawer() {
     <Drawer {...drawer.props} direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="ghost" className="w-full rounded-t-none">
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Category
         </Button>
       </DrawerTrigger>
@@ -77,7 +77,11 @@ export function AddCategoryDrawer() {
             form="category-form"
             disabled={isCreatingCategory}
           >
-            {isCreatingCategory ? <Spinner /> : <TagIcon />}
+            {isCreatingCategory ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Create Category
           </Button>
         </DrawerFooter>

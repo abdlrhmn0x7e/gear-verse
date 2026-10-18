@@ -1,4 +1,5 @@
 import { sql, eq, gt, desc, and, ilike, isNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
   orderItems,
@@ -6,14 +7,22 @@ import {
   orders,
   addresses,
   productOptionValuesVariants,
-  productOptionValues,
   productOptions,
+  productOptionValues,
   products,
   inventoryItems,
   media,
   users,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
+import { getStockDiff } from "../common/stock-diff";
+import {
+  getCurrentUnitPrices,
+  orderLineUnitPrice,
+  toPreviousUnitPrices,
+  withUnitPrices,
+} from "../common/unit-prices";
 
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
@@ -23,6 +32,15 @@ type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
 
 export const _orders = {
   queries: {
+    findOwnership: async (id: number) => {
+      return db
+        .select({ userId: orders.userId, addressId: orders.addressId })
+        .from(orders)
+        .where(eq(orders.id, id))
+        .limit(1)
+        .then(([res]) => res);
+    },
+
     getPage: async ({
       pageSize,
       cursor,
@@ -50,9 +68,9 @@ export const _orders = {
           .select({
             orderId: orders.id,
             totalValue:
-              sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`.as(
-                "totalValue",
-              ),
+              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`
+                .mapWith(Number)
+                .as("totalValue"),
           })
           .from(orders)
           .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -60,7 +78,7 @@ export const _orders = {
             productVariants,
             eq(orderItems.productVariantId, productVariants.id),
           )
-          .leftJoin(products, eq(productVariants.productId, products.id))
+          .leftJoin(products, eq(orderItems.productId, products.id))
           .groupBy(orders.id),
       );
 
@@ -130,9 +148,7 @@ export const _orders = {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
-          json: sql<string[]>`
-            jsonb_agg(${productOptionValues.value})
-          `.as("values"),
+          json: orderedOptionValues.as("values"),
         })
         .from(productOptionValues)
         .leftJoin(
@@ -149,69 +165,108 @@ export const _orders = {
         .groupBy(productOptionValuesVariants.productVariantId)
         .as("variant_option_values");
 
-      const orderItemsVariants = db
+      const variantsInventory = alias(inventoryItems, "variants_inventory");
+      const productsInventory = alias(inventoryItems, "products_inventory");
+      const productThumbnail = alias(media, "product_thumbnail");
+      const variantThumbnail = alias(media, "variant_thumbnail");
+
+      // every order line, with or without a variant
+      const items = db
         .select({
-          id: productVariants.id,
+          id: sql<number>`${orderItems.id}`.as("order_item_id"),
+          orderId: sql<number>`${orderItems.orderId}`.as("order_item_order_id"),
+          productId: sql<number>`${orderItems.productId}`.as(
+            "order_item_product_id",
+          ),
+          productVariantId: sql<
+            number | null
+          >`${orderItems.productVariantId}`.as("order_item_product_variant_id"),
+          quantity: orderItems.quantity,
           title: products.title,
           summary: products.summary,
-          price:
-            sql`coalesce(${productVariants.overridePrice}, ${products.price})`.as(
-              "price",
+          price: sql<number>`${orderLineUnitPrice}`.as("price"),
+          stock:
+            sql`coalesce(${variantsInventory.quantity}, ${productsInventory.quantity})`.as(
+              "stock",
             ),
-          stock: sql`${inventoryItems.quantity}`.as("stock"),
-          thumbnailUrl: media.url,
+          thumbnailUrl:
+            sql`coalesce(${variantThumbnail.url}, ${productThumbnail.url})`.as(
+              "thumbnailUrl",
+            ),
           values: variantValues.json,
         })
-        .from(productVariants)
+        .from(orderItems)
+        .leftJoin(products, eq(orderItems.productId, products.id))
         .leftJoin(
-          inventoryItems,
-          eq(productVariants.id, inventoryItems.productVariantId),
+          productVariants,
+          eq(orderItems.productVariantId, productVariants.id),
         )
-        .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
         .leftJoin(
           variantValues,
-          eq(productVariants.id, variantValues.productVariantId),
+          eq(orderItems.productVariantId, variantValues.productVariantId),
         )
-        .leftJoin(products, eq(productVariants.productId, products.id))
-        .orderBy(desc(productVariants.id))
-        .as("variants");
+        .leftJoin(
+          variantsInventory,
+          and(
+            eq(variantsInventory.productId, orderItems.productId),
+            eq(variantsInventory.productVariantId, orderItems.productVariantId),
+          ),
+        )
+        .leftJoin(
+          productsInventory,
+          and(
+            eq(productsInventory.productId, orderItems.productId),
+            isNull(productsInventory.productVariantId),
+          ),
+        )
+        .leftJoin(
+          productThumbnail,
+          eq(products.thumbnailMediaId, productThumbnail.id),
+        )
+        .leftJoin(
+          variantThumbnail,
+          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
+        )
+        .where(eq(orderItems.orderId, id))
+        .as("items");
 
       type OrderItem = {
         id: number;
+        productId: number;
+        productVariantId: number | null;
         quantity: number;
-        stock: number;
+        stock: number | null;
         title: string;
         price: number;
         summary: string;
-        thumbnailUrl: string;
-        values: string[];
+        thumbnailUrl: string | null;
+        values: string[] | null;
       };
 
-      const orderItemsVariantsJson = db
+      const itemsJson = db
         .select({
-          id: orderItems.orderId,
+          orderId: items.orderId,
           json: sql<OrderItem[]>`
             jsonb_agg(
               jsonb_build_object(
-                'id', ${orderItemsVariants.id},
-                'quantity', ${orderItems.quantity},
-                'stock', ${orderItemsVariants.stock},
-                'title', ${orderItemsVariants.title},
-                'summary', ${orderItemsVariants.summary},
-                'price', ${orderItemsVariants.price},
-                'thumbnailUrl', ${orderItemsVariants.thumbnailUrl},
-                'values', ${orderItemsVariants.values}
+                'id', ${items.id},
+                'productId', ${items.productId},
+                'productVariantId', ${items.productVariantId},
+                'quantity', ${items.quantity},
+                'stock', ${items.stock},
+                'title', ${items.title},
+                'summary', ${items.summary},
+                'price', ${items.price},
+                'thumbnailUrl', ${items.thumbnailUrl},
+                'values', ${items.values}
               )
+              order by ${items.id} desc
             )
           `.as("items"),
         })
-        .from(orderItemsVariants)
-        .leftJoin(
-          orderItems,
-          eq(orderItems.productVariantId, orderItemsVariants.id),
-        )
-        .groupBy(orderItems.orderId)
-        .as("order_variants_json");
+        .from(items)
+        .groupBy(items.orderId)
+        .as("order_items_json");
 
       return db
         .select({
@@ -228,17 +283,12 @@ export const _orders = {
             name: users.name,
             image: users.image,
           },
-          items: sql<
-            OrderItem[]
-          >`coalesce(${orderItemsVariantsJson.json}, '[]'::jsonb)`,
+          items: sql<OrderItem[]>`coalesce(${itemsJson.json}, '[]'::jsonb)`,
         })
         .from(orders)
         .leftJoin(users, eq(orders.userId, users.id))
         .leftJoin(addresses, eq(orders.addressId, addresses.id))
-        .leftJoin(
-          orderItemsVariantsJson,
-          eq(orders.id, orderItemsVariantsJson.id),
-        )
+        .leftJoin(itemsJson, eq(orders.id, itemsJson.orderId))
         .where(eq(orders.id, id))
         .limit(1)
         .then(([res]) => res);
@@ -265,9 +315,13 @@ export const _orders = {
         }
 
         if (itemsInput.length > 0) {
-          await tx
-            .insert(orderItems)
-            .values(itemsInput.map((item) => ({ ...item, orderId: order.id })));
+          const prices = await getCurrentUnitPrices(tx, itemsInput);
+          await tx.insert(orderItems).values(
+            withUnitPrices(itemsInput, prices).map((item) => ({
+              ...item,
+              orderId: order.id,
+            })),
+          );
         }
 
         // update the product variants stock
@@ -326,15 +380,20 @@ export const _orders = {
           await tx.update(orders).set(orderInput).where(eq(orders.id, id));
         }
 
+        // the form only sends dirty fields, so a missing status means unchanged
+        const wasCancelled = old.status === "CANCELLED";
+        const isCancelled = (orderInput?.status ?? old.status) === "CANCELLED";
+
         // if the order is being cancelled, restock the items
-        if (old.status !== "CANCELLED" && orderInput?.status === "CANCELLED") {
+        if (!wasCancelled && isCancelled) {
           const oldItems = await tx
             .select({
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
               quantity: orderItems.quantity,
             })
-            .from(orderItems);
+            .from(orderItems)
+            .where(eq(orderItems.orderId, id));
           for (const item of oldItems) {
             const preds = [eq(inventoryItems.productId, item.productId)];
             if (item.productVariantId) {
@@ -356,14 +415,15 @@ export const _orders = {
 
         // if the items are being from cancelled, adjust the stock accordingly
         // this probably could be nicer but who cares meh
-        if (old.status === "CANCELLED" && orderInput?.status !== "CANCELLED") {
+        if (wasCancelled && !isCancelled) {
           const oldItems = await tx
             .select({
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
               quantity: orderItems.quantity,
             })
-            .from(orderItems);
+            .from(orderItems)
+            .where(eq(orderItems.orderId, id));
 
           for (const item of oldItems) {
             const preds = [eq(inventoryItems.productId, item.productId)];
@@ -393,63 +453,44 @@ export const _orders = {
               quantity: orderItems.quantity,
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
+              unitPrice: orderItems.unitPrice,
             });
 
-          // create the new items
+          // create the new items. lines already on the order keep the price
+          // they were ordered at, added lines get the current price
+          const prices = await getCurrentUnitPrices(tx, itemsInput);
           const created = await tx
             .insert(orderItems)
-            .values(itemsInput.map((item) => ({ ...item, orderId: id })))
+            .values(
+              withUnitPrices(
+                itemsInput,
+                prices,
+                toPreviousUnitPrices(deleted),
+              ).map((item) => ({ ...item, orderId: id })),
+            )
             .returning({
               quantity: orderItems.quantity,
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
             });
 
-          // create a map for the diff between quantities and update the stock
-          const diffMap = new Map<string, number>();
-          deleted.forEach((item) =>
-            diffMap.set(
-              `item-${item.productId}-${item.productVariantId}`,
-              item.quantity,
-            ),
-          );
-          created.forEach((item) => {
-            const old = diffMap.get(
-              `item-${item.productId}-${item.productVariantId}`,
-            );
-            if (old) {
-              diffMap.set(
-                `item-${item.productId}-${item.productVariantId}`,
-                old - item.quantity,
+          // a cancelled order holds no stock, so its items don't move it.
+          // positive quantities go back to stock, negative ones are taken out
+          const stockDiff = isCancelled ? [] : getStockDiff(deleted, created);
+          for (const line of stockDiff) {
+            const preds = [eq(inventoryItems.productId, line.productId)];
+            if (line.productVariantId) {
+              preds.push(
+                eq(inventoryItems.productVariantId, line.productVariantId),
               );
-              return;
-            }
-
-            diffMap.set(
-              `item-${item.productId}-${item.productVariantId}`,
-              item.quantity,
-            );
-          });
-
-          for (const [key, quantity] of Array.from(diffMap.entries())) {
-            const productId = Number(key.split("-")[1]);
-            const productVariantId = Number(key.split("-")[2]);
-
-            if (isNaN(productId)) {
-              throw new Error("A product id must be a number");
-            }
-
-            const preds = [eq(inventoryItems.productId, productId)];
-            if (isNaN(productVariantId)) {
-              preds.push(isNull(inventoryItems.productVariantId));
             } else {
-              preds.push(eq(inventoryItems.productVariantId, productVariantId));
+              preds.push(isNull(inventoryItems.productVariantId));
             }
 
             await tx
               .update(inventoryItems)
               .set({
-                quantity: sql`${inventoryItems.quantity} + (${quantity})`,
+                quantity: sql`${inventoryItems.quantity} + (${line.quantity})`,
               })
               .where(and(...preds));
           }
@@ -470,6 +511,13 @@ export const _orders = {
 
     delete: async (id: number) => {
       return db.transaction(async (tx) => {
+        const order = await tx
+          .select({ status: orders.status })
+          .from(orders)
+          .where(eq(orders.id, id))
+          .limit(1)
+          .then(([res]) => res);
+
         const deleted = await tx
           .delete(orderItems)
           .where(eq(orderItems.orderId, id))
@@ -479,7 +527,9 @@ export const _orders = {
             quantity: orderItems.quantity,
           });
 
-        for (const item of deleted) {
+        // a cancelled order was already restocked when it was cancelled
+        const toRestock = order?.status === "CANCELLED" ? [] : deleted;
+        for (const item of toRestock) {
           const preds = [eq(inventoryItems.productId, item.productId)];
           if (item.productVariantId) {
             preds.push(

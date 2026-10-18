@@ -1,6 +1,6 @@
 "use client";
 
-import { IconTrash } from "@tabler/icons-react";
+import { Trash2Icon } from "lucide-react";
 import { DeleteDialog } from "~/components/delete-dialog";
 import { useTRPC } from "~/trpc/client";
 import { Button } from "~/components/ui/button";
@@ -29,8 +29,12 @@ export function DeleteReviewDialog({ id }: { id: number }) {
       entity="Review"
       handleDelete={handleDelete}
       Trigger={
-        <Button size="icon" variant="destructive-ghost">
-          <IconTrash />
+        <Button
+          size="icon"
+          variant="destructive-ghost"
+          aria-label="Delete review"
+        >
+          <Trash2Icon />
         </Button>
       }
     />

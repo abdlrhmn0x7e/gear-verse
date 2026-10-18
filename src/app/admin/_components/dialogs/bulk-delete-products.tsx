@@ -1,5 +1,7 @@
 "use client";
 
+import { Trash2Icon, XIcon } from "lucide-react";
+import { Spinner } from "~/components/spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -67,11 +69,20 @@ export function BulkDeleteProductsDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
+            variant="destructive"
             disabled={ids.length === 0 || isPending}
             onClick={handleDelete}
           >
+            {isPending ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <Trash2Icon data-icon="inline-start" />
+            )}
             {isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>

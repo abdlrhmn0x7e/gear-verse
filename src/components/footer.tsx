@@ -1,82 +1,138 @@
-import { Suspense } from "react";
-import { CurrentYear } from "./current-year";
-import { Logo } from "./logo";
+import { cacheTag } from "next/cache";
+import { IconBrandWhatsapp } from "@tabler/icons-react";
 import Link from "next/link";
-import {
-  IconBrandDiscord,
-  IconBrandFacebook,
-  IconBrandTiktok,
-} from "@tabler/icons-react";
+import { Suspense } from "react";
+import { getStoreSettings } from "~/lib/store-settings";
+import { cn } from "~/lib/utils";
+import { app } from "~/server/application";
+import { CurrentYear } from "./current-year";
+import { PayOnDelivery } from "./features/payment/pay-on-delivery";
+import { Logo } from "./logo";
+import { SocialLinks } from "./social-links";
+import { WhatsAppNumberLink } from "./whatsapp-number-link";
 
-const STORE_LINKS = [
-  { title: "Home", href: "/" },
-  { title: "All Products", href: "/products" },
-  { title: "My Orders", href: "/orders" },
+const HELP_LINKS = [
+  { title: "FAQ", href: "/#faq" },
+  { title: "My orders", href: "/orders" },
+  { title: "Returns & refunds", href: "/returns" },
 ];
 
-const SOCIAL_LINKS = [
-  {
-    label: "Join our Discord",
-    url: "https://discord.gg/CRDZxAD35N",
-    icon: IconBrandDiscord,
-  },
-  {
-    label: "Follow us on TikTok",
-    url: "https://www.tiktok.com/@gearverse.eg",
-    icon: IconBrandTiktok,
-  },
-  {
-    label: "Follow us on Facebook",
-    url: "https://www.facebook.com/profile.php?id=61575728973616",
-    icon: IconBrandFacebook,
-  },
-];
+const linkClassName =
+  "text-muted-foreground hover:text-foreground rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
-export function Footer() {
+export async function Footer() {
+  const settings = await getStoreSettings();
+  const { whatsappNumber } = settings;
+
   return (
-    <footer className="bg-muted pt-16 pb-24 md:py-16">
-      <div className="mx-auto max-w-5xl px-6">
-        <Link href="/" aria-label="go home" className="mx-auto block size-fit">
-          <Logo />
-        </Link>
-
-        <nav
-          aria-label="Footer"
-          className="mt-8 flex flex-wrap justify-center gap-6 text-sm"
+    <footer className="mx-auto w-full max-w-7xl px-4 pt-16 pb-8 md:px-6 lg:px-8">
+      {/* with a Contact column, tablets give the brand its own row so the three link columns have room for the number */}
+      <div
+        className={cn(
+          "bg-card grid gap-12 rounded-3xl p-8 md:p-12",
+          whatsappNumber
+            ? "md:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+            : "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]",
+        )}
+      >
+        <div
+          className={cn(
+            "flex flex-col items-start gap-6",
+            whatsappNumber && "md:col-span-3 lg:col-span-1",
+          )}
         >
-          {STORE_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-primary block font-medium"
-            >
-              {link.title}
-            </Link>
-          ))}
+          <Link
+            href="/"
+            className="rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+          >
+            <Logo className="h-14" />
+          </Link>
+          <p className="text-muted-foreground max-w-xs text-pretty">
+            The world&apos;s best gear, hand-imported to Egypt. Customs
+            cleared, insured and delivered.
+          </p>
+          <SocialLinks links={settings} />
+        </div>
+
+        <nav aria-label="Shop" className="space-y-4">
+          <h2 className="text-sm font-medium">Shop</h2>
+          <ul className="space-y-3 text-sm">
+            <li>
+              <Link href="/products" className={linkClassName}>
+                All products
+              </Link>
+            </li>
+            <Suspense>
+              <CategoryLinks />
+            </Suspense>
+          </ul>
         </nav>
 
-        <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
-          {SOCIAL_LINKS.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              className="text-muted-foreground hover:text-primary block"
-            >
-              <link.icon size={20} />
-            </a>
-          ))}
-        </div>
-        <span className="text-muted-foreground block text-center text-sm">
-          ©{" "}
-          <Suspense>
-            <CurrentYear />
-          </Suspense>{" "}
-          Gear Verse, All rights reserved
-        </span>
+        <nav aria-label="Help" className="space-y-4">
+          <h2 className="text-sm font-medium">Help</h2>
+          <ul className="space-y-3 text-sm">
+            {HELP_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className={linkClassName}>
+                  {link.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {whatsappNumber && (
+          <section aria-labelledby="footer-contact" className="space-y-4">
+            <h2 id="footer-contact" className="text-sm font-medium">
+              Contact
+            </h2>
+            <div className="space-y-1.5 text-sm">
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                className="text-foreground hover:text-primary inline-flex items-center gap-2 font-medium tabular-nums transition-[color] duration-150"
+              >
+                <IconBrandWhatsapp
+                  className="size-5 shrink-0"
+                  stroke={1.75}
+                  aria-hidden
+                />
+              </WhatsAppNumberLink>
+              <p className="text-muted-foreground">Chat with us on WhatsApp</p>
+            </div>
+          </section>
+        )}
+
+        <PayOnDelivery
+          className={cn(
+            "border-t pt-8 md:col-span-3",
+            whatsappNumber && "lg:col-span-4",
+          )}
+        />
       </div>
+
+      <p className="text-muted-foreground px-2 pt-6 text-sm">
+        ©{" "}
+        <Suspense>
+          <CurrentYear />
+        </Suspense>{" "}
+        Gear Verse. All rights reserved.
+      </p>
     </footer>
   );
+}
+
+async function CategoryLinks() {
+  "use cache";
+
+  cacheTag("categories-menu");
+
+  const categories = await app.public.categories.queries.findRoots();
+
+  return categories.map((category) => (
+    <li key={category.slug}>
+      <Link href={`/categories/${category.slug}`} className={linkClassName}>
+        {category.name}
+      </Link>
+    </li>
+  ));
 }

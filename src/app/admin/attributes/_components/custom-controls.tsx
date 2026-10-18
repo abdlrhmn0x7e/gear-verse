@@ -29,7 +29,7 @@ const CONTROLS = [
 
 export function CustomControls() {
   return (
-    <Card className="bg-background/80 absolute bottom-0 left-0 z-10 w-10 cursor-help overflow-hidden p-1 shadow-lg backdrop-blur-md transition-[width] duration-300 hover:w-auto">
+    <Card className="bg-card/90 absolute bottom-0 left-0 z-10 w-10 cursor-help overflow-hidden p-1 shadow-lg ring-1 ring-black/8 backdrop-blur-md transition-[width] duration-300 hover:w-auto dark:ring-white/8">
       <CardContent className="p-0">
         <ul>
           {CONTROLS.map(({ label, icon: Icon }) => (

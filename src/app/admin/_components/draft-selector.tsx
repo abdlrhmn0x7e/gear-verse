@@ -5,7 +5,7 @@ import {
   ChevronDownIcon,
   FileTextIcon,
   PlusIcon,
-  TrashIcon,
+  Trash2Icon,
   PencilIcon,
   CheckIcon,
 } from "lucide-react";
@@ -79,15 +79,10 @@ export function DraftSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1"
-          suppressHydrationWarning
-        >
-          <FileTextIcon className="size-4" />
+        <Button variant="ghost" size="sm" suppressHydrationWarning>
+          <FileTextIcon data-icon="inline-start" />
           Drafts
-          <ChevronDownIcon className="size-4" />
+          <ChevronDownIcon data-icon="inline-end" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
@@ -122,6 +117,7 @@ export function DraftSelector({
                     <Button
                       variant="ghost"
                       size="icon-sm"
+                      aria-label="Save draft name"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleFinishRename(draft.id);
@@ -148,6 +144,7 @@ export function DraftSelector({
                       <Button
                         variant="ghost"
                         size="icon-sm"
+                        aria-label={`Rename ${draft.name}`}
                         onClick={(e) => handleStartRename(e, draft)}
                       >
                         <PencilIcon className="size-3" />
@@ -155,12 +152,13 @@ export function DraftSelector({
                       <Button
                         variant="ghost"
                         size="icon-sm"
+                        aria-label={`Delete ${draft.name}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           onDeleteDraft(draft.id);
                         }}
                       >
-                        <TrashIcon className="size-3" />
+                        <Trash2Icon className="size-3" />
                       </Button>
                     </div>
                   </>

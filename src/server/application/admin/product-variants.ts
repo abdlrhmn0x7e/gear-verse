@@ -2,6 +2,7 @@ import { AppError } from "~/lib/errors/app-error";
 import type { UpdateProductVariantInput } from "~/lib/schemas/entities/product-variants";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
+import { invalidateProducts } from "~/server/actions/cache";
 
 export const _productVariants = {
   queries: {
@@ -56,6 +57,10 @@ export const _productVariants = {
         throw new AppError("Couldn't update product variant", "INTERNAL", {
           cause: error,
         });
+      }
+
+      if (variant.productId) {
+        await invalidateProducts([variant.productId]);
       }
 
       return variant;

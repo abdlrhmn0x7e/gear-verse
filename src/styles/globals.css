@@ -1,131 +1,225 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./typeset.css";
 @plugin "@tailwindcss/typography";
 @config "../../tailwind.config.js";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --plum-50: oklch(0.975 0.012 325);
+  --plum-100: oklch(0.95 0.028 325);
+  --plum-200: oklch(0.9 0.06 325);
+  --plum-250: oklch(0.86 0.09 325);
+  --plum-300: oklch(0.83 0.1 325);
+  --plum-400: oklch(0.73 0.15 325);
+  --plum-500: oklch(0.62 0.19 325);
+  --plum-600: oklch(0.53 0.19 325);
+  --plum-700: oklch(0.45 0.165 325);
+  --plum-800: oklch(0.38 0.14 325);
+  --plum-900: oklch(0.3257 0.1161 325);
+  --plum-925: oklch(0.32 0.09 325);
+  --plum-950: oklch(0.24 0.08 325);
+  /* the dark logo's lavender: the plum hue at low chroma, for the dark theme's primary and wordmark */
+  --lavender-200: oklch(0.89 0.04 325);
+  --lavender-300: oklch(0.84 0.045 325);
+
+  /* the in-between steps (75, 250, 350, 750, 850) and the warmer 800/900 exist for the dark theme */
+  --neutral-50: oklch(0.99 0.003 325);
+  --neutral-75: oklch(0.97 0.006 325);
+  --neutral-100: oklch(0.965 0.005 325);
+  --neutral-200: oklch(0.925 0.007 325);
+  --neutral-250: oklch(0.88 0.01 325);
+  --neutral-300: oklch(0.87 0.009 325);
+  --neutral-350: oklch(0.74 0.015 325);
+  --neutral-400: oklch(0.71 0.013 325);
+  /* 0.51 so muted text keeps 4.63:1 on a highlighted (accent) row as well as 5.62:1 on the page */
+  --neutral-500: oklch(0.51 0.015 325);
+  --neutral-600: oklch(0.45 0.015 325);
+  --neutral-700: oklch(0.37 0.014 325);
+  --neutral-750: oklch(0.34 0.02 325);
+  --neutral-800: oklch(0.29 0.02 325);
+  --neutral-850: oklch(0.25 0.018 325);
+  --neutral-900: oklch(0.205 0.014 325);
+  --neutral-950: oklch(0.145 0.008 325);
+
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-950);
+  --card: var(--neutral-100);
+  --card-foreground: var(--foreground);
+  /* menus, dialogs and drawers share the input surface, so the search pill opens into the same colour */
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  /* the logo colour: white on plum-900 measures 13.13:1 (12.74:1 against the page); hover goes darker, 16.90:1 */
+  --primary: var(--plum-900);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: var(--plum-950);
+  /* navigation and toggle state (active category, pressed filter, chosen variant): neutral, so plum stays the action colour */
+  --selected: var(--neutral-950);
+  --selected-foreground: var(--neutral-50);
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-900);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+  /* hovered and highlighted rows: one step darker than the popover/card surface (1.13:1) */
+  --accent: var(--neutral-200);
+  --accent-foreground: var(--foreground);
+  /* dark enough to stay text on the card and drawer surface (4.78:1) as well as a fill under a white label (5.29:1) */
+  --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: var(--neutral-200);
+  /* the edge and inner dividers of floating layers: a see-through dark hairline, which reads darker than the gray
+     popover fill where a solid --border would read paler */
+  --floating-border: oklch(0 0 0 / 8%);
+  /* --input is the field BORDER (shadcn's meaning); the field fill is --input-background, the card surface */
+  --input: var(--neutral-200);
+  --input-background: var(--card);
+  --ring: var(--neutral-400);
+  /* a card placed on a popover or drawer, which are the card colour, so the tile steps down (up in dark) */
+  --tile: var(--neutral-200);
+  --tile-hover: var(--neutral-250);
+  /* an icon tile lifted off a card panel */
+  --raised: var(--neutral-50);
+  /* grey tiles holding the full-colour payment marks and their labels; the label keeps 4.5:1 (5.99:1) on the tile */
+  --logo-tile: var(--neutral-200);
+  --logo-tile-foreground: var(--neutral-600);
+  /* --ring is 2.5:1 on the light page, too faint for a keyboard focus indicator */
+  --focus: var(--neutral-950);
+
+  --brand-subtle: var(--plum-100);
+  --brand-text: var(--plum-700);
+  --brand-solid: var(--plum-900);
+  --brand-solid-foreground: var(--plum-50);
+  /* selected text takes its own colour too, so it reads on the plum panel as well as the page: 12.27:1; the highlight
+     stands 9.53:1 off the plum-900 primary button and panel */
+  --selection: var(--plum-200);
+  --selection-foreground: var(--plum-950);
+  /* the wordmark's own purple (#501854); 12.74:1 on the page, 11.84:1 on the footer card */
+  --brand-logo: var(--plum-900);
+
+  /* a light well in both themes: multiply makes white-backed photos vanish on a dark tile */
+  --image-well: var(--neutral-100);
+  --image-outline: oklch(0 0 0 / 0.1);
+
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* the dashboard's revenue bars: plum-700 measures 7.36:1 on the card; hovered, plum-900 11.84:1 */
+  --chart-bar: var(--plum-700);
+  --chart-bar-hover: var(--plum-900);
+
+  /* the admin frame takes the card surface and the content card sits on it at page white; item text is the foreground
+     at 75% (10.24:1 on the frame), group labels at 70% (8.67:1), the account email muted-foreground (5.22:1) */
+  --sidebar: var(--neutral-100);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  /* the active item; hover takes it at half strength. Full foreground on it measures 15.84:1 */
+  --sidebar-accent: var(--neutral-200);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--ring);
+
   --font-serif: Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
   --radius: 0.875rem;
-  --shadow-x: 0px;
-  --shadow-y: 2px;
-  --shadow-blur: 12px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.08;
-  --shadow-color: #555360;
-  --shadow-2xs: 0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.04);
-  --shadow-xs: 0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.04);
+  --shadow-2xs: 0px 2px 12px 0px oklch(0.37 0.014 325 / 0.04);
+  --shadow-xs: 0px 2px 12px 0px oklch(0.37 0.014 325 / 0.04);
   --shadow-sm:
-    0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.08),
-    0px 1px 2px -1px hsl(249.2308 7.2626% 35.098% / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
+    0px 1px 2px -1px oklch(0.37 0.014 325 / 0.08);
   --shadow:
-    0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.08),
-    0px 1px 2px -1px hsl(249.2308 7.2626% 35.098% / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
+    0px 1px 2px -1px oklch(0.37 0.014 325 / 0.08);
   --shadow-md:
-    0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.08),
-    0px 2px 4px -1px hsl(249.2308 7.2626% 35.098% / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
+    0px 2px 4px -1px oklch(0.37 0.014 325 / 0.08);
   --shadow-lg:
-    0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.08),
-    0px 4px 6px -1px hsl(249.2308 7.2626% 35.098% / 0.08);
+    0px 8px 24px -4px oklch(0.37 0.014 325 / 0.1),
+    0px 4px 6px -1px oklch(0.37 0.014 325 / 0.06);
   --shadow-xl:
-    0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.08),
-    0px 8px 10px -1px hsl(249.2308 7.2626% 35.098% / 0.08);
-  --shadow-2xl: 0px 2px 12px 0px hsl(249.2308 7.2626% 35.098% / 0.2);
+    0px 16px 40px -8px oklch(0.37 0.014 325 / 0.14),
+    0px 8px 10px -1px oklch(0.37 0.014 325 / 0.06);
+  --shadow-2xl: 0px 24px 64px -12px oklch(0.37 0.014 325 / 0.24);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* a soft charcoal rather than near-black: surfaces step up by lightness, text stays at 7:1 or better */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-75);
+  --card: var(--neutral-850);
+  --popover: var(--neutral-850);
+  /* the dark logo's lavender with a plum-950 label: 10.17:1 (10.82:1 against the page); hover goes lighter, 11.98:1 */
+  --primary: var(--lavender-300);
+  --primary-foreground: var(--plum-950);
+  --primary-hover: var(--lavender-200);
+  --selected: var(--neutral-75);
+  --selected-foreground: var(--neutral-900);
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-75);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-350);
+  --accent: var(--neutral-800);
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --font-serif: Georgia, serif;
-  --font-mono:
-    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-    monospace;
-  --shadow-x: 0px;
-  --shadow-y: 4px;
-  --shadow-blur: 16px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.35;
-  --shadow-color: #000000;
-  --shadow-2xs: 0px 4px 16px 0px hsl(0 0% 0% / 0.17);
-  --shadow-xs: 0px 4px 16px 0px hsl(0 0% 0% / 0.17);
+  /* white on this red measures 2.89:1, so destructive fills take dark text */
+  --destructive-foreground: var(--neutral-950);
+  --border: var(--neutral-750);
+  --floating-border: oklch(1 0 0 / 8%);
+  --input: var(--neutral-750);
+  --ring: var(--neutral-500);
+  --focus: var(--neutral-75);
+  --tile: var(--neutral-800);
+  --tile-hover: var(--neutral-750);
+  --raised: var(--neutral-800);
+  /* payment marks are full colour and InstaPay's purple measures 1.28:1 on a dark tile, so the tiles stay light like the
+     image well: 7.74:1 for that purple, 3.03:1 and up for the reds, 7.29:1 for the label */
+  --logo-tile: var(--neutral-250);
+  --logo-tile-foreground: var(--neutral-700);
+
+  --brand-subtle: var(--plum-925);
+  --brand-text: var(--plum-250);
+  --brand-solid: var(--plum-900);
+  --brand-solid-foreground: var(--plum-50);
+  /* plum-50 on plum-700 is 7.56:1; plum-700 rather than 800 so the highlight still shows on the plum-900 panel (1.61:1 vs 1.22:1)
+     and stands 4.91:1 off the lavender primary button */
+  --selection: var(--plum-700);
+  --selection-foreground: var(--plum-50);
+  /* lavender at the brand hue; 10.82:1 on the page, 9.69:1 on the footer card */
+  --brand-logo: var(--lavender-300);
+
+  /* plum-400 measures 6.29:1 on the card; hovered, plum-300 9.17:1 */
+  --chart-bar: var(--plum-400);
+  --chart-bar-hover: var(--plum-300);
+
+  /* photos ship on white, so the well stays light, only dimmer than the light theme's */
+  --image-well: var(--neutral-250);
+  --image-outline: oklch(1 0 0 / 0.1);
+
+  /* the frame steps up from the page like a card, so the content card reads as the page itself: items at 75% measure
+     8.30:1, labels at 70% 7.32:1, the email 6.94:1; the active item (neutral-800) keeps the foreground at 13.02:1 */
+  --sidebar: var(--neutral-850);
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--neutral-800);
+
+  --shadow-2xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
+  --shadow-xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
   --shadow-sm:
-    0px 4px 16px 0px hsl(0 0% 0% / 0.35), 0px 1px 2px -1px hsl(0 0% 0% / 0.35);
+    0px 4px 16px 0px oklch(0 0 0 / 0.35), 0px 1px 2px -1px oklch(0 0 0 / 0.35);
   --shadow:
-    0px 4px 16px 0px hsl(0 0% 0% / 0.35), 0px 1px 2px -1px hsl(0 0% 0% / 0.35);
+    0px 4px 16px 0px oklch(0 0 0 / 0.35), 0px 1px 2px -1px oklch(0 0 0 / 0.35);
   --shadow-md:
-    0px 4px 16px 0px hsl(0 0% 0% / 0.35), 0px 2px 4px -1px hsl(0 0% 0% / 0.35);
+    0px 4px 16px 0px oklch(0 0 0 / 0.35), 0px 2px 4px -1px oklch(0 0 0 / 0.35);
   --shadow-lg:
-    0px 4px 16px 0px hsl(0 0% 0% / 0.35), 0px 4px 6px -1px hsl(0 0% 0% / 0.35);
+    0px 8px 24px -4px oklch(0 0 0 / 0.5), 0px 4px 6px -1px oklch(0 0 0 / 0.35);
   --shadow-xl:
-    0px 4px 16px 0px hsl(0 0% 0% / 0.35), 0px 8px 10px -1px hsl(0 0% 0% / 0.35);
-  --shadow-2xl: 0px 4px 16px 0px hsl(0 0% 0% / 0.88);
+    0px 16px 40px -8px oklch(0 0 0 / 0.6), 0px 8px 10px -1px oklch(0 0 0 / 0.35);
+  --shadow-2xl: 0px 24px 64px -12px oklch(0 0 0 / 0.8);
 }
 
 @theme inline {
@@ -137,6 +231,9 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-selected: var(--selected);
+  --color-selected-foreground: var(--selected-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -147,12 +244,27 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-input-background: var(--input-background);
   --color-ring: var(--ring);
+  --color-tile: var(--tile);
+  --color-tile-hover: var(--tile-hover);
+  --color-raised: var(--raised);
+  --color-logo-tile: var(--logo-tile);
+  --color-logo-tile-foreground: var(--logo-tile-foreground);
+  --color-focus: var(--focus);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-text: var(--brand-text);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-foreground: var(--brand-solid-foreground);
+  --color-brand-logo: var(--brand-logo);
+  --color-image-outline: var(--image-outline);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-bar: var(--chart-bar);
+  --color-chart-bar-hover: var(--chart-bar-hover);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -185,6 +297,61 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Status colours for the vendored ReUI badge (src/components/reui/badge.tsx). Its solid
+   variants put white text on the fill in both themes, so each fill is dark enough for
+   that: white measures 4.97:1 on success, 5.19:1 on warning, 5.56:1 on info. The
+   foregrounds are the text colours: on the light tint and the page 5.9:1 or better, and
+   on the dark outline badge 9.3:1 or better. The dark tinted variants take the
+   foregrounds too: a fill that carries white text measures about 3:1 as text. */
+:root {
+  --success: oklch(0.53 0.13 150);
+  --success-foreground: oklch(0.44 0.11 150);
+  --warning: oklch(0.54 0.115 70);
+  --warning-foreground: oklch(0.47 0.1 70);
+  --info: oklch(0.52 0.15 255);
+  --info-foreground: oklch(0.46 0.14 255);
+}
+
+.dark {
+  --success-foreground: oklch(0.82 0.13 150);
+  --warning-foreground: oklch(0.85 0.13 80);
+  --info-foreground: oklch(0.82 0.09 255);
+}
+
+@theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+@theme {
+  --text-display: 4.5rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 500;
+  --text-display-sm: 2.5rem;
+  --text-display-sm--line-height: 1.05;
+  --text-display-sm--letter-spacing: -0.03em;
+  --text-display-sm--font-weight: 500;
+  --text-headline: 2.5rem;
+  --text-headline--line-height: 1.1;
+  --text-headline--letter-spacing: -0.025em;
+  --text-headline--font-weight: 500;
+  --text-headline-sm: 2rem;
+  --text-headline-sm--line-height: 1.1;
+  --text-headline-sm--letter-spacing: -0.025em;
+  --text-headline-sm--font-weight: 500;
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.015em;
+  --text-title--font-weight: 500;
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.55;
+}
+
 @theme {
   --animate-search-dialog-in: scale-search-in 0.2s ease-out forwards;
   --animate-search-dialog-out: scale-search-out 0.1s ease-out forwards;
@@ -195,92 +362,8 @@
   --animate-search-icon-in: animate-search-icon-in 0.1s ease-in-out forwards;
   --animate-search-icon-out: animate-search-icon-out 0.1s ease-in-out forwards;
 
-  --animate-float: floating 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-
-  --animate-blur-in: blur-in 0.4s ease-in-out forwards;
-
-  --animate-checkbox-path: checkbox-path 0.3s ease-in-out forwards;
-
   --animate-item-in: item-in 0.2s ease-in-out forwards;
   --animate-item-out: item-out 0.2s ease-in-out forwards;
-
-  --animate-navigation-menu-in: navigation-menu-in 0.2s ease-in-out forwards;
-  --animate-navigation-menu-out: navigation-menu-out 0.2s ease-in-out forwards;
-
-  --animate-navigation-enter-from-right: enterFromRight 0.2s ease-out forwards;
-  --animate-navigation-enter-from-left: enterFromLeft 0.2s ease-out forwards;
-  --animate-navigation-exit-to-right: exitToRight 0.2s ease-out forwards;
-  --animate-navigation-exit-to-left: exitToLeft 0.2s ease forwards;
-
-  @keyframes enterFromRight {
-    from {
-      opacity: 0;
-      transform: translateX(100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes enterFromLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes exitToRight {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(100px);
-    }
-  }
-
-  @keyframes exitToLeft {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-100px);
-    }
-  }
-
-  @keyframes navigation-menu-in {
-    from {
-      opacity: 0;
-      height: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      height: var(--radix-navigation-menu-viewport-height);
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes navigation-menu-out {
-    from {
-      opacity: 1;
-      height: var(--radix-navigation-menu-viewport-height);
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      height: 0;
-      transform: translateY(-20px);
-    }
-  }
 
   @keyframes item-in {
     from {
@@ -305,49 +388,6 @@
       opacity: 0;
       blur: 10px;
       transform: translateY(10px);
-    }
-  }
-
-  @keyframes checkbox-path {
-    from {
-      stroke-dashoffset: 2;
-      stroke-dasharray: 2;
-    }
-    to {
-      stroke-dasharray: 2;
-    }
-  }
-
-  @keyframes blur-in {
-    from {
-      opacity: 0.5;
-      filter: blur(10px);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-    }
-  }
-
-  @keyframes floating {
-    0%,
-    100% {
-      transform: translateY(0px) translateX(0px) rotate(0deg);
-    }
-    16% {
-      transform: translateY(-4px) translateX(2px) rotate(0.5deg);
-    }
-    33% {
-      transform: translateY(-10px) translateX(3px) rotate(0.8deg);
-    }
-    50% {
-      transform: translateY(-12px) translateX(-2px) rotate(-0.8deg);
-    }
-    66% {
-      transform: translateY(-8px) translateX(-3px) rotate(-0.5deg);
-    }
-    83% {
-      transform: translateY(-3px) translateX(1px) rotate(0.3deg);
     }
   }
 
@@ -408,56 +448,142 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-focus;
+    /* thin, quiet scrollbars everywhere: a classic track reads as a stray strip against the rounded cards and drawers */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 30%, transparent) transparent;
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans overscroll-y-none;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-foreground);
   }
 }
 
-@layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
+/* Outlined controls and floating surfaces: a hairline border on a flat fill. Shadows only mark elevation, so controls
+   have none; floating layers (menus, popovers, dialogs) add surface-floating for the popover fill and set --surface-shadow
+   instead of shadow-*, since two utilities writing box-shadow have no guaranteed order.
+   Interactive states only apply to buttons and links, so popovers and dialogs stay static.
+   Text fields add surface-field, which swaps the fill through --surface-fill for the same reason. */
+/* Set on a floating layer for its own edge and elevation only; a field or button inside it keeps the control
+   border and stays flat. */
+@property --surface-border {
+  syntax: "*";
+  inherits: false;
 }
 
-@utility fade-top {
-  mask-image: linear-gradient(to bottom, transparent 0%, black 35%);
+@property --surface-shadow {
+  syntax: "*";
+  inherits: false;
 }
-@utility fade-bottom {
-  mask-image: linear-gradient(to top, transparent 0%, black 35%);
+
+@utility surface-control {
+  position: relative;
+  border: 1px solid var(--surface-border, var(--input));
+  background-color: var(--surface-fill, var(--background));
+  background-clip: padding-box;
+  box-shadow: var(--surface-shadow, none);
+
+  &:where(button, a):not(:disabled, [aria-disabled="true"]) {
+    &:hover,
+    &[aria-expanded="true"] {
+      background-color: var(
+        --surface-fill-hover,
+        color-mix(in oklab, var(--accent) 50%, var(--background))
+      );
+    }
+  }
+
+  @variant dark {
+    background-color: var(
+      --surface-fill,
+      color-mix(in oklab, var(--input) 32%, var(--background))
+    );
+
+    &:where(button, a):not(:disabled, [aria-disabled="true"]) {
+      &:hover,
+      &[aria-expanded="true"] {
+        background-color: var(
+          --surface-fill-hover,
+          color-mix(in oklab, var(--input) 64%, var(--background))
+        );
+      }
+    }
+  }
 }
-@utility fade-top-lg {
-  mask-image: linear-gradient(to bottom, transparent 15%, black 100%);
+
+/* Menus, popovers and dialogs take the popover fill, which is the input surface in both themes, edged with the
+   floating hairline. --border is swapped inside the layer too, so its dividers (under a search field, between
+   sections) are the same hairline rather than a solid line paler than the fill. Layers drawn with a ring instead of
+   surface-control add this for the dividers and set ring-(--floating-border) for the edge. */
+@utility surface-floating {
+  --surface-fill: var(--popover);
+  --surface-border: var(--floating-border);
+  --border: var(--floating-border);
 }
-@utility fade-bottom-lg {
-  mask-image: linear-gradient(to top, transparent 15%, black 100%);
+
+/* Text fields, search and select triggers sit on the card surface; the border from surface-control
+   keeps them readable when the field itself is placed on a card. */
+@utility surface-field {
+  --surface-fill: var(--input-background);
+  --surface-fill-hover: color-mix(
+    in oklab,
+    var(--accent) 50%,
+    var(--input-background)
+  );
 }
-@utility fade-left {
-  mask-image: linear-gradient(to right, transparent 0%, black 35%);
+
+/* Filled primary action: the flat logo colour in both themes. No inset highlight either: the colour alone carries the emphasis. */
+@utility surface-solid {
+  border: 1px solid var(--primary);
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+
+  &:where(button, a):not(:disabled, [aria-disabled="true"]) {
+    &:hover,
+    &:active {
+      border-color: var(--primary-hover);
+      background-color: var(--primary-hover);
+    }
+  }
 }
-@utility fade-right {
-  mask-image: linear-gradient(to left, transparent 0%, black 35%);
+
+/* Filled selection state for chips and option pickers, flat like the primary. */
+@utility surface-selected {
+  border: 1px solid var(--selected);
+  background-color: var(--selected);
+  color: var(--selected-foreground);
+
+  &:where(button, a):not(:disabled, [aria-disabled="true"]) {
+    &:hover {
+      background-color: color-mix(in oklab, var(--selected) 90%, transparent);
+    }
+  }
 }
-@utility fade-left-lg {
-  mask-image: linear-gradient(to right, transparent 15%, black 100%);
-}
-@utility fade-right-lg {
-  mask-image: linear-gradient(to left, transparent 15%, black 100%);
+
+/* Product photos ship on white. Multiply melts the white into the light tile; dark mode keeps a light well instead.
+   The blend sits on the well's direct child that holds the image, not on the img: a scaled hover wrapper is its own
+   isolated group, so an img blending inside it would multiply against nothing and show its white box. */
+@utility image-well {
+  background-color: var(--image-well);
+
+  & > img,
+  & > :has(img) {
+    mix-blend-mode: multiply;
+  }
 }
 
 html {
-  @apply scroll-smooth;
+  @apply motion-safe:scroll-smooth;
 }
 
 html body[data-scroll-locked] {
@@ -469,62 +595,39 @@ html body[data-scroll-locked] {
   scroll-margin-top: 100px;
 }
 
-.hero-ring {
-  @apply border-primary/20 shadow-primary/20 absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-[0_0_80px_inset];
+.scroll-shadow:not([data-shadow="false"]) {
+  --shadow-height: 10px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--shadow-height),
+    #000 calc(100% - var(--shadow-height)),
+    transparent 100%
+  );
 }
 
-@supports not selector(::-webkit-scrollbar) {
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent !important;
+/* outline-none sets --tw-outline-style to none and focus-visible:outline-{n} draws with that variable, so the pair (the
+   shared button, the nav links, the cards) drew no keyboard focus ring at all; focus brings the style back */
+@layer utilities {
+  .outline-none:focus-visible {
+    --tw-outline-style: solid;
   }
 }
 
-.scroll-shadow:not([data-shadow="false"]) {
-  --shadow-height: 10px;
-  --scrollbar-width: 0px;
-
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent,
-      #000 var(--shadow-height),
-      #000 calc(100% - var(--shadow-height)),
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      #fff var(--scrollbar-width),
-      transparent var(--scrollbar-width)
-    );
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent,
-      #000 var(--shadow-height),
-      #000 calc(100% - var(--shadow-height)),
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      #fff var(--scrollbar-width),
-      transparent var(--scrollbar-width)
-    );
-}
-
-::-webkit-scrollbar {
-  width: 0.3rem;
-  height: 0.3rem;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--border);
-  border-radius: 0.7rem;
-}
-
-::-webkit-scrollbar-track {
-  background-color: transparent;
-  border-radius: 0.7rem;
+/* typeset tuned to the site: headings at the site's 500 weight and tracking, and link focus on the high-contrast --focus
+   colour rather than --ring (2.5:1 on the light page) */
+@layer components {
+  .typeset {
+    --typeset-leading: 1.7;
+  }
+  .typeset :where(h1, h2, h3, h4) {
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .typeset a:focus-visible {
+    outline-color: var(--focus);
+  }
 }
 
 input:-webkit-autofill,
@@ -538,143 +641,4 @@ input:-webkit-autofill:active {
 
   /* Revert background color */
   transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Magnifying Glass Scanning Animations */
-@keyframes scan-orbit {
-  0% {
-    transform: rotate(0deg) translateX(var(--scan-radius)) rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg) translateX(var(--scan-radius)) rotate(-360deg);
-  }
-}
-
-@keyframes scan-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(var(--color-primary), 0.3);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(var(--color-primary), 0.6);
-    transform: scale(1.02);
-  }
-}
-
-@keyframes magnifying-glass-focus {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  100% {
-    transform: scale(1.1) rotate(5deg);
-  }
-}
-
-/* Tailwind Utility Classes for Scanning Animation */
-@utility scan-orbit-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transform-origin: center;
-}
-
-@utility scan-radius-sm {
-  --scan-radius: 120px;
-}
-
-@utility scan-radius-md {
-  --scan-radius: 180px;
-}
-
-@utility scan-radius-lg {
-  --scan-radius: 240px;
-}
-
-@utility scan-radius-xl {
-  --scan-radius: 300px;
-}
-
-@utility scan-speed-slow {
-  animation-duration: 10s;
-}
-
-@utility scan-speed-normal {
-  animation-duration: 6s;
-}
-
-@utility scan-speed-fast {
-  animation-duration: 4s;
-}
-
-@utility animate-scan-orbit {
-  animation: scan-orbit linear infinite;
-}
-
-@utility animate-scan-pulse {
-  animation: scan-pulse 2s ease-in-out infinite;
-}
-
-@utility animate-gamepad-zoom {
-  animation: gamepad-zoom-in 0.3s ease-out;
-}
-
-@utility animate-magnifying-focus {
-  animation: magnifying-glass-focus 0.3s ease-out forwards;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.9) translateY(0);
-    filter: drop-shadow(0 0 4px var(--color-primary));
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1) translateY(-2px);
-    filter: drop-shadow(0 0 10px var(--color-primary));
-  }
-}
-
-@utility animate-twinkle {
-  animation: twinkle 2.4s ease-in-out infinite;
-}
-
-.skeleton-animation {
-  background: var(--accent);
-  background: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    color-stop(8%, rgba(var(--accent), 0.4)),
-    color-stop(18%, color-mix(in srgb, var(--color-accent) 50%, transparent)),
-    color-stop(33%, color-mix(in srgb, var(--color-accent) 40%, transparent))
-  );
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--color-accent) 40%, transparent) 8%,
-    color-mix(in srgb, var(--color-accent) 50%, transparent) 18%,
-    color-mix(in srgb, var(--color-accent) 40%, transparent) 33%
-  );
-  background-size: 800px 100px;
-  animation: wave-lines 2s infinite ease-out;
-}
-
-@keyframes wave-lines {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
-  }
-}
-@keyframes wave-squares {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
-  }
 }

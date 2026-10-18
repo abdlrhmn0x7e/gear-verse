@@ -12,10 +12,14 @@ export function CustomerForm({
   defaultValues,
   onSubmit,
 }: {
-  defaultValues?: Partial<CustomerFormValues>;
+  defaultValues?: Partial<z.input<typeof customerFormSchema>>;
   onSubmit: (values: CustomerFormValues) => void;
 }) {
-  const form = useForm<CustomerFormValues>({
+  const form = useForm<
+    z.input<typeof customerFormSchema>,
+    unknown,
+    CustomerFormValues
+  >({
     resolver: zodResolver(customerFormSchema),
     defaultValues: defaultValues ?? {
       name: "",

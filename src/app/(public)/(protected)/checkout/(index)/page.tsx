@@ -9,6 +9,9 @@ import { CompleteCheckout } from "./_components/complete-checkout";
 import type { RouterOutput } from "~/trpc/client";
 import { Heading } from "~/components/heading";
 import { requireAuth } from "~/server/auth";
+import { CartStockNotice } from "~/components/cart-stock-notice";
+import { getStockIssue } from "~/lib/utils/cart-stock";
+import { OrderTotals } from "../../_components/order-totals";
 
 export default async function CheckoutPage() {
   await requireAuth();
@@ -19,17 +22,18 @@ export default async function CheckoutPage() {
 
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 pt-28 pb-24 md:pt-36 xl:grid-cols-3 xl:pb-32">
         <HydrateClient>
           <CompleteCheckout
             className="xl:col-span-2"
             hasCartItems={cart.items.length > 0}
+            hasStockIssues={cart.items.some((item) => getStockIssue(item))}
           >
             <OrderSummary cart={cart} cols={cols} isMobile />
           </CompleteCheckout>
         </HydrateClient>
 
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <OrderSummary cart={cart} cols={cols} />
         </div>
       </MaxWidthWrapper>
@@ -46,20 +50,32 @@ function OrderSummary({
   cols: number;
   isMobile?: boolean;
 }) {
+  const subtotal = cart.items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+
+  const empty = cart.items.length === 0 && (
+    <p className="text-muted-foreground">Your cart is empty.</p>
+  );
+
   if (isMobile) {
     return (
       <div className="space-y-3">
-        <Heading level={4}>Order Summary</Heading>
+        <Heading level={4}>Order summary</Heading>
+        {empty}
 
         {cart.items.map((item, index) => (
           <div className="flex gap-3" key={`item-${item.id}-${index}`}>
-            <ImageWithFallback
-              src={item.thumbnailUrl}
-              alt={item.title}
-              className="size-24 shrink-0 rounded-md"
-              width={256}
-              height={256}
-            />
+            <div className="image-well outline-image-outline size-24 shrink-0 overflow-hidden rounded-xl outline-1 -outline-offset-1">
+              <ImageWithFallback
+                src={item.thumbnailUrl}
+                alt={item.title}
+                className="size-full rounded-none border-none"
+                width={256}
+                height={256}
+              />
+            </div>
 
             <div className="flex flex-1 flex-col justify-between">
               <div>
@@ -69,14 +85,18 @@ function OrderSummary({
                 <p className="text-muted-foreground text-sm">
                   {item.values && `- ${item.values.join(", ")}`}
                 </p>
+                <CartStockNotice item={item} className="mt-1" />
               </div>
 
-              <p className="text-primary-foreground text-right text-lg font-medium">
+              <p className="text-right text-lg font-medium">
                 {formatCurrency(item.price * item.quantity)}
               </p>
             </div>
           </div>
         ))}
+
+        <Separator />
+        <OrderTotals subtotal={subtotal} />
       </div>
     );
   }
@@ -84,18 +104,19 @@ function OrderSummary({
   return (
     <Card className="h-fit space-y-3">
       <CardHeader>
-        <CardTitle className="text-xl">Order Summary</CardTitle>
+        <CardTitle className="text-xl">Order summary</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-8">
+        {empty}
         <div
-          className="grid gap-2"
+          className="grid gap-2 empty:hidden"
           style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
         >
           {cart.items.map((item, index) => (
             <div
               key={`item-${item.id}-${index}`}
-              className="overflow-hidden rounded-lg"
+              className="image-well outline-image-outline overflow-hidden rounded-lg outline-1 -outline-offset-1"
             >
               <AspectRatio key={`item-${item.id}-${index}`} ratio={16 / 10}>
                 <ImageWithFallback
@@ -110,7 +131,7 @@ function OrderSummary({
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 empty:hidden">
           {cart.items.map((item, index) => (
             <div
               key={`item-${item.id}-${index}`}
@@ -123,9 +144,10 @@ function OrderSummary({
                 <p className="text-muted-foreground text-sm">
                   {item.values && `- ${item.values.join(", ")}`}
                 </p>
+                <CartStockNotice item={item} className="mt-1" />
               </div>
 
-              <p className="text-primary-foreground text-lg font-medium">
+              <p className="text-lg font-medium">
                 {formatCurrency(item.price * item.quantity)}
               </p>
             </div>
@@ -134,46 +156,7 @@ function OrderSummary({
 
         <Separator />
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-muted-foreground font-medium">Total</p>
-            <p className="text-lg font-medium">
-              {formatCurrency(
-                cart.items.reduce(
-                  (acc, item) => acc + item.price * item.quantity,
-                  0,
-                ),
-              )}
-            </p>
-          </div>
-
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-muted-foreground font-medium">Shipping</p>
-              <p className="text-muted-foreground text-xs">
-                Estimated delivery: 1–2 business days
-              </p>
-            </div>
-
-            <p className="text-lg font-medium">
-              {formatCurrency(130)} ~ {formatCurrency(150)}
-            </p>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="flex items-center justify-between">
-          <p className="text-muted-foreground font-medium">Total</p>
-          <p className="text-lg font-medium">
-            {formatCurrency(
-              cart.items.reduce(
-                (acc, item) => acc + item.price * item.quantity,
-                0,
-              ) + 130,
-            )}
-          </p>
-        </div>
+        <OrderTotals subtotal={subtotal} />
       </CardContent>
     </Card>
   );

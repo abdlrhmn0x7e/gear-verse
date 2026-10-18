@@ -1,19 +1,22 @@
 "use client";
 
-import { IconFilterX } from "@tabler/icons-react";
+import { FunnelXIcon } from "lucide-react";
 import { useAllProductSearchParams } from "~/components/features/products/hooks";
 import { Button } from "~/components/ui/button";
 
 export function ClearAllFiltersButton() {
-  const [, setFilters] = useAllProductSearchParams();
-  function handleClear() {
-    void setFilters(null);
-  }
+  const [filters, setFilters] = useAllProductSearchParams();
+  const hasFilters = Object.values(filters).some((value) => value !== null);
 
   return (
-    <Button className="w-full" onClick={handleClear} variant="outline">
-      <IconFilterX />
-      Clear Filters
+    <Button
+      variant="outline"
+      className="self-start"
+      disabled={!hasFilters}
+      onClick={() => void setFilters(null)}
+    >
+      <FunnelXIcon data-icon="inline-start" />
+      Clear filters
     </Button>
   );
 }

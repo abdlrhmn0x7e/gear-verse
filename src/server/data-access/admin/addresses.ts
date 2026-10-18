@@ -20,6 +20,15 @@ export const _addresses = {
         .from(addresses)
         .where(eq(addresses.userId, userId));
     },
+
+    findOwnerId: async (id: number) => {
+      return db
+        .select({ userId: addresses.userId })
+        .from(addresses)
+        .where(eq(addresses.id, id))
+        .limit(1)
+        .then(([res]) => res?.userId);
+    },
   },
 
   mutations: {

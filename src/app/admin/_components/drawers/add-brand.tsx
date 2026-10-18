@@ -1,4 +1,4 @@
-import { PlusCircleIcon, TargetIcon } from "lucide-react";
+import { PlusIcon, TargetIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { BrandForm, type BrandFormValues } from "../forms/brand-form";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ export function AddBrandDrawer() {
       onSuccess: () => {
         toast.success("Brand created successfully");
         void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
+          trpc.admin.brands.queries.getPage.pathFilter(),
         );
         drawer.dismiss();
       },
@@ -42,7 +42,7 @@ export function AddBrandDrawer() {
     <Drawer {...drawer.props} direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="ghost" className="w-full rounded-t-none">
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Brand
         </Button>
       </DrawerTrigger>
@@ -59,7 +59,11 @@ export function AddBrandDrawer() {
         </div>
         <DrawerFooter>
           <Button type="submit" form="brand-form" disabled={isCreatingBrand}>
-            {isCreatingBrand ? <Spinner /> : <TargetIcon />}
+            {isCreatingBrand ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Create Brand
           </Button>
         </DrawerFooter>

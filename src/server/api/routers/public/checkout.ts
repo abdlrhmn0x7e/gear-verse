@@ -38,6 +38,25 @@ export const userCheckoutRouter = createTRPCRouter({
     complete: protectedProcedure
       .input(checkoutInputSchema)
       .mutation(async ({ ctx, input }) => {
+        // the address must be one of the customer's own saved addresses
+        const { data: isOwnedAddress, error: findAddressError } =
+          await tryCatch(
+            ctx.app.public.checkout.queries.isOwnedAddress({
+              addressId: input.addressId,
+              userId: ctx.user.id,
+            }),
+          );
+        if (findAddressError) {
+          throw errorMap(findAddressError);
+        }
+
+        if (!isOwnedAddress) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Please choose one of your saved addresses",
+          });
+        }
+
         // validate cart
         const { data: cart, error: findCartError } = await tryCatch(
           ctx.app.public.carts.queries.find(ctx.user.id),
@@ -61,11 +80,19 @@ export const userCheckoutRouter = createTRPCRouter({
           });
         }
 
+        const unavailable = cart.items.find((item) => !item.available);
+        if (unavailable) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `${unavailable.title} is no longer available, please remove it from your cart`,
+          });
+        }
+
         const { data: itemsStock, error: getItemsStockError } = await tryCatch(
           ctx.app.public.carts.queries.getItemsStock(
             cart.items.map((item) => ({
               productId: item.productId,
-              productVariantId: item.id,
+              productVariantId: item.productVariantId,
             })),
           ),
         );
@@ -73,21 +100,23 @@ export const userCheckoutRouter = createTRPCRouter({
           throw errorMap(getItemsStockError);
         }
 
-        const quantityMap = new Map<string, number>();
-        for (const item of cart.items) {
-          quantityMap.set(
+        const cartItemsMap = new Map(
+          cart.items.map((item) => [
             `${item.productId}-${item.productVariantId}`,
-            item.quantity,
-          );
-        }
+            item,
+          ]),
+        );
         for (const item of itemsStock) {
-          const quantity = quantityMap.get(
+          const cartItem = cartItemsMap.get(
             `${item.productId}-${item.productVariantId}`,
           );
-          if (quantity && quantity > item.stock) {
+          if (cartItem && cartItem.quantity > item.stock) {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: `Insufficient stock for product ${item.productId} - ${item.productVariantId}`,
+              message:
+                item.stock > 0
+                  ? `Insufficient stock for ${cartItem.title}: only ${item.stock} left`
+                  : `Insufficient stock for ${cartItem.title}: it is out of stock`,
             });
           }
         }

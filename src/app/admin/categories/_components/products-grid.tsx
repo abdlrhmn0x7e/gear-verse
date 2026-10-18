@@ -3,7 +3,6 @@
 import { type UniqueIdentifier } from "@dnd-kit/core";
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { GripIcon } from "lucide-react";
-import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import {
   Empty,
@@ -30,9 +29,11 @@ export function CategoryProductList({
   products: CategoryProductListItem[] | undefined;
   isLoadingProducts: boolean;
 }) {
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
+  const selectedCategoryId = useCategoryStore(
+    (state) => state.selectedCategoryId,
+  );
 
-  if (!selectedCategory) {
+  if (selectedCategoryId === null) {
     return (
       <div className="flex size-full items-center justify-center">
         <ProductsEmptyState />
@@ -42,8 +43,8 @@ export function CategoryProductList({
 
   if (isLoadingProducts) {
     return (
-      <div className="grid grid-cols-2 gap-3">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
           <ProductListItemSkeleton key={i} />
         ))}
       </div>
@@ -55,13 +56,13 @@ export function CategoryProductList({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
       {products.map((product) => (
         <DragableItem
           id={`product:${product.id}`}
           key={`product-${product.id}`}
           className={cn(
-            "bg-card text-card-foreground relative flex h-full gap-3 rounded-2xl border bg-clip-padding px-3 py-1 transition-all before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+            "bg-card text-card-foreground [&>button]:text-muted-foreground relative flex h-full items-center gap-3 rounded-2xl py-2 pr-3 pl-3 transition-all",
             activeId === `product:${product.id}` &&
               "ring-primary/40 scale-[0.98] opacity-40 ring-2",
           )}
@@ -107,22 +108,22 @@ export function ProductListItem({
   }
 
   return (
-    <div className={cn("flex h-full min-h-22 items-center gap-3", className)}>
+    <div
+      className={cn("flex h-full min-w-0 flex-1 items-center gap-3", className)}
+    >
       <ImageWithFallback
         key={`product-thumbnail-${product.id}`}
         src={product.thumbnail.url}
         alt={product.title}
-        width={128}
-        height={128}
-        className="size-18"
+        width={112}
+        height={112}
+        className="text-muted-foreground size-14 shrink-0 rounded-xl [&>svg]:size-1/2"
       />
 
-      <div className="flex-1 space-y-1">
-        <Heading level={5} className="font-medium">
-          {product.title}
-        </Heading>
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="truncate text-sm font-medium">{product.title}</p>
 
-        <div className="flex items-center gap-2">
+        <div className="text-muted-foreground flex items-center gap-1.5">
           <ImageWithFallback
             src={product.brand.logo?.url ?? ""}
             alt={product.brand.name ?? "unknown brand"}
@@ -131,7 +132,7 @@ export function ProductListItem({
             height={16}
           />
 
-          <span className="lg:text-md text-xs">{product.brand.name}</span>
+          <span className="truncate text-xs">{product.brand.name}</span>
         </div>
       </div>
     </div>
@@ -140,15 +141,15 @@ export function ProductListItem({
 
 function ProductListItemSkeleton() {
   return (
-    <div className="bg-card text-card-foreground relative flex h-22 gap-3 rounded-2xl border bg-clip-padding px-3 py-1 transition-all before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-2xl)-1px)] before:shadow-sm dark:bg-clip-border dark:shadow-sm dark:shadow-black/24 dark:before:shadow-[0_-1px_--theme(--color-white/8%)]">
+    <div className="bg-card text-card-foreground flex h-[4.5rem] items-center gap-3 rounded-2xl px-3 py-2">
       <div className="flex items-center gap-3">
-        <GripIcon className="size-4" />
+        <GripIcon className="text-muted-foreground size-4" />
 
-        <Skeleton className="size-18" />
+        <Skeleton className="size-14 rounded-xl" />
       </div>
 
-      <div className="mt-1 flex-1 space-y-1">
-        <Skeleton className="h-6 w-2/3" />
+      <div className="flex-1 space-y-1.5">
+        <Skeleton className="h-4 w-2/3" />
 
         <div className="flex items-center gap-2">
           <Skeleton className="size-4 rounded-full" />

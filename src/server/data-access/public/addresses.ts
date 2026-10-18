@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { addresses } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 type NewAddress = typeof addresses.$inferInsert;
 
@@ -19,6 +19,15 @@ export const _addresses = {
         })
         .from(addresses)
         .where(eq(addresses.userId, userId));
+    },
+
+    findOwned: async ({ id, userId }: { id: number; userId: number }) => {
+      return db
+        .select({ id: addresses.id })
+        .from(addresses)
+        .where(and(eq(addresses.id, id), eq(addresses.userId, userId)))
+        .limit(1)
+        .then(([res]) => res ?? null);
     },
   },
 

@@ -17,7 +17,7 @@ import {
   ItemTitle,
 } from "~/components/ui/item";
 import { Button } from "~/components/ui/button";
-import { SaveIcon, XIcon } from "lucide-react";
+import { SaveIcon, Undo2Icon } from "lucide-react";
 import { Spinner } from "~/components/spinner";
 import { updateProductVariantInputSchema } from "~/lib/schemas/entities/product-variants";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -38,7 +38,8 @@ export function VariantForm({
   defaultValues,
   isSubmitting = false,
 }: {
-  onSubmit: (data: VariantFormValues) => void;
+  /** The form counts as saved once this resolves; a rejection keeps the edits. */
+  onSubmit: (data: VariantFormValues) => void | Promise<unknown>;
   className?: string;
   isSubmitting?: boolean;
   defaultValues?: Partial<VariantFormValues>;
@@ -57,9 +58,13 @@ export function VariantForm({
   }
 
   function handleSave() {
-    void form.handleSubmit((data) => {
-      onSubmit(data);
-      form.reset(data);
+    void form.handleSubmit(async (data) => {
+      try {
+        await onSubmit(data);
+        form.reset(data);
+      } catch {
+        // the caller reports the failure; the unsaved changes stay up
+      }
     })();
   }
 
@@ -82,7 +87,10 @@ export function VariantForm({
     <>
       <FormProvider {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSave();
+          }}
           className={cn("space-y-4", className)}
         >
           <Card>
@@ -95,14 +103,14 @@ export function VariantForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Override Price</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Override Price</FieldLabel>
 
                     <NumberInput
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       placeholder="Override Price"
                       value={field.value ?? ""}
-                      onChange={field.onChange}
+                      onValueChange={field.onChange}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -132,6 +140,7 @@ export function VariantForm({
                               fieldState.invalid && "border-destructive",
                             )}
                             data-invalid={fieldState.invalid}
+                            aria-label="Change thumbnail"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <ImageWithFallback
@@ -141,7 +150,7 @@ export function VariantForm({
                               width={256}
                               height={256}
                             />
-                            <p className="dark:text-primary-foreground text-sm font-medium hover:underline">
+                            <p className="text-sm font-medium hover:underline">
                               Change
                             </p>
                           </button>
@@ -172,7 +181,9 @@ export function VariantForm({
                     name={`options.${index}.${key}.value`}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel className="capitalize">{key}</FieldLabel>
+                        <FieldLabel htmlFor={field.name} className="capitalize">
+                          {key}
+                        </FieldLabel>
                         <Input
                           id={field.name}
                           aria-invalid={fieldState.invalid}
@@ -236,11 +247,10 @@ export function VariantForm({
             onClick={handleDiscard}
             disabled={isSubmitting}
           >
-            <XIcon />
+            <Undo2Icon data-icon="inline-start" />
             Discard
           </Button>
           <Button
-            variant="outline"
             size="sm"
             onClick={handleSave}
             disabled={
@@ -249,7 +259,11 @@ export function VariantForm({
               !form.formState.isDirty
             }
           >
-            {isSubmitting ? <Spinner /> : <SaveIcon />}
+            {isSubmitting ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
             Save
           </Button>
         </ItemActions>

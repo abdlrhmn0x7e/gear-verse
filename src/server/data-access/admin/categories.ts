@@ -79,6 +79,34 @@ export const _categories = {
       return JSON.parse(result ?? "[]") as unknown[]; // this is validated on the application layer
     },
 
+    /**
+     * The ids of a category and of every category above it. UNION rather than
+     * UNION ALL, so a loop already in the data ends the walk instead of
+     * running forever.
+     */
+    async findSelfAndAncestorIds(id: number) {
+      const query = sql`
+        WITH RECURSIVE ancestors AS (
+          SELECT categories.id, categories.parent_id
+          FROM categories
+          WHERE id = ${id}
+
+          UNION
+
+          SELECT categories.id, categories.parent_id
+          FROM categories
+          INNER JOIN ancestors
+            ON categories.id = ancestors.parent_id
+        )
+
+        SELECT id FROM ancestors
+      `;
+
+      return db
+        .execute<{ id: number | string }>(query)
+        .then((result) => result.map((row) => Number(row.id)));
+    },
+
     async findById(id: number) {
       return db
         .select({

@@ -29,7 +29,11 @@ export function DeleteReviewDialog({ id }: { id: number }) {
       entity="Review"
       handleDelete={handleDelete}
       Trigger={
-        <Button size="icon" variant="destructive-ghost">
+        <Button
+          size="icon"
+          variant="destructive-ghost"
+          aria-label="Delete review"
+        >
           <IconTrash />
         </Button>
       }
