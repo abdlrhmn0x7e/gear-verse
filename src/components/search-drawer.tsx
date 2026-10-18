@@ -72,7 +72,7 @@ export function SearchDrawer() {
           <DrawerTitle>Search products</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 px-4 pb-4">
-          <InputGroup>
+          <InputGroup className="pointer-coarse:h-11">
             <InputGroupInput
               ref={inputRef}
               aria-label="Search products"
