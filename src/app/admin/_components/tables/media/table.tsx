@@ -1,27 +1,16 @@
 "use client";
 
 import {
-  flexRender,
-  useTable,
   type ColumnVisibilityState,
-  type Row,
   type RowSelectionState,
 } from "@tanstack/react-table";
-
-// UI & Icons
-import { PackageOpenIcon } from "lucide-react";
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
+import { useEffect, useRef, useState } from "react";
 
 // Table logic & components
 import { mediaColumns } from "./columns";
-import { MediaTableHeader } from "./header";
 import { type RouterOutput } from "~/trpc/client";
-import { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
-import {
-  dataTableFeatures,
-  type DataTableFeatures,
-} from "~/lib/table-features";
+import { ListGrid, useListTable } from "../list-grid";
 import { useMediaStore } from "../../../_stores/media/provider";
 
 type Media =
@@ -42,6 +31,9 @@ export function MediaTable({
   const [lastSelectedRowId, setLastSelectedRowId] = useState<string | null>(
     null,
   );
+  // The grid hands a row click only the row, so the shift key is read on the
+  // way down instead.
+  const shiftKey = useRef(false);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
@@ -51,8 +43,7 @@ export function MediaTable({
     }, {} as RowSelectionState),
   );
 
-  const table = useTable({
-    features: dataTableFeatures,
+  const table = useListTable({
     data,
     columns: mediaColumns,
     getRowId: (row) => row.id.toString(),
@@ -72,19 +63,19 @@ export function MediaTable({
     },
   });
 
-  const handleRowClick = (
-    row: Row<DataTableFeatures, Media>,
-    event: React.MouseEvent,
-  ) => {
+  const handleRowClick = (media: Media) => {
+    const rowId = media.id.toString();
+    const row = table.getRow(rowId);
+
     if (maxFiles === 1) {
-      setRowSelection({ [row.id.toString()]: true });
+      setRowSelection({ [rowId]: true });
       return;
     }
 
-    if (event.shiftKey && lastSelectedRowId !== null) {
+    if (shiftKey.current && lastSelectedRowId !== null) {
       const allRowIds = table.getRowModel().rows.map((r) => r.id);
       const startIndex = allRowIds.indexOf(lastSelectedRowId);
-      const endIndex = allRowIds.indexOf(row.id);
+      const endIndex = allRowIds.indexOf(rowId);
 
       const newSelection = { ...rowSelection };
       const [start, end] =
@@ -96,7 +87,7 @@ export function MediaTable({
       setRowSelection(newSelection);
     } else {
       row.toggleSelected(); // TanStack's built-in toggle
-      setLastSelectedRowId(row.id);
+      setLastSelectedRowId(rowId);
     }
   };
 
@@ -112,41 +103,18 @@ export function MediaTable({
   }, [rowSelection]);
 
   return (
-    <Table containerClassName={cn("rounded-md select-none", className)}>
-      <MediaTableHeader />
-
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && "selected"}
-              className="cursor-pointer [&_td]:border-r-0"
-              onClick={(event) => {
-                handleRowClick(row, event);
-              }}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={mediaColumns.length} className="text-center">
-              <div className="flex flex-col items-center justify-center gap-2 py-32">
-                <PackageOpenIcon size={64} />
-                <p className="text-lg font-medium">No Orders Found.</p>
-                <p className="text-muted-foreground text-sm">
-                  What a shame get your ass to work and generate some orders.
-                </p>
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <div
+      className="contents"
+      onClickCapture={(event) => {
+        shiftKey.current = event.shiftKey;
+      }}
+    >
+      <ListGrid
+        table={table}
+        onRowClick={handleRowClick}
+        className={cn("select-none", className)}
+        empty={{ title: "No media found." }}
+      />
+    </div>
   );
 }
