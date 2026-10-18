@@ -110,9 +110,9 @@
   --rating: oklch(0.84 0.16 84);
   --rating-edge: oklch(0.62 0.14 62);
 
-  /* a full-width contrast tile (testimonials, closing call to action, footer), Apple's light/dark tile rhythm: deep plum on
-     the light page. Its content renders with the dark tokens (.dark.contrast-tile below): text 15.72:1, muted text 7.41:1,
-     muted on its cards 6.43:1 */
+  /* the footer's contrast tile, the page's dark end after the plum brand panel mid-page: deep plum on the light page.
+     Its content renders with the dark tokens (.dark.contrast-tile below): text 15.72:1, muted text 7.41:1, muted on its
+     cards 6.43:1 */
   --contrast-tile: oklch(0.23 0.045 325);
   --contrast-tile-card: oklch(0.28 0.05 325);
 

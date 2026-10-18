@@ -14,7 +14,7 @@ export function Testimonials({
   return (
     <section className="py-12 md:py-16" aria-labelledby="testimonials-heading">
       <MaxWidthWrapper>
-        <div className="dark contrast-tile space-y-12 rounded-[2rem] p-6 sm:p-12 lg:p-16">
+        <div className="bg-card space-y-12 rounded-[2rem] p-6 sm:p-12 lg:p-16">
           <SectionHeader
             id="testimonials-heading"
             title="What customers say"
@@ -25,7 +25,7 @@ export function Testimonials({
             {testimonials.map((testimonial) => (
               <li
                 key={testimonial.name}
-                className="bg-card flex flex-col gap-5 rounded-3xl p-6"
+                className="bg-raised flex flex-col gap-5 rounded-3xl p-6"
               >
                 <div
                   className="flex gap-0.5"
