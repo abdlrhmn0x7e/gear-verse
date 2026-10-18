@@ -66,7 +66,6 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    nextCookies(),
     admin({
       schema: {
         user: {
@@ -91,6 +90,8 @@ export const auth = betterAuth({
 
       disableDeleteAnonymousUser: true,
     }),
+    // last, so cookies set by the other plugins' after hooks reach Next's cookie store
+    nextCookies(),
   ],
 });
 
