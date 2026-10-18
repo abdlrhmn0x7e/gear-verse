@@ -5,6 +5,7 @@ import {
   createTRPCOptionsProxy,
   type TRPCQueryOptions,
 } from "@trpc/tanstack-react-query";
+import { connection } from "next/server";
 import { cache } from "react";
 import { createTRPCContext } from "~/server/api/init";
 import { makeQueryClient } from "./query-client";
@@ -24,7 +25,14 @@ export const trpc = createTRPCOptionsProxy({
 
 export const api = appRouter.createCaller(createTRPCContext);
 
-export function HydrateClient({ children }: { children: React.ReactNode }) {
+export async function HydrateClient({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // dehydrate() stamps each query with Date.now(), and with partialPrefetching a prefetch prerender resolves
+  // searchParams and headers, so wait for the real request (see getSession)
+  await connection();
   const queryClient = getQueryClient();
 
   return (
