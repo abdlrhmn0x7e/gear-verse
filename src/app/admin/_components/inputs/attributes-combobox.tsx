@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import {
   Combobox,
@@ -61,16 +60,10 @@ export function AttributeCombobox({
         autoHighlight
         disabled
       >
-        <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
-          <ComboboxInput
-            placeholder="Select a category first"
-            className="h-auto min-w-20 flex-1"
-            disabled
-          />
+        <ComboboxAnchor>
+          <ComboboxInput placeholder="Select a category first" disabled />
 
-          <ComboboxTrigger className="absolute top-2 right-2">
-            <ChevronDown className="h-4 w-4" />
-          </ComboboxTrigger>
+          <ComboboxTrigger />
         </ComboboxAnchor>
       </Combobox>
     );
@@ -88,16 +81,10 @@ export function AttributeCombobox({
         autoHighlight
         disabled
       >
-        <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
-          <ComboboxInput
-            placeholder="Select a category first"
-            className="h-auto min-w-20 flex-1"
-            disabled
-          />
+        <ComboboxAnchor>
+          <ComboboxInput placeholder="Select a category first" disabled />
 
-          <ComboboxTrigger className="absolute top-2 right-2">
-            <ChevronDown className="h-4 w-4" />
-          </ComboboxTrigger>
+          <ComboboxTrigger />
         </ComboboxAnchor>
       </Combobox>
     );
@@ -115,16 +102,13 @@ export function AttributeCombobox({
         autoHighlight
         disabled
       >
-        <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
+        <ComboboxAnchor>
           <ComboboxInput
             placeholder="No attributes found for this category"
-            className="h-auto min-w-20 flex-1"
             disabled
           />
 
-          <ComboboxTrigger className="absolute top-2 right-2">
-            <ChevronDown className="h-4 w-4" />
-          </ComboboxTrigger>
+          <ComboboxTrigger />
         </ComboboxAnchor>
       </Combobox>
     );
@@ -143,7 +127,7 @@ export function AttributeCombobox({
       multiple
       autoHighlight
     >
-      <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
+      <ComboboxAnchor>
         <ComboboxBadgeList className="max-w-full min-w-0">
           {value.map((item) => {
             const att = attributes?.find((att) => att.valueId === item);
@@ -160,13 +144,8 @@ export function AttributeCombobox({
             );
           })}
         </ComboboxBadgeList>
-        <ComboboxInput
-          placeholder="Select attributes..."
-          className="h-auto min-w-20 flex-1"
-        />
-        <ComboboxTrigger className="absolute top-2 right-2">
-          <ChevronDown className="h-4 w-4" />
-        </ComboboxTrigger>
+        <ComboboxInput placeholder="Select attributes..." />
+        <ComboboxTrigger />
       </ComboboxAnchor>
       <ComboboxContent>
         <ComboboxEmpty>No attributes found.</ComboboxEmpty>

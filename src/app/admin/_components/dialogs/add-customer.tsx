@@ -42,11 +42,7 @@ export function AddCustomerDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="lg"
-          variant="ghost"
-          className="w-full rounded-t-none rounded-b-md"
-        >
+        <Button variant="ghost">
           <PlusIcon data-icon="inline-start" />
           Add Customer
         </Button>

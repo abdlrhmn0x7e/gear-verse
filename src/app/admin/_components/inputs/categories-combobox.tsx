@@ -1,23 +1,17 @@
 "use client";
 
 import * as React from "react";
-import {
-  Check,
-  ChevronRightIcon,
-  ChevronsUpDown,
-  TagIcon,
-  XCircleIcon,
-} from "lucide-react";
+import { ChevronRightIcon, TagIcon, XCircleIcon } from "lucide-react";
 
-import { cn } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandTrigger,
 } from "~/components/ui/command";
 import {
   Popover,
@@ -37,7 +31,6 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Spinner } from "~/components/spinner";
-import { Separator } from "~/components/ui/separator";
 import { iconsMap } from "~/lib/icons-map";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { useQuery } from "@tanstack/react-query";
@@ -60,37 +53,21 @@ export function CategoriesCombobox({
 
   if (categoriesPending) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className="justify-between"
-        disabled
-      >
-        <div className="flex items-center justify-start gap-2">
-          <Spinner size="small" />
-          Loading categories...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger disabled>
+        <Spinner size="small" />
+        <span className="text-muted-foreground truncate">
+          Loading categories
+        </span>
+      </CommandTrigger>
     );
   }
 
   if (!categories) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className="justify-between"
-        disabled
-      >
-        <div className="flex items-center justify-start gap-2">
-          <XCircleIcon size="small" />
-          No categories found...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger aria-invalid disabled>
+        <XCircleIcon className="text-destructive" />
+        <span className="truncate">Couldn&apos;t load categories</span>
+      </CommandTrigger>
     );
   }
 
@@ -119,7 +96,7 @@ export function CategoriesCombobox({
               {Icon && <Icon className="mr-1 size-4 shrink-0" />}
               <span className="truncate">{p.name}</span>
               {idx != currentCategory?.path.length - 1 && (
-                <ChevronRightIcon className="opacity-50" />
+                <ChevronRightIcon className="text-muted-foreground" />
               )}
             </div>
           );
@@ -131,25 +108,21 @@ export function CategoriesCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full min-w-0 justify-between"
-        >
+        <CommandTrigger aria-expanded={open}>
           {value ? (
             renderValue(value, flattenedCategories)
           ) : (
-            <div className="text-muted-foreground flex items-center gap-2">
-              <TagIcon className="size-4" />
-              <span>Select category...</span>
-            </div>
+            <>
+              <TagIcon className="text-muted-foreground" />
+              <span className="text-muted-foreground truncate">
+                Select a category
+              </span>
+            </>
           )}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
+        </CommandTrigger>
       </PopoverTrigger>
 
-      <PopoverContent className="p-0">
+      <PopoverContent>
         <CategoriesCommand
           categories={categories}
           setValue={(value) => onValueChange(value ?? null)}
@@ -157,9 +130,9 @@ export function CategoriesCombobox({
           value={value ?? null}
         />
 
-        <Separator />
-
-        <AddCategoryDrawer />
+        <CommandFooter>
+          <AddCategoryDrawer />
+        </CommandFooter>
       </PopoverContent>
     </Popover>
   );
@@ -168,7 +141,6 @@ export function CategoriesCombobox({
 export function CategoriesCommand({
   categories,
   setValue,
-  setOpen,
   value,
 }: {
   categories: CategoryTree[];
@@ -178,9 +150,9 @@ export function CategoriesCommand({
 }) {
   return (
     <Command>
-      <CommandInput placeholder="Search category..." className="h-9" />
+      <CommandInput placeholder="Search categories" />
       <CommandList>
-        <CommandEmpty>No category found.</CommandEmpty>
+        <CommandEmpty>No categories found</CommandEmpty>
         <CommandGroup>
           {categories.map((category) => (
             <CategoryComboboxItem
@@ -217,18 +189,13 @@ const CategoryComboboxItem = ({
       <CommandItem
         key={category.id}
         value={`${category.id}-${category.name}`}
+        data-checked={category.id === selectedValue}
         onSelect={() => onItemSelect(category.id)}
         {...props}
       >
         {/*eslint-disable-next-line react-hooks/static-components*/}
         {Icon && <Icon />}
-        {category.name}
-        <Check
-          className={cn(
-            "ml-auto",
-            category.id === selectedValue ? "opacity-100" : "opacity-0",
-          )}
-        />
+        <span className="truncate">{category.name}</span>
       </CommandItem>
     );
   }
@@ -236,6 +203,7 @@ const CategoryComboboxItem = ({
     <Collapsible className="group/collapsible [&[data-state=open]>div>button>svg:first-child]:rotate-90">
       <CommandItem
         value={`${category.id}-${category.name}`}
+        data-checked={category.id === selectedValue}
         onSelect={() => onItemSelect(category.id)}
         {...props}
       >
@@ -244,13 +212,7 @@ const CategoryComboboxItem = ({
         </CollapsibleTrigger>
         {/*eslint-disable-next-line react-hooks/static-components*/}
         {Icon && <Icon />}
-        {category.name}
-        <Check
-          className={cn(
-            "ml-auto",
-            category.id === selectedValue ? "opacity-100" : "opacity-0",
-          )}
-        />
+        <span className="truncate">{category.name}</span>
       </CommandItem>
 
       <CollapsibleContent className="pl-6">

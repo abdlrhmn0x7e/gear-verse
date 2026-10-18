@@ -1,23 +1,18 @@
 "use client";
 
 import * as React from "react";
-import {
-  Check,
-  ChevronsUpDown,
-  TargetIcon,
-  Trash2Icon,
-  XCircleIcon,
-} from "lucide-react";
+import { TargetIcon, Trash2Icon, XCircleIcon } from "lucide-react";
 
-import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandTrigger,
 } from "~/components/ui/command";
 import {
   Popover,
@@ -27,7 +22,6 @@ import {
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useInView } from "react-intersection-observer";
 import { Spinner } from "~/components/spinner";
-import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
@@ -78,117 +72,62 @@ export function BrandsCombobox({
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  if (!brands) {
-    return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={false}
-        className={cn("w-full justify-between", className)}
-        disabled={disabled}
-      >
-        <div className="flex items-center gap-2">
-          <TargetIcon className="text-muted-foreground size-4" />
-          <span className="text-muted-foreground">Select a brand</span>
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    );
-  }
-
-  if (brandsPending) {
-    return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className="justify-between"
-        disabled
-      >
-        <div className="flex items-center gap-2">
-          <Spinner size="small" />
-          Loading brands...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    );
-  }
-
   if (brandsError) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className="justify-between"
-        disabled
-      >
-        <div className="flex items-center gap-2">
-          <XCircleIcon size="small" />
-          Error loading brands...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger className={className} aria-invalid disabled>
+        <XCircleIcon className="text-destructive" />
+        <span className="truncate">Couldn&apos;t load brands</span>
+      </CommandTrigger>
     );
   }
 
-  if (!brands.pages) {
+  if (!brands || brandsPending) {
     return (
-      <Button variant="outline" role="combobox" aria-expanded={open} disabled>
-        <div className="flex items-center gap-2">
-          <XCircleIcon size="small" />
-          No brands found...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    );
-  }
-
-  function renderValue(value: number) {
-    const brand = brandsData.find((brand) => brand.id === value);
-
-    return (
-      <div className="flex items-center gap-2">
-        <ImageWithFallback
-          src={brand?.logo?.url ?? ""}
-          alt={brand?.name ?? ""}
-          className="size-6 overflow-hidden rounded-sm border"
-          width={24}
-          height={24}
-        />
-
-        <span>{brand?.name}</span>
-      </div>
+      <CommandTrigger className={className} disabled>
+        <Spinner size="small" />
+        <span className="text-muted-foreground truncate">Loading brands</span>
+      </CommandTrigger>
     );
   }
 
   const brandsData = brands.pages.flatMap((page) => page.data);
+  const selectedBrand = value
+    ? brandsData.find((brand) => brand.id === value)
+    : undefined;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <CommandTrigger
           suppressHydrationWarning
-          variant="outline"
-          role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={className}
           disabled={disabled}
         >
-          {value ? (
-            renderValue(value)
+          {selectedBrand ? (
+            <>
+              <ImageWithFallback
+                src={selectedBrand.logo?.url ?? ""}
+                alt=""
+                className="size-5 shrink-0 overflow-hidden rounded-sm border bg-white"
+                width={20}
+                height={20}
+              />
+              <span className="truncate">{selectedBrand.name}</span>
+            </>
           ) : (
-            <div className="flex items-center gap-2">
-              <TargetIcon className="text-muted-foreground size-4" />
-              <span className="text-muted-foreground">Select a brand</span>
-            </div>
+            <>
+              <TargetIcon className="text-muted-foreground" />
+              <span className="text-muted-foreground truncate">
+                Select a brand
+              </span>
+            </>
           )}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
+        </CommandTrigger>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent>
         <BrandsCommand
-          brands={brands.pages.flatMap((page) => page.data)}
+          brands={brandsData}
           hasNextPage={hasNextPage}
           onValueChange={onValueChange}
           setOpen={setOpen}
@@ -196,9 +135,9 @@ export function BrandsCombobox({
           ref={ref}
         />
 
-        <Separator />
-
-        <AddBrandDrawer />
+        <CommandFooter>
+          <AddBrandDrawer />
+        </CommandFooter>
       </PopoverContent>
     </Popover>
   );
@@ -238,7 +177,7 @@ export function BrandsCommand({
 
   return (
     <Command>
-      <CommandInput placeholder="Search brands" className="h-9" />
+      <CommandInput placeholder="Search brands" />
       <CommandList>
         <CommandEmpty>No brands found</CommandEmpty>
         <CommandGroup>
@@ -246,37 +185,26 @@ export function BrandsCommand({
             <CommandItem
               key={brand.id}
               value={brand.name}
-              className="h-9"
+              data-checked={value === brand.id}
               onSelect={() => {
-                if (brand.id === value) {
-                  onValueChange(0);
-                  setOpen(false);
-                  return;
-                }
-
-                onValueChange(brand.id);
+                onValueChange(brand.id === value ? 0 : brand.id);
                 setOpen(false);
               }}
             >
-              <div className="size-6 overflow-hidden rounded-sm border bg-white">
+              <div className="size-6 shrink-0 overflow-hidden rounded-sm border bg-white">
                 <Image
                   src={brand.logo?.url ?? ""}
-                  alt={brand.name}
+                  alt=""
                   className="size-full object-cover"
                   width={24}
                   height={24}
                 />
               </div>
-              {brand.name}
-              <Check
-                className={cn(
-                  "ml-auto",
-                  value === brand.id ? "opacity-100" : "opacity-0",
-                )}
-              />
+              <span className="flex-1 truncate">{brand.name}</span>
               <Button
-                size="icon-sm"
+                size="icon-xs"
                 variant="destructive-ghost"
+                className="text-muted-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
                   deleteBrand({ brandId: brand.id });

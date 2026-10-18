@@ -6,22 +6,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
-import { Check, ChevronsUpDown, UserIcon, XCircleIcon } from "lucide-react";
-import { Separator } from "~/components/ui/separator";
+import { UserIcon, XCircleIcon } from "lucide-react";
 import {
   Command,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandTrigger,
 } from "~/components/ui/command";
 import { Spinner } from "~/components/spinner";
 import { AddAddressDialog } from "../../dialogs/add-address";
 import { IconHome, IconHomeOff, IconPhone } from "@tabler/icons-react";
-import { Badge } from "~/components/ui/badge";
 
 export function AddressesCombobox({
   userId,
@@ -53,61 +51,34 @@ export function AddressesCombobox({
     ),
   );
 
-  if (!addresses) {
+  if (!userId) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className={cn("w-full justify-between", className)}
-        disabled={true}
-      >
-        <div className="flex items-center gap-2">
-          <IconHomeOff />
-          Please select a customer first
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    );
-  }
-
-  if (addressesPending) {
-    return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className={cn("w-full justify-between", className)}
-        disabled={true}
-      >
-        <div className="flex items-center gap-2">
-          <Spinner />
-          Loading addresses...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger className={className} disabled>
+        <IconHomeOff className="text-muted-foreground" />
+        <span className="text-muted-foreground truncate">
+          Select a customer first
+        </span>
+      </CommandTrigger>
     );
   }
 
   if (addressesError) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        aria-invalid={true}
-        className={cn(
-          "text-destructive border-destructive w-full justify-between",
-          className,
-        )}
-        disabled={true}
-      >
-        <div className="flex items-center gap-2">
-          <XCircleIcon size="small" />
-          Error loading addresses
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger className={className} aria-invalid disabled>
+        <XCircleIcon className="text-destructive" />
+        <span className="truncate">Couldn&apos;t load addresses</span>
+      </CommandTrigger>
+    );
+  }
+
+  if (addressesPending || !addresses) {
+    return (
+      <CommandTrigger className={className} disabled>
+        <Spinner />
+        <span className="text-muted-foreground truncate">
+          Loading addresses
+        </span>
+      </CommandTrigger>
     );
   }
 
@@ -115,21 +86,23 @@ export function AddressesCombobox({
     const address = addresses?.find((address) => address.id === value);
     if (!value || !address) {
       return (
-        <div className="flex items-center gap-2">
-          <UserIcon className="text-muted-foreground size-4" />
-          <span className="text-muted-foreground">Select an address</span>
-        </div>
+        <>
+          <UserIcon className="text-muted-foreground" />
+          <span className="text-muted-foreground truncate">
+            Select an address
+          </span>
+        </>
       );
     }
 
     return (
-      <div className="flex max-w-3/4 items-center gap-1">
+      <>
         <IconHome />
-        <span className="line-clamp-1 flex-1 truncate text-sm capitalize">
+        <span className="truncate capitalize">
           {address.governorate.toLowerCase()}, {address.city} -{" "}
           {address.address}, {address.buildingNameOrNumber}
         </span>
-      </div>
+      </>
     );
   }
 
@@ -141,18 +114,15 @@ export function AddressesCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
+        <CommandTrigger
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={className}
           disabled={disabled}
         >
           {renderValue(value)}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
+        </CommandTrigger>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent>
         <AddressesCommand
           addresses={addresses}
           onValueChange={handleValueChange}
@@ -160,9 +130,9 @@ export function AddressesCombobox({
           value={value ?? 0}
         />
 
-        <Separator />
-
-        <AddAddressDialog userId={userId ?? 0} />
+        <CommandFooter>
+          <AddAddressDialog userId={userId} />
+        </CommandFooter>
       </PopoverContent>
     </Popover>
   );
@@ -181,7 +151,7 @@ export function AddressesCommand({
 }) {
   return (
     <Command>
-      <CommandInput placeholder="Search addresses" className="h-9" />
+      <CommandInput placeholder="Search addresses" />
       <CommandList>
         <CommandEmpty>No addresses found</CommandEmpty>
         <CommandGroup>
@@ -189,6 +159,7 @@ export function AddressesCommand({
             <CommandItem
               key={address.id}
               value={`${address.fullName}-${address.city}-${address.governorate}-${address.address}`}
+              data-checked={value === address.id}
               onSelect={() => {
                 if (address.id === value) {
                   setOpen(false);
@@ -199,27 +170,17 @@ export function AddressesCommand({
                 setOpen(false);
               }}
             >
-              <div className="flex gap-2">
-                <div className="flex items-center gap-2">
-                  <IconHome className="size-5" />
-                  <span className="text-sm capitalize">
-                    {address.governorate.toLowerCase()}, {address.city} -{" "}
-                    {address.address}
-                  </span>
-                </div>
-                <Badge variant="outline" className="h-fit px-2">
-                  <IconPhone />
-                  <span className="text-sm capitalize">
-                    {address.phoneNumber}
-                  </span>
-                </Badge>
+              <IconHome className="text-muted-foreground" />
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate capitalize">
+                  {address.governorate.toLowerCase()}, {address.city} -{" "}
+                  {address.address}
+                </span>
+                <span className="text-muted-foreground flex items-center gap-1 text-xs font-normal">
+                  <IconPhone className="size-3" />
+                  {address.phoneNumber}
+                </span>
               </div>
-              <Check
-                className={cn(
-                  "ml-auto",
-                  value === address.id ? "opacity-100" : "opacity-0",
-                )}
-              />
             </CommandItem>
           ))}
         </CommandGroup>
