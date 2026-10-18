@@ -354,7 +354,13 @@ export const _products = {
           variants: sql<
             Variant[]
           >`coalesce(${fullVariantQuery.json}, '[]'::jsonb)`,
-          options: optionsQuery.options,
+          options: sql<
+            {
+              id: number;
+              name: string;
+              values: { id: number; value: string }[];
+            }[]
+          >`coalesce(${optionsQuery.options}, '[]'::jsonb)`,
 
           thumbnail: {
             mediaId: sql<number>`${media.id}`,
