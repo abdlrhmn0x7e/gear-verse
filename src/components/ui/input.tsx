@@ -71,6 +71,13 @@ function NumberInput({
     parseValue(value),
   );
 
+  // Follow the value when it changes from outside, e.g. a form reset.
+  const [prevValue, setPrevValue] = React.useState(value);
+  if (parseValue(value) !== parseValue(prevValue)) {
+    setPrevValue(value);
+    setSteppedValue(parseValue(value));
+  }
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.stopPropagation();
     e.preventDefault();
