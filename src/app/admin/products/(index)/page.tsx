@@ -1,4 +1,7 @@
-import { ProductDrawer } from "@admin/_components/drawers/product-drawer";
+import {
+  ProductDrawer,
+  ProductDrawerSkeleton,
+} from "@admin/_components/drawers/product-drawer";
 import { ProductsTableSkeleton } from "@admin/_components/tables/products/skeleton";
 import { ProductsTable } from "@admin/_components/tables/products/table";
 import { ProductsFilters } from "@admin/_components/tables/products/filters";
@@ -6,7 +9,6 @@ import { loadProductSearchParams } from "@admin/_hooks/use-product-search-params
 
 import { PageLayout } from "@admin/_components/page-layout";
 
-import { ProductDetails } from "~/components/features/products/product-details";
 import { Button } from "~/components/ui/button";
 import { PlusIcon } from "lucide-react";
 
@@ -15,7 +17,7 @@ import Link from "next/link";
 
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { requireAdmin } from "~/server/auth";
-import { Reviews } from "./_component/reviews";
+import { ProductSummary } from "./_component/product-summary";
 import type { SearchParams } from "nuqs/server";
 
 export default async function AdminProductsPage({
@@ -61,14 +63,11 @@ export default async function AdminProductsPage({
         </Suspense>
       </HydrateClient>
 
-      <ProductDrawer>
+      <ProductDrawer slug={params.slug}>
         {params.slug && (
-          <ProductDetails
-            className="lg:grid-cols-1 lg:px-4 xl:px-4 [&>div]:first:lg:static"
-            slug={params.slug}
-            Reviews={(props) => <Reviews {...props} />}
-            hideActions
-          />
+          <Suspense key={params.slug} fallback={<ProductDrawerSkeleton />}>
+            <ProductSummary slug={params.slug} />
+          </Suspense>
         )}
       </ProductDrawer>
     </PageLayout>

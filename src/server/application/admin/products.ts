@@ -38,6 +38,10 @@ export const _products = {
 
       return product;
     },
+
+    getSalesStats: (id: number) => {
+      return data.admin.products.queries.getSalesStats(id);
+    },
   },
 
   mutations: {

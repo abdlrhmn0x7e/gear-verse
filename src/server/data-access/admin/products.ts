@@ -5,6 +5,7 @@ import { db, type Tx } from "../../db";
 import {
   media,
   orderItems,
+  orders,
   productOptions,
   productOptionValues,
   productOptionValuesVariants,
@@ -475,6 +476,31 @@ export const _products = {
           ]),
         ),
       }));
+    },
+
+    /** Units, orders and revenue from orders that weren't cancelled or refunded. */
+    getSalesStats: async (id: number) => {
+      return db
+        .select({
+          orders: sql<number>`count(distinct ${orderItems.orderId})::int`,
+          unitsSold: sql<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
+          // the price saved on the line, or today's price for lines from before prices were saved
+          revenue: sql<number>`coalesce(sum(${orderItems.quantity} * coalesce(${orderItems.unitPrice}, ${productVariants.overridePrice}, ${products.price})), 0)::int`,
+        })
+        .from(orderItems)
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .leftJoin(
+          productVariants,
+          eq(orderItems.productVariantId, productVariants.id),
+        )
+        .where(
+          and(
+            eq(orderItems.productId, id),
+            inArray(orders.status, ["PENDING", "SHIPPED", "DELIVERED"]),
+          ),
+        )
+        .then(([row]) => row ?? { orders: 0, unitsSold: 0, revenue: 0 });
     },
   },
 
