@@ -13,7 +13,6 @@ const config = {
   reactCompiler: true,
   experimental: {
     turbopackRustReactCompiler: true,
-    turbopackPluginRuntimeStrategy: "workerThreads",
   },
   typescript: {
     ignoreBuildErrors: true,
