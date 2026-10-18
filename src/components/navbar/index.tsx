@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
 import { NavigationMenu } from "radix-ui";
+import { cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { Logo } from "~/components/logo";
 import {
@@ -12,6 +13,7 @@ import { SearchDrawer } from "~/components/search-drawer";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Kbd } from "~/components/ui/kbd";
 import { getStoreSettings } from "~/lib/store-settings";
+import { app } from "~/server/application";
 import { CartDrawer } from "../cart-drawer";
 import { ProfileDropdown } from "../profile-dropdown";
 import { pickSocialLinks } from "../social-links";
@@ -27,11 +29,11 @@ export function Navbar() {
           end, so the bar has no bottom edge and no band where it meets a dark panel; the links' row stays fully tinted, keeping
           muted links at 5.02:1 over the plum panel. An open menu turns the same layer into the opaque popover surface, and the
           fade starts in the menu's bottom padding */}
-      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] has-data-[state=open]:before:bg-popover">
+      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
-            className="shrink-0 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+            className="focus-visible:outline-focus shrink-0 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4"
           >
             <Logo className="h-10 translate-y-0.5" />
           </Link>
@@ -71,7 +73,11 @@ export function Navbar() {
                     Search products
                   </ProductSearchPlaceholder>
                 </span>
-                <Kbd className="absolute end-2 top-1/2 z-10 -translate-y-1/2">
+                {/* the button names its shortcut with aria-keyshortcuts, so its name stays "Search products" */}
+                <Kbd
+                  aria-hidden
+                  className="absolute end-2 top-1/2 z-10 -translate-y-1/2"
+                >
                   Ctrl K
                 </Kbd>
               </ProductSearchDialog>
@@ -106,14 +112,27 @@ export function Navbar() {
   );
 }
 
-/** The menu drawer is a client component, so the store's contact details come down as props. */
+/** The menu drawer is a client component, so the store's contact details and categories come down as props. */
 async function StoreMobileNav() {
-  const settings = await getStoreSettings();
+  const [settings, categories] = await Promise.all([
+    getStoreSettings(),
+    getMenuCategories(),
+  ]);
 
   return (
     <MobileNav
       whatsappNumber={settings.whatsappNumber}
       socialLinks={pickSocialLinks(settings)}
+      categories={categories}
     />
   );
+}
+
+async function getMenuCategories() {
+  "use cache";
+
+  cacheTag("categories-menu");
+
+  const categories = await app.public.categories.queries.findRoots();
+  return categories.map(({ name, slug, icon }) => ({ name, slug, icon }));
 }

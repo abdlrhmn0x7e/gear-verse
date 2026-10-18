@@ -598,6 +598,14 @@ html body[data-scroll-locked] {
   );
 }
 
+/* outline-none sets --tw-outline-style to none and focus-visible:outline-{n} draws with that variable, so the pair (the
+   shared button, the nav links, the cards) drew no keyboard focus ring at all; focus brings the style back */
+@layer utilities {
+  .outline-none:focus-visible {
+    --tw-outline-style: solid;
+  }
+}
+
 /* typeset tuned to the site: headings at the site's 500 weight and tracking, and link focus on the high-contrast --focus
    colour rather than --ring (2.5:1 on the light page) */
 @layer components {

@@ -86,7 +86,7 @@ export function CheckoutForm({
           name="paymentMethod"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Payment Method</FormLabel>
+              <FormLabel>Payment method</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -100,7 +100,7 @@ export function CheckoutForm({
                     <FormLabel className="flex flex-col items-start gap-1">
                       <span className="flex items-center gap-2">
                         <BanknoteIcon className="size-4" />
-                        Cash on Delivery
+                        Cash on delivery
                       </span>
                       <span className="text-muted-foreground text-xs font-normal">
                         We&apos;ll contact you to confirm your order and the
@@ -120,7 +120,7 @@ export function CheckoutForm({
                     </FormControl>
                     <FormLabel className="flex items-center gap-2">
                       <CreditCardIcon className="size-4" />
-                      Online Payment (Soon)
+                      Online payment (soon)
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>
@@ -159,7 +159,7 @@ export function CheckoutForm({
                     >
                       <Button type="button" variant="outline">
                         <IconHomePlus />
-                        Add Address
+                        Add address
                       </Button>
                     </AddAddressDrawerDialog>
                     {/* without this, submitting with no address does nothing visible */}
@@ -217,7 +217,7 @@ export function CheckoutForm({
                       className="ml-auto w-fit"
                     >
                       <IconHomePlus />
-                      Add Address
+                      Add address
                     </Button>
                   </AddAddressDrawerDialog>
                 </>

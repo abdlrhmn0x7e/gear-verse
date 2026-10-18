@@ -7,7 +7,7 @@ export function PaymentMethod({ paymentMethod }: { paymentMethod: string }) {
       return (
         <div className="flex items-center gap-2">
           <HandCoinsIcon className="size-4" />
-          <p>Cash on Delivery</p>
+          <p>Cash on delivery</p>
         </div>
       );
 

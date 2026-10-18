@@ -1,5 +1,6 @@
 "use client";
 
+import { FunnelXIcon } from "lucide-react";
 import { useAllProductSearchParams } from "~/components/features/products/hooks";
 import { Button } from "~/components/ui/button";
 
@@ -14,6 +15,7 @@ export function ClearAllFiltersButton() {
       disabled={!hasFilters}
       onClick={() => void setFilters(null)}
     >
+      <FunnelXIcon data-icon="inline-start" />
       Clear filters
     </Button>
   );

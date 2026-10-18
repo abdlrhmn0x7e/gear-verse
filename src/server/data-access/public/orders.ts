@@ -8,10 +8,12 @@ import {
   productVariants,
   inventoryItems,
   productOptionValuesVariants,
+  productOptions,
   productOptionValues,
   products,
   media,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
 import {
   getCurrentUnitPrices,
@@ -39,7 +41,10 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`,
+          totalPrice:
+            sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.mapWith(
+              Number,
+            ),
           createdAt: orders.createdAt,
         })
         .from(orders)
@@ -60,9 +65,7 @@ export const _orders = {
         db
           .select({
             id: sql<number>`${productVariants.id}`.as("variant_values_id"),
-            values: sql<string[]>`
-            jsonb_agg(${productOptionValues.value})
-          `.as("values"),
+            values: orderedOptionValues.as("values"),
           })
           .from(productVariants)
           .leftJoin(
@@ -78,6 +81,10 @@ export const _orders = {
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
+          )
+          .leftJoin(
+            productOptions,
+            eq(productOptionValues.productOptionId, productOptions.id),
           )
           .groupBy(productVariants.id),
       );

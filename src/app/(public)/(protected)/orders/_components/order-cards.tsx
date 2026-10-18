@@ -115,12 +115,12 @@ export function OrderCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Ordered At</p>
+          <p className="text-muted-foreground font-medium">Ordered on</p>
           <p className="text-lg font-medium">{formatDate(order.createdAt)}</p>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Total Amount</p>
+          <p className="text-muted-foreground font-medium">Total</p>
 
           <p className="text-lg font-medium">
             {formatCurrency(order.totalPrice)}

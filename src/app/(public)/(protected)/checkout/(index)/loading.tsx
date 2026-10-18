@@ -9,7 +9,7 @@ import { CheckoutFormSkeleton } from "./_components/checkout-form";
 export default function CheckoutLoading() {
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 pt-28 pb-24 md:pt-36 xl:grid-cols-3 xl:pb-32">
         {/* Left Side - Form and Mobile Order Summary */}
         <div className="space-y-4 xl:col-span-2">
           <h1 className="text-headline-sm md:text-display-sm text-balance">
@@ -17,15 +17,15 @@ export default function CheckoutLoading() {
           </h1>
           {/* Checkout Form Skeleton */}
           <div className="space-y-4">
-            <Heading level={2}>Your Details</Heading>
+            <Heading level={2}>Your details</Heading>
             {/* Payment Method Section */}
 
             <CheckoutFormSkeleton />
           </div>
 
           {/* Mobile Order Summary */}
-          <div className="space-y-3 lg:hidden">
-            <Heading level={4}>Order Summary</Heading>
+          <div className="space-y-3 xl:hidden">
+            <Heading level={4}>Order summary</Heading>
 
             {[0, 1].map((index) => (
               <div className="flex gap-3" key={index}>
@@ -43,7 +43,7 @@ export default function CheckoutLoading() {
         </div>
 
         {/* Right Side - Desktop Order Summary */}
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <Card className="h-fit space-y-3">
             <CardHeader>
               <CardTitle className="text-xl">

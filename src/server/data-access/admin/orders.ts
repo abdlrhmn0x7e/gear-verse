@@ -7,12 +7,14 @@ import {
   orders,
   addresses,
   productOptionValuesVariants,
+  productOptions,
   productOptionValues,
   products,
   inventoryItems,
   media,
   users,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
 import { getStockDiff } from "../common/stock-diff";
 import {
@@ -57,9 +59,9 @@ export const _orders = {
           .select({
             orderId: orders.id,
             totalValue:
-              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.as(
-                "totalValue",
-              ),
+              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`
+                .mapWith(Number)
+                .as("totalValue"),
           })
           .from(orders)
           .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -137,9 +139,7 @@ export const _orders = {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
-          json: sql<string[]>`
-            jsonb_agg(${productOptionValues.value})
-          `.as("values"),
+          json: orderedOptionValues.as("values"),
         })
         .from(productOptionValues)
         .leftJoin(
@@ -148,6 +148,10 @@ export const _orders = {
             productOptionValues.id,
             productOptionValuesVariants.productOptionValueId,
           ),
+        )
+        .leftJoin(
+          productOptions,
+          eq(productOptionValues.productOptionId, productOptions.id),
         )
         .groupBy(productOptionValuesVariants.productVariantId)
         .as("variant_option_values");

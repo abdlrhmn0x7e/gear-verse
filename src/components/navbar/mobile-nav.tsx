@@ -1,13 +1,12 @@
 "use client";
 
 import { IconBrandWhatsapp, IconFolder } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useDialog } from "~/hooks/use-dialog";
 import { authClient } from "~/lib/auth-client";
 import { iconsMap } from "~/lib/icons-map";
-import { useTRPC } from "~/trpc/client";
+import type { CategoryIconEnum } from "~/lib/schemas/entities/category";
 import { LoginDrawerDialog } from "../login-drawer-dialog";
 import { Logo } from "../logo";
 import { useSignOut } from "../profile-dropdown";
@@ -38,17 +37,15 @@ const PRIMARY_LINKS = [
 export function MobileNav({
   whatsappNumber,
   socialLinks,
+  categories,
 }: {
   /** E.164; the menu leaves the number out when the store has none */
   whatsappNumber: string | null;
   socialLinks: SocialLinksSettings;
+  categories: { name: string; slug: string; icon: CategoryIconEnum }[];
 }) {
-  const trpc = useTRPC();
   const drawer = useDialog();
   const loginDialog = useDialog();
-  const { data: categories, isPending } = useQuery(
-    trpc.public.categories.queries.findRoots.queryOptions(),
-  );
 
   return (
     <>
@@ -110,31 +107,21 @@ export function MobileNav({
               <div className="space-y-3">
                 <p className="text-muted-foreground text-sm">Categories</p>
                 <ul className="grid grid-cols-2 gap-2">
-                  {isPending || !categories
-                    ? Array.from({ length: 4 }).map((_, index) => (
-                        <li key={index}>
-                          <Skeleton className="h-20 rounded-2xl" />
-                        </li>
-                      ))
-                    : categories.map((category) => {
-                        const Icon = iconsMap.get(category.icon) ?? IconFolder;
-                        return (
-                          <li key={category.slug}>
-                            <Link
-                              href={`/categories/${category.slug}`}
-                              onNavigate={drawer.dismiss}
-                              className="bg-tile active:bg-tile-hover focus-visible:outline-focus flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2"
-                            >
-                              <Icon
-                                className="size-5"
-                                stroke={1.75}
-                                aria-hidden
-                              />
-                              {category.name}
-                            </Link>
-                          </li>
-                        );
-                      })}
+                  {categories.map((category) => {
+                    const Icon = iconsMap.get(category.icon) ?? IconFolder;
+                    return (
+                      <li key={category.slug}>
+                        <Link
+                          href={`/categories/${category.slug}`}
+                          onNavigate={drawer.dismiss}
+                          className="bg-tile active:bg-tile-hover focus-visible:outline-focus flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2"
+                        >
+                          <Icon className="size-5" stroke={1.75} aria-hidden />
+                          {category.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
 

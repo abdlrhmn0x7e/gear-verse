@@ -5,12 +5,13 @@ import { OrderCardsSkeleton } from "./_components/order-cards";
 
 export default function OrdersLoading() {
   return (
-    <section className="min-h-screen py-24">
+    <section className="min-h-screen pt-28 pb-24 md:pt-36">
       <MaxWidthWrapper className="max-w-7xl space-y-6">
         <Header
           title="Orders"
           description="View your orders, review the details, and track the status."
           headingLevel={3}
+          headingAs={1}
           Icon={PackageOpenIcon}
         />
 

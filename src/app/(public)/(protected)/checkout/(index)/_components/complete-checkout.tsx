@@ -38,7 +38,7 @@ export function CompleteCheckout({
         toast.error(
           error.data?.code === "BAD_REQUEST" && !error.data.zodError
             ? error.message
-            : "Something went wrong please make sure the items in your cart are still available in the store",
+            : "Unable to place your order. Check that the items in your cart are still in stock, then try again.",
         );
       },
     }),
@@ -61,13 +61,27 @@ export function CompleteCheckout({
             checkoutPending && "pointer-events-none opacity-50",
           )}
         >
-          <Heading level={2}>Your Details</Heading>
+          <Heading level={2}>Your details</Heading>
 
           <CheckoutForm onSubmit={onSubmit} />
 
           {/* Order Summary for Mobile */}
-          <div className="block lg:hidden">{children}</div>
+          <div className="block xl:hidden">{children}</div>
         </div>
+
+        {/* the button below stays disabled without items, so say why and point back to the store */}
+        {!hasCartItems && (
+          <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
+            Your cart is empty.{" "}
+            <Link
+              href="/products"
+              className="text-foreground underline decoration-from-font underline-offset-4"
+            >
+              Browse the store
+            </Link>{" "}
+            to add something.
+          </p>
+        )}
 
         {hasStockIssues && (
           <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-right">

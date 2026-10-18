@@ -11,6 +11,7 @@ import {
   reviews,
   seo,
 } from "~/server/db/schema";
+import { getCategoryIdsBySlug } from "../common/category-ids";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
 import { inStockSql } from "../common/in-stock";
 import type { Pagination } from "../common/types";
@@ -54,10 +55,7 @@ export const _products = {
         const categoriesIds = new Set<number>();
         await Promise.all(
           filters.categories.map(async (categorySlug) => {
-            const ids =
-              await _products.queries.helpers.getCategoryIdsBySlug(
-                categorySlug,
-              );
+            const ids = await getCategoryIdsBySlug(categorySlug);
             ids.forEach((id) => categoriesIds.add(id));
           }),
         );
@@ -268,31 +266,6 @@ export const _products = {
         })
         .from(products)
         .where(and(eq(products.published, true), eq(products.archived, false)));
-    },
-
-    helpers: {
-      async getCategoryIdsBySlug(categorySlug: string) {
-        const childrenCategoriesIdsQuery = sql<{ id: string }[]>`
-              WITH RECURSIVE all_children_categories AS (
-                SELECT categories.id, categories.slug
-                FROM categories
-                WHERE slug = ${categorySlug}
-
-                UNION ALL
-
-                SELECT categories.id, categories.slug
-                FROM categories
-                INNER JOIN all_children_categories
-                  ON all_children_categories.id = categories.parent_id
-              )
-
-              SELECT id FROM all_children_categories
-            `;
-
-        return db
-          .execute<{ id: number }>(childrenCategoriesIdsQuery)
-          .then((result) => result.map((row) => row.id));
-      },
     },
   },
 };

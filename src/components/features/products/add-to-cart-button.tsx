@@ -3,10 +3,10 @@
 import { IconShoppingBagPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { QuantityStepper } from "~/components/quantity-stepper";
 import { Button } from "~/components/ui/button";
-import { DrawerTrigger } from "~/components/ui/drawer";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { useTRPC } from "~/trpc/client";
@@ -25,6 +25,7 @@ export function AddToCartButton({
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const [cartOpen, setCartOpen] = useState(false);
   const variantId = useVariantSelectionStore(
     (state) => state.selectedVariant?.id,
   );
@@ -55,42 +56,46 @@ export function AddToCartButton({
   const line = findCartLine(cart, productId, variantId);
   const item = { productId, productVariantId: variantId ?? null };
 
-  if (line) {
-    return (
-      <div className="flex gap-3">
-        <QuantityStepper
-          quantity={line.quantity}
-          itemLabel={productTitle}
-          pending={addingToCart || removingFromCart}
-          canIncrement={line.stock > line.quantity}
-          onDecrement={() => removeFromCart(item)}
-          onIncrement={() => addToCart(item)}
-          className="h-12 px-1"
-        />
-        <CartDrawer
-          Trigger={
-            <DrawerTrigger asChild>
-              <Button variant="outline" size="xl" className="flex-1">
-                View cart
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </DrawerTrigger>
-          }
-        />
-      </div>
-    );
-  }
-
+  // one drawer for both states: removing the last unit from inside it swaps
+  // the buttons, and a drawer that lived in the line branch vanished with them
   return (
-    <Button
-      variant="outline"
-      size="xl"
-      className="w-full"
-      onClick={() => addToCart(item)}
-      disabled={addingToCart || disabled}
-    >
-      <IconShoppingBagPlus data-icon="inline-start" />
-      Add to cart
-    </Button>
+    <>
+      {line ? (
+        <div className="flex gap-3">
+          <QuantityStepper
+            quantity={line.quantity}
+            itemLabel={productTitle}
+            pending={addingToCart || removingFromCart}
+            canIncrement={line.stock > line.quantity}
+            onDecrement={() => removeFromCart(item)}
+            onIncrement={() => addToCart(item)}
+            className="h-12 px-1"
+          />
+          <Button
+            variant="outline"
+            size="xl"
+            className="flex-1"
+            aria-haspopup="dialog"
+            aria-expanded={cartOpen}
+            onClick={() => setCartOpen(true)}
+          >
+            View cart
+            <ArrowRightIcon data-icon="inline-end" />
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          size="xl"
+          className="w-full"
+          onClick={() => addToCart(item)}
+          disabled={addingToCart || disabled}
+        >
+          <IconShoppingBagPlus data-icon="inline-start" />
+          Add to cart
+        </Button>
+      )}
+      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} Trigger={<></>} />
+    </>
   );
 }

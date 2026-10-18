@@ -12,7 +12,8 @@ import { ClearAllFiltersButton } from "./clear-all-filters-button";
 export async function Filters() {
   "use cache";
 
-  cacheTag("filters");
+  // the brands only list ones with a live product, which product edits change
+  cacheTag("filters", "recent-products");
 
   const brands = await app.public.brands.queries.findAll();
 

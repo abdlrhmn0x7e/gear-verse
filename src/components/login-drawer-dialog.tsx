@@ -46,7 +46,7 @@ export function LoginDrawerDialog({
             Welcome to Gear Verse
           </DrawerDialogTitle>
           <DrawerDialogDescription className="text-center">
-            Sign in/up to your account
+            Sign in or create an account
           </DrawerDialogDescription>
         </DrawerDialogHeader>
 
@@ -67,8 +67,7 @@ export function LoginDrawerDialog({
             Continue with Google
           </Button>
           <p className="text-muted-foreground text-center text-sm">
-            Don&apos;t have an account? No problem—one will be created
-            automatically when you sign in for the first time.
+            New here? Your account is created the first time you sign in.
           </p>
         </DrawerDialogBody>
       </DrawerDialogContent>

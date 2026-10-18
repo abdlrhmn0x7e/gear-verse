@@ -14,7 +14,7 @@ export function PaymentMethod({
         return (
           <div className="flex items-center gap-1">
             <HandCoinsIcon />
-            <span>Cash on Delivery</span>
+            <span>Cash on delivery</span>
           </div>
         );
       }
@@ -22,7 +22,7 @@ export function PaymentMethod({
       return (
         <Badge variant="secondary">
           <HandCoinsIcon />
-          Cash on Delivery
+          Cash on delivery
         </Badge>
       );
     case "ONLINE":
@@ -30,7 +30,7 @@ export function PaymentMethod({
         return (
           <div className="flex items-center gap-1">
             <CreditCardIcon />
-            <span>Online Payment</span>
+            <span>Online payment</span>
           </div>
         );
       }
@@ -38,7 +38,7 @@ export function PaymentMethod({
       return (
         <Badge variant="secondary">
           <CreditCardIcon />
-          Online Payment
+          Online payment
         </Badge>
       );
   }

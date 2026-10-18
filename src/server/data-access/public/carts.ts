@@ -5,11 +5,13 @@ import {
   carts,
   inventoryItems,
   media,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   products,
   productVariants,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import { and, desc, eq, gt, isNull, isNotNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
@@ -32,9 +34,7 @@ export const _carts = {
         db
           .select({
             id: sql<number>`${productVariants.id}`.as("variant_values_id"),
-            values: sql<string[]>`
-            jsonb_agg(${productOptionValues.value})
-          `.as("values"),
+            values: orderedOptionValues.as("values"),
           })
           .from(productVariants)
           .leftJoin(
@@ -50,6 +50,10 @@ export const _carts = {
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
+          )
+          .leftJoin(
+            productOptions,
+            eq(productOptionValues.productOptionId, productOptions.id),
           )
           .groupBy(productVariants.id),
       );

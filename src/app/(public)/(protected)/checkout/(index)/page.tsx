@@ -22,7 +22,7 @@ export default async function CheckoutPage() {
 
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 pt-28 pb-24 md:pt-36 xl:grid-cols-3 xl:pb-32">
         <HydrateClient>
           <CompleteCheckout
             className="xl:col-span-2"
@@ -33,7 +33,7 @@ export default async function CheckoutPage() {
           </CompleteCheckout>
         </HydrateClient>
 
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <OrderSummary cart={cart} cols={cols} />
         </div>
       </MaxWidthWrapper>
@@ -55,10 +55,15 @@ function OrderSummary({
     0,
   );
 
+  const empty = cart.items.length === 0 && (
+    <p className="text-muted-foreground">Your cart is empty.</p>
+  );
+
   if (isMobile) {
     return (
       <div className="space-y-3">
-        <Heading level={4}>Order Summary</Heading>
+        <Heading level={4}>Order summary</Heading>
+        {empty}
 
         {cart.items.map((item, index) => (
           <div className="flex gap-3" key={`item-${item.id}-${index}`}>
@@ -99,12 +104,13 @@ function OrderSummary({
   return (
     <Card className="h-fit space-y-3">
       <CardHeader>
-        <CardTitle className="text-xl">Order Summary</CardTitle>
+        <CardTitle className="text-xl">Order summary</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-8">
+        {empty}
         <div
-          className="grid gap-2"
+          className="grid gap-2 empty:hidden"
           style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
         >
           {cart.items.map((item, index) => (
@@ -125,7 +131,7 @@ function OrderSummary({
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 empty:hidden">
           {cart.items.map((item, index) => (
             <div
               key={`item-${item.id}-${index}`}

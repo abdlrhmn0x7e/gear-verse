@@ -18,11 +18,16 @@ export function Heading({
   children,
   className,
   level = 1,
+  as,
 }: {
   children: React.ReactNode;
   className?: string;
   level?: Level;
+  /** the element to render when the outline needs a different level than the look, e.g. a page's h1 styled small */
+  as?: Level;
 }) {
-  const Tag = `h${level}` as const;
-  return <Tag className={headingVariants({ level, className })}>{children}</Tag>;
+  const Tag = `h${as ?? level}` as const;
+  return (
+    <Tag className={headingVariants({ level, className })}>{children}</Tag>
+  );
 }

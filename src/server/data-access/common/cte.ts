@@ -9,13 +9,19 @@ import {
   productVariants,
 } from "~/server/db/schema";
 
+/**
+ * A variant's option values ("Red", "Large") in the order its options are
+ * listed on the product. Needs `productOptions` joined to the option values.
+ */
+export const orderedOptionValues = sql<
+  string[]
+>`jsonb_agg(${productOptionValues.value} order by ${productOptions.order}, ${productOptions.id})`;
+
 export const variantValuesCTE = db.$with("variant_values").as(
   db
     .select({
       id: productVariants.id,
-      values: sql<string[]>`
-						jsonb_agg(${productOptionValues.value})
-					`.as("values"),
+      values: orderedOptionValues.as("values"),
     })
     .from(productVariants)
     .leftJoin(
@@ -28,6 +34,10 @@ export const variantValuesCTE = db.$with("variant_values").as(
         productOptionValuesVariants.productOptionValueId,
         productOptionValues.id,
       ),
+    )
+    .leftJoin(
+      productOptions,
+      eq(productOptionValues.productOptionId, productOptions.id),
     )
     .where(eq(productVariants.archived, false))
     .groupBy(productVariants.id),
