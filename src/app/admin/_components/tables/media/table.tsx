@@ -91,14 +91,24 @@ export function MediaTable({
     }
   };
 
+  // The selection keeps its order: media already picked stay where they are,
+  // even when they are not on a loaded page, and new picks go on the end.
+  // Rebuilding it from the table's rows would reorder it to the server's
+  // order and drop every picked media the table has not loaded.
   useEffect(() => {
-    setSelectedMedia(
-      table.getSelectedRowModel().rows.map((row, index) => ({
-        mediaId: row.original.id,
-        url: row.original.url,
-        order: index + 1,
-      })),
+    const pickedIds = new Set(
+      Object.keys(rowSelection)
+        .filter((id) => rowSelection[id])
+        .map(Number),
     );
+    const kept = selectedMedia.filter((m) => pickedIds.has(m.mediaId));
+    const keptIds = new Set(kept.map((m) => m.mediaId));
+    const added = table
+      .getSelectedRowModel()
+      .rows.filter((row) => !keptIds.has(row.original.id))
+      .map((row) => ({ mediaId: row.original.id, url: row.original.url }));
+
+    setSelectedMedia([...kept, ...added]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelection]);
 
