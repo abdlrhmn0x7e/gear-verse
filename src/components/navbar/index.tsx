@@ -16,12 +16,11 @@ import { AdminNav } from "./admin-nav";
 import { CategoriesMenu } from "./categories-menu";
 import { MobileNav } from "./mobile-nav";
 import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
-import { NavShell } from "./nav-shell";
 
 export function Navbar() {
   return (
     <NavigationMenu.Root delayDuration={100} className="contents">
-      <NavShell>
+      <header className="bg-background/80 supports-backdrop-filter:bg-background/70 fixed inset-x-0 top-0 z-50 backdrop-blur-xl backdrop-saturate-150 transition-[background-color] duration-200 has-data-[state=open]:bg-background">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
@@ -89,7 +88,7 @@ export function Navbar() {
         </div>
 
         <NavViewport />
-      </NavShell>
+      </header>
     </NavigationMenu.Root>
   );
 }
