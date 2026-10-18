@@ -16,7 +16,10 @@ import { PaymentMethod } from "../../_components/payment-method";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { getStoreSettings } from "~/lib/store-settings";
 import { requireAuth } from "~/server/auth";
+import { OrderContactNote } from "../../_components/order-contact-note";
+import { OrderTotals } from "../../_components/order-totals";
 
 export default async function SuccessPage({
   searchParams,
@@ -30,22 +33,35 @@ export default async function SuccessPage({
     return notFound();
   }
 
-  const order = await api.public.orders.queries.findById({ id: parsedOrderId });
+  const [order, { whatsappNumber }] = await Promise.all([
+    api.public.orders.queries.findById({ id: parsedOrderId }),
+    getStoreSettings(),
+  ]);
   if (!order) {
     return notFound();
   }
+
+  const subtotal = order.items.reduce(
+    (acc, item) => acc + item.quantity * item.price,
+    0,
+  );
 
   return (
     <section>
       <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32">
         <div className="flex flex-col items-center gap-4">
           <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
-          <div className="text-center">
+          <div className="space-y-2 text-center">
             <Heading level={1}>Order Success</Heading>
             <p className="text-muted-foreground text-pretty">
-              Thank you for your order! Your order is being processed and our
-              team will contact you soon via WhatsApp.
+              Thank you for your order!
             </p>
+            <OrderContactNote
+              orderId={order.id}
+              whatsappNumber={whatsappNumber}
+              pending
+              className="text-base"
+            />
           </div>
         </div>
 
@@ -110,17 +126,7 @@ export default async function SuccessPage({
             </div>
             <Separator />
 
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-muted-foreground font-medium">Total Price</p>
-              <p className="text-lg font-medium">
-                {formatCurrency(
-                  order.items.reduce(
-                    (acc, item) => acc + item.quantity * item.price,
-                    150,
-                  ),
-                )}
-              </p>
-            </div>
+            <OrderTotals subtotal={subtotal} />
           </CardContent>
 
           <CardFooter>

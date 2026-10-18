@@ -17,8 +17,14 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import Header from "~/components/header";
 import { PackageOpenIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { OrderContactNote } from "../../_components/order-contact-note";
 
-export function OrdersDrawer() {
+export function OrdersDrawer({
+  whatsappNumber,
+}: {
+  /** E.164 from the store settings; questions go nowhere without one */
+  whatsappNumber: string | null;
+}) {
   const trpc = useTRPC();
   const [params, setParams] = useOrdersSearchParams();
   const { data: order, isPending: orderPending } = useQuery(
@@ -54,7 +60,9 @@ export function OrdersDrawer() {
           </DrawerTitle>
           <DrawerDescription></DrawerDescription>
         </DrawerHeader>
-        {!orderPending && order && <OrderDetails order={order} />}
+        {!orderPending && order && (
+          <OrderDetails order={order} whatsappNumber={whatsappNumber} />
+        )}
       </DrawerContent>
     </Drawer>
   );
@@ -62,8 +70,10 @@ export function OrdersDrawer() {
 
 function OrderDetails({
   order,
+  whatsappNumber,
 }: {
   order: RouterOutput["public"]["orders"]["queries"]["findById"];
+  whatsappNumber: string | null;
 }) {
   return (
     <div className="space-y-6 px-4 pb-12">
@@ -81,15 +91,26 @@ function OrderDetails({
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-muted-foreground font-medium">Total Price</p>
+          {/* shipping is confirmed by the team per address, so it isn't added here */}
           <p className="font-medium">
             {formatCurrency(
               order.items.reduce(
                 (acc, item) => acc + item.quantity * item.price,
-                150,
+                0,
               ),
             )}
+            <span className="text-muted-foreground text-sm font-normal">
+              {" "}
+              + shipping
+            </span>
           </p>
         </div>
+
+        <OrderContactNote
+          orderId={order.id}
+          whatsappNumber={whatsappNumber}
+          pending={order.status === "PENDING"}
+        />
       </div>
 
       <Separator />

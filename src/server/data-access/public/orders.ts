@@ -198,6 +198,7 @@ export const _orders = {
         .select({
           id: orders.id,
           paymentMethod: orders.paymentMethod,
+          status: orders.status,
 
           items: itemsJson.json,
         })
