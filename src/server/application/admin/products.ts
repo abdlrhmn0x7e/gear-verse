@@ -115,35 +115,164 @@ export const _products = {
       const { options, variants, ...product } = input;
 
       try {
-        // update the product if there are any changes
-        if (Object.keys(product).length > 0) {
-          await data.admin.products.mutations.update(productId, {
-            ...product,
-            media: product.media?.map((m) => m.mediaId) ?? [],
-            inventory: {
-              id: product.inventory?.id ?? 0,
-              quantity: product.inventory?.quantity ?? 0, // there's always one inventory item for a product
-            },
-          });
-        }
+        // every write commits together or not at all
+        await data.transaction(async (tx) => {
+          // update the product if there are any changes
+          if (Object.keys(product).length > 0) {
+            await data.admin.products.mutations.update(
+              productId,
+              {
+                ...product,
+                media: product.media?.map((m) => m.mediaId) ?? [],
+                inventory: {
+                  id: product.inventory?.id ?? 0,
+                  quantity: product.inventory?.quantity ?? 0, // there's always one inventory item for a product
+                },
+              },
+              tx,
+            );
+          }
 
-        // variants and options are both required to update them both
-        if (variants && options) {
-          const oldVariants =
-            await data.admin.products.queries.getVariants(productId);
-          const newVariantSet = new Set(
-            variants.map((v) => v.id ?? generateRandomId()),
-          );
+          // variants and options are both required to update them both
+          if (variants && options) {
+            const oldVariants = await data.admin.products.queries.getVariants(
+              productId,
+              tx,
+            );
+            const newVariantSet = new Set(
+              variants.map((v) => v.id ?? generateRandomId()),
+            );
 
-          const oldVariantSigs = this.helpers.getVariantSigs(oldVariants);
-          const newVariantSigs = this.helpers.getVariantSigs(variants);
-          const variantSpace = this.helpers.classifyVariantSpace(
-            oldVariantSigs,
-            newVariantSigs,
-          );
+            const oldVariantSigs = this.helpers.getVariantSigs(oldVariants);
+            const newVariantSigs = this.helpers.getVariantSigs(variants);
+            const variantSpace = this.helpers.classifyVariantSpace(
+              oldVariantSigs,
+              newVariantSigs,
+            );
 
-          // update/insert new options
-          const { valuesIdToDbId } =
+            // update/insert new options
+            const { valuesIdToDbId } =
+              await data.admin.productOptions.mutations.upsertMany(
+                options.map((o, index) => ({
+                  name: o.name,
+                  values: o.values.map((v, index) => ({
+                    ...v,
+                    order: index + 1,
+                  })),
+                  order: index + 1,
+                  productId,
+                })),
+                tx,
+              );
+
+            switch (variantSpace) {
+              /**
+               * The variants stay the same, but their stock, price or thumbnail
+               * might have changed
+               */
+              case "NO_SPACE_CHANGE": {
+                await data.admin.productVariants.mutations.updateMany(
+                  this.helpers.getVariantEdits(variants),
+                  tx,
+                );
+                break;
+              }
+
+              case "SPACE_EXPANDS": {
+                const toInsert = variants
+                  .filter((v) => !v.id)
+                  .map((v) => ({
+                    ...v,
+                    thumbnailMediaId: v.thumbnail.id,
+                    optionValues: v.optionValues,
+                    stock: v.stock,
+                  }));
+                const toUpdate = variants
+                  .filter((v) => v.id)
+                  .map((v) => ({
+                    ...v,
+                    thumbnailMediaId: v.thumbnail.id,
+                    optionValues: v.optionValues,
+                    stock: v.stock,
+                    id: v.id!,
+                  }));
+
+                await data.admin.productVariants.mutations.upsertMany(
+                  productId,
+                  toInsert,
+                  toUpdate,
+                  valuesIdToDbId,
+                  tx,
+                );
+                break;
+              }
+
+              /**
+               * Delete old pivots and archive variants
+               */
+              case "SPACE_CONTRACTS": {
+                const toDelete = oldVariants.filter(
+                  (v) => !newVariantSet.has(v.id),
+                );
+
+                await data.admin.productVariants.mutations.deleteOrArchiveMany(
+                  toDelete.map((v) => v.id),
+                  tx,
+                );
+
+                // the remaining variants might have been edited too
+                await data.admin.productVariants.mutations.updateMany(
+                  this.helpers.getVariantEdits(variants),
+                  tx,
+                );
+
+                break;
+              }
+
+              /**
+               * Recreate the pivots and delete/archive the old variants
+               */
+              case "SPACE_MIXED": {
+                const toInsert = variants
+                  .filter((v) => !v.id)
+                  .map((v) => ({
+                    ...v,
+                    thumbnailMediaId: v.thumbnail.id,
+                    optionValues: v.optionValues,
+                    stock: v.stock,
+                  }));
+
+                const toUpdate = variants
+                  .filter((v) => v.id)
+                  .map((v) => ({
+                    ...v,
+                    thumbnailMediaId: v.thumbnail.id,
+                    optionValues: v.optionValues,
+                    stock: v.stock,
+                    id: v.id!,
+                  }));
+
+                const toDelete = oldVariants.filter(
+                  (v) => !newVariantSet.has(v.id),
+                );
+
+                await data.admin.productVariants.mutations.recreate(
+                  {
+                    productId,
+                    variantsIds: toDelete.map((v) => v.id),
+                    toInsert,
+                    toUpdate,
+                    valuesIdToDbId,
+                  },
+                  tx,
+                );
+                break;
+              }
+            }
+          }
+
+          // update the options if there are any changes there only
+          if (!variants && options) {
             await data.admin.productOptions.mutations.upsertMany(
               options.map((o, index) => ({
                 name: o.name,
@@ -154,143 +283,38 @@ export const _products = {
                 order: index + 1,
                 productId,
               })),
+              tx,
             );
-
-          switch (variantSpace) {
-            /**
-             * The variants stay the same, but their stock, price or thumbnail
-             * might have changed
-             */
-            case "NO_SPACE_CHANGE": {
-              await data.admin.productVariants.mutations.updateMany(
-                this.helpers.getVariantEdits(variants),
-              );
-              break;
-            }
-
-            case "SPACE_EXPANDS": {
-              const toInsert = variants
-                .filter((v) => !v.id)
-                .map((v) => ({
-                  ...v,
-                  thumbnailMediaId: v.thumbnail.id,
-                  optionValues: v.optionValues,
-                  stock: v.stock,
-                }));
-              const toUpdate = variants
-                .filter((v) => v.id)
-                .map((v) => ({
-                  ...v,
-                  thumbnailMediaId: v.thumbnail.id,
-                  optionValues: v.optionValues,
-                  stock: v.stock,
-                  id: v.id!,
-                }));
-
-              await data.admin.productVariants.mutations.upsertMany(
-                productId,
-                toInsert,
-                toUpdate,
-                valuesIdToDbId,
-              );
-              break;
-            }
-
-            /**
-             * Delete old pivots and archive variants
-             */
-            case "SPACE_CONTRACTS": {
-              const toDelete = oldVariants.filter(
-                (v) => !newVariantSet.has(v.id),
-              );
-
-              await data.admin.productVariants.mutations.deleteOrArchiveMany(
-                toDelete.map((v) => v.id),
-              );
-
-              // the remaining variants might have been edited too
-              await data.admin.productVariants.mutations.updateMany(
-                this.helpers.getVariantEdits(variants),
-              );
-
-              break;
-            }
-
-            /**
-             * Recreate the pivots and delete/archive the old variants
-             */
-            case "SPACE_MIXED": {
-              const toInsert = variants
-                .filter((v) => !v.id)
-                .map((v) => ({
-                  ...v,
-                  thumbnailMediaId: v.thumbnail.id,
-                  optionValues: v.optionValues,
-                  stock: v.stock,
-                }));
-
-              const toUpdate = variants
-                .filter((v) => v.id)
-                .map((v) => ({
-                  ...v,
-                  thumbnailMediaId: v.thumbnail.id,
-                  optionValues: v.optionValues,
-                  stock: v.stock,
-                  id: v.id!,
-                }));
-
-              const toDelete = oldVariants.filter(
-                (v) => !newVariantSet.has(v.id),
-              );
-
-              await data.admin.productVariants.mutations.recreate({
-                productId,
-                variantsIds: toDelete.map((v) => v.id),
-                toInsert,
-                toUpdate,
-                valuesIdToDbId,
-              });
-              break;
-            }
           }
-        }
 
-        // update the options if there are any changes there only
-        if (!variants && options) {
-          await data.admin.productOptions.mutations.upsertMany(
-            options.map((o, index) => ({
-              name: o.name,
-              values: o.values.map((v, index) => ({
-                ...v,
-                order: index + 1,
-              })),
-              order: index + 1,
+          // update the variants if there are any changes there only
+          if (variants && !options) {
+            await data.admin.productVariants.mutations.updateMany(
+              this.helpers.getVariantEdits(variants),
+              tx,
+            );
+          }
+
+          /**
+           * if a variant got added to a non variance product
+           * delete the existing product item, and if every variant got removed
+           * the product needs its own stock row back
+           */
+          if (variants && variants.length > 0) {
+            await data.admin.inventoryItems.mutations.delete(
               productId,
-            })),
-          );
-        }
-
-        // update the variants if there are any changes there only
-        if (variants && !options) {
-          await data.admin.productVariants.mutations.updateMany(
-            this.helpers.getVariantEdits(variants),
-          );
-        }
-
-        /**
-         * if a variant got added to a non variance product
-         * delete the existing product item, and if every variant got removed
-         * the product needs its own stock row back
-         */
-        if (variants && variants.length > 0) {
-          await data.admin.inventoryItems.mutations.delete(productId);
-        } else if (variants) {
-          await data.admin.inventoryItems.mutations.ensureProductItem(
-            productId,
-          );
-        }
+              undefined,
+              tx,
+            );
+          } else if (variants) {
+            await data.admin.inventoryItems.mutations.ensureProductItem(
+              productId,
+              tx,
+            );
+          }
+        });
       } finally {
-        // invalidate after the writes (even partial ones), not before, or a
+        // invalidate once the transaction has settled, not before, or a
         // request in between caches the old data again
         await invalidateProducts([productId]);
 
