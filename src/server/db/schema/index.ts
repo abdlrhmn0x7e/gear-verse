@@ -10,3 +10,4 @@ export * from "./addresses";
 export * from "./products-media";
 export * from "./seo";
 export * from "./inventory";
+export * from "./settings";
