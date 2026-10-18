@@ -16,23 +16,21 @@ export type StoreSettings = {
   updatedAt: Date | null;
 };
 
-/** What the store shows before anything is saved, mirroring the table's defaults. */
+/**
+ * What the store shows before anything is saved: the links the storefront
+ * carried before they became settings, so none disappear until an admin saves.
+ */
 export const defaultStoreSettings: StoreSettings = {
   whatsappNumber: null,
   instagramUrl: null,
-  facebookUrl: null,
-  tiktokUrl: null,
-  discordUrl: null,
+  facebookUrl: "https://www.facebook.com/profile.php?id=61575728973616",
+  tiktokUrl: "https://www.tiktok.com/@gearverse.eg",
+  discordUrl: "https://discord.gg/CRDZxAD35N",
   xUrl: null,
   youtubeUrl: null,
   lowStockThreshold: 2,
   updatedAt: null,
 };
-
-/** The wa.me chat link for an E.164 number: digits only, no "+". */
-export function toWhatsAppLink(number: string) {
-  return `https://wa.me/${number.replace(/\D/g, "")}`;
-}
 
 const E164 = /^\+[1-9]\d{7,14}$/;
 const EGYPTIAN_MOBILE = /^01\d{9}$/;

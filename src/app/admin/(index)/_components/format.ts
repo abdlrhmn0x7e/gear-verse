@@ -1,3 +1,5 @@
+import { whatsAppLink } from "~/lib/whatsapp";
+
 const HOUR_MS = 60 * 60 * 1000;
 
 /** A pending order this old has waited too long for its confirmation call. */
@@ -81,7 +83,7 @@ export function whatsAppConfirmationLink({
 
   const message = `Hi ${firstName(customerName)}, this is Gear Verse about your order #${orderId} (${formatMoney(total).replace(/\s/g, " ")}). We'd like to confirm it and your shipping fee before we ship. Is now a good time?`;
 
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  return whatsAppLink(number, message);
 }
 
 /** A tel: link that keeps the leading plus of an international number. */

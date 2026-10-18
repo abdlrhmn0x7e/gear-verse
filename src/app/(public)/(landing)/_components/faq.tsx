@@ -1,26 +1,40 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { SOCIAL_LINKS } from "~/components/navbar/social-links";
+import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { getStoreSettings } from "~/lib/store-settings";
+import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
 
-const DISCORD_URL = SOCIAL_LINKS[0].url;
+const inlineLinkClassName =
+  "text-foreground underline decoration-from-font underline-offset-4";
 
 const POLICY_LINK = (
-  <Link
-    href="/returns"
-    className="text-foreground underline decoration-from-font underline-offset-4"
-  >
+  <Link href="/returns" className={inlineLinkClassName}>
     Returns &amp; Refunds Policy
   </Link>
 );
 
-export function FAQ() {
+export async function FAQ() {
+  const { discordUrl, whatsappNumber } = await getStoreSettings();
+
+  /** " on WhatsApp at +20 …", where a policy answer says to report a problem */
+  const onWhatsApp = whatsappNumber && (
+    <>
+      {" "}
+      on WhatsApp at{" "}
+      <WhatsAppNumberLink
+        number={whatsappNumber}
+        message={REPORT_ISSUE_MESSAGE}
+        className={`${inlineLinkClassName} tabular-nums`}
+      />
+    </>
+  );
   const faq: { question: string; answer: ReactNode }[] = [
     {
       question: "What is Gear Verse?",
@@ -30,24 +44,24 @@ export function FAQ() {
     {
       question: "Do you deliver anywhere in Egypt?",
       answer:
-        "Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see \"How do I pay?\" below for how the fee is confirmed and paid.",
+        'Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see "How do I pay?" below for how the fee is confirmed and paid.',
     },
     {
       question: "How do I pay?",
       answer:
-        "Cash on delivery is available. After you place your order, our team contacts you to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet.",
+        "Cash on delivery is available. After you place your order, our team contacts you on WhatsApp or by phone to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet.",
     },
     {
       question: "What is your return policy?",
       answer: (
         <>
           We accept a return and refund only when a product arrives defective or
-          damaged, or has a problem caused by us. Report the issue within 24
-          hours of opening the product and send photos or videos of it. Once our
-          team inspects the product and approves the return, we&apos;ll collect
-          it and process your refund within 7 days. We can&apos;t take back a
-          product that was opened and has no defect. Read the full {POLICY_LINK}
-          .
+          damaged, or has a problem caused by us. Report the issue
+          {onWhatsApp} within 24 hours of opening the product and send photos or
+          videos of it. Once our team inspects the product and approves the
+          return, we&apos;ll collect it and process your refund within 7 days.
+          We can&apos;t take back a product that was opened and has no defect.
+          Read the full {POLICY_LINK}.
         </>
       ),
     },
@@ -70,11 +84,11 @@ export function FAQ() {
       question: "What if I receive a damaged or defective product?",
       answer: (
         <>
-          Report it to us within 24 hours of opening the product, with photos or
-          videos showing the problem. Our team will inspect the product and
-          verify the issue; once we approve it, we&apos;ll arrange to collect
-          the product and process your refund within 7 days of approval. See our{" "}
-          {POLICY_LINK} for the details.
+          Report it to us{onWhatsApp} within 24 hours of opening the product,
+          with photos or videos showing the problem. Our team will inspect the
+          product and verify the issue; once we approve it, we&apos;ll arrange
+          to collect the product and process your refund within 7 days of
+          approval. See our {POLICY_LINK} for the details.
         </>
       ),
     },
@@ -89,18 +103,33 @@ export function FAQ() {
           >
             Questions, answered
           </h2>
-          <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
-            Anything else? Ask us on{" "}
-            <a
-              href={DISCORD_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline decoration-from-font underline-offset-4"
-            >
-              Discord
-            </a>
-            .
-          </p>
+          {/* WhatsApp is the main channel; Discord stands in only until a number is set */}
+          {whatsappNumber ? (
+            <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
+              Anything else? Ask us on WhatsApp at{" "}
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                message="Hi Gear Verse, I have a question."
+                className={`${inlineLinkClassName} tabular-nums`}
+              />
+              .
+            </p>
+          ) : (
+            discordUrl && (
+              <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
+                Anything else? Ask us on{" "}
+                <a
+                  href={discordUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={inlineLinkClassName}
+                >
+                  Discord
+                </a>
+                .
+              </p>
+            )
+          )}
         </div>
 
         <Accordion type="single" collapsible defaultValue="item-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import { IconFolder } from "@tabler/icons-react";
+import { IconBrandWhatsapp, IconFolder } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +25,8 @@ import {
   DrawerTrigger,
 } from "../ui/drawer";
 import { Skeleton } from "../ui/skeleton";
-import { SOCIAL_LINKS } from "./social-links";
+import { WhatsAppNumberLink } from "../whatsapp-number-link";
+import { SocialLinks, type SocialLinksSettings } from "../social-links";
 
 const PRIMARY_LINKS = [
   { title: "Home", href: "/" },
@@ -34,7 +35,14 @@ const PRIMARY_LINKS = [
   { title: "My orders", href: "/orders" },
 ];
 
-export function MobileNav() {
+export function MobileNav({
+  whatsappNumber,
+  socialLinks,
+}: {
+  /** E.164; the menu leaves the number out when the store has none */
+  whatsappNumber: string | null;
+  socialLinks: SocialLinksSettings;
+}) {
   const trpc = useTRPC();
   const drawer = useDialog();
   const loginDialog = useDialog();
@@ -53,12 +61,24 @@ export function MobileNav() {
         </DrawerTrigger>
 
         <DrawerContent className="p-6">
-          <DrawerHeader className="px-2 pt-2 pb-2 text-left">
+          <DrawerHeader className="flex-row items-center justify-between gap-4 px-2 pt-2 pb-2 text-left">
             <DrawerTitle asChild>
               <Link href="/" onNavigate={drawer.dismiss} className="w-fit">
                 <Logo className="h-11" />
               </Link>
             </DrawerTitle>
+            {whatsappNumber && (
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                className="bg-tile active:bg-tile-hover inline-flex h-10 items-center gap-2 rounded-full px-3.5 text-sm font-medium tabular-nums"
+              >
+                <IconBrandWhatsapp
+                  className="size-5 shrink-0"
+                  stroke={1.75}
+                  aria-hidden
+                />
+              </WhatsAppNumberLink>
+            )}
             <DrawerDescription className="sr-only">
               Site navigation
             </DrawerDescription>
@@ -123,22 +143,7 @@ export function MobileNav() {
                 <ThemeSegmentedControl />
               </div>
 
-              <ul className="flex gap-2">
-                {SOCIAL_LINKS.map((link) => (
-                  <li key={link.url}>
-                    <Button variant="outline" size="icon-lg" asChild>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <link.icon stroke={1.75} />
-                        <span className="sr-only">{link.label}</span>
-                      </a>
-                    </Button>
-                  </li>
-                ))}
-              </ul>
+              <SocialLinks links={socialLinks} />
             </nav>
           </DrawerBody>
         </DrawerContent>

@@ -44,13 +44,13 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   socialHosts,
-  toWhatsAppLink,
   updateStoreSettingsInputSchema,
   whatsappNumberSchema,
   type SocialField,
   type UpdateStoreSettingsFormValues,
   type UpdateStoreSettingsInput,
 } from "~/lib/schemas/entities/store-settings";
+import { whatsAppLink } from "~/lib/whatsapp";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 type Settings = RouterOutput["admin"]["settings"]["queries"]["get"];
@@ -250,7 +250,7 @@ function WhatsAppField() {
   });
   const parsed = whatsappNumberSchema.safeParse(value);
   const link =
-    parsed.success && parsed.data ? toWhatsAppLink(parsed.data) : null;
+    parsed.success && parsed.data ? whatsAppLink(parsed.data) : null;
 
   return (
     <FormField<UpdateStoreSettingsFormValues, "whatsappNumber">
