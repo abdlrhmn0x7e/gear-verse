@@ -1,13 +1,8 @@
 import { StarIcon } from "lucide-react";
+import type { TestimonialItem } from "~/components/features/testimonials/testimonials";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { cn } from "~/lib/utils";
 import { SectionHeader } from "./section-header";
-
-export type TestimonialItem = {
-  name: string;
-  rating: number;
-  content: string;
-};
 
 export function Testimonials({
   testimonials,
