@@ -104,7 +104,7 @@ function UserOrdersDrawerContent() {
               <li key={order.id}>
                 <Link
                   href={`/admin/orders?orderId=${order.id}`}
-                  className="hover:bg-muted/60 group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors"
+                  className="bg-input-background hover:bg-accent/50 group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors"
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="flex items-center gap-2 font-medium tabular-nums">

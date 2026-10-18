@@ -80,11 +80,11 @@ export function FileDropzone({
     <div className="space-y-4">
       <div
         className={cn(
-          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
+          "bg-input-background hover:bg-accent/50 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed p-4 text-center transition-colors duration-100",
           maxFiles &&
             selectedMedia.length >= maxFiles &&
             "pointer-events-none opacity-50",
-          isDragActive && "bg-input/60",
+          isDragActive && "bg-accent",
           isPending && "pointer-events-none opacity-50",
           className,
         )}

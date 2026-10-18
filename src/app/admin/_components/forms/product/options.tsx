@@ -129,7 +129,7 @@ export function Options() {
               key={option.keyId}
               id={option.keyId}
               disabled={openOptions.length > 0}
-              className="bg-card items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
+              className="bg-input-background items-start rounded-lg border pt-6 pr-2 pb-2 pl-4"
             >
               <Option
                 optionId={option.id}

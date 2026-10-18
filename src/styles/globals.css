@@ -72,14 +72,15 @@
   /* the edge and inner dividers of floating layers: a see-through dark hairline, which reads darker than the gray
      popover fill where a solid --border would read paler */
   --floating-border: oklch(0 0 0 / 8%);
-  /* --input is the field BORDER (shadcn's meaning); the field fill is --input-background, the card surface */
+  /* --input is the field BORDER (shadcn's meaning). --input-background fills fields and the boxes nested in a panel
+     (tables, option groups): the card gray on the page, and --raised inside a card, dialog or drawer (rule below) */
   --input: var(--neutral-200);
   --input-background: var(--card);
   --ring: var(--neutral-400);
   /* a card placed on a popover or drawer, which are the card colour, so the tile steps down (up in dark) */
   --tile: var(--neutral-200);
   --tile-hover: var(--neutral-250);
-  /* an icon tile lifted off a card panel */
+  /* a field, nested box or icon tile lifted off a card panel */
   --raised: var(--neutral-50);
   /* grey tiles holding the full-colour payment marks and their labels; the label keeps 4.5:1 (5.99:1) on the tile */
   --logo-tile: var(--neutral-200);
@@ -220,6 +221,14 @@
   --shadow-xl:
     0px 16px 40px -8px oklch(0 0 0 / 0.6), 0px 8px 10px -1px oklch(0 0 0 / 0.35);
   --shadow-2xl: 0px 24px 64px -12px oklch(0 0 0 / 0.8);
+}
+
+/* Panels are the card gray, so a field or nested box inside one steps up to --raised (white in light, a lighter step
+   in dark) rather than sitting flat on its own colour. Floating menus are portalled out and keep the popover fill. */
+[data-slot="card"],
+[data-slot="dialog-content"],
+[data-slot="drawer-content"] {
+  --input-background: var(--raised);
 }
 
 @theme inline {

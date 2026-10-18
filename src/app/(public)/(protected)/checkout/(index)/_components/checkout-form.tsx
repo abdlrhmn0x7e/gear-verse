@@ -93,7 +93,7 @@ export function CheckoutForm({
                   value={field.value}
                   className="grid gap-2 sm:grid-cols-2"
                 >
-                  <FormItem className="has-checked:bg-primary/5 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
+                  <FormItem className="bg-input-background has-checked:bg-primary/5 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
                     <FormControl>
                       <RadioGroupItem value="COD" className="hidden" />
                     </FormControl>
@@ -110,7 +110,7 @@ export function CheckoutForm({
                     </FormLabel>
                   </FormItem>
 
-                  <FormItem className="has-checked:bg-primary has-checked:text-primary-foreground flex items-center gap-2 rounded-lg border p-4 opacity-50">
+                  <FormItem className="bg-input-background has-checked:bg-primary has-checked:text-primary-foreground flex items-center gap-2 rounded-lg border p-4 opacity-50">
                     <FormControl>
                       <RadioGroupItem
                         value="ONLINE"
@@ -237,13 +237,13 @@ export function CheckoutFormSkeleton() {
       <div className="space-y-2">
         <Skeleton className="h-4 w-40" />
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="rounded-lg border p-4">
+          <div className="bg-input-background rounded-lg border p-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-32" />
             </div>
           </div>
-          <div className="rounded-lg border p-4 opacity-50">
+          <div className="bg-input-background rounded-lg border p-4 opacity-50">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-44" />
@@ -261,7 +261,7 @@ export function CheckoutFormSkeleton() {
           {[0, 1].map((i) => (
             <div
               key={i}
-              className="flex items-start justify-between rounded-lg border p-4"
+              className="bg-input-background flex items-start justify-between rounded-lg border p-4"
             >
               <div className="flex-1 space-y-3">
                 <Skeleton className="h-4 w-64" />

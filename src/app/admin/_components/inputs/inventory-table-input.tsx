@@ -83,7 +83,7 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
   });
 
   return (
-    <Table containerClassName="border rounded-lg">
+    <Table containerClassName="bg-input-background rounded-lg border">
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id} className="[&_th]:border-r-0">

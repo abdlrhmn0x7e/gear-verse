@@ -168,9 +168,9 @@ function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
     <div className="space-y-4">
       <div
         className={cn(
-          "hover:bg-input/30 bg-input/20 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-center transition-colors duration-100",
-          isDragActive && "bg-input/60",
-          isPending && "hover:bg-input/20 pointer-events-none opacity-50",
+          "bg-input-background hover:bg-accent/50 flex min-h-36 flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-center transition-colors duration-100",
+          isDragActive && "bg-accent",
+          isPending && "pointer-events-none opacity-50",
           className,
         )}
         {...getRootProps()}
@@ -420,7 +420,7 @@ function MediaPreview({ url }: { url: string }) {
   const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);
 
   return (
-    <div className="bg-input/20 mr-1 h-fit w-full space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
+    <div className="bg-input-background mr-1 h-fit w-full space-y-3 rounded-lg border border-dashed px-4 pt-2 pb-4">
       <div className="flex items-center justify-between px-1">
         <p className="text-muted-foreground font-medium select-none">Preview</p>
 
