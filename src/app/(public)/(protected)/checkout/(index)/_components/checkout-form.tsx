@@ -35,6 +35,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 import { IconHomeOff, IconHomePlus } from "@tabler/icons-react";
 import { Button } from "~/components/ui/button";
+import { PayOnDelivery } from "~/components/features/payment/pay-on-delivery";
 import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
 import { useTRPC } from "~/trpc/client";
 import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
@@ -92,13 +93,18 @@ export function CheckoutForm({
                   value={field.value}
                   className="grid grid-cols-2 gap-2"
                 >
-                  <FormItem className="has-checked:bg-primary/10 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
+                  <FormItem className="has-checked:bg-primary/5 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
                     <FormControl>
                       <RadioGroupItem value="COD" className="hidden" />
                     </FormControl>
-                    <FormLabel className="flex items-center gap-2">
-                      <BanknoteIcon className="size-4" />
-                      Cash on Delivery
+                    <FormLabel className="flex flex-col items-start gap-1">
+                      <span className="flex items-center gap-2">
+                        <BanknoteIcon className="size-4" />
+                        Cash on Delivery
+                      </span>
+                      <span className="text-muted-foreground text-xs font-normal">
+                        Pay the courier in cash, InstaPay or mobile wallet
+                      </span>
                     </FormLabel>
                   </FormItem>
 
@@ -117,6 +123,7 @@ export function CheckoutForm({
                   </FormItem>
                 </RadioGroup>
               </FormControl>
+              <PayOnDelivery label="You can pay the courier with" />
               <FormMessage />
             </FormItem>
           )}

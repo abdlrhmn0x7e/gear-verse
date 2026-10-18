@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { app } from "~/server/application";
 import { CurrentYear } from "./current-year";
+import { PayOnDelivery } from "./features/payment/pay-on-delivery";
 import { Logo } from "./logo";
 import { SOCIAL_LINKS } from "./navbar/social-links";
 import { Button } from "./ui/button";
@@ -70,6 +71,8 @@ export function Footer() {
             ))}
           </ul>
         </nav>
+
+        <PayOnDelivery className="border-t pt-8 md:col-span-3" />
       </div>
 
       <p className="text-muted-foreground px-2 pt-6 text-sm">

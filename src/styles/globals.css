@@ -70,6 +70,9 @@
   --tile-hover: var(--neutral-200);
   /* an icon tile lifted off a card panel */
   --raised: var(--neutral-50);
+  /* grey tiles holding payment and brand wordmarks; the wordmark is text, so it keeps 4.5:1 on the tile */
+  --logo-tile: var(--neutral-200);
+  --logo-tile-foreground: var(--neutral-600);
   /* --ring is 2.5:1 on the light page, too faint for a keyboard focus indicator */
   --focus: var(--neutral-950);
 
@@ -150,6 +153,8 @@
   --tile: var(--neutral-800);
   --tile-hover: var(--neutral-750);
   --raised: var(--neutral-800);
+  --logo-tile: var(--neutral-800);
+  --logo-tile-foreground: var(--neutral-350);
 
   --brand-subtle: var(--plum-925);
   --brand-text: var(--plum-250);
@@ -205,6 +210,8 @@
   --color-tile: var(--tile);
   --color-tile-hover: var(--tile-hover);
   --color-raised: var(--raised);
+  --color-logo-tile: var(--logo-tile);
+  --color-logo-tile-foreground: var(--logo-tile-foreground);
   --color-focus: var(--focus);
   --color-brand-subtle: var(--brand-subtle);
   --color-brand-text: var(--brand-text);
