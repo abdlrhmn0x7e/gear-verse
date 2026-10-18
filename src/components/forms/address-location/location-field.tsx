@@ -3,6 +3,7 @@
 import {
   IconCurrentLocation,
   IconExternalLink,
+  IconLocationOff,
   IconMap,
   IconMapPinFilled,
   IconX,
@@ -207,7 +208,11 @@ export function LocationField({
       </div>
 
       {locate.status === "error" && (
-        <p role="alert" className="text-destructive text-sm text-pretty">
+        <p
+          role="alert"
+          className="text-muted-foreground flex gap-2 text-sm text-pretty"
+        >
+          <IconLocationOff className="text-foreground mt-0.5 size-4 shrink-0" />
           {LOCATE_ERRORS[locate.reason]}
         </p>
       )}
@@ -226,35 +231,43 @@ export function LocationField({
       </div>
 
       {value && mapsUrl && (
-        <div className="bg-input-background border-input flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border py-1.5 pr-1.5 pl-3">
-          <span className="flex min-w-0 flex-1 items-center gap-2 text-sm">
-            {isLookingUp ? (
-              <Spinner size="small" className="text-muted-foreground" />
-            ) : (
-              <IconMapPinFilled className="text-primary size-4 shrink-0" />
-            )}
-            <span className="font-medium">Pinned location</span>
-            <span className="text-muted-foreground truncate text-xs tabular-nums">
-              {value.latitude.toFixed(5)}, {value.longitude.toFixed(5)}
-            </span>
-          </span>
-          <span className="flex items-center gap-1">
-            <Button type="button" variant="ghost" size="sm" asChild>
+        <div className="bg-input-background border-input flex items-center gap-3 rounded-2xl border py-1.5 pr-1.5 pl-3.5">
+          {isLookingUp ? (
+            <Spinner size="small" className="text-muted-foreground shrink-0" />
+          ) : (
+            <IconMapPinFilled className="text-primary size-4 shrink-0" />
+          )}
+          <div className="flex min-w-0 flex-1 flex-col items-start">
+            <p className="flex max-w-full min-w-0 items-baseline gap-2 text-sm">
+              <span className="font-medium whitespace-nowrap">
+                Pinned location
+              </span>
+              <span className="text-muted-foreground truncate text-xs tabular-nums">
+                {value.latitude.toFixed(5)}, {value.longitude.toFixed(5)}
+              </span>
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="-ml-2.5"
+              asChild
+            >
               <a href={mapsUrl} target="_blank" rel="noreferrer">
                 <IconExternalLink data-icon="inline-start" />
                 Open in Google Maps
               </a>
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Remove pin"
-              onClick={handleClear}
-            >
-              <IconX />
-            </Button>
-          </span>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Remove pin"
+            onClick={handleClear}
+          >
+            <IconX />
+          </Button>
         </div>
       )}
     </div>

@@ -1,10 +1,14 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Map as MapLibreMap, Marker } from "maplibre-gl";
+import { Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import { useTheme } from "next-themes";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { STREET_ZOOM, type Coordinates, type MapFocus } from "./types";
+
+setWorkerUrl(
+  new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).href,
+);
 
 const STYLES = {
   light: "https://tiles.openfreemap.org/styles/liberty",
@@ -13,6 +17,7 @@ const STYLES = {
 
 const CAIRO: Coordinates = { latitude: 30.0444, longitude: 31.2357 };
 const CITY_ZOOM = 11;
+const DETAIL_ZOOM = 14;
 
 const PIN_SVG = `<svg viewBox="0 0 24 32" aria-hidden="true" class="h-9 w-7 text-primary drop-shadow-md"><path fill="currentColor" d="M12 0C5.37 0 0 5.3 0 11.86 0 20.8 12 32 12 32s12-11.2 12-20.14C24 5.3 18.63 0 12 0Z"/><circle cx="12" cy="12" r="4.25" class="fill-primary-foreground"/></svg>`;
 
@@ -83,10 +88,22 @@ export default function LocationMap({
       return;
     }
 
+    // the compact credit opens expanded and only folds on the first drag,
+    // covering a third of a phone-sized map; fold it the same way up front
+    map.once("load", () => {
+      map
+        .getContainer()
+        .querySelector(".maplibregl-ctrl-attrib")
+        ?.classList.remove("maplibregl-compact-show");
+    });
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
     map.on("click", (event) => {
       placePin({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
+      // a tap at city zoom lands blocks away; move in so the pin can be fine-tuned
+      if (map.getZoom() < DETAIL_ZOOM) {
+        map.easeTo({ center: event.lngLat, zoom: STREET_ZOOM - 1 });
+      }
     });
     mapRef.current = map;
 
@@ -146,12 +163,14 @@ export default function LocationMap({
     );
   }
 
+  // sized rather than `absolute inset-0`: maplibre-gl.css is unlayered, so
+  // its `position: relative` beats Tailwind's layered utilities
   return (
     <div
       ref={containerRef}
       role="application"
       aria-label="Map. Tap to drop the delivery pin, then drag it to adjust."
-      className="absolute inset-0"
+      className="size-full"
     />
   );
 }
