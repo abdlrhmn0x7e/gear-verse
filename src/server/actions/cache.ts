@@ -18,6 +18,9 @@ export async function invalidateCache(key: string) {
 /**
  * Invalidates the product pages and the cached product listings, which only
  * show products that are in stock. Call it after the write is done.
+ *
+ * "sitemap" covers which products and categories are live: publishing,
+ * archiving and stock changes all move a page in or out of it.
  */
 export async function invalidateProducts(productIds: number[]) {
   await Promise.all([
@@ -26,5 +29,6 @@ export async function invalidateProducts(productIds: number[]) {
     ),
     invalidateCache("recent-products"),
     invalidateCache("products-menu"),
+    invalidateCache("sitemap"),
   ]);
 }

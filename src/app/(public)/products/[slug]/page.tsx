@@ -4,14 +4,31 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
+import { isAppError } from "~/lib/errors/app-error";
+import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 
+/**
+ * Null for unpublished, archived and unknown slugs. The miss is told apart
+ * here, inside the cache scope, because errors thrown out of `use cache` lose
+ * their class in production, so the caller can't tell a 404 from a 500.
+ */
 async function findProductMetadata(slug: string) {
   "use cache";
 
-  const metadata = await app.public.products.queries.findMetadata(slug);
-  cacheTag(`products:${metadata.id}`);
+  const { data: metadata, error } = await tryCatch(
+    app.public.products.queries.findMetadata(slug),
+  );
+  if (error) {
+    if (isAppError(error) && error.kind === "NOT_FOUND") {
+      // publishing a product invalidates "sitemap", which clears this miss
+      cacheTag("sitemap");
+      return null;
+    }
+    throw error;
+  }
 
+  cacheTag(`products:${metadata.id}`);
   return metadata;
 }
 
@@ -34,31 +51,27 @@ export async function generateMetadata({
     return notFound();
   }
 
-  try {
-    // unpublished, archived and unknown products 404 in the page itself
-    const metadata = await findProductMetadata(slug);
-
-    return {
-      title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
-      description: metadata.seo?.metaDescription ?? metadata.summary,
-      openGraph: {
-        title: metadata.seo?.pageTitle ?? metadata.title,
-        description: metadata.seo?.metaDescription ?? metadata.summary,
-        images: [metadata.thumbnailUrl],
-      },
-
-      twitter: {
-        title: metadata.seo?.pageTitle ?? metadata.title,
-        description: metadata.seo?.metaDescription ?? metadata.summary,
-        images: [metadata.thumbnailUrl],
-      },
-    };
-  } catch {
-    return {
-      title: "Gear Verse | Product Not Found",
-      description: "The requested product could not be found.",
-    };
+  // unpublished, archived and unknown products are a 404, not a 500
+  const metadata = await findProductMetadata(slug);
+  if (!metadata) {
+    notFound();
   }
+
+  return {
+    title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
+    description: metadata.seo?.metaDescription ?? metadata.summary,
+    openGraph: {
+      title: metadata.seo?.pageTitle ?? metadata.title,
+      description: metadata.seo?.metaDescription ?? metadata.summary,
+      images: [metadata.thumbnailUrl],
+    },
+
+    twitter: {
+      title: metadata.seo?.pageTitle ?? metadata.title,
+      description: metadata.seo?.metaDescription ?? metadata.summary,
+      images: [metadata.thumbnailUrl],
+    },
+  };
 }
 
 export default async function ProductPage({
@@ -67,6 +80,11 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  // checked before anything streams, so the response is a real 404
+  if (slug === "__placeholder__" || !(await findProductMetadata(slug))) {
+    notFound();
+  }
 
   return (
     <div className="pt-24 pb-12 md:pt-28">
