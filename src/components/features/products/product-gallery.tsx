@@ -43,7 +43,7 @@ export function ProductGallery({
           width={1200}
           height={1200}
           sizes="(min-width: 1024px) 55vw, 100vw"
-          isPriority
+          preload
           className="size-full rounded-none border-none bg-transparent p-[8%] [&_img]:object-contain"
         />
       </div>

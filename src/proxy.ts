@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { auth } from "./server/auth";
 import { env } from "./env";
+import { isFacetedSearch, isListingPath } from "./lib/seo/faceted";
 
 /**
  * Create rate limiter for auth routes.
@@ -38,6 +39,20 @@ function getClientIp(request: NextRequest): string {
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  /**
+   * Filtered and sorted listings copy the clean page, so they stay out of the
+   * index while their links are still followed. A header rather than page
+   * metadata: reading searchParams in generateMetadata would make every
+   * listing's metadata dynamic and stream it into the body.
+   */
+  if (isListingPath(path)) {
+    const response = NextResponse.next();
+    if (isFacetedSearch(req.nextUrl.searchParams)) {
+      response.headers.set("X-Robots-Tag", "noindex, follow");
+    }
+    return response;
+  }
 
   // Rate limit auth routes: 30 requests per minute
   if (path.startsWith("/api/auth")) {
@@ -74,5 +89,10 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/auth/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/auth/:path*",
+    "/products",
+    "/categories/:slug",
+  ],
 };

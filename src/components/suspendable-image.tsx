@@ -9,13 +9,17 @@ import { ImageOffIcon } from "lucide-react";
 export function SuspendableImage({
   src,
   alt,
-  isPriority = false,
   ...props
 }: {
   src: string;
   alt: string;
-  isPriority?: boolean;
 } & React.ComponentProps<typeof Image>) {
+  // A preloaded or eager image is above the fold, often the LCP element: it
+  // shows from the server HTML instead of waiting for hydration to fade it in.
+  const isEager =
+    props.preload === true ||
+    props.loading === "eager" ||
+    props.fetchPriority === "high";
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -45,15 +49,15 @@ export function SuspendableImage({
 
   return (
     <>
-      {isLoading && <Skeleton className="size-full rounded-none" />}
+      {isLoading && !isEager && <Skeleton className="size-full rounded-none" />}
 
       <Image
         src={src}
         alt={alt}
-        priority={isPriority}
         className={cn(
-          "size-full object-cover transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
+          "size-full object-cover",
+          !isEager && "transition-opacity duration-300",
+          isLoading && !isEager ? "opacity-0" : "opacity-100",
         )}
         onLoad={() => {
           setIsLoading(false);

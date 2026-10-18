@@ -3,11 +3,19 @@ import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { getStoreSettings } from "~/lib/store-settings";
 import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
+import { pageMetadata } from "~/lib/seo/metadata";
 
+const TITLE = "Returns & Refunds Policy";
+
+// the root title template adds " | Gear Verse"
 export const metadata: Metadata = {
-  title: "Gear Verse | Returns & Refunds Policy",
-  description:
-    "We refund products that arrive defective or damaged when you report the issue within 24 hours of opening.",
+  title: TITLE,
+  ...pageMetadata({
+    title: TITLE,
+    description:
+      "We refund products that arrive defective or damaged when you report the issue within 24 hours of opening.",
+    path: "/returns",
+  }),
 };
 
 export default async function ReturnsPage() {

@@ -19,6 +19,7 @@ async function deleteProductAndInvalidate(productId: number) {
     invalidateCache(`products:${productId}`),
     invalidateCache("recent-products"),
     invalidateCache("products-menu"),
+    invalidateCache("sitemap"),
   ]);
   return deleted;
 }
@@ -107,6 +108,7 @@ export const _products = {
 
       await invalidateCache("recent-products");
       await invalidateCache("products-menu");
+      await invalidateCache("sitemap");
 
       return created;
     },

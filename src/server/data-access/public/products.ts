@@ -8,9 +8,11 @@ import {
   media,
   products,
   productsMedia,
+  reviews,
   seo,
 } from "~/server/db/schema";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
+import { inStockSql } from "../common/in-stock";
 import type { Pagination } from "../common/types";
 import {
   getProductsOrdering,
@@ -195,20 +197,58 @@ export const _products = {
         .then(([product]) => product);
     },
 
+    /**
+     * Everything the product page's metadata and structured data need, without
+     * the description or the variants.
+     */
     findMetadata: async (slug: string) => {
+      const productMedia = db
+        .select({
+          productId: productsMedia.productId,
+          urls: sql<string[]>`
+            jsonb_agg(${media.url} order by ${productsMedia.order}, ${productsMedia.id})
+          `.as("media_urls"),
+        })
+        .from(productsMedia)
+        .innerJoin(media, eq(productsMedia.mediaId, media.id))
+        .groupBy(productsMedia.productId)
+        .as("product_media");
+
       return db
         .select({
           id: products.id,
+          slug: products.slug,
           title: products.title,
           summary: products.summary,
+          price: products.price,
+          strikeThroughPrice: products.strikeThroughPrice,
+          categoryId: products.categoryId,
+          updatedAt: products.updatedAt,
+          brand: {
+            name: brands.name,
+          },
           thumbnailUrl: sql<string>`${media.url}`,
+          media: sql<string[]>`coalesce(${productMedia.urls}, '[]'::jsonb)`,
+          inStock: inStockSql(products.id),
+          reviews: {
+            count: sql<number>`(
+              select count(*)::int from ${reviews}
+              where ${reviews.productId} = ${products.id}
+            )`,
+            averageRating: sql<number | null>`(
+              select avg(${reviews.rating})::float from ${reviews}
+              where ${reviews.productId} = ${products.id}
+            )`,
+          },
           seo: {
             pageTitle: seo.pageTitle,
             metaDescription: seo.metaDescription,
           },
         })
         .from(products)
+        .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
+        .leftJoin(productMedia, eq(productMedia.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
         .where(
           and(

@@ -28,6 +28,7 @@ import {
 import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { variantsCTE } from "../common/cte";
+import { inStockSql } from "../common/in-stock";
 import {
   getProductsOrdering,
   type ProductsSortBy,
@@ -115,13 +116,49 @@ export const _categories = {
       return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
     },
 
+    /** Every category, sub-categories included: each has its own page. */
     async findAllSlugs() {
       return db
         .select({
           slug: categories.slug,
         })
-        .from(categories)
-        .where(isNull(categories.parent_id));
+        .from(categories);
+    },
+
+    /**
+     * Categories, at any depth, whose page lists at least one product: one
+     * that is published, not archived and in stock, in the category or any
+     * of its sub-categories.
+     */
+    async findWithLiveProducts() {
+      return db.execute<{ id: number; slug: string; updatedAt: string }>(sql`
+        WITH RECURSIVE subtree AS (
+          SELECT id AS root_id, id FROM ${categories}
+
+          UNION ALL
+
+          SELECT subtree.root_id, child.id
+          FROM ${categories} AS child
+          INNER JOIN subtree ON child.parent_id = subtree.id
+        )
+        SELECT
+          c.id,
+          c.slug,
+          -- ISO in UTC, as drizzle reads these columns; the raw string would
+          -- be parsed as local time
+          to_char(c.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "updatedAt"
+        FROM ${categories} AS c
+        WHERE EXISTS (
+          SELECT 1
+          FROM subtree
+          INNER JOIN ${products} ON ${products.categoryId} = subtree.id
+          WHERE subtree.root_id = c.id
+            AND ${products.published} = true
+            AND ${products.archived} = false
+            AND ${inStockSql(products.id)}
+        )
+        ORDER BY c.id
+      `);
     },
 
     /**

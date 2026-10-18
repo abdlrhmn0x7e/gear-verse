@@ -19,9 +19,12 @@ export function getDiscountPercentage(
 export function ProductCard({
   product,
   sizes = "(min-width: 1024px) 25vw, 50vw",
+  eager = false,
 }: {
   product: ProductCardItem;
   sizes?: string;
+  /** the first card above the fold: its image is fetched first, likely the LCP */
+  eager?: boolean;
 }) {
   const discount = getDiscountPercentage(
     product.price,
@@ -46,6 +49,7 @@ export function ProductCard({
           width={640}
           height={640}
           sizes={sizes}
+          {...(eager && { loading: "eager", fetchPriority: "high" })}
           className="size-full rounded-none border-none bg-transparent p-[12%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
         />
       </div>

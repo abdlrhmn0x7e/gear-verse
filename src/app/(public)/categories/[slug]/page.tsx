@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CategoryChips } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { Skeleton } from "~/components/ui/skeleton";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
+import { pageMetadata } from "~/lib/seo/metadata";
+import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
+import { JsonLd } from "~/lib/seo/json-ld";
+import { breadcrumbJsonLd, categoryTrail } from "~/lib/seo/structured-data";
 import { app } from "~/server/application";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
@@ -18,6 +24,44 @@ export async function generateStaticParams() {
   return slugs;
 }
 
+async function findCategoryBySlug(slug: string) {
+  const path = findCategoryPath(
+    await getCategoryTree(),
+    (node) => node.slug === slug,
+  );
+  return { path, category: path.at(-1) };
+}
+
+// filtered and sorted URLs get noindex from the proxy and canonicalise here
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const [{ category }, indexable] = await Promise.all([
+    findCategoryBySlug(slug),
+    findSitemapEntries(),
+  ]);
+  if (!category) {
+    notFound();
+  }
+
+  const title = `${category.name}: Imported, Delivered in Egypt`;
+  const isEmpty = !indexable.categories.some((live) => live.slug === slug);
+
+  return {
+    title,
+    ...pageMetadata({
+      title,
+      description: `Shop hand-imported ${category.name} from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
+      path: `/categories/${slug}`,
+    }),
+    // nothing to buy yet, so keep it out of the index until it has stock
+    ...(isEmpty && { robots: { index: false, follow: true } }),
+  };
+}
+
 export default async function CategoryPage({
   params,
   searchParams,
@@ -25,24 +69,22 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
 }) {
-  const [{ slug }, sp] = await Promise.all([params, searchParams]);
-  const loadedSps = loadFilterSearchParams(sp as Record<string, string>);
-
+  const { slug } = await params;
   if (slug === "__placeholder__") {
-    return notFound();
+    notFound();
   }
 
-  const path = findCategoryPath(
-    await getCategoryTree(),
-    (node) => node.slug === slug,
-  );
-  const category = path.at(-1);
+  // the cached lookup runs before any Suspense boundary (there is no
+  // loading.tsx on purpose), so an unknown category is a real 404 instead of a
+  // streamed 200 with noindex
+  const { path, category } = await findCategoryBySlug(slug);
   if (!category) {
-    return notFound();
+    notFound();
   }
 
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
+      <JsonLd data={breadcrumbJsonLd(categoryTrail(path))} />
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
           {category.name}
@@ -60,13 +102,16 @@ export default async function CategoryPage({
       <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
         <aside aria-label="Filters" className="hidden lg:block">
           <div className="sticky top-24">
-            <Filters slug={slug} />
+            {/* the filters read the URL, so they stream in */}
+            <Suspense fallback={<Skeleton className="h-96" />}>
+              <Filters slug={slug} />
+            </Suspense>
           </div>
         </aside>
 
         <Suspense fallback={<ProductsSkeleton />}>
-          <Products
-            filters={loadedSps}
+          <FilteredProducts
+            searchParams={searchParams}
             slug={slug}
             filtersPanel={<Filters slug={slug} />}
           />
@@ -74,4 +119,20 @@ export default async function CategoryPage({
       </div>
     </MaxWidthWrapper>
   );
+}
+
+/** Reads the filters from the URL, so only this part waits on the request. */
+async function FilteredProducts({
+  searchParams,
+  ...props
+}: {
+  searchParams: Promise<SearchParams>;
+  slug: string;
+  filtersPanel: React.ReactNode;
+}) {
+  const filters = loadFilterSearchParams(
+    (await searchParams) as Record<string, string>,
+  );
+
+  return <Products filters={filters} {...props} />;
 }
