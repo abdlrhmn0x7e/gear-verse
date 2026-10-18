@@ -30,8 +30,11 @@ async function s3GetPresignedUrl({
 
   return {
     fileId,
+    // content-length is signed by default, so S3 refuses a body of any other
+    // size. signing content-type too holds the upload to the checked type
     url: await getSignedUrl(s3, command, {
       expiresIn: 60 * 5, // 5 minutes
+      signableHeaders: new Set(["content-type"]),
     }),
     name,
     mimeType,
