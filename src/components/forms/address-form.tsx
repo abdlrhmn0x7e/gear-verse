@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useRef } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import {
   Form,
@@ -26,13 +26,17 @@ import {
   createAddressInputSchema,
 } from "~/lib/schemas/entities";
 import { cn } from "~/lib/utils";
+import type { ReverseGeocodeResult } from "~/lib/schemas/contracts/public/geocoding";
 import { humanizeString } from "~/lib/utils/humanize-string";
+import { LocationField } from "./address-location/location-field";
+import type { Coordinates } from "./address-location/types";
 
 const addressFormSchema = createAddressInputSchema;
 export type AddressFormValues = z.infer<typeof addressFormSchema>;
 
 // fields reach the 44px touch minimum on phones and keep the compact height with a mouse
 const touchField = "pointer-coarse:h-11";
+type PrefillField = "governorate" | "city" | "address";
 
 export function AddressForm({
   onSubmit,
@@ -49,8 +53,63 @@ export function AddressForm({
       city: "",
       address: "",
       buildingNameOrNumber: "",
+      latitude: null,
+      longitude: null,
     },
   });
+
+  const [latitude, longitude] = useWatch({
+    control: form.control,
+    name: ["latitude", "longitude"],
+  });
+  const pin: Coordinates | null =
+    latitude != null && longitude != null ? { latitude, longitude } : null;
+
+  // what the pin last filled in, so moving the pin can refresh its own
+  // guesses without touching anything the customer typed
+  const prefilled = useRef<Partial<Record<PrefillField, string>>>({});
+
+  function handlePinChange(coordinates: Coordinates | null) {
+    form.setValue("latitude", coordinates?.latitude ?? null, {
+      shouldDirty: true,
+    });
+    form.setValue("longitude", coordinates?.longitude ?? null, {
+      shouldDirty: true,
+    });
+  }
+
+  function canPrefill(field: PrefillField) {
+    const current = form.getValues(field);
+    return (
+      current === "" ||
+      current === prefilled.current[field] ||
+      // the governorate starts on Cairo rather than empty
+      (field === "governorate" && !form.getFieldState(field).isDirty)
+    );
+  }
+
+  function handleAddressFound({
+    governorate,
+    city,
+    street,
+  }: ReverseGeocodeResult) {
+    const options = (field: PrefillField) => ({
+      shouldValidate: !!form.formState.errors[field],
+    });
+
+    if (governorate && canPrefill("governorate")) {
+      form.setValue("governorate", governorate, options("governorate"));
+      prefilled.current.governorate = governorate;
+    }
+    if (city && canPrefill("city")) {
+      form.setValue("city", city, options("city"));
+      prefilled.current.city = city;
+    }
+    if (street && canPrefill("address")) {
+      form.setValue("address", street, options("address"));
+      prefilled.current.address = street;
+    }
+  }
 
   const governorates = useMemo(
     () =>
@@ -122,6 +181,12 @@ export function AddressForm({
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        <LocationField
+          value={pin}
+          onChange={handlePinChange}
+          onAddressFound={handleAddressFound}
         />
 
         <FormField

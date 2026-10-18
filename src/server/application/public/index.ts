@@ -7,6 +7,7 @@ import { _checkout } from "./check-out";
 import { _orders } from "./orders";
 import { _settings } from "./settings";
 import { _sitemap } from "./sitemap";
+import { _geocoding } from "./geocoding";
 
 export const _public = {
   products: _products,
@@ -18,4 +19,5 @@ export const _public = {
   orders: _orders,
   settings: _settings,
   sitemap: _sitemap,
+  geocoding: _geocoding,
 };
