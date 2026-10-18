@@ -21,9 +21,11 @@ import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
 export function Navbar() {
   return (
     <NavigationMenu.Root delayDuration={100} className="contents">
-      {/* the blur and tint live on a layer that runs 2rem past the bar and fades over its last 3rem, so the bar has no bottom edge;
-          an open menu turns the same layer into the opaque popover surface, and the fade lands in the menu's bottom padding */}
-      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-8 before:-z-10 before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200 before:[mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)] has-data-[state=open]:before:bg-popover">
+      {/* the blur and tint live on a layer that runs 4rem past the bar and eases out (a smoothstep) from just under the links to its
+          end, so the bar has no bottom edge and no band where it meets a dark panel; the links' row stays fully tinted, keeping
+          muted links at 5.02:1 over the plum panel. An open menu turns the same layer into the opaque popover surface, and the
+          fade starts in the menu's bottom padding */}
+      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] has-data-[state=open]:before:bg-popover">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
