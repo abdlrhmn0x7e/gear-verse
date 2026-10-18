@@ -327,8 +327,12 @@ export const _orders = {
           await tx.update(orders).set(orderInput).where(eq(orders.id, id));
         }
 
+        // the form only sends dirty fields, so a missing status means unchanged
+        const wasCancelled = old.status === "CANCELLED";
+        const isCancelled = (orderInput?.status ?? old.status) === "CANCELLED";
+
         // if the order is being cancelled, restock the items
-        if (old.status !== "CANCELLED" && orderInput?.status === "CANCELLED") {
+        if (!wasCancelled && isCancelled) {
           const oldItems = await tx
             .select({
               productId: orderItems.productId,
@@ -358,7 +362,7 @@ export const _orders = {
 
         // if the items are being from cancelled, adjust the stock accordingly
         // this probably could be nicer but who cares meh
-        if (old.status === "CANCELLED" && orderInput?.status !== "CANCELLED") {
+        if (wasCancelled && !isCancelled) {
           const oldItems = await tx
             .select({
               productId: orderItems.productId,
@@ -408,8 +412,10 @@ export const _orders = {
               productVariantId: orderItems.productVariantId,
             });
 
+          // a cancelled order holds no stock, so its items don't move it.
           // positive quantities go back to stock, negative ones are taken out
-          for (const line of getStockDiff(deleted, created)) {
+          const stockDiff = isCancelled ? [] : getStockDiff(deleted, created);
+          for (const line of stockDiff) {
             const preds = [eq(inventoryItems.productId, line.productId)];
             if (line.productVariantId) {
               preds.push(
