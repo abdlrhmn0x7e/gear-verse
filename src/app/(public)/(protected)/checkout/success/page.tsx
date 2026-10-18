@@ -1,4 +1,4 @@
-import { BadgeCheckIcon, PackageIcon } from "lucide-react";
+import { ArrowRightIcon, BadgeCheckIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Heading } from "~/components/heading";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -132,8 +132,8 @@ export default async function SuccessPage({
           <CardFooter>
             <Button className="w-full" variant="link" asChild>
               <Link href="/orders">
-                <PackageIcon />
                 Track your orders
+                <ArrowRightIcon data-icon="inline-end" />
               </Link>
             </Button>
           </CardFooter>
