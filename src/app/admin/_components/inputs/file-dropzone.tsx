@@ -109,13 +109,13 @@ export function FileDropzone({
             </p>
           </>
         ) : isPending ? (
-          <>
-            <Spinner size="page" />
+          <div className="flex items-center gap-2">
+            <Spinner size="small" className="text-muted-foreground" />
 
             <p className="text-muted-foreground text-sm select-none">
               Uploading files...
             </p>
-          </>
+          </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
