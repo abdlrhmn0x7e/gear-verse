@@ -68,12 +68,12 @@ export async function FAQ() {
     {
       question: "How can I track my order?",
       answer:
-        "Once your order is placed, you can track its status through your account dashboard. You'll be able to see real-time updates on your order from processing to delivery.",
+        "Open My orders to see each order you've placed and its status. Our team also contacts you on WhatsApp or by phone to confirm your order before it ships.",
     },
     {
       question: "Are the products authentic and covered by warranty?",
       answer:
-        "Absolutely! We only sell authentic gaming gear from trusted brands. Most products come with manufacturer warranty. Check the product details page for specific warranty information.",
+        "Absolutely! We only sell authentic gaming gear from trusted brands. Most products come with the manufacturer's warranty.",
     },
     {
       question: "How long does delivery take?",
