@@ -531,8 +531,9 @@
   --border: var(--floating-border);
 }
 
-/* Text fields, search and select triggers sit on the card surface; the border from surface-control
-   keeps them readable when the field itself is placed on a card. */
+/* Text fields, search and select triggers take --input-background, which steps off whatever they sit on.
+   Text fields match :focus-visible on a mouse click too, so their focus is a plum edge with a soft halo rather than
+   the 2px keyboard outline; the halo goes through --surface-shadow so an aria-invalid ring still overrides it. */
 @utility surface-field {
   --surface-fill: var(--input-background);
   --surface-fill-hover: color-mix(
@@ -540,6 +541,16 @@
     var(--accent) 50%,
     var(--input-background)
   );
+
+  &:is(
+    :focus-visible,
+    :has(:is(input, textarea, [contenteditable="true"]):focus-visible)
+  ) {
+    outline: none;
+    --surface-border: var(--primary);
+    --surface-shadow: 0 0 0 3px
+      color-mix(in oklab, var(--primary) 16%, transparent);
+  }
 }
 
 /* Filled primary action: the flat logo colour in both themes. No inset highlight either: the colour alone carries the emphasis. */
