@@ -25,24 +25,25 @@
   --lavender-200: oklch(0.89 0.04 325);
   --lavender-300: oklch(0.84 0.045 325);
 
-  /* the in-between steps (75, 250, 350, 750, 850) and the warmer 800/900 exist for the dark theme */
-  --neutral-50: oklch(0.99 0.003 325);
-  --neutral-75: oklch(0.97 0.006 325);
-  --neutral-100: oklch(0.965 0.005 325);
-  --neutral-200: oklch(0.925 0.007 325);
-  --neutral-250: oklch(0.88 0.01 325);
-  --neutral-300: oklch(0.87 0.009 325);
-  --neutral-350: oklch(0.74 0.015 325);
-  --neutral-400: oklch(0.71 0.013 325);
+  /* light grays lean faintly cool like Apple's (#f5f5f7) so plum is only the brand colour; the dark theme re-declares
+     the ramp with its aubergine tint. The in-between steps (75, 250, 350, 750, 850) exist for the dark theme */
+  --neutral-50: oklch(0.99 0.0012 286);
+  --neutral-75: oklch(0.97 0.0024 286);
+  --neutral-100: oklch(0.965 0.002 286);
+  --neutral-200: oklch(0.925 0.0028 286);
+  --neutral-250: oklch(0.88 0.004 286);
+  --neutral-300: oklch(0.87 0.0036 286);
+  --neutral-350: oklch(0.74 0.006 286);
+  --neutral-400: oklch(0.71 0.0052 286);
   /* 0.51 so muted text keeps 4.63:1 on a highlighted (accent) row as well as 5.62:1 on the page */
-  --neutral-500: oklch(0.51 0.015 325);
-  --neutral-600: oklch(0.45 0.015 325);
-  --neutral-700: oklch(0.37 0.014 325);
-  --neutral-750: oklch(0.34 0.02 325);
-  --neutral-800: oklch(0.29 0.02 325);
-  --neutral-850: oklch(0.25 0.018 325);
-  --neutral-900: oklch(0.205 0.014 325);
-  --neutral-950: oklch(0.145 0.008 325);
+  --neutral-500: oklch(0.51 0.006 286);
+  --neutral-600: oklch(0.45 0.006 286);
+  --neutral-700: oklch(0.37 0.0056 286);
+  --neutral-750: oklch(0.34 0.006 286);
+  --neutral-800: oklch(0.29 0.006 286);
+  --neutral-850: oklch(0.25 0.006 286);
+  --neutral-900: oklch(0.205 0.0056 286);
+  --neutral-950: oklch(0.145 0.0032 286);
 
   --background: var(--neutral-50);
   --foreground: var(--neutral-950);
@@ -80,8 +81,8 @@
   /* a card placed on a popover or drawer, which are the card colour, so the tile steps down (up in dark) */
   --tile: var(--neutral-200);
   --tile-hover: var(--neutral-250);
-  /* a field, nested box or icon tile lifted off a card panel */
-  --raised: var(--neutral-50);
+  /* a field, nested box or icon tile lifted off a card panel: plain white, as on Apple's gray cards */
+  --raised: oklch(1 0 0);
   /* grey tiles holding the full-colour payment marks and their labels; the label keeps 4.5:1 (5.99:1) on the tile */
   --logo-tile: var(--neutral-200);
   --logo-tile-foreground: var(--neutral-600);
@@ -127,29 +128,48 @@
   --font-serif: Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
   --radius: 0.875rem;
-  --shadow-2xs: 0px 2px 12px 0px oklch(0.37 0.014 325 / 0.04);
-  --shadow-xs: 0px 2px 12px 0px oklch(0.37 0.014 325 / 0.04);
+  --shadow-2xs: 0px 2px 12px 0px oklch(0.37 0.006 286 / 0.04);
+  --shadow-xs: 0px 2px 12px 0px oklch(0.37 0.006 286 / 0.04);
   --shadow-sm:
-    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
-    0px 1px 2px -1px oklch(0.37 0.014 325 / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.006 286 / 0.08),
+    0px 1px 2px -1px oklch(0.37 0.006 286 / 0.08);
   --shadow:
-    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
-    0px 1px 2px -1px oklch(0.37 0.014 325 / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.006 286 / 0.08),
+    0px 1px 2px -1px oklch(0.37 0.006 286 / 0.08);
   --shadow-md:
-    0px 2px 12px 0px oklch(0.37 0.014 325 / 0.08),
-    0px 2px 4px -1px oklch(0.37 0.014 325 / 0.08);
+    0px 2px 12px 0px oklch(0.37 0.006 286 / 0.08),
+    0px 2px 4px -1px oklch(0.37 0.006 286 / 0.08);
   --shadow-lg:
-    0px 8px 24px -4px oklch(0.37 0.014 325 / 0.1),
-    0px 4px 6px -1px oklch(0.37 0.014 325 / 0.06);
+    0px 8px 24px -4px oklch(0.37 0.006 286 / 0.1),
+    0px 4px 6px -1px oklch(0.37 0.006 286 / 0.06);
   --shadow-xl:
-    0px 16px 40px -8px oklch(0.37 0.014 325 / 0.14),
-    0px 8px 10px -1px oklch(0.37 0.014 325 / 0.06);
-  --shadow-2xl: 0px 24px 64px -12px oklch(0.37 0.014 325 / 0.24);
+    0px 16px 40px -8px oklch(0.37 0.006 286 / 0.14),
+    0px 8px 10px -1px oklch(0.37 0.006 286 / 0.06);
+  --shadow-2xl: 0px 24px 64px -12px oklch(0.37 0.006 286 / 0.24);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
 
 .dark {
+  /* the dark theme keeps the plum-tinted ramp: a soft aubergine rather than a cold charcoal */
+  --neutral-50: oklch(0.99 0.003 325);
+  --neutral-75: oklch(0.97 0.006 325);
+  --neutral-100: oklch(0.965 0.005 325);
+  --neutral-200: oklch(0.925 0.007 325);
+  --neutral-250: oklch(0.88 0.01 325);
+  --neutral-300: oklch(0.87 0.009 325);
+  --neutral-350: oklch(0.74 0.015 325);
+  --neutral-400: oklch(0.71 0.013 325);
+  /* 0.51 so muted text keeps 4.63:1 on a highlighted (accent) row as well as 5.62:1 on the page */
+  --neutral-500: oklch(0.51 0.015 325);
+  --neutral-600: oklch(0.45 0.015 325);
+  --neutral-700: oklch(0.37 0.014 325);
+  --neutral-750: oklch(0.34 0.02 325);
+  --neutral-800: oklch(0.29 0.02 325);
+  --neutral-850: oklch(0.25 0.018 325);
+  --neutral-900: oklch(0.205 0.014 325);
+  --neutral-950: oklch(0.145 0.008 325);
+
   /* a soft charcoal rather than near-black: surfaces step up by lightness, text stays at 7:1 or better */
   --background: var(--neutral-900);
   --foreground: var(--neutral-75);
