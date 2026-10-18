@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Drawer as DrawerPrimitive } from "vaul";
+import { isToastInteraction } from "~/components/ui/toast";
 
 function Drawer({
   ...props
@@ -68,6 +69,7 @@ function DrawerContent({
   style,
   onOpenAutoFocus,
   onCloseAutoFocus,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
   const returnFocusTo = React.useRef<HTMLElement | null>(null);
@@ -106,6 +108,10 @@ function DrawerContent({
           if (event.defaultPrevented) return;
           event.preventDefault();
           (event.currentTarget as HTMLElement).focus({ preventScroll: true });
+        }}
+        onInteractOutside={(event) => {
+          if (isToastInteraction(event)) event.preventDefault();
+          onInteractOutside?.(event);
         }}
         onCloseAutoFocus={(event) => {
           onCloseAutoFocus?.(event);

@@ -5,6 +5,7 @@ import { cn } from "~/lib/utils";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "~/components/ui/button";
+import { isToastInteraction } from "~/components/ui/toast";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 
@@ -52,6 +53,7 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
@@ -61,8 +63,12 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        onInteractOutside={(event) => {
+          if (isToastInteraction(event)) event.preventDefault();
+          onInteractOutside?.(event);
+        }}
         className={cn(
-          "surface-control surface-floating text-popover-foreground [--surface-shadow:var(--shadow-2xl)] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-[28px] p-6 text-sm duration-100 outline-none sm:max-w-md",
+          "surface-control surface-floating text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-[28px] p-6 text-sm duration-100 outline-none [--surface-shadow:var(--shadow-2xl)] sm:max-w-md",
           className,
         )}
         {...props}
