@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
@@ -68,7 +68,8 @@ export function AddCategory({
       />
 
       <div className="flex items-center justify-between">
-        <Button variant="destructive" onClick={cancel}>
+        <Button variant="outline" onClick={cancel}>
+          <XIcon data-icon="inline-start" />
           Cancel
         </Button>
 
@@ -77,7 +78,11 @@ export function AddCategory({
           form="category-form"
           disabled={isCreatingCategory}
         >
-          {isCreatingCategory ? <Spinner /> : <PlusIcon />}
+          {isCreatingCategory ? (
+            <Spinner size="small" data-icon="inline-start" />
+          ) : (
+            <PlusIcon data-icon="inline-start" />
+          )}
           Add
         </Button>
       </div>

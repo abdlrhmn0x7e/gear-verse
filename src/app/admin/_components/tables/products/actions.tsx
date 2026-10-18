@@ -50,9 +50,8 @@ export function ProductsTableActions({
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="size-4" />
+          <Button variant="ghost" size="icon-sm" aria-label="Open menu">
+            <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>
 

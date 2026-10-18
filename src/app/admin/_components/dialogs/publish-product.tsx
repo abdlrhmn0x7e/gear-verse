@@ -1,5 +1,6 @@
 "use client";
 
+import { PowerOffIcon, RadioTowerIcon, XIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
@@ -59,10 +60,16 @@ export function PublishProductDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+            <XIcon data-icon="inline-start" />
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction disabled={isPending} onClick={handlePublish}>
-            Continue
+            {published ? (
+              <PowerOffIcon data-icon="inline-start" />
+            ) : (
+              <RadioTowerIcon data-icon="inline-start" />
+            )}
+            {published ? "Unpublish" : "Publish"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

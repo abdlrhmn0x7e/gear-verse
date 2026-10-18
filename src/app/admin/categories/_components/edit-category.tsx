@@ -5,7 +5,7 @@ import {
   CategoryForm,
   type CategoryFormValues,
 } from "~/app/admin/_components/forms/category-form";
-import { SaveIcon } from "lucide-react";
+import { SaveIcon, XIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
 import { useEffect } from "react";
@@ -65,7 +65,8 @@ export function EditCategory({
       />
 
       <div className="flex items-center justify-between">
-        <Button variant="destructive" onClick={cancel}>
+        <Button variant="outline" onClick={cancel}>
+          <XIcon data-icon="inline-start" />
           Cancel
         </Button>
 
@@ -74,7 +75,11 @@ export function EditCategory({
           form="category-form"
           disabled={isUpdatingCategory}
         >
-          {isUpdatingCategory ? <Spinner /> : <SaveIcon />}
+          {isUpdatingCategory ? (
+            <Spinner size="small" data-icon="inline-start" />
+          ) : (
+            <SaveIcon data-icon="inline-start" />
+          )}
           Save
         </Button>
       </div>

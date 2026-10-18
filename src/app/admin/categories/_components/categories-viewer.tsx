@@ -9,7 +9,7 @@ import {
   ChevronRight,
   FolderIcon,
   FolderOpenIcon,
-  PlusCircleIcon,
+  PlusIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
@@ -235,10 +235,10 @@ export function CategoriesViewer() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="cursor-pointer rounded-full"
+                    aria-label="Add category"
                     onClick={() => setShowAddCategory(true)}
                   >
-                    <PlusCircleIcon />
+                    <PlusIcon />
                   </Button>
                 </div>
 

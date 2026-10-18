@@ -8,7 +8,7 @@ import {
 } from "@xyflow/react";
 import { useTRPC } from "~/trpc/client";
 
-import { IconX } from "@tabler/icons-react";
+import { XIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 export function CustomEdge({
@@ -53,6 +53,7 @@ export function CustomEdge({
           variant="destructive"
           size="icon-xs"
           className="size-4"
+          aria-label="Remove connection"
           onClick={handleDelete}
           style={{
             position: "absolute",
@@ -61,7 +62,7 @@ export function CustomEdge({
             pointerEvents: "all",
           }}
         >
-          <IconX />
+          <XIcon />
         </Button>
       </EdgeLabelRenderer>
     </>

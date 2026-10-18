@@ -13,7 +13,7 @@ import {
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
-import { TrashIcon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 // Custom hooks
@@ -116,8 +116,8 @@ export function ProductsTable() {
             ids={selectedProductIds}
             onDeleteSuccess={handleBulkDeleteSuccess}
             Trigger={
-              <Button variant="destructive" className="w-full gap-2 sm:w-auto">
-                <TrashIcon className="size-4" />
+              <Button variant="destructive" className="w-full sm:w-auto">
+                <Trash2Icon data-icon="inline-start" />
                 Delete selected ({selectedProductIds.length})
               </Button>
             }

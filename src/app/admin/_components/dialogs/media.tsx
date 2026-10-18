@@ -2,12 +2,13 @@
 
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import {
-  CloudUploadIcon,
+  CheckIcon,
   EyeIcon,
   ImageIcon,
   ImageOffIcon,
   MousePointerClickIcon,
   UploadCloudIcon,
+  UploadIcon,
   XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -121,6 +122,7 @@ export function MediaDialog({
             variant="outline"
             onClick={() => setOpen(false)}
           >
+            <XIcon data-icon="inline-start" />
             Close
           </Button>
           <Button
@@ -135,6 +137,7 @@ export function MediaDialog({
               setOpen(false);
             }}
           >
+            <CheckIcon data-icon="inline-start" />
             Done
           </Button>
         </DialogFooter>
@@ -210,7 +213,7 @@ function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
 
             <div className="flex items-center gap-1">
               <Button type="button" size="sm">
-                <CloudUploadIcon />
+                <UploadIcon data-icon="inline-start" />
                 Click to select files
               </Button>
             </div>
@@ -371,9 +374,11 @@ function MediaGrid({
             />
             <div className="absolute right-4 bottom-15">
               <Button
-                size="icon"
+                size="icon-sm"
+                aria-label={`Preview ${media.name}`}
+                aria-pressed={mediaPreviewUrl === media.url}
                 className={cn(
-                  "size-8 p-0 opacity-0 group-hover:opacity-100",
+                  "opacity-0 group-hover:opacity-100",
                   mediaPreviewUrl === media.url && "opacity-100",
                 )}
                 onClick={(e) => {
@@ -424,6 +429,7 @@ function MediaPreview({ url }: { url: string }) {
           variant="ghost"
           size="icon"
           className="ml-auto"
+          aria-label="Close preview"
           onClick={() => {
             setMediaPreviewUrl(null);
           }}

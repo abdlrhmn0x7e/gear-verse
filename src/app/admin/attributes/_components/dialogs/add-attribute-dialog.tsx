@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -70,7 +70,7 @@ export function AddAttributeDialog({
           className={className}
           disabled={creatingAttribute}
         >
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Attribute
         </Button>
       </DialogTrigger>
@@ -86,14 +86,21 @@ export function AddAttributeDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="destructive-outline">Cancel</Button>
+            <Button variant="outline">
+              <XIcon data-icon="inline-start" />
+              Cancel
+            </Button>
           </DialogClose>
           <Button
             type="submit"
             form="attribute-form"
             disabled={creatingAttribute}
           >
-            {creatingAttribute ? <Spinner /> : <PlusCircleIcon />}
+            {creatingAttribute ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Add
           </Button>
         </DialogFooter>

@@ -15,7 +15,7 @@ import {
   ItemTitle,
 } from "~/components/ui/item";
 import { Button } from "~/components/ui/button";
-import { SaveIcon, XIcon } from "lucide-react";
+import { SaveIcon, Undo2Icon } from "lucide-react";
 import { Spinner } from "~/components/spinner";
 
 const inventoryItemFormSchema = updateManyInventoryItemsInputSchema;
@@ -102,11 +102,10 @@ export function InventoryItemForm({
             onClick={handleDiscard}
             disabled={isSubmitting}
           >
-            <XIcon />
+            <Undo2Icon data-icon="inline-start" />
             Discard
           </Button>
           <Button
-            variant="outline"
             size="sm"
             onClick={handleSave}
             disabled={
@@ -115,7 +114,11 @@ export function InventoryItemForm({
               !form.formState.isDirty
             }
           >
-            {isSubmitting ? <Spinner /> : <SaveIcon />}
+            {isSubmitting ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
             Save
           </Button>
         </ItemActions>

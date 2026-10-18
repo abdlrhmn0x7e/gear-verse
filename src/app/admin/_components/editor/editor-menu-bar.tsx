@@ -126,6 +126,7 @@ export function EditorMenuBar({
       {/* Undo / Redo */}
       <MaybeTooltip label="Undo" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Undo"
           variant="ghost"
           size="icon"
           type="button"
@@ -137,6 +138,7 @@ export function EditorMenuBar({
       </MaybeTooltip>
       <MaybeTooltip label="Redo" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Redo"
           variant="ghost"
           size="icon"
           type="button"
@@ -156,7 +158,12 @@ export function EditorMenuBar({
       <DropdownMenu>
         <MaybeTooltip label="Headings" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" type="button">
+            <Button
+              aria-label="Headings"
+              variant="ghost"
+              size="icon"
+              type="button"
+            >
               <HeadingIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -196,7 +203,12 @@ export function EditorMenuBar({
       <DropdownMenu>
         <MaybeTooltip label="Lists" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" type="button">
+            <Button
+              aria-label="Lists"
+              variant="ghost"
+              size="icon"
+              type="button"
+            >
               <ListIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -227,7 +239,9 @@ export function EditorMenuBar({
       {/* Text formatting */}
       <MaybeTooltip label="Bold" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Bold"
           variant={editorState.isBold ? "default" : "ghost"}
+          aria-pressed={editorState.isBold}
           size="icon"
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -237,7 +251,9 @@ export function EditorMenuBar({
       </MaybeTooltip>
       <MaybeTooltip label="Italic" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Italic"
           variant={editorState.isItalic ? "default" : "ghost"}
+          aria-pressed={editorState.isItalic}
           size="icon"
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -248,7 +264,9 @@ export function EditorMenuBar({
 
       <MaybeTooltip label="Underline" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Underline"
           variant={editorState.isUnderline ? "default" : "ghost"}
+          aria-pressed={editorState.isUnderline}
           size="icon"
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
@@ -258,7 +276,9 @@ export function EditorMenuBar({
       </MaybeTooltip>
       <MaybeTooltip label="Strikethrough" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Strikethrough"
           variant={editorState.isStrikethrough ? "default" : "ghost"}
+          aria-pressed={editorState.isStrikethrough}
           size="icon"
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
@@ -268,7 +288,9 @@ export function EditorMenuBar({
       </MaybeTooltip>
       <MaybeTooltip label="Highlight" disableTooltips={disableTooltips}>
         <Button
+          aria-label="Highlight"
           variant={editorState.isHighlight ? "default" : "ghost"}
+          aria-pressed={editorState.isHighlight}
           size="icon"
           type="button"
           onClick={() => editor.chain().focus().toggleHighlight().run()}
@@ -286,7 +308,12 @@ export function EditorMenuBar({
       <DropdownMenu>
         <MaybeTooltip label="Alignment" disableTooltips={disableTooltips}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" type="button">
+            <Button
+              aria-label="Alignment"
+              variant="ghost"
+              size="icon"
+              type="button"
+            >
               <AlignJustifyIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -355,7 +382,13 @@ export function EditorMenuBar({
         label={expanded ? "Minimize" : "Expand"}
         disableTooltips={disableTooltips}
       >
-        <Button variant="ghost" type="button" onClick={onExpand}>
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          aria-label={expanded ? "Minimize" : "Expand"}
+          onClick={onExpand}
+        >
           {expanded ? <Minimize2Icon /> : <Maximize2Icon />}
         </Button>
       </MaybeTooltip>
@@ -379,14 +412,24 @@ function ImageDrawerDialog({
   return (
     <MediaDialog onChange={handleAddImage}>
       {disableTooltips ? (
-        <Button variant="ghost" type="button">
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          aria-label="Add image"
+        >
           <ImagePlusIcon />
         </Button>
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
             <DrawerDialogTrigger asChild>
-              <Button variant="ghost" type="button">
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                aria-label="Add image"
+              >
                 <ImagePlusIcon />
               </Button>
             </DrawerDialogTrigger>
@@ -432,6 +475,7 @@ function LinkDrawerDialog({
             variant={isLink ? "default" : "ghost"}
             size="icon"
             type="button"
+            aria-label="Link"
           >
             <LinkIcon />
           </Button>
@@ -444,6 +488,7 @@ function LinkDrawerDialog({
                 variant={isLink ? "default" : "ghost"}
                 size="icon"
                 type="button"
+                aria-label="Link"
               >
                 <LinkIcon />
               </Button>
@@ -475,7 +520,7 @@ function LinkDrawerDialog({
         </div>
         <DrawerDialogFooter>
           <Button type="button" onClick={handleLink}>
-            <LinkIcon />
+            <LinkIcon data-icon="inline-start" />
             Add Link
           </Button>
         </DrawerDialogFooter>

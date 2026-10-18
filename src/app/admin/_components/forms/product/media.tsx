@@ -2,7 +2,7 @@
 
 import { useFormContext, type UseFieldArraySwap } from "react-hook-form";
 
-import { ImageIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -112,7 +112,7 @@ export function MediaFields({
               setCheckedMedia([]);
             }}
           >
-            <TrashIcon />
+            <Trash2Icon data-icon="inline-start" />
             Delete Selected
           </Button>
         </div>
@@ -156,6 +156,7 @@ export function MediaFields({
               <MediaDialog onChange={() => setValue("media", selectedMedia, { shouldDirty: true })}>
                 <button
                   type="button"
+                  aria-label="Add media"
                   className="hover:bg-muted flex size-32 cursor-pointer items-center justify-center rounded-lg border border-dashed p-2 transition-colors"
                 >
                   <PlusIcon />

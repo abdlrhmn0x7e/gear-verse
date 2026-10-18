@@ -120,6 +120,7 @@ export function DragableItem({
     >
       {withHandle && (
         <button
+          aria-label="Drag to reorder"
           className="cursor-grab focus-within:outline-none active:cursor-grabbing"
           {...listeners}
           {...attributes}
@@ -188,6 +189,7 @@ export function SortableItemWithHandle({
     >
       <button
         type="button"
+        aria-label="Drag to reorder"
         className="cursor-grab focus-within:outline-none active:cursor-grabbing disabled:cursor-default disabled:opacity-50"
         disabled={disabled}
         {...listeners}
@@ -226,6 +228,7 @@ export function DragableOverlay({
         {withHandle && (
           <button
             type="button"
+            aria-label="Drag to reorder"
             className="cursor-grab focus-within:outline-none active:cursor-grabbing"
           >
             {vertical ? (

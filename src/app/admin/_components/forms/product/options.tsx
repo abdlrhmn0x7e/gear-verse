@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
-import { InfoIcon, PlusCircleIcon, Trash2Icon } from "lucide-react";
+import { CheckIcon, InfoIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -107,7 +107,7 @@ export function Options() {
           </p>
         </div>
         <Button type="button" variant="ghost" onClick={handleAddOption}>
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Options like color, connectivity, etc.
         </Button>
       </div>
@@ -144,7 +144,7 @@ export function Options() {
       </DragableContext>
 
       <Button type="button" variant="ghost" onClick={handleAddOption}>
-        <PlusCircleIcon />
+        <PlusIcon data-icon="inline-start" />
         Add Another Option
       </Button>
     </div>
@@ -209,10 +209,11 @@ function Option({
           <div className="flex items-center justify-between gap-2">
             <Button
               type="button"
-              variant="destructive"
+              variant="destructive-outline"
               size="sm"
               onClick={remove}
             >
+              <Trash2Icon data-icon="inline-start" />
               Delete
             </Button>
 
@@ -222,6 +223,7 @@ function Option({
               size="sm"
               onClick={handleDone}
             >
+              <CheckIcon data-icon="inline-start" />
               Done
             </Button>
           </div>
@@ -342,10 +344,9 @@ function OptionFields({ index }: { index: number }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="gap-2"
                 onClick={handleAddValue}
               >
-                <PlusCircleIcon className="size-4" />
+                <PlusIcon data-icon="inline-start" />
                 Add Value
               </Button>
             </div>
@@ -389,6 +390,7 @@ function OptionValueField({
           {canRemove && (
             <button
               type="button"
+              aria-label="Remove value"
               className="text-muted-foreground hover:text-destructive absolute top-1/2 right-2 size-6 -translate-y-1/2 cursor-pointer transition-colors"
               onClick={onRemove}
             >

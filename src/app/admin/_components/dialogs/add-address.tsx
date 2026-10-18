@@ -12,7 +12,7 @@ import {
   AddressForm,
   type AddressFormValues,
 } from "~/components/forms/address-form";
-import { IconHomePlus } from "@tabler/icons-react";
+import { PlusIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ export function AddAddressDialog({ userId }: { userId: number }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-full rounded-t-none rounded-b-md" variant="ghost">
-          <IconHomePlus />
+          <PlusIcon data-icon="inline-start" />
           Add Address
         </Button>
       </DialogTrigger>
@@ -64,7 +64,11 @@ export function AddAddressDialog({ userId }: { userId: number }) {
             form="address-form"
             disabled={isCreatingAddress}
           >
-            {isCreatingAddress ? <Spinner /> : <IconHomePlus />}
+            {isCreatingAddress ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Add Address
           </Button>
         </DialogFooter>

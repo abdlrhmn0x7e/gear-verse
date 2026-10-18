@@ -123,7 +123,7 @@ export function AddProduct() {
                 form="product-form"
                 disabled={isCreatingProduct}
               >
-                <SaveIcon size={16} />
+                <SaveIcon data-icon="inline-start" />
                 Save Product
               </Button>
             </div>

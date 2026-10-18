@@ -8,7 +8,7 @@ import { PageLayout } from "@admin/_components/page-layout";
 
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Button } from "~/components/ui/button";
-import { PackagePlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -48,7 +48,7 @@ export default async function AdminProductsPage({
       actions={
         <Button asChild>
           <Link href="/admin/products/new">
-            <PackagePlusIcon />
+            <PlusIcon data-icon="inline-start" />
             Add Product
           </Link>
         </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { TrashIcon } from "lucide-react";
+import { Trash2Icon, XIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,8 +54,13 @@ export function DeleteOrderDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild disabled={isPending}>
-        <Button variant={variant} size={size} className={className}>
-          <TrashIcon />
+        <Button
+          variant={variant}
+          size={size}
+          className={className}
+          aria-label={showText ? undefined : "Delete order"}
+        >
+          <Trash2Icon data-icon={showText ? "inline-start" : undefined} />
           {showText && "Delete order"}
         </Button>
       </AlertDialogTrigger>
@@ -68,9 +73,17 @@ export function DeleteOrderDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
-            Continue
+          <AlertDialogCancel>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={isPending}
+            onClick={handleDelete}
+          >
+            <Trash2Icon data-icon="inline-start" />
+            Delete order
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

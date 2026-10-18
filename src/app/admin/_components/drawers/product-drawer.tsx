@@ -10,7 +10,7 @@ import {
   DrawerTitle,
 } from "~/components/ui/drawer";
 import { Button } from "~/components/ui/button";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 
 import { useCallback } from "react";
@@ -50,7 +50,7 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
               <Link href={`/admin/products/${params.id}`}>
-                <PencilIcon />
+                <PencilIcon data-icon="inline-start" />
                 Edit
               </Link>
             </Button>
@@ -58,8 +58,12 @@ export function ProductDrawer({ children }: { children?: React.ReactNode }) {
             <DeleteProductDialog
               id={params.id!}
               Trigger={
-                <Button variant="destructive-outline" size="icon">
-                  <TrashIcon />
+                <Button
+                  variant="destructive-outline"
+                  size="icon"
+                  aria-label="Delete product"
+                >
+                  <Trash2Icon />
                 </Button>
               }
             />
