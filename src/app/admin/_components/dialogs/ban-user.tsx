@@ -82,9 +82,9 @@ export function BanUserDialog({
         // Controls inherit the dialog's elevation variable; they stay flat.
         className="[&_[data-slot]]:[--surface-shadow:none]"
         // Straight to the reason; the length already has a default.
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
+        initialFocus={() => {
           form.setFocus("reason");
+          return false;
         }}
       >
         <DialogHeader>

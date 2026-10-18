@@ -107,19 +107,19 @@ export function CategoriesCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <CommandTrigger aria-expanded={open}>
-          {value ? (
-            renderValue(value, flattenedCategories)
-          ) : (
-            <>
-              <TagIcon className="text-muted-foreground" />
-              <span className="text-muted-foreground truncate">
-                Select a category
-              </span>
-            </>
-          )}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={<CommandTrigger aria-expanded={open} />}
+      >
+        {value ? (
+          renderValue(value, flattenedCategories)
+        ) : (
+          <>
+            <TagIcon className="text-muted-foreground" />
+            <span className="text-muted-foreground truncate">
+              Select a category
+            </span>
+          </>
+        )}
       </PopoverTrigger>
 
       <PopoverContent>

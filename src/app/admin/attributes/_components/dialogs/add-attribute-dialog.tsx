@@ -63,16 +63,18 @@ export function AddAttributeDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="lg"
-          className={className}
-          disabled={creatingAttribute}
-        >
-          <PlusIcon data-icon="inline-start" />
-          Add Attribute
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            variant="outline"
+            size="lg"
+            className={className}
+            disabled={creatingAttribute}
+          />
+        }
+      >
+        <PlusIcon data-icon="inline-start" />
+        Add Attribute
       </DialogTrigger>
 
       <DialogContent>
@@ -85,11 +87,9 @@ export function AddAttributeDialog({
         </DialogBody>
 
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">
-              <XIcon data-icon="inline-start" />
-              Cancel
-            </Button>
+          <DialogClose render={<Button variant="outline" />}>
+            <XIcon data-icon="inline-start" />
+            Cancel
           </DialogClose>
           <Button
             type="submit"

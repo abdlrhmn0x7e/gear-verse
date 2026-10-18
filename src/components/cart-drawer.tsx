@@ -92,28 +92,30 @@ export function CartDrawer({
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={isOpen}
       onOpenChange={setOpen}
     >
       {Trigger ?? (
-        <DrawerTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            aria-label={
-              isPendingCart
-                ? "Cart"
-                : `Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`
-            }
-          >
-            <ShoppingBagIcon />
-            {itemCount > 0 && (
-              <span className="bg-primary text-primary-foreground absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
-                {itemCount}
-              </span>
-            )}
-          </Button>
+        <DrawerTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              aria-label={
+                isPendingCart
+                  ? "Cart"
+                  : `Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+              }
+            />
+          }
+        >
+          <ShoppingBagIcon />
+          {itemCount > 0 && (
+            <span className="bg-primary text-primary-foreground absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
+              {itemCount}
+            </span>
+          )}
         </DrawerTrigger>
       )}
 
@@ -121,15 +123,17 @@ export function CartDrawer({
         <DrawerHeader className="relative px-2 pt-2 md:text-left">
           {/* a side drawer has no handle to swipe, so it needs a visible way out */}
           {!isMobile && (
-            <DrawerClose asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Close cart"
-                className="absolute top-1 right-0"
-              >
-                <XIcon />
-              </Button>
+            <DrawerClose
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Close cart"
+                  className="absolute top-1 right-0"
+                />
+              }
+            >
+              <XIcon />
             </DrawerClose>
           )}
           <DrawerTitle className="text-title">Your cart</DrawerTitle>
@@ -228,14 +232,12 @@ export function CartDrawer({
                 Hand-imported gear, delivered in Egypt in 1–2 business days.
               </p>
             </div>
-            <DrawerClose asChild>
-              <Button variant="outline" asChild>
-                <Link href="/products">
-                  Browse the store
-                  <ArrowRightIcon data-icon="inline-end" />
-                </Link>
-              </Button>
-            </DrawerClose>
+            <Button variant="outline" asChild>
+              <Link href="/products" onClick={() => setOpen(false)}>
+                Browse the store
+                <ArrowRightIcon data-icon="inline-end" />
+              </Link>
+            </Button>
           </div>
         )}
 
@@ -259,14 +261,12 @@ export function CartDrawer({
                 </Button>
               </>
             ) : (
-              <DrawerClose asChild>
-                <Button size="xl" className="w-full" asChild>
-                  <Link href="/checkout">
-                    <LockIcon data-icon="inline-start" />
-                    Check out
-                  </Link>
-                </Button>
-              </DrawerClose>
+              <Button size="xl" className="w-full" asChild>
+                <Link href="/checkout" onClick={() => setOpen(false)}>
+                  <LockIcon data-icon="inline-start" />
+                  Check out
+                </Link>
+              </Button>
             )}
 
             <ul className="text-muted-foreground flex flex-col gap-2 text-sm">

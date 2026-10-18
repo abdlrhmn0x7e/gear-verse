@@ -26,7 +26,8 @@ export function DeleteAttributeAlertDialog({
   id: number;
   slug: string;
   name: string;
-} & React.ComponentProps<typeof AlertDialog>) {
+  onOpenChange?: (open: boolean) => void;
+} & Omit<React.ComponentProps<typeof AlertDialog>, "onOpenChange">) {
   const trpc = useTRPC();
   const { deleteElements } = useReactFlow();
   const queryClient = useQueryClient();
@@ -54,16 +55,18 @@ export function DeleteAttributeAlertDialog({
 
   return (
     <AlertDialog {...props}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="focus-visible:ring-0"
-          disabled={isPending}
-          aria-label={`Delete ${name}`}
-        >
-          <Trash2Icon />
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="focus-visible:ring-0"
+            disabled={isPending}
+            aria-label={`Delete ${name}`}
+          />
+        }
+      >
+        <Trash2Icon />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

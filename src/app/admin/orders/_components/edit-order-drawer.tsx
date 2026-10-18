@@ -1,70 +1,81 @@
 "use client";
 
-import { SaveIcon } from "lucide-react";
+import { SaveIcon, XIcon } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
   DrawerBody,
+  DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "~/components/ui/field";
-import {
-  Frame,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "~/components/ui/frame";
-import { Skeleton } from "~/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
-import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
+import {
+  OrderForm,
+  OrderFormSkeleton,
+  type OrderFormValues,
+} from "../../_components/forms/order";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
+/** Opens over the order's details drawer, which it is rendered inside; closing or saving drops back to the details */
 export function EditOrderDrawer() {
   const trpc = useTRPC();
   const isMobile = useIsMobile();
   const refreshOrderViews = useRefreshOrderViews();
 
   const [params, setParams] = useOrderSearchParams();
+  const editId = params.editId;
 
   const { data: order, isPending: isOrderPending } = useQuery(
     trpc.admin.orders.queries.findById.queryOptions(
-      {
-        id: params.editId ?? 0,
-      },
-      {
-        enabled: !!params.editId,
-      },
+      { id: editId ?? 0 },
+      { enabled: !!editId },
     ),
+  );
+  // the details drawer underneath has already loaded this; it names the customer and items the pickers can't find
+  // on their first page
+  const { data: details } = useQuery(
+    trpc.admin.orders.queries.findDetailsById.queryOptions(
+      { id: editId ?? 0 },
+      { enabled: !!editId },
+    ),
+  );
+  const selected = useMemo(
+    () =>
+      order && details
+        ? {
+            customer: details.user?.name
+              ? {
+                  id: order.userId,
+                  name: details.user.name,
+                  image: details.user.image,
+                }
+              : null,
+            items: details.items.map((item) => ({
+              productId: item.productId,
+              productVariantId: item.productVariantId ?? null,
+              title: item.title,
+              thumbnailUrl: item.thumbnailUrl,
+              values: item.values ?? [],
+            })),
+          }
+        : undefined,
+    [order, details],
   );
 
   const { mutate: updateOrder, isPending: isUpdatingOrder } = useMutation(
     trpc.admin.orders.mutations.update.mutationOptions({
       onSuccess: () => {
         void refreshOrderViews();
-        toast.success("Order updated successfully");
+        toast.success("Order updated");
         void setParams({ editId: null });
       },
 
@@ -78,11 +89,11 @@ export function EditOrderDrawer() {
   );
 
   function onEdit(values: Partial<OrderFormValues>) {
-    if (!params.editId) {
+    if (!editId) {
       return;
     }
 
-    updateOrder({ id: params.editId, ...values });
+    updateOrder({ id: editId, ...values });
   }
 
   function handleOpenChange(open: boolean) {
@@ -95,112 +106,49 @@ export function EditOrderDrawer() {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
-      open={Boolean(params.editId)}
+      swipeDirection={isMobile ? "down" : "right"}
+      open={Boolean(editId)}
       onOpenChange={handleOpenChange}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+      <DrawerContent className="data-[swipe-direction=right]:sm:max-w-xl">
         <DrawerHeader>
-          <DrawerTitle>Edit Order</DrawerTitle>
-          <DrawerDescription>Edit the details of the order.</DrawerDescription>
+          <DrawerTitle className="text-lg">
+            Edit order <span className="tabular-nums">#{editId}</span>
+          </DrawerTitle>
         </DrawerHeader>
 
-        <DrawerBody>
+        <DrawerBody className="pt-2">
           {isOrderPending ? (
             <OrderFormSkeleton />
           ) : (
-            order && <OrderForm onEdit={onEdit} defaultValues={order} />
+            order && (
+              <OrderForm
+                onEdit={onEdit}
+                defaultValues={order}
+                selected={selected}
+              />
+            )
           )}
         </DrawerBody>
-        <DrawerFooter>
-          <Button type="submit" form="order-form" disabled={isUpdatingOrder}>
+        <DrawerFooter className="flex-col-reverse sm:flex-row sm:justify-end">
+          <DrawerClose render={<Button variant="outline" />}>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </DrawerClose>
+          <Button
+            type="submit"
+            form="order-form"
+            disabled={isUpdatingOrder || isOrderPending}
+          >
             {isUpdatingOrder ? (
               <Spinner size="small" data-icon="inline-start" />
             ) : (
               <SaveIcon data-icon="inline-start" />
             )}
-            Save Order
+            Save order
           </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function OrderFormSkeleton() {
-  return (
-    <div className="space-y-8">
-      {/* Payment Method Skeleton */}
-      <FieldSet>
-        <FieldLegend>Payment Method</FieldLegend>
-        <FieldDescription>
-          Select the payment method for the order.
-        </FieldDescription>
-        <div className="grid grid-cols-2 gap-2">
-          <Skeleton className="h-20" />
-          <Skeleton className="h-20" />
-        </div>
-      </FieldSet>
-
-      {/* Shipping Information Skeleton */}
-      <FieldSet>
-        <FieldLegend>Shipping Information</FieldLegend>
-        <FieldDescription>
-          Select or add a shipping address for this order. The chosen address
-          will be used for delivery.
-        </FieldDescription>
-        <FieldGroup>
-          <Field>
-            <Skeleton className="mb-2 h-4 w-20" />
-            <Skeleton className="h-10 w-full" />
-          </Field>
-          <Field>
-            <Skeleton className="mb-2 h-4 w-20" />
-            <Skeleton className="h-10 w-full" />
-          </Field>
-        </FieldGroup>
-      </FieldSet>
-
-      {/* Order Items Skeleton */}
-      <Frame>
-        <FrameHeader>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Skeleton className="size-6" />
-              <FrameTitle className="text-lg font-medium">
-                Order Items
-              </FrameTitle>
-            </div>
-            <Skeleton className="h-9 w-24" />
-          </div>
-        </FrameHeader>
-        <FramePanel>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="w-[100px]">Quantity</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 3 }).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Skeleton className="h-10 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-10 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="size-9" />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </FramePanel>
-      </Frame>
-    </div>
   );
 }

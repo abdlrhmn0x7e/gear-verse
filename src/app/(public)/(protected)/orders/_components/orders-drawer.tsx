@@ -58,27 +58,29 @@ export function OrdersDrawer({
     <Drawer
       open={!!drawer.orderId}
       onOpenChange={handleOpenChange}
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[vaul-drawer-direction=right]:sm:max-w-xl">
-        <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-left group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
+      <DrawerContent className="data-[swipe-direction=down]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[swipe-direction=right]:sm:max-w-xl">
+        <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-left group-data-[swipe-direction=down]/drawer-content:text-left">
           <DrawerTitle className="text-title">Order #{shownId}</DrawerTitle>
-          <DrawerDescription asChild>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              {order ? (
-                <>
-                  <span>Placed {formatDate(order.createdAt)}</span>
-                  <OrderStatusLabel
-                    status={order.status}
-                    className="text-foreground"
-                  />
-                </>
-              ) : isError ? (
-                "We couldn't load this order."
-              ) : (
-                <span className="sr-only">Loading the order…</span>
-              )}
-            </div>
+          <DrawerDescription
+            render={
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1" />
+            }
+          >
+            {order ? (
+              <>
+                <span>Placed {formatDate(order.createdAt)}</span>
+                <OrderStatusLabel
+                  status={order.status}
+                  className="text-foreground"
+                />
+              </>
+            ) : isError ? (
+              "We couldn't load this order."
+            ) : (
+              <span className="sr-only">Loading the order…</span>
+            )}
           </DrawerDescription>
         </DrawerHeader>
 

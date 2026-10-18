@@ -39,10 +39,9 @@ export function UserOrdersDrawer() {
     <Drawer
       open={!!params.ordersOf}
       onOpenChange={(open) => !open && void setParams({ ordersOf: null })}
-      direction={isMobile ? "bottom" : "right"}
-      handleOnly={!isMobile}
+      swipeDirection={isMobile ? "down" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-md">
+      <DrawerContent className="data-[swipe-direction=right]:sm:max-w-md">
         <UserOrdersDrawerContent />
       </DrawerContent>
     </Drawer>
@@ -68,14 +67,12 @@ function UserOrdersDrawerContent() {
       <DrawerHeader>
         <DrawerTitle>Orders</DrawerTitle>
         {/* a div, since the loading skeleton is one and can't sit in a paragraph */}
-        <DrawerDescription className="truncate" asChild>
-          <div>
-            {isPending ? (
-              <Skeleton className="h-4 w-48" />
-            ) : (
-              `${data?.user.name ?? "This user"}'s most recent orders`
-            )}
-          </div>
+        <DrawerDescription className="truncate" render={<div />}>
+          {isPending ? (
+            <Skeleton className="h-4 w-48" />
+          ) : (
+            `${data?.user.name ?? "This user"}'s most recent orders`
+          )}
         </DrawerDescription>
       </DrawerHeader>
 

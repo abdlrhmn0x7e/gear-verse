@@ -55,7 +55,7 @@ export function OrdersTableActions({ id }: { id: number }) {
 
         <DropdownMenuGroup className="w-3xs space-y-1">
           <DropdownMenuItem asChild>
-            <Link href={`/admin/orders?editId=${id}`}>
+            <Link href={`/admin/orders?orderId=${id}&editId=${id}`}>
               <PencilIcon className="text-muted-foreground" />
               Edit
             </Link>

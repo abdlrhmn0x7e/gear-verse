@@ -6,7 +6,7 @@ import { SearchIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Dialog } from "radix-ui";
+import { Dialog } from "@base-ui/react/dialog";
 import { useEffect, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Spinner } from "~/components/spinner";
@@ -70,23 +70,21 @@ export function ProductSearchDialog({
       }}
     >
       <div className="relative" ref={setTrigger}>
-        <Dialog.Trigger asChild>
-          <button
-            type="button"
-            aria-keyshortcuts="Control+K"
-            className="group focus-visible:outline-focus relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
-            data-state={open ? "open" : "closed"}
-          >
-            {children}
+        <Dialog.Trigger
+          type="button"
+          aria-keyshortcuts="Control+K"
+          className="group focus-visible:outline-focus relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
+          data-state={open ? "open" : "closed"}
+        >
+          {children}
 
-            <span
-              className={cn(
-                "surface-control surface-field absolute inset-0 rounded-full",
-                shouldAnimate &&
-                  "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
-              )}
-            />
-          </button>
+          <span
+            className={cn(
+              "surface-control surface-field absolute inset-0 rounded-full",
+              shouldAnimate &&
+                "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
+            )}
+          />
         </Dialog.Trigger>
 
         <div
@@ -101,7 +99,8 @@ export function ProductSearchDialog({
       <Dialog.Portal container={container}>
         {withOverlay && <DialogOverlay />}
 
-        <Dialog.Content
+        <Dialog.Popup
+          data-state={open ? "open" : "closed"}
           className={cn(
             "group relative z-50 flex w-fit flex-col gap-4 duration-100 focus-visible:outline-none",
             shouldAnimate &&
@@ -133,7 +132,7 @@ export function ProductSearchDialog({
               )}
             />
           </div>
-        </Dialog.Content>
+        </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
   );

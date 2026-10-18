@@ -59,10 +59,10 @@ export function EditReview({
 
   return (
     <DrawerDialog open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerDialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Edit review">
-          <PencilIcon />
-        </Button>
+      <DrawerDialogTrigger
+        render={<Button variant="ghost" size="icon" aria-label="Edit review" />}
+      >
+        <PencilIcon />
       </DrawerDialogTrigger>
       <DrawerDialogContent>
         <DrawerDialogHeader>

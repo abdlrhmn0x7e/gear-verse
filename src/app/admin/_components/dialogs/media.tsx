@@ -47,7 +47,7 @@ export function MediaDialog({
   children,
   onChange,
 }: {
-  children: React.ReactNode;
+  children: React.ReactElement;
   onChange?: (media: SelectedMedia[]) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -59,9 +59,7 @@ export function MediaDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="relative z-10" asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger className="relative z-10" render={children} />
       <DialogContent className="sm:max-w-screen-sm md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
         <DialogHeader>
           <DialogTitle>Select Media</DialogTitle>

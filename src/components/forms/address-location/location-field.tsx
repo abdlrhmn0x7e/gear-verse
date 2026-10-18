@@ -240,9 +240,9 @@ export function LocationField({
         </p>
       )}
 
-      {/* data-vaul-no-drag: panning the map must not drag the drawer it sits in */}
+      {/* data-base-ui-swipe-ignore: panning the map must not swipe the drawer it sits in */}
       <div
-        data-vaul-no-drag
+        data-base-ui-swipe-ignore
         className="bg-input-background border-input relative h-52 overflow-hidden rounded-2xl border sm:h-60"
       >
         <LocationMap

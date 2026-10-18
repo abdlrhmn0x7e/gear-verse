@@ -193,11 +193,11 @@ function MarkShippedButton({ order }: { order: PendingOrder }) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={isPending}>
-          <TruckIcon data-icon="inline-start" />
-          Mark shipped
-        </Button>
+      <AlertDialogTrigger
+        render={<Button variant="outline" size="sm" disabled={isPending} />}
+      >
+        <TruckIcon data-icon="inline-start" />
+        Mark shipped
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

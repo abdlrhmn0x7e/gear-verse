@@ -189,13 +189,17 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Drawer direction={side} open={openMobile} onOpenChange={setOpenMobile}>
+      <Drawer
+        swipeDirection={side}
+        open={openMobile}
+        onOpenChange={setOpenMobile}
+      >
         <DrawerContent
           dir={dir}
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="text-sidebar-foreground before:bg-sidebar p-2 data-[vaul-drawer-direction=left]:w-(--sidebar-width) data-[vaul-drawer-direction=right]:w-(--sidebar-width)"
+          className="text-sidebar-foreground before:bg-sidebar p-2 data-[swipe-direction=left]:w-(--sidebar-width) data-[swipe-direction=right]:w-(--sidebar-width)"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

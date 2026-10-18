@@ -50,11 +50,9 @@ export function AddReview({ productId }: { productId: number }) {
 
   return (
     <DrawerDialog open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerDialogTrigger asChild>
-        <Button variant="outline" size="lg">
-          <PencilLineIcon data-icon="inline-start" />
-          Write a review
-        </Button>
+      <DrawerDialogTrigger render={<Button variant="outline" size="lg" />}>
+        <PencilLineIcon data-icon="inline-start" />
+        Write a review
       </DrawerDialogTrigger>
       <DrawerDialogContent>
         <DrawerDialogHeader>

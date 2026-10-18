@@ -41,11 +41,9 @@ export function AddCustomerDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost">
-          <PlusIcon data-icon="inline-start" />
-          Add Customer
-        </Button>
+      <DialogTrigger render={<Button variant="ghost" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add Customer
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

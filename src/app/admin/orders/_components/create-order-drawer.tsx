@@ -9,7 +9,6 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -56,25 +55,20 @@ export function CreateOrderDrawer() {
 
   return (
     <Drawer
-      direction={isMobile ? "bottom" : "right"}
+      swipeDirection={isMobile ? "down" : "right"}
       open={Boolean(params.create)}
       onOpenChange={handleOpenChange}
     >
-      <DrawerTrigger asChild>
-        <Button>
-          <PlusIcon data-icon="inline-start" />
-          Create Order
-        </Button>
+      <DrawerTrigger render={<Button />}>
+        <PlusIcon data-icon="inline-start" />
+        Create Order
       </DrawerTrigger>
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+      <DrawerContent className="data-[swipe-direction=right]:sm:max-w-2xl">
         <DrawerHeader>
-          <DrawerTitle>Create New Order</DrawerTitle>
-          <DrawerDescription>
-            Fill in the details below to create a new order.
-          </DrawerDescription>
+          <DrawerTitle className="text-lg">New order</DrawerTitle>
         </DrawerHeader>
 
-        <DrawerBody>
+        <DrawerBody className="pt-2">
           <OrderForm onSubmit={onSubmit} />
         </DrawerBody>
         <DrawerFooter>
@@ -84,7 +78,7 @@ export function CreateOrderDrawer() {
             ) : (
               <PlusIcon data-icon="inline-start" />
             )}
-            Create Order
+            Create order
           </Button>
         </DrawerFooter>
       </DrawerContent>

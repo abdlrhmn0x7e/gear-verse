@@ -798,10 +798,10 @@ function FilterAdvancedRowImpl<V, O>({
     });
   }, [focusStore, pickerOpen]);
 
-  const onCloseAutoFocus = (event: Event) => {
-    if (!handoffRef.current) return;
+  const finalFocus = () => {
+    if (!handoffRef.current) return true;
     handoffRef.current = false;
-    event.preventDefault();
+    return false;
   };
 
   /* ------------------------------- tab stop ------------------------------- */
@@ -880,33 +880,33 @@ function FilterAdvancedRowImpl<V, O>({
             }}
           >
             <PopoverTrigger
-              asChild
               disabled={actions.disabled}
               {...filterReadOnlyProps(actions)}
-            >
-              <Button
-                variant="outline"
-                size={sizes.button}
-                /* The path is truncated on screen, so the name carries all
+              render={
+                <Button
+                  variant="outline"
+                  size={sizes.button}
+                  /* The path is truncated on screen, so the name carries all
                    of it: "Primary loca... > State" identifies nothing. */
-                aria-label={pathText}
-                /* And as a `title` - unless the path is COLLAPSED, where the
+                  aria-label={pathText}
+                  /* And as a `title` - unless the path is COLLAPSED, where the
                    ellipsis inside already carries this exact sentence. */
-                title={pathCollapsed ? undefined : pathText}
-                className={CELL_CLASS}
-                {...cellProps("field", active)}
-                onFocus={onCellFocus("field")}
-              >
-                <span className="flex min-w-0 items-center gap-1.5 truncate">
-                  {field.icon}
-                  <span className="truncate">{pathLabel}</span>
-                </span>
-                <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
-              </Button>
+                  title={pathCollapsed ? undefined : pathText}
+                  className={CELL_CLASS}
+                  {...cellProps("field", active)}
+                  onFocus={onCellFocus("field")}
+                />
+              }
+            >
+              <span className="flex min-w-0 items-center gap-1.5 truncate">
+                {field.icon}
+                <span className="truncate">{pathLabel}</span>
+              </span>
+              <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
             </PopoverTrigger>
             <PopoverContent
               align="start"
-              onCloseAutoFocus={onCloseAutoFocus}
+              finalFocus={finalFocus}
               className={cn(
                 FILTER_FIELD_PICKER_CLASS,
                 actions.fieldPickerClassName,
@@ -2077,38 +2077,38 @@ export function FiltersAdvanced<V, O>({
       {/* `actions.disabled` alone, and READ ONLY DELIBERATELY DOES NOT
           GATE IT: opening this panel is reading, not writing. */}
       <PopoverTrigger
-        asChild
         /* On the TRIGGER rather than the button below it, so a consumer's own
            trigger wears the same state. Still `actions.disabled` alone. */
         disabled={actions.disabled}
-      >
-        {trigger ? (
-          (trigger as React.ReactElement)
-        ) : (
-          <Button
-            variant="outline"
-            size={sizes.button}
-            /* THE COUNT IN THE NAME, not only in the box: a consumer who
+        render={
+          trigger ? (
+            (trigger as React.ReactElement)
+          ) : (
+            <Button
+              variant="outline"
+              size={sizes.button}
+              /* THE COUNT IN THE NAME, not only in the box: a consumer who
                replaces `trigger` never had the badge, which is hidden. */
-            aria-label={
-              ruleCount > 0
-                ? `${actions.labels.advancedFilter}, ${actions.labels.countAnnouncement(ruleCount)}`
-                : undefined
-            }
-          >
-            <HugeiconsIcon icon={FilterMailIcon} strokeWidth={2} />
-            {actions.labels.advancedFilter}
-            {ruleCount > 0 ? (
-              <span
-                aria-hidden="true"
-                className="bg-muted text-muted-foreground rounded-sm px-1.5 text-xs tabular-nums"
-              >
-                {ruleCount}
-              </span>
-            ) : null}
-          </Button>
-        )}
-      </PopoverTrigger>
+              aria-label={
+                ruleCount > 0
+                  ? `${actions.labels.advancedFilter}, ${actions.labels.countAnnouncement(ruleCount)}`
+                  : undefined
+              }
+            >
+              <HugeiconsIcon icon={FilterMailIcon} strokeWidth={2} />
+              {actions.labels.advancedFilter}
+              {ruleCount > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="bg-muted text-muted-foreground rounded-sm px-1.5 text-xs tabular-nums"
+                >
+                  {ruleCount}
+                </span>
+              ) : null}
+            </Button>
+          )
+        }
+      />
       {/* Wide enough for a nested group to keep real words at depth three;
           the rows truncate rather than wrap. */}
       <PopoverContent

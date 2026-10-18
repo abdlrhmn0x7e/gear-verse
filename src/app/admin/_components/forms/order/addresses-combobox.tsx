@@ -27,12 +27,16 @@ export function AddressesCombobox({
   onValueChange,
   disabled,
   className,
+  id,
+  "aria-invalid": ariaInvalid,
 }: {
   userId: number | null;
   value: number;
   onValueChange: (value: number) => void;
   disabled?: boolean;
   className?: string;
+  id?: string;
+  "aria-invalid"?: boolean;
 }) {
   const trpc = useTRPC();
   const [open, setOpen] = useState(false);
@@ -53,7 +57,7 @@ export function AddressesCombobox({
 
   if (!userId) {
     return (
-      <CommandTrigger className={className} disabled>
+      <CommandTrigger id={id} className={className} disabled>
         <IconHomeOff className="text-muted-foreground" />
         <span className="text-muted-foreground truncate">
           Select a customer first
@@ -64,7 +68,7 @@ export function AddressesCombobox({
 
   if (addressesError) {
     return (
-      <CommandTrigger className={className} aria-invalid disabled>
+      <CommandTrigger id={id} className={className} aria-invalid disabled>
         <XCircleIcon className="text-destructive" />
         <span className="truncate">Couldn&apos;t load addresses</span>
       </CommandTrigger>
@@ -73,7 +77,7 @@ export function AddressesCombobox({
 
   if (addressesPending || !addresses) {
     return (
-      <CommandTrigger className={className} disabled>
+      <CommandTrigger id={id} className={className} disabled>
         <Spinner />
         <span className="text-muted-foreground truncate">
           Loading addresses
@@ -113,14 +117,18 @@ export function AddressesCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          aria-expanded={open}
-          className={className}
-          disabled={disabled}
-        >
-          {renderValue(value)}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            id={id}
+            aria-expanded={open}
+            aria-invalid={ariaInvalid}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {renderValue(value)}
       </PopoverTrigger>
       <PopoverContent>
         <AddressesCommand

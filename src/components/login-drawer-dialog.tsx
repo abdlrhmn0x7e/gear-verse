@@ -22,15 +22,16 @@ export function LoginDrawerDialog({
   open,
   onOpenChange,
   callbackURL = "/",
-}: React.PropsWithChildren<{
+}: {
+  children: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** where Google sends the visitor back to once they're signed in */
   callbackURL?: string;
-}>) {
+}) {
   return (
     <DrawerDialog open={open} onOpenChange={onOpenChange}>
-      <DrawerDialogTrigger asChild>{children}</DrawerDialogTrigger>
+      <DrawerDialogTrigger render={children} />
       <DrawerDialogContent>
         <DrawerDialogHeader className="gap-1">
           <Logo className="mx-auto mb-2 h-16" />

@@ -39,12 +39,10 @@ export function AddBrandDrawer() {
     });
   }
   return (
-    <Drawer {...drawer.props} direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="ghost">
-          <PlusIcon data-icon="inline-start" />
-          Add Brand
-        </Button>
+    <Drawer {...drawer.props} swipeDirection={isMobile ? "down" : "right"}>
+      <DrawerTrigger render={<Button variant="ghost" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add Brand
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>

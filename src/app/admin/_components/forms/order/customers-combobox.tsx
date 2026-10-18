@@ -24,19 +24,35 @@ import { Spinner } from "~/components/spinner";
 import { AddCustomerDialog } from "../../dialogs/add-customer";
 import { useDebounce } from "~/hooks/use-debounce";
 
+/** What the trigger shows for a customer */
+export type CustomerOption = {
+  id: number;
+  name: string;
+  image: string | null;
+};
+
 export function CustomersCombobox({
   value,
   onValueChange,
+  selected,
   disabled,
   className,
+  id,
+  "aria-invalid": ariaInvalid,
 }: {
   value: number;
   onValueChange: (value: number) => void;
+  /** The customer already on the order, shown until the list holds it; the list is paged, so it often doesn't */
+  selected?: CustomerOption | null;
   disabled?: boolean;
   className?: string;
+  id?: string;
+  "aria-invalid"?: boolean;
 }) {
   const trpc = useTRPC();
   const [open, setOpen] = useState(false);
+  // a customer picked from a later page or a search stays shown after the list changes
+  const [picked, setPicked] = useState<CustomerOption | null>(null);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const { ref, inView } = useInView();
@@ -75,7 +91,7 @@ export function CustomersCombobox({
 
   if (customersPending) {
     return (
-      <CommandTrigger className={className} disabled>
+      <CommandTrigger id={id} className={className} disabled>
         <Spinner />
         <span className="text-muted-foreground truncate">
           Loading customers
@@ -86,7 +102,7 @@ export function CustomersCombobox({
 
   if (customersError) {
     return (
-      <CommandTrigger className={className} aria-invalid disabled>
+      <CommandTrigger id={id} className={className} aria-invalid disabled>
         <XCircleIcon className="text-destructive" />
         <span className="truncate">Couldn&apos;t load customers</span>
       </CommandTrigger>
@@ -94,7 +110,9 @@ export function CustomersCombobox({
   }
 
   function renderValue(value: number | null) {
-    const customer = customersData.find((customer) => customer.id === value);
+    const customer = [...customersData, picked, selected].find(
+      (customer) => customer?.id === value,
+    );
 
     if (!value || !customer) {
       return (
@@ -118,21 +136,26 @@ export function CustomersCombobox({
     );
   }
 
-  function handleValueChange(value: number) {
+  function handleValueChange(value: number, customer?: CustomerOption) {
+    setPicked(customer ?? null);
     onValueChange(value);
     setOpen(false);
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          aria-expanded={open}
-          className={className}
-          disabled={disabled}
-        >
-          {renderValue(value)}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            id={id}
+            aria-expanded={open}
+            aria-invalid={ariaInvalid}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {renderValue(value)}
       </PopoverTrigger>
       <PopoverContent>
         <CustomersCommand
@@ -170,7 +193,7 @@ export function CustomersCommand({
   search: string;
   setSearch: (search: string) => void;
   value: number;
-  onValueChange: (value: number) => void;
+  onValueChange: (value: number, customer?: CustomerOption) => void;
   isSearching: boolean;
   setOpen: (open: boolean) => void;
   hasNextPage: boolean;
@@ -206,7 +229,7 @@ export function CustomersCommand({
                       return;
                     }
 
-                    onValueChange(customer.id);
+                    onValueChange(customer.id, customer);
                     setOpen(false);
                   }}
                 >

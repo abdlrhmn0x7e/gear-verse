@@ -256,10 +256,10 @@ export function FiltersBuilder<V, O>({
     });
   }, [focusStore, open]);
 
-  const onCloseAutoFocus = (event: Event) => {
-    if (!handoffRef.current) return;
+  const finalFocus = () => {
+    if (!handoffRef.current) return true;
     handoffRef.current = false;
-    event.preventDefault();
+    return false;
   };
 
   return (
@@ -272,33 +272,33 @@ export function FiltersBuilder<V, O>({
     >
       <PopoverTrigger
         /* On the TRIGGER so a consumer's own `trigger` wears the state too. */
-        asChild
         disabled={actions.disabled}
         {...filterReadOnlyProps(actions)}
-      >
-        {trigger ? (
-          (trigger as React.ReactElement)
-        ) : (
-          <Button
-            variant="outline"
-            size={compact ? sizes.icon : sizes.button}
-            aria-label={compact ? actions.labels.addFilter : undefined}
-            /* THE RESET BOUNCE: the button's base class carries
+        render={
+          trigger ? (
+            (trigger as React.ReactElement)
+          ) : (
+            <Button
+              variant="outline"
+              size={compact ? sizes.icon : sizes.button}
+              aria-label={compact ? actions.labels.addFilter : undefined}
+              /* THE RESET BOUNCE: the button's base class carries
                `transition-all`, so flipping the size class eased padding 0 to
                `px-6` in sera over 150ms. Naming a transition REPLACES it. */
-            className="transition-[color,background-color,border-color,box-shadow]"
-          >
-            {/* No filter-plus glyph in phosphor or remixicon. */}
-            <HugeiconsIcon icon={FilterAddIcon} strokeWidth={2} />
-            {compact ? null : actions.labels.addFilter}
-          </Button>
-        )}
-      </PopoverTrigger>
+              className="transition-[color,background-color,border-color,box-shadow]"
+            >
+              {/* No filter-plus glyph in phosphor or remixicon. */}
+              <HugeiconsIcon icon={FilterAddIcon} strokeWidth={2} />
+              {compact ? null : actions.labels.addFilter}
+            </Button>
+          )
+        }
+      />
       {/* The default, then the root override, then this `className` last, so
         the specific wins. */}
       <PopoverContent
         align="start"
-        onCloseAutoFocus={onCloseAutoFocus}
+        finalFocus={finalFocus}
         className={cn(
           FILTER_FIELD_PICKER_CLASS,
           /* See `instantExit`. Both PROPERTIES (an `exit` animation AND a

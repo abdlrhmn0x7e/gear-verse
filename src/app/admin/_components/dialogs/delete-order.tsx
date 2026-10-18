@@ -58,16 +58,19 @@ export function DeleteOrderDialog({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild disabled={isPending}>
-        <Button
-          variant={variant}
-          size={size}
-          className={className}
-          aria-label={showText ? undefined : "Delete order"}
-        >
-          <Trash2Icon data-icon={showText ? "inline-start" : undefined} />
-          {showText && "Delete order"}
-        </Button>
+      <AlertDialogTrigger
+        disabled={isPending}
+        render={
+          <Button
+            variant={variant}
+            size={size}
+            className={className}
+            aria-label={showText ? undefined : "Delete order"}
+          />
+        }
+      >
+        <Trash2Icon data-icon={showText ? "inline-start" : undefined} />
+        {showText && "Delete order"}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

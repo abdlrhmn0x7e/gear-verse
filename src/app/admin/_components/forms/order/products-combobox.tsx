@@ -28,21 +28,40 @@ type ProductComboboxValue = {
   variantId: number | null;
 };
 
+type InventoryItem =
+  RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
+
+/** What the trigger shows for an item */
+export type ProductOption = {
+  productId: number;
+  productVariantId: number | null;
+  title: string;
+  thumbnailUrl: string | null;
+  values: string[];
+};
+
 export function ProductsCombobox({
   value,
   onValueChange,
+  selected,
   disabled,
   className,
+  id,
   ariaInvalid,
 }: {
   value: ProductComboboxValue;
   onValueChange: (value: ProductComboboxValue) => void;
+  /** The item already on the order, shown until the list holds it; the list is paged, so it often doesn't */
+  selected?: ProductOption | null;
   disabled?: boolean;
   className?: string;
+  id?: string;
   ariaInvalid?: boolean;
 }) {
   const trpc = useTRPC();
   const [open, setOpen] = useState(false);
+  // an item picked from a later page or a search stays shown after the list changes
+  const [picked, setPicked] = useState<ProductOption | null>(null);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const { ref, inView } = useInView();
@@ -81,7 +100,7 @@ export function ProductsCombobox({
 
   if (itemsPending) {
     return (
-      <CommandTrigger className={className} disabled>
+      <CommandTrigger id={id} className={className} disabled>
         <Spinner />
         <span className="text-muted-foreground truncate">Loading items</span>
       </CommandTrigger>
@@ -90,7 +109,7 @@ export function ProductsCombobox({
 
   if (itemsError) {
     return (
-      <CommandTrigger className={className} aria-invalid disabled>
+      <CommandTrigger id={id} className={className} aria-invalid disabled>
         <XCircleIcon className="text-destructive" />
         <span className="truncate">Couldn&apos;t load items</span>
       </CommandTrigger>
@@ -98,10 +117,10 @@ export function ProductsCombobox({
   }
 
   function renderValue(value: ProductComboboxValue) {
-    const item = inventoryItemsData.find(
+    const item = [...inventoryItemsData, picked, selected].find(
       (item) =>
-        item.productId === value.id &&
-        item.productVariantId === value.variantId,
+        item?.productId === value.id &&
+        (item.productVariantId ?? null) === value.variantId,
     );
 
     if (!value || !item) {
@@ -127,7 +146,8 @@ export function ProductsCombobox({
     );
   }
 
-  function handleValueChange(value: { id: number; variantId: number | null }) {
+  function handleValueChange(value: ProductComboboxValue, item: InventoryItem) {
+    setPicked({ ...item, productVariantId: item.productVariantId ?? null });
     onValueChange(value);
 
     setOpen(false);
@@ -135,15 +155,18 @@ export function ProductsCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
-      <PopoverTrigger asChild>
-        <CommandTrigger
-          aria-expanded={open}
-          aria-invalid={ariaInvalid}
-          className={className}
-          disabled={disabled}
-        >
-          {renderValue(value)}
-        </CommandTrigger>
+      <PopoverTrigger
+        render={
+          <CommandTrigger
+            id={id}
+            aria-expanded={open}
+            aria-invalid={ariaInvalid}
+            className={className}
+            disabled={disabled}
+          />
+        }
+      >
+        {renderValue(value)}
       </PopoverTrigger>
       <PopoverContent>
         <ProductsCommand
@@ -177,7 +200,7 @@ export function ProductsCommand({
   search: string;
   setSearch: (search: string) => void;
   value: ProductComboboxValue;
-  onValueChange: (value: ProductComboboxValue) => void;
+  onValueChange: (value: ProductComboboxValue, item: InventoryItem) => void;
   isSearching: boolean;
   setOpen: (open: boolean) => void;
   hasNextPage: boolean;
@@ -218,10 +241,13 @@ export function ProductsCommand({
                       return;
                     }
 
-                    onValueChange({
-                      id: item.productId,
-                      variantId: item.productVariantId ?? null,
-                    });
+                    onValueChange(
+                      {
+                        id: item.productId,
+                        variantId: item.productVariantId ?? null,
+                      },
+                      item,
+                    );
                     setOpen(false);
                   }}
                 >

@@ -16,7 +16,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { IconHomePlus } from "@tabler/icons-react";
 import { useTRPC } from "~/trpc/client";
-import { useState, type PropsWithChildren } from "react";
+import { useState, type ReactElement } from "react";
 import { Spinner } from "~/components/spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
@@ -93,10 +93,11 @@ export function AddAddressDrawerDialog({
   children,
   onSuccess,
   className,
-}: PropsWithChildren<{
+}: {
+  children: ReactElement;
   className?: string;
   onSuccess?: (id: number) => void;
-}>) {
+}) {
   const [open, setOpen] = useState(false);
   const { mutate: addAddress, isPending } = useAddAddress((id) => {
     onSuccess?.(id);
@@ -110,9 +111,7 @@ export function AddAddressDrawerDialog({
 
   return (
     <DrawerDialog open={open} onOpenChange={setOpen}>
-      <DrawerDialogTrigger className={className} asChild>
-        {children}
-      </DrawerDialogTrigger>
+      <DrawerDialogTrigger className={className} render={children} />
 
       {/* the map makes the form taller than a laptop screen, so the dialog
           scrolls its body between a fixed header and footer */}
