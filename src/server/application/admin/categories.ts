@@ -8,7 +8,7 @@ import {
 } from "~/lib/schemas/entities";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { invalidateCache } from "~/server/actions/cache";
+import { invalidateCategories } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _categories = {
@@ -70,10 +70,7 @@ export const _categories = {
         );
       }
 
-      await invalidateCache("filters");
-      await invalidateCache("category-filters");
-      await invalidateCache("categories-menu");
-      await invalidateCache("sitemap");
+      await invalidateCategories();
       return createdCategory;
     },
 
@@ -112,10 +109,7 @@ export const _categories = {
         });
       }
 
-      await invalidateCache("filters");
-      await invalidateCache("category-filters");
-      await invalidateCache("categories-menu");
-      await invalidateCache("sitemap");
+      await invalidateCategories();
       return updatedCategory;
     },
 
@@ -130,10 +124,7 @@ export const _categories = {
         });
       }
 
-      await invalidateCache("categories");
-      await invalidateCache("category-filters");
-      await invalidateCache("categories-menu");
-      await invalidateCache("sitemap");
+      await invalidateCategories();
       return deletedCategories;
     },
   },
