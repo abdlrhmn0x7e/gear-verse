@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CheckIcon,
   LogInIcon,
@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
+import { useTRPC } from "~/trpc/client";
 import { LoginDrawerDialog } from "./login-drawer-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
@@ -47,6 +48,8 @@ export function useSignOut() {
 /** Only real accounts get the avatar menu; visitors without a session or with an anonymous one get a Sign in button. */
 export function ProfileDropdown({ className }: { className?: string }) {
   const router = useRouter();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const { setTheme, theme } = useTheme();
   const { data, isPending: isPendingSession } = authClient.useSession();
   const { mutate: signOut, isPending: isSigningOut } = useSignOut();
@@ -54,11 +57,22 @@ export function ProfileDropdown({ className }: { className?: string }) {
   // login anonymously if the user is not authenticated
   useEffect(() => {
     if (!data && !isPendingSession) {
-      void authClient.signIn.anonymous();
+      // a first visit's session-scoped queries (the cart above all) run before this session exists and fail with a 401
+      // that nothing retries, so they refetch once it is in place
+      void authClient.signIn.anonymous().then(({ error }) => {
+        if (error) return;
+        for (const scope of [
+          trpc.public.carts,
+          trpc.public.checkout,
+          trpc.public.orders,
+        ]) {
+          void queryClient.invalidateQueries(scope.pathFilter());
+        }
+      });
       return;
     }
     router.refresh();
-  }, [data, isPendingSession, router]);
+  }, [data, isPendingSession, router, trpc, queryClient]);
 
   if (isSigningOut || isPendingSession) {
     // most visitors end up with the Sign in button, so its space is held without painting a placeholder
