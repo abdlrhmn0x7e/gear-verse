@@ -34,9 +34,10 @@ export async function generateMetadata({
     return notFound();
   }
 
-  const metadata = await findProductMetadata(slug);
-
   try {
+    // unpublished, archived and unknown products 404 in the page itself
+    const metadata = await findProductMetadata(slug);
+
     return {
       title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
       description: metadata.seo?.metaDescription ?? metadata.summary,

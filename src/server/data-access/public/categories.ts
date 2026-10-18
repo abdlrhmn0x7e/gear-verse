@@ -173,6 +173,7 @@ export const _categories = {
       const preds = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
+        eq(products.archived, false),
         inArray(categories.id, categoryIds),
         ...fragments,
       ];

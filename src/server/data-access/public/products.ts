@@ -47,6 +47,7 @@ export const _products = {
       const whereClause = [
         gt(products.id, cursor ?? 0),
         eq(products.published, true),
+        eq(products.archived, false),
       ];
       if (filters?.title) {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
@@ -201,7 +202,13 @@ export const _products = {
         .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
 
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
@@ -221,7 +228,13 @@ export const _products = {
         .from(products)
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
@@ -232,7 +245,7 @@ export const _products = {
           slug: products.slug,
         })
         .from(products)
-        .where(eq(products.published, true));
+        .where(and(eq(products.published, true), eq(products.archived, false)));
     },
 
     helpers: {

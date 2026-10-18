@@ -80,6 +80,14 @@ export const userCheckoutRouter = createTRPCRouter({
           });
         }
 
+        const unavailable = cart.items.find((item) => !item.available);
+        if (unavailable) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `${unavailable.title} is no longer available, please remove it from your cart`,
+          });
+        }
+
         const { data: itemsStock, error: getItemsStockError } = await tryCatch(
           ctx.app.public.carts.queries.getItemsStock(
             cart.items.map((item) => ({
