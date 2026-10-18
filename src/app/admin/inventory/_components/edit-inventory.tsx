@@ -51,9 +51,9 @@ export function EditInventory() {
   const { mutateAsync: updateInventoryItems, isPending } = useMutation(
     trpc.admin.inventoryItems.mutations.updateMany.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: trpc.admin.inventoryItems.queries.getPage.queryKey(),
-        });
+        void queryClient.invalidateQueries(
+          trpc.admin.inventoryItems.queries.getPage.pathFilter(),
+        );
         toast.success("Inventory updated successfully");
       },
       onError: (error) => {

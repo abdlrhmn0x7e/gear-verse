@@ -90,9 +90,9 @@ export function useUploadFilesMutation() {
     mutationFn: (files: File[]) =>
       uploadFiles(files, getPresignedUrls, createMedia),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: trpc.admin.media.queries.getPage.queryKey(),
-      });
+      void queryClient.invalidateQueries(
+        trpc.admin.media.queries.getPage.pathFilter(),
+      );
     },
   });
 }

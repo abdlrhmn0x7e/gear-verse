@@ -48,7 +48,7 @@ export function EditProduct({
         onSuccess: () => {
           toast.success("Product updated successfully");
           void queryClient.invalidateQueries(
-            trpc.admin.products.queries.getPage.queryFilter(),
+            trpc.admin.products.queries.getPage.pathFilter(),
           );
           void queryClient.invalidateQueries(
             trpc.admin.products.queries.findById.queryFilter({

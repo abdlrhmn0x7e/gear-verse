@@ -43,7 +43,7 @@ export function AddProduct() {
         toast.success("Product created successfully");
         draft.clearDraftOnSubmit();
         void queryClient.invalidateQueries(
-          trpc.admin.products.queries.getPage.queryFilter(),
+          trpc.admin.products.queries.getPage.pathFilter(),
         );
         router.push("/admin/products");
       },

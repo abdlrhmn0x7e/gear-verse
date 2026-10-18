@@ -32,7 +32,7 @@ export function AddBrandDrawer() {
       onSuccess: () => {
         toast.success("Brand created successfully");
         void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
+          trpc.admin.brands.queries.getPage.pathFilter(),
         );
         drawer.dismiss();
       },
