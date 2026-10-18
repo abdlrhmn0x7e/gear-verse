@@ -11,6 +11,7 @@ import { Badge } from "~/components/ui/badge";
 import { type InventoryItemFormValues } from "../../forms/inventory-item-form";
 import type { RouterOutput } from "~/trpc/client";
 import type { ListColumn } from "../list-grid";
+import { cn } from "~/lib/utils";
 
 export type InventoryRow =
   RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
@@ -125,6 +126,9 @@ export const inventoryColumns: ListColumn<InventoryRow>[] = [
   {
     id: "status",
     header: "Status",
+    // Wide enough for the widest badge and its "was" note, so a status that
+    // changes while typing never resizes the column.
+    meta: { headerClassName: "w-56 min-w-56", cellClassName: "w-56 min-w-56" },
     cell: ({ row }) => {
       const form = useFormContext<InventoryItemFormValues>();
       // Follows the quantity being typed, so the badge previews the save.
@@ -134,6 +138,7 @@ export const inventoryColumns: ListColumn<InventoryRow>[] = [
       });
       const { label, variant, icon } = stockStatus(quantity);
       const saved = row.original.quantity;
+      const changed = quantity !== undefined && quantity !== saved;
 
       return (
         <div className="flex items-center gap-2">
@@ -141,11 +146,15 @@ export const inventoryColumns: ListColumn<InventoryRow>[] = [
             {icon}
             {label}
           </Badge>
-          {quantity !== undefined && quantity !== saved && (
-            <span className="text-muted-foreground text-xs tabular-nums">
-              was {saved}
-            </span>
-          )}
+          <span
+            aria-hidden={!changed}
+            className={cn(
+              "text-muted-foreground text-xs tabular-nums transition-opacity duration-150",
+              !changed && "opacity-0",
+            )}
+          >
+            was {saved}
+          </span>
         </div>
       );
     },
