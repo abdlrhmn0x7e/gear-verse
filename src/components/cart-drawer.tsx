@@ -125,7 +125,7 @@ export function CartDrawer({
                   key={`${item.productId}-${item.productVariantId}`}
                   className="flex gap-4 py-4"
                 >
-                  <div className="image-well size-20 shrink-0 overflow-hidden rounded-xl">
+                  <div className="image-well outline-image-outline size-20 shrink-0 overflow-hidden rounded-xl outline-1 -outline-offset-1">
                     <ImageWithFallback
                       src={item.thumbnailUrl}
                       alt=""
