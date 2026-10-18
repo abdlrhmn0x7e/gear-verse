@@ -111,12 +111,12 @@ export function AdminSidebar() {
                 above and below. */}
             <SidebarMenuButton
               size="lg"
-              tooltip="Gear Verse admin"
+              tooltip="Back to the store"
               className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 justify-center px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
               render={
                 <Link
-                  href="/admin"
-                  aria-label="Gear Verse admin home"
+                  href="/"
+                  aria-label="Back to the Gear Verse store"
                   onClick={closeMobile}
                 />
               }
