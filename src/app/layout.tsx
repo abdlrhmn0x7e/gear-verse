@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
+import { ThemeColorScript, ThemeColorSync } from "~/components/theme-color";
 import { Toaster } from "~/components/ui/toast";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -61,13 +62,8 @@ export const metadata: Metadata = {
   },
 };
 
-// --background in globals.css (neutral-50 and neutral-900) as hex
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fdfbfd" },
-    { media: "(prefers-color-scheme: dark)", color: "#1b151b" },
-  ],
-};
+// No themeColor: it follows the site's theme rather than the phone's, so ThemeColorScript and ThemeColorSync own it
+export const viewport: Viewport = {};
 
 export default function RootLayout({
   children,
@@ -80,12 +76,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("font-sans", geist.variable)}
     >
-      {/* <head>
-        <script
+      <head>
+        <ThemeColorScript />
+        {/* <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
-      </head> */}
+        /> */}
+      </head>
 
       <body
         className={cn(
@@ -103,6 +100,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ThemeColorSync />
             <TRPCReactProvider>
               <TooltipProvider>{children}</TooltipProvider>
               <Toaster />
