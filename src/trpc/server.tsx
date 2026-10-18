@@ -5,6 +5,7 @@ import {
   createTRPCOptionsProxy,
   type TRPCQueryOptions,
 } from "@trpc/tanstack-react-query";
+import { connection } from "next/server";
 import { cache } from "react";
 import { createTRPCContext } from "~/server/api/init";
 import { makeQueryClient } from "./query-client";
@@ -24,7 +25,14 @@ export const trpc = createTRPCOptionsProxy({
 
 export const api = appRouter.createCaller(createTRPCContext);
 
-export function HydrateClient({ children }: { children: React.ReactNode }) {
+export async function HydrateClient({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // dehydrate() stamps each query with Date.now(), and with partialPrefetching a prefetch prerender resolves
+  // searchParams and headers, so wait for the real request (see getSession)
+  await connection();
   const queryClient = getQueryClient();
 
   return (
@@ -38,6 +46,14 @@ export function HydrateClient({ children }: { children: React.ReactNode }) {
 export async function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
   queryOptions: T,
 ) {
+  // the query cache stamps every result and failure with Date.now(), and a prefetch prerender that ends mid-fetch
+  // fails the query, so only start it for the real request. Callers don't await this, so the prerender's
+  // connection() rejection is dropped here instead of surfacing as an unhandled rejection.
+  try {
+    await connection();
+  } catch {
+    return;
+  }
   const queryClient = getQueryClient();
   if (queryOptions.queryKey[1]?.type === "infinite") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
