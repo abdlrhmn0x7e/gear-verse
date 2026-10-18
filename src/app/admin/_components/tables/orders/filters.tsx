@@ -1,128 +1,118 @@
 "use client";
 
-import { CoinsIcon, ListFilterIcon, SquareDashedIcon } from "lucide-react";
-import { useState } from "react";
-import { useOrderSearchParams } from "~/app/admin/_hooks/use-order-search-params";
-import { PaymentMethod } from "~/components/payment-method";
-import { Button } from "~/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+  CoinsIcon,
+  CreditCardIcon,
+  HandCoinsIcon,
+  SquareDashedIcon,
+} from "lucide-react";
+import { useOrderSearchParams } from "~/app/admin/_hooks/use-order-search-params";
+import {
+  useFilterQuery,
+  type CommittedFilter,
+} from "~/app/admin/_hooks/use-filter-query";
+import { Filters, type FilterField } from "~/components/reui/filters/filters";
 import { cn } from "~/lib/utils";
-import { FilterList } from "../../filter-list";
 import { SearchInput } from "../../inputs/search-input";
-import { OrderStatus } from "./order-status";
+import { orderStatuses, orderStatusMap } from "./order-status";
 
-export function OrdersFilter() {
-  const [isOpen, setIsOpen] = useState(false);
+const paymentMethods = [
+  { value: "COD", label: "Cash on Delivery", icon: <HandCoinsIcon /> },
+  { value: "ONLINE", label: "Online Payment", icon: <CreditCardIcon /> },
+] as const;
+
+// The server takes one status and one payment method, so "is" is the only
+// condition either offers.
+const is = [{ value: "is", label: "is" }];
+
+const fields: FilterField<string | string[]>[] = [
+  {
+    id: "status",
+    label: "Status",
+    icon: <SquareDashedIcon />,
+    type: "select",
+    operators: is,
+    searchable: false,
+    options: orderStatuses.map((status) => ({
+      value: status,
+      label: orderStatusMap[status].label,
+      icon: orderStatusMap[status].icon,
+    })),
+  },
+  {
+    id: "paymentMethod",
+    label: "Payment method",
+    icon: <CoinsIcon />,
+    type: "select",
+    operators: is,
+    searchable: false,
+    options: paymentMethods.map((method) => ({ ...method })),
+  },
+];
+
+function pick<T extends string>(
+  filters: CommittedFilter[],
+  field: string,
+  allowed: readonly T[],
+): T | null {
+  const value = filters.find((filter) => filter.field === field)?.value;
+  return allowed.find((item) => item === value) ?? null;
+}
+
+/**
+ * Phone number search plus status and payment method chips, all held in the
+ * orders search params.
+ */
+export function OrdersFilters({ className }: { className?: string }) {
   const [filters, setFilters] = useOrderSearchParams();
 
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    void setFilters({ ...filters, search: !value ? null : value });
+  const committed: CommittedFilter[] = [];
+  if (filters.status) {
+    committed.push({ field: "status", operator: "is", value: filters.status });
+  }
+  if (filters.paymentMethod) {
+    committed.push({
+      field: "paymentMethod",
+      operator: "is",
+      value: filters.paymentMethod,
+    });
   }
 
+  const chips = useFilterQuery({
+    fields,
+    committed,
+    onCommit: (next) =>
+      void setFilters({
+        status: pick(next, "status", orderStatuses),
+        paymentMethod: pick(
+          next,
+          "paymentMethod",
+          paymentMethods.map((method) => method.value),
+        ),
+      }),
+  });
+
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className={cn(
+        "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center",
+        className,
+      )}
+    >
       <SearchInput
-        className="max-w-sm"
+        className="w-full sm:max-w-xs"
         placeholder="Search by phone number"
         value={filters.search ?? ""}
-        onChange={handleSearchChange}
-      >
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger
-            className={cn(isOpen && "dark:text-primary-foreground")}
-            asChild
-          >
-            <Button variant="ghost" size="icon-sm" className="focus:ring-0">
-              <ListFilterIcon />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent
-            align="end"
-            className="w-sm"
-            sideOffset={16}
-            alignOffset={-12}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <SquareDashedIcon className="mr-2 size-4" />
-                  Status
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent sideOffset={8} className="max-w-48">
-                    {(
-                      [
-                        "PENDING",
-                        "SHIPPED",
-                        "DELIVERED",
-                        "REFUNDED",
-                        "CANCELLED",
-                      ] as const
-                    ).map((status) => (
-                      <DropdownMenuItem
-                        key={status}
-                        onClick={() => {
-                          void setFilters({ ...filters, status });
-                        }}
-                      >
-                        <OrderStatus variant="plain" status={status} />
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <CoinsIcon className="mr-2 size-4" />
-                  Payment Method
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent sideOffset={8} className="max-w-48">
-                    {(["COD", "ONLINE"] as const).map((method) => (
-                      <DropdownMenuItem
-                        key={method}
-                        onClick={() => {
-                          void setFilters({
-                            ...filters,
-                            paymentMethod: method,
-                          });
-                        }}
-                      >
-                        <PaymentMethod method={method} variant="plain" />
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SearchInput>
-
-      <FilterList
-        loading={false}
-        onRemove={({ key }) => {
-          void setFilters({ ...filters, [key]: null });
-        }}
-        filters={[
-          { key: "status", value: filters.status },
-          { key: "paymentMethod", value: filters.paymentMethod },
-        ]}
+        onChange={(event) =>
+          void setFilters({ search: event.target.value || null })
+        }
+      />
+      <Filters
+        fields={chips.fields}
+        query={chips.query}
+        onQueryChange={chips.onQueryChange}
+        ruleMenu="remove"
+        showClear
       />
     </div>
   );
