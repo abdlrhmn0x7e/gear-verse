@@ -1,4 +1,15 @@
-import { and, eq, gte, ilike, inArray, isNull, lte, sql } from "drizzle-orm";
+import {
+  and,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  max,
+  min,
+  sql,
+} from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -268,6 +279,29 @@ export const _products = {
         })
         .from(products)
         .where(and(eq(products.published, true), eq(products.archived, false)));
+    },
+
+    /** The cheapest and dearest live product, optionally in a category or any of its subcategories; null when none. */
+    getPriceRange: async (filters?: Partial<{ categorySlug: string }>) => {
+      const where = [
+        eq(products.published, true),
+        eq(products.archived, false),
+      ];
+
+      if (filters?.categorySlug) {
+        const categoryIds = await getCategoryIdsBySlug(filters.categorySlug);
+        if (categoryIds.length === 0) return null;
+        where.push(inArray(products.categoryId, categoryIds));
+      }
+
+      const [range] = await db
+        .select({ min: min(products.price), max: max(products.price) })
+        .from(products)
+        .where(and(...where));
+
+      return range?.min != null && range.max != null
+        ? { min: range.min, max: range.max }
+        : null;
     },
   },
 };
