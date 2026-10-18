@@ -175,7 +175,13 @@ export const _products = {
           eq(productMediaSubQuery.productId, products.id),
         )
         .leftJoin(media, eq(media.id, products.thumbnailMediaId))
-        .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
+        .leftJoin(
+          inventoryItems,
+          and(
+            eq(inventoryItems.productId, products.id),
+            isNull(inventoryItems.productVariantId),
+          ),
+        )
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
 
         .where(
