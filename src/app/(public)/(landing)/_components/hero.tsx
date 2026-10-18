@@ -1,6 +1,11 @@
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "~/components/features/products/product-card";
+import {
+  ProductRow,
+  ProductRowItem,
+  StoreTile,
+} from "~/components/features/products/product-row";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Button } from "~/components/ui/button";
 import { getLatestProducts } from "../_lib/queries";
@@ -33,42 +38,22 @@ export async function Hero() {
         </div>
 
         {products.length > 0 && (
-          // a horizontal snap row on phones so the next card peeks, three columns from tablets up;
-          // paint containment keeps the off-screen cards from widening the mobile layout viewport
-          <ul className="no-scrollbar -mx-6 -my-2 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 py-2 [contain:paint] md:m-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:p-0 md:[contain:none]">
+          <ProductRow className="md:grid-cols-3">
             {products.map((product) => (
-              <li
-                key={product.id}
-                className="w-[80vw] shrink-0 snap-start md:w-auto"
-              >
+              <ProductRowItem key={product.id}>
                 <ProductCard
                   product={product}
                   sizes="(min-width: 768px) 33vw, 80vw"
                 />
-              </li>
+              </ProductRowItem>
             ))}
 
-            {/* a short catalog ends in a "see everything" tile, so the row never looks unfinished */}
             {products.length < HERO_PRODUCT_COUNT && (
-              <li className="w-[80vw] shrink-0 snap-start md:w-auto">
-                <Link
-                  href="/products"
-                  className="bg-card hover:bg-accent group flex aspect-square flex-col justify-between gap-8 rounded-3xl p-6 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus md:p-8"
-                >
-                  <p className="text-title max-w-xs text-balance">
-                    A curated store of the best international brands.
-                  </p>
-                  <span className="inline-flex items-center gap-2 text-sm font-medium">
-                    See the whole store
-                    <ArrowRightIcon
-                      className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
-                  </span>
-                </Link>
-              </li>
+              <ProductRowItem>
+                <StoreTile />
+              </ProductRowItem>
             )}
-          </ul>
+          </ProductRow>
         )}
       </MaxWidthWrapper>
     </section>

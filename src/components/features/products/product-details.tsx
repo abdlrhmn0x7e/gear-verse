@@ -27,12 +27,9 @@ import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
 import { TrustPromiseItem } from "../trust/trust-promise-item";
 import { TRUST_PROMISES } from "../trust/trust-promises";
-import {
-  ProductCard,
-  productGridClassName,
-  type ProductCardItem,
-} from "./product-card";
+import { ProductCard, type ProductCardItem } from "./product-card";
 import { ProductGallery } from "./product-gallery";
+import { ProductRow, ProductRowItem, StoreTile } from "./product-row";
 import { ProductVariantSelector } from "./product-variant-selector";
 import { PurchasePanel } from "./purchase-panel";
 
@@ -79,7 +76,8 @@ export async function ProductDetails({
     return notFound();
   }
 
-  cacheTag(`products:${product.id}`);
+  // related products fill from the newest in the store, so a new product refreshes every page
+  cacheTag(`products:${product.id}`, "recent-products");
 
   const hasVariants = product.variants.length > 0;
   const categoryPath = findCategoryPath(
@@ -216,10 +214,10 @@ export async function ProductDetails({
           </div>
         )}
 
-        {!hideActions && category && (
+        {!hideActions && (
           <RelatedProducts
             productId={product.id}
-            categorySlug={category.slug}
+            categorySlug={category?.slug}
           />
         )}
       </MaxWidthWrapper>
@@ -227,21 +225,44 @@ export async function ProductDetails({
   );
 }
 
+const RELATED_COUNT = 4;
+
+/** Per related-product count: how many grid columns the store tile spans to finish the row (3 columns from md, 4 from xl).
+ * With three products the md row is already full, so the tile only joins the row at xl. */
+const STORE_TILE_SPAN: Record<number, string> = {
+  1: "md:col-span-2 xl:col-span-3",
+  2: "md:col-span-1 xl:col-span-2",
+  3: "md:hidden xl:col-span-1 xl:block",
+};
+
 async function RelatedProducts({
   productId,
   categorySlug,
 }: {
   productId: number;
-  categorySlug: string;
+  categorySlug: string | undefined;
 }) {
-  const page = await app.public.products.queries.getPage({
-    pageSize: 5,
-    filters: { categories: [categorySlug] },
-  });
-  const related: ProductCardItem[] = page.data
-    .filter((item) => item.id !== productId)
-    .slice(0, 4);
+  // same category first, then the newest from the rest of the store
+  const [sameCategory, newest] = await Promise.all([
+    categorySlug
+      ? app.public.products.queries.getPage({
+          pageSize: RELATED_COUNT + 1,
+          filters: { categories: [categorySlug] },
+        })
+      : null,
+    app.public.products.queries.getPage({ pageSize: RELATED_COUNT * 2 }),
+  ]);
+  const seen = new Set([productId]);
+  const related: ProductCardItem[] = [];
+  for (const item of [...(sameCategory?.data ?? []), ...newest.data]) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    related.push(item);
+  }
+  related.splice(RELATED_COUNT);
   if (related.length === 0) return null;
+
+  const tileSpan = STORE_TILE_SPAN[related.length];
 
   return (
     <section
@@ -251,13 +272,23 @@ async function RelatedProducts({
       <h2 id="related-heading" className="text-headline-sm text-balance">
         You might also like
       </h2>
-      <div
-        className={cn(productGridClassName, "lg:grid-cols-3 xl:grid-cols-4")}
-      >
+      {/* a size container, so the spanning store tile can be exactly one card-image tall */}
+      <ProductRow className="@container/related md:grid-cols-3 xl:grid-cols-4">
         {related.map((item) => (
-          <ProductCard key={item.id} product={item} />
+          <ProductRowItem key={item.id}>
+            <ProductCard
+              product={item}
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 80vw"
+            />
+          </ProductRowItem>
         ))}
-      </div>
+
+        {tileSpan && (
+          <ProductRowItem className={tileSpan}>
+            <StoreTile className="md:aspect-auto md:h-[calc((100cqw-3rem)/3)] xl:h-[calc((100cqw-4.5rem)/4)]" />
+          </ProductRowItem>
+        )}
+      </ProductRow>
     </section>
   );
 }
