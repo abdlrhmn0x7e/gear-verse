@@ -46,7 +46,7 @@ export function AddAddressDialog({ userId }: { userId: number }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full rounded-t-none rounded-b-md" variant="ghost">
+        <Button variant="ghost">
           <PlusIcon data-icon="inline-start" />
           Add Address
         </Button>

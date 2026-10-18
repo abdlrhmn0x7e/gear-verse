@@ -16,6 +16,8 @@ function PopoverTrigger({
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
+/* A popover holding a command menu is a combobox dropdown, so it takes the trigger's width and the menu's shape
+   (select and dropdown-menu radius, no padding) instead of the panel layout */
 function PopoverContent({
   className,
   align = "center",
@@ -29,7 +31,7 @@ function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "surface-control surface-floating text-popover-foreground [--surface-shadow:var(--shadow-lg)] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-4 rounded-[24px] p-4 text-sm outline-hidden duration-100",
+          "surface-control surface-floating text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 flex w-72 origin-(--radix-popover-content-transform-origin) flex-col gap-4 rounded-[24px] p-4 text-sm outline-hidden duration-100 [--surface-shadow:var(--shadow-lg)] has-data-[slot=command]:w-(--radix-popover-trigger-width) has-data-[slot=command]:min-w-48 has-data-[slot=command]:gap-0 has-data-[slot=command]:overflow-hidden has-data-[slot=command]:rounded-[20px] has-data-[slot=command]:p-0",
           className,
         )}
         {...props}

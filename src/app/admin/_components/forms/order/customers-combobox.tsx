@@ -7,33 +7,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
-import {
-  Check,
-  ChevronsUpDown,
-  SearchIcon,
-  UserIcon,
-  XCircleIcon,
-} from "lucide-react";
-import { Separator } from "~/components/ui/separator";
+import { UserIcon, XCircleIcon } from "lucide-react";
 import {
   Command,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
+  CommandTrigger,
 } from "~/components/ui/command";
 import { LoadMore } from "~/components/load-more";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Spinner } from "~/components/spinner";
 import { AddCustomerDialog } from "../../dialogs/add-customer";
 import { useDebounce } from "~/hooks/use-debounce";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
 
 export function CustomersCombobox({
   value,
@@ -86,41 +75,21 @@ export function CustomersCombobox({
 
   if (customersPending) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        className={cn("w-full justify-between", className)}
-        disabled={true}
-      >
-        <div className="flex items-center gap-2">
-          <Spinner />
-          Loading customers...
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger className={className} disabled>
+        <Spinner />
+        <span className="text-muted-foreground truncate">
+          Loading customers
+        </span>
+      </CommandTrigger>
     );
   }
 
   if (customersError) {
     return (
-      <Button
-        variant="outline"
-        role="combobox"
-        aria-expanded={open}
-        aria-invalid={true}
-        className={cn(
-          "text-destructive border-destructive w-full justify-between",
-          className,
-        )}
-        disabled={true}
-      >
-        <div className="flex items-center gap-2">
-          <XCircleIcon size="small" />
-          Error loading customers
-        </div>
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
+      <CommandTrigger className={className} aria-invalid disabled>
+        <XCircleIcon className="text-destructive" />
+        <span className="truncate">Couldn&apos;t load customers</span>
+      </CommandTrigger>
     );
   }
 
@@ -129,21 +98,23 @@ export function CustomersCombobox({
 
     if (!value || !customer) {
       return (
-        <div className="flex items-center gap-2">
-          <UserIcon className="text-muted-foreground size-4" />
-          <span className="text-muted-foreground">Select a customer</span>
-        </div>
+        <>
+          <UserIcon className="text-muted-foreground" />
+          <span className="text-muted-foreground truncate">
+            Select a customer
+          </span>
+        </>
       );
     }
 
     return (
-      <div className="flex items-center gap-2">
+      <>
         <Avatar className="size-5">
-          <AvatarImage src={customer?.image ?? ""} alt={customer?.name ?? ""} />
+          <AvatarImage src={customer?.image ?? ""} alt="" />
           <AvatarFallback>{customer?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
-        {customer?.name}
-      </div>
+        <span className="truncate">{customer?.name}</span>
+      </>
     );
   }
 
@@ -155,18 +126,15 @@ export function CustomersCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
+        <CommandTrigger
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={className}
           disabled={disabled}
         >
           {renderValue(value)}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
+        </CommandTrigger>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent>
         <CustomersCommand
           customers={customersData}
           search={search}
@@ -179,9 +147,9 @@ export function CustomersCombobox({
           ref={ref}
         />
 
-        <Separator />
-
-        <AddCustomerDialog />
+        <CommandFooter>
+          <AddCustomerDialog />
+        </CommandFooter>
       </PopoverContent>
     </Popover>
   );
@@ -208,28 +176,18 @@ export function CustomersCommand({
   hasNextPage: boolean;
   ref: (node?: Element | null) => void;
 }) {
-  function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
-    setSearch(e.target.value);
-  }
-
   return (
-    <Command>
-      <div className="p-1">
-        <InputGroup className="has-focus-visible:border-border rounded-sm has-focus-visible:ring-0">
-          <InputGroupInput
-            placeholder="Search customers"
-            onChange={handleSearch}
-            value={search}
-            autoComplete="off"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck="false"
-          />
-          <InputGroupAddon>
-            <SearchIcon />
-          </InputGroupAddon>
-        </InputGroup>
-      </div>
+    // the server filters by name, so cmdk's own matching stays off
+    <Command shouldFilter={false}>
+      <CommandInput
+        placeholder="Search customers"
+        value={search}
+        onValueChange={setSearch}
+        autoComplete="off"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck="false"
+      />
 
       <CommandList>
         {!isSearching ? (
@@ -240,6 +198,7 @@ export function CustomersCommand({
                 <CommandItem
                   key={customer.id}
                   value={`${customer.id}-${customer.name}`}
+                  data-checked={value === customer.id}
                   onSelect={() => {
                     if (customer.id === value) {
                       onValueChange(0);
@@ -251,20 +210,11 @@ export function CustomersCommand({
                     setOpen(false);
                   }}
                 >
-                  <Avatar>
-                    <AvatarImage
-                      src={customer.image ?? ""}
-                      alt={customer.name}
-                    />
+                  <Avatar className="size-6">
+                    <AvatarImage src={customer.image ?? ""} alt="" />
                     <AvatarFallback>{customer.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  {customer.name}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === customer.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
+                  <span className="truncate">{customer.name}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

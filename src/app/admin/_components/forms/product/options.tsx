@@ -233,7 +233,7 @@ function Option({
           key={`option-closed-${optionId}`}
           type="button"
           onClick={toggleOpen}
-          className="hover:bg-muted -mt-4 flex min-h-16 w-full flex-col items-start rounded-lg px-3 py-2 transition-colors"
+          className="hover:bg-foreground/6 dark:hover:bg-foreground/8 -mt-4 flex min-h-16 w-full flex-col items-start rounded-lg px-3 py-2 transition-colors"
           initial={{ opacity: 0, y: 16, height: 100 }}
           animate={{ opacity: 1, y: 0, height: "auto" }}
           exit={{ opacity: 0, y: -16, height: "auto" }}
