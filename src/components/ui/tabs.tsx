@@ -41,10 +41,13 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  // arrow keys select the tab they land on, as Radix's automatic activation did
+  activateOnFocus = true,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
   return (
     <TabsPrimitive.List
+      activateOnFocus={activateOnFocus}
       data-slot="tabs-list"
       data-variant={variant}
       className={cn(tabsListVariants({ variant }), className)}
