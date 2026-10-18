@@ -1,12 +1,15 @@
 import { cacheTag } from "next/cache";
+import { IconBrandWhatsapp } from "@tabler/icons-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { getStoreSettings } from "~/lib/store-settings";
+import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 import { CurrentYear } from "./current-year";
 import { PayOnDelivery } from "./features/payment/pay-on-delivery";
 import { Logo } from "./logo";
 import { SocialLinks } from "./social-links";
+import { WhatsAppNumberLink } from "./whatsapp-number-link";
 
 const HELP_LINKS = [
   { title: "FAQ", href: "/#faq" },
@@ -19,11 +22,25 @@ const linkClassName =
 
 export async function Footer() {
   const settings = await getStoreSettings();
+  const { whatsappNumber } = settings;
 
   return (
     <footer className="mx-auto w-full max-w-7xl px-4 pt-16 pb-8 md:px-6 lg:px-8">
-      <div className="bg-card grid gap-12 rounded-3xl p-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] md:p-12">
-        <div className="flex flex-col items-start gap-6">
+      {/* with a Contact column, tablets give the brand its own row so the three link columns have room for the number */}
+      <div
+        className={cn(
+          "bg-card grid gap-12 rounded-3xl p-8 md:p-12",
+          whatsappNumber
+            ? "md:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]"
+            : "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]",
+        )}
+      >
+        <div
+          className={cn(
+            "flex flex-col items-start gap-6",
+            whatsappNumber && "md:col-span-3 lg:col-span-1",
+          )}
+        >
           <Link
             href="/"
             className="rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
@@ -64,7 +81,33 @@ export async function Footer() {
           </ul>
         </nav>
 
-        <PayOnDelivery className="border-t pt-8 md:col-span-3" />
+        {whatsappNumber && (
+          <section aria-labelledby="footer-contact" className="space-y-4">
+            <h2 id="footer-contact" className="text-sm font-medium">
+              Contact
+            </h2>
+            <div className="space-y-1.5 text-sm">
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                className="text-foreground hover:text-primary inline-flex items-center gap-2 font-medium tabular-nums transition-[color] duration-150"
+              >
+                <IconBrandWhatsapp
+                  className="size-5 shrink-0"
+                  stroke={1.75}
+                  aria-hidden
+                />
+              </WhatsAppNumberLink>
+              <p className="text-muted-foreground">Chat with us on WhatsApp</p>
+            </div>
+          </section>
+        )}
+
+        <PayOnDelivery
+          className={cn(
+            "border-t pt-8 md:col-span-3",
+            whatsappNumber && "lg:col-span-4",
+          )}
+        />
       </div>
 
       <p className="text-muted-foreground px-2 pt-6 text-sm">
