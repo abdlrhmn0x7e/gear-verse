@@ -8,6 +8,7 @@ import {
 } from "nuqs/server";
 
 export const productsNuqsParsers = {
+  title: parseAsString,
   categories: parseAsArrayOf(parseAsString),
   brands: parseAsArrayOf(parseAsString),
   minPrice: parseAsInteger,
@@ -30,6 +31,7 @@ export function toProductsPageInput(filters: ProductsSearchParams) {
   return {
     pageSize: 12,
     filters: {
+      title: filters.title ?? undefined,
       brands: filters.brands ?? undefined,
       categories: filters.categories ?? undefined,
       price: hasPrice

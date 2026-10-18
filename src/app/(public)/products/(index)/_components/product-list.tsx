@@ -3,6 +3,8 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
+import { XIcon } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import {
   toProductsPageInput,
   useAllProductSearchParams,
@@ -37,19 +39,43 @@ export function ProductList() {
     }
   }, [inView, fetchNextPage]);
 
+  // the search dialog sends Enter here, so say what was searched and how to undo it
+  const searchSummary = filters.title && (
+    <div className="mb-6 flex items-center justify-between gap-3">
+      <p className="text-muted-foreground min-w-0 truncate text-sm">
+        Results for{" "}
+        <span className="text-foreground font-medium">
+          &ldquo;{filters.title}&rdquo;
+        </span>
+      </p>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => void setFilters({ title: null })}
+      >
+        <XIcon data-icon="inline-start" />
+        Clear search
+      </Button>
+    </div>
+  );
+
   if (products.length === 0) {
     return (
-      <ProductsEmptyState
-        hasFilters={Object.entries(filters).some(
-          ([key, value]) => key !== "sortBy" && value !== null,
-        )}
-        onClearFilters={() => void setFilters(null)}
-      />
+      <>
+        {searchSummary}
+        <ProductsEmptyState
+          hasFilters={Object.entries(filters).some(
+            ([key, value]) => key !== "sortBy" && value !== null,
+          )}
+          onClearFilters={() => void setFilters(null)}
+        />
+      </>
     );
   }
 
   return (
     <>
+      {searchSummary}
       <div className={productGridClassName}>
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
