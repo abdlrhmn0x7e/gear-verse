@@ -43,8 +43,9 @@ export const _users = {
         .orderBy(desc(users.id));
     },
 
+    // matches the customers list, which leaves anonymous visitors out
     getCount: async () => {
-      return db.$count(users);
+      return db.$count(users, eq(users.isAnonymous, false));
     },
   },
 

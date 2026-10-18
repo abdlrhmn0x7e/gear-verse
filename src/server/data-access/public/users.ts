@@ -40,9 +40,14 @@ export const _users = {
                       FROM ${latestUsersCte}
                    )`.as("summary"),
 
-          count: sql<number>`(SELECT COUNT(*) FROM ${users})`.as("count"),
+          // anonymous visitors aren't customers
+          count:
+            sql<number>`(SELECT COUNT(*) FROM ${users} WHERE ${users.isAnonymous} IS NOT TRUE)`.as(
+              "count",
+            ),
         })
         .from(users)
+        .limit(1)
         .then(([res]) => res);
     },
   },
