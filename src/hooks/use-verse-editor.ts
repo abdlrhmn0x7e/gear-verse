@@ -32,6 +32,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor
@@ -56,6 +57,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor
@@ -76,7 +78,8 @@ export function useVerseEditor({
   }, [uploadFiles]);
 
   const editor = useEditor({
-    content: defaultContent,
+    // a new product starts its description as {}, which isn't a document
+    content: defaultContent?.type ? defaultContent : undefined,
     onUpdate: ({ editor }) => {
       onUpdate?.(editor.getJSON());
     },

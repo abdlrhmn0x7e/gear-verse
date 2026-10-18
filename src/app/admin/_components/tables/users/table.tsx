@@ -16,7 +16,7 @@ import { usersColumns } from "./columns";
 
 export function UsersTable() {
   const trpc = useTRPC();
-  const [params] = useUserSearchParams();
+  const [params, setParams] = useUserSearchParams();
   const debouncedFilters = useDebounce(params);
   const {
     data: users,
@@ -65,6 +65,7 @@ export function UsersTable() {
     <ListGrid
       table={table}
       isFetching={isFetching}
+      onRowClick={(user) => void setParams({ ordersOf: user.id })}
       hasNextPage={hasNextPage}
       loadMoreRef={ref}
       empty={

@@ -8,6 +8,7 @@ import { OrderStatus } from "./order-status";
 import { PaymentMethod } from "~/components/payment-method";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { formatCurrency } from "~/lib/utils/format-currency";
 import { OrdersTableActions } from "./actions";
 import type { ListColumn } from "../list-grid";
 
@@ -57,7 +58,7 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
     accessorKey: "totalValue",
     header: "Total Value",
     cell: ({ row }) => {
-      return <span>{row.original.totalValue} EGP</span>;
+      return <span>{formatCurrency(row.original.totalValue)}</span>;
     },
     meta: {
       headerClassName: "text-right",

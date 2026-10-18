@@ -7,9 +7,12 @@ import {
   addEdge,
   useEdgesState,
   useNodesState,
+  type Edge,
   type OnConnect,
+  type OnEdgesDelete,
 } from "@xyflow/react";
 import { type CSSProperties, useCallback } from "react";
+import { toast } from "sonner";
 import { useTRPC } from "~/trpc/client";
 
 import "@xyflow/react/dist/style.css";
@@ -39,6 +42,11 @@ const canvasTheme = {
   "--xy-background-pattern-color": "var(--border)",
 } as CSSProperties;
 
+/** The record id at the end of a node id: `attribute-switch-type-1` is 1. */
+function recordId(nodeId: string) {
+  return Number(nodeId.split("-").pop());
+}
+
 export function AttributesView() {
   const trpc = useTRPC();
   const [{ data: categories }, { data: attributes }, { data: connections }] =
@@ -52,6 +60,9 @@ export function AttributesView() {
   const { mutate: connect } = useMutation(
     trpc.admin.attributes.mutations.connect.mutationOptions(),
   );
+  const { mutate: disconnect } = useMutation(
+    trpc.admin.attributes.mutations.disconnect.mutationOptions(),
+  );
 
   const [nodes, _, onNodesChange] = useNodesState([
     ...attributes.map((attribute, index) => ({
@@ -62,6 +73,7 @@ export function AttributesView() {
       },
       type: "attribute",
       data: attribute,
+      deletable: false,
     })),
 
     {
@@ -69,6 +81,7 @@ export function AttributesView() {
       position: { x: 500, y: 0 },
       type: "layout",
       data: { label: "Root Categories" },
+      deletable: false,
       height: categories.length * 50 + 20,
       width: 225,
     },
@@ -77,11 +90,12 @@ export function AttributesView() {
       position: { x: 10, y: 50 * index + 20 },
       type: "category",
       data: category,
+      deletable: false,
       parentId: "categories-layout",
       extent: "parent" as const,
     })),
   ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(
     connections.map((conn) => ({
       id: `e-${conn.attribute.slug}-${conn.attribute.id}-${conn.category.slug}-${conn.category.id}`,
       source: `attribute-${conn.attribute.slug}-${conn.attribute.id}`,
@@ -91,23 +105,59 @@ export function AttributesView() {
   );
   const onConnect: OnConnect = useCallback(
     (params) => {
-      const attributeId = parseInt(params.source.split("-").pop()!);
-      const categoryId = parseInt(params.target.split("-").pop()!);
+      const attributeId = recordId(params.source);
+      const categoryId = recordId(params.target);
 
       if (!attributeId || !categoryId) {
         return;
       }
 
-      connect({
-        attributeId,
-        categoryId,
-      });
+      connect(
+        { attributeId, categoryId },
+        {
+          // take the line back off the canvas when the server refuses it
+          onError: () => {
+            setEdges((edgesSnapshot) =>
+              edgesSnapshot.filter(
+                (edge) =>
+                  edge.source !== params.source ||
+                  edge.target !== params.target,
+              ),
+            );
+            toast.error("Couldn't connect the attribute. Try again.");
+          },
+        },
+      );
 
       return setEdges((edgesSnapshot) =>
         addEdge({ ...params, type: "custom-edge" }, edgesSnapshot),
       );
     },
     [connect, setEdges],
+  );
+
+  // Every removal, from an edge's button or the Backspace key, lands here.
+  const onEdgesDelete: OnEdgesDelete<Edge> = useCallback(
+    (deleted) => {
+      for (const edge of deleted) {
+        const attributeId = recordId(edge.source);
+        const categoryId = recordId(edge.target);
+
+        if (!attributeId || !categoryId) continue;
+
+        disconnect(
+          { attributeId, categoryId },
+          {
+            // put the line back when the server keeps the connection
+            onError: () => {
+              setEdges((edgesSnapshot) => [...edgesSnapshot, edge]);
+              toast.error("Couldn't remove the connection. Try again.");
+            },
+          },
+        );
+      }
+    },
+    [disconnect, setEdges],
   );
 
   return (
@@ -119,6 +169,7 @@ export function AttributesView() {
         edges={edges}
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
+        onEdgesDelete={onEdgesDelete}
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
         style={canvasTheme}

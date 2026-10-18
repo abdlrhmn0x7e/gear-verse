@@ -225,7 +225,7 @@ export function BrandsCommand({
     trpc.admin.brands.mutations.delete.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.infiniteQueryFilter(),
+          trpc.admin.brands.queries.getPage.pathFilter(),
         );
       },
       onError: () => {

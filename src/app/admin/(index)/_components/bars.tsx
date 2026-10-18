@@ -50,11 +50,11 @@ export function Bars({
               className={cn(
                 "w-full rounded-t-[3px]",
                 bucket.value > 0
-                  ? "bg-muted-foreground"
+                  ? "bg-chart-bar"
                   : "bg-border h-px rounded-none",
                 interactive &&
                   bucket.value > 0 &&
-                  "group-hover/bar:bg-foreground group-focus-visible/bar:bg-foreground",
+                  "group-hover/bar:bg-chart-bar-hover group-focus-visible/bar:bg-chart-bar-hover",
                 interactive &&
                   "group-focus-visible/bar:outline-focus group-focus-visible/bar:outline-2 group-focus-visible/bar:outline-offset-2",
                 barClassName,

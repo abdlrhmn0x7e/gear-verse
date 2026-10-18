@@ -20,8 +20,13 @@ import { useTRPC } from "~/trpc/client";
 export function DeleteAttributeAlertDialog({
   id,
   slug,
+  name,
   ...props
-}: { id: number; slug: string } & React.ComponentProps<typeof AlertDialog>) {
+}: {
+  id: number;
+  slug: string;
+  name: string;
+} & React.ComponentProps<typeof AlertDialog>) {
   const trpc = useTRPC();
   const { deleteElements } = useReactFlow();
   const queryClient = useQueryClient();
@@ -55,7 +60,7 @@ export function DeleteAttributeAlertDialog({
           size="icon-xs"
           className="focus-visible:ring-0"
           disabled={isPending}
-          aria-label="Delete attribute"
+          aria-label={`Delete ${name}`}
         >
           <Trash2Icon />
         </Button>

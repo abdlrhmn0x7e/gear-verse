@@ -1,7 +1,7 @@
 "use client";
 
 import { SaveIcon } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
@@ -40,11 +40,12 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useTRPC } from "~/trpc/client";
 import { OrderForm, type OrderFormValues } from "../../_components/forms/order";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 
 export function EditOrderDrawer() {
   const trpc = useTRPC();
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
 
   const [params, setParams] = useOrderSearchParams();
 
@@ -62,28 +63,15 @@ export function EditOrderDrawer() {
   const { mutate: updateOrder, isPending: isUpdatingOrder } = useMutation(
     trpc.admin.orders.mutations.update.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
-        );
-        void queryClient.invalidateQueries(
-          trpc.admin.inventoryItems.queries.getPage.infiniteQueryFilter(),
-        );
-
-        if (params.editId) {
-          void queryClient.invalidateQueries(
-            trpc.admin.orders.queries.findById.queryFilter({
-              id: params.editId,
-            }),
-          );
-        }
-
+        void refreshOrderViews();
         toast.success("Order updated successfully");
         void setParams({ editId: null });
       },
 
-      onError: () => {
+      onError: (error) => {
         toast.error(
-          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+          error.message ||
+            "Couldn't save the order. Check each item has enough stock.",
         );
       },
     }),

@@ -38,7 +38,8 @@ export function VariantForm({
   defaultValues,
   isSubmitting = false,
 }: {
-  onSubmit: (data: VariantFormValues) => void;
+  /** The form counts as saved once this resolves; a rejection keeps the edits. */
+  onSubmit: (data: VariantFormValues) => void | Promise<unknown>;
   className?: string;
   isSubmitting?: boolean;
   defaultValues?: Partial<VariantFormValues>;
@@ -57,9 +58,13 @@ export function VariantForm({
   }
 
   function handleSave() {
-    void form.handleSubmit((data) => {
-      onSubmit(data);
-      form.reset(data);
+    void form.handleSubmit(async (data) => {
+      try {
+        await onSubmit(data);
+        form.reset(data);
+      } catch {
+        // the caller reports the failure; the unsaved changes stay up
+      }
     })();
   }
 
@@ -82,7 +87,10 @@ export function VariantForm({
     <>
       <FormProvider {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSave();
+          }}
           className={cn("space-y-4", className)}
         >
           <Card>
@@ -95,7 +103,7 @@ export function VariantForm({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel>Override Price</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Override Price</FieldLabel>
 
                     <NumberInput
                       id={field.name}
@@ -132,6 +140,7 @@ export function VariantForm({
                               fieldState.invalid && "border-destructive",
                             )}
                             data-invalid={fieldState.invalid}
+                            aria-label="Change thumbnail"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <ImageWithFallback
@@ -172,7 +181,9 @@ export function VariantForm({
                     name={`options.${index}.${key}.value`}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel className="capitalize">{key}</FieldLabel>
+                        <FieldLabel htmlFor={field.name} className="capitalize">
+                          {key}
+                        </FieldLabel>
                         <Input
                           id={field.name}
                           aria-invalid={fieldState.invalid}

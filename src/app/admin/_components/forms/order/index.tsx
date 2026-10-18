@@ -294,6 +294,7 @@ export function OrderForm({
                     </TableCell>
                     <TableCell>
                       <Button
+                        type="button"
                         variant="destructive-outline"
                         size="icon"
                         aria-label="Remove item"

@@ -83,7 +83,7 @@ export function AttributeCombobox({
         onValueChange={(value) =>
           onValueChange(value.map((val) => parseInt(val)))
         }
-        className="w-full p-0"
+        className="w-full min-w-0 p-0"
         multiple
         autoHighlight
         disabled
@@ -110,7 +110,7 @@ export function AttributeCombobox({
         onValueChange={(value) =>
           onValueChange(value.map((val) => parseInt(val)))
         }
-        className="w-full p-0"
+        className="w-full min-w-0 p-0"
         multiple
         autoHighlight
         disabled
@@ -139,18 +139,19 @@ export function AttributeCombobox({
     <Combobox
       value={comboboxValues}
       onValueChange={handleChange}
-      className="w-full p-0"
+      className="w-full min-w-0 p-0"
       multiple
       autoHighlight
     >
       <ComboboxAnchor className="h-full flex-wrap px-2 py-0">
-        <ComboboxBadgeList>
+        <ComboboxBadgeList className="max-w-full min-w-0">
           {value.map((item) => {
             const att = attributes?.find((att) => att.valueId === item);
             if (!att) return null;
 
             return (
               <ComboboxBadgeItem
+                className="max-w-full"
                 key={`${att.value}-${att.name}`}
                 value={`${att.name}-${att.value}-${att.valueId.toString()}`}
               >

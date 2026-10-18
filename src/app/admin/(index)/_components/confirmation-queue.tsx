@@ -1,11 +1,7 @@
 "use client";
 
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleCheckIcon, ClockIcon, PhoneIcon, TruckIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -25,6 +21,7 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 import {
   firstName,
   formatAge,
@@ -181,15 +178,12 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
 
 function MarkShippedButton({ order }: { order: PendingOrder }) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const refreshOrderViews = useRefreshOrderViews();
   const { mutate, isPending } = useMutation(
     trpc.admin.orders.mutations.update.mutationOptions({
       onSuccess: () => {
         toast.success(`Order #${order.id} marked as shipped`);
-        void queryClient.invalidateQueries(trpc.admin.dashboard.pathFilter());
-        void queryClient.invalidateQueries(
-          trpc.admin.orders.queries.getPage.infiniteQueryFilter(),
-        );
+        void refreshOrderViews();
       },
       onError: () => {
         toast.error(`Couldn't mark order #${order.id} as shipped. Try again.`);

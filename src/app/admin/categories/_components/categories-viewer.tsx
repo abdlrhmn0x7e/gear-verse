@@ -156,9 +156,7 @@ export function CategoriesViewer() {
   const { mutate: updateCategoryParent } = useMutation(
     trpc.admin.categories.mutations.update.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.categories.queries.findAll.infiniteQueryFilter(),
-        );
+        void queryClient.invalidateQueries(trpc.admin.categories.pathFilter());
       },
     }),
   );

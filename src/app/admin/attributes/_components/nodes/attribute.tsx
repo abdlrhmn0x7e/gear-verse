@@ -46,13 +46,14 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
         >
           <Badge
             onClick={(e) => e.stopPropagation()}
-            className="absolute -top-7 left-1/2 max-h-6 -translate-x-1/2 px-1 text-xs font-medium opacity-0 transition-opacity group-hover:opacity-100"
+            className="absolute -top-7 left-1/2 max-h-6 -translate-x-1/2 px-1 text-xs font-medium opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
             variant="outline"
           >
             <EditAttributeDialog attribute={props.data} />
             <DeleteAttributeAlertDialog
               id={props.data.id}
               slug={props.data.slug}
+              name={props.data.name}
             />
           </Badge>
           <IconKeyframe className="text-muted-foreground size-4 shrink-0" />

@@ -74,7 +74,10 @@ export function CategoryForm({
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-16 [&>span>div>span]:hidden">
+                    <SelectTrigger
+                      aria-label="Category icon"
+                      className="w-16 gap-1 px-3 [&>span>div>span]:hidden"
+                    >
                       <SelectValue placeholder="Select an icon" />
                     </SelectTrigger>
                   </FormControl>

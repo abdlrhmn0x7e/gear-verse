@@ -1,69 +1,90 @@
-import { useMutation } from "@tanstack/react-query";
 import {
   BaseEdge,
   EdgeLabelRenderer,
   getStraightPath,
+  useNodesData,
   useReactFlow,
-  type EdgeComponentProps,
+  type EdgeProps,
 } from "@xyflow/react";
-import { useTRPC } from "~/trpc/client";
+import { useState } from "react";
 
 import { XIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
+/**
+ * A connection between an attribute and a category. Its remove button stays
+ * out of the way until the edge is hovered or selected, or the button itself
+ * takes keyboard focus. Removing goes through React Flow, so the canvas's
+ * `onEdgesDelete` disconnects it on the server like the Backspace key does.
+ */
 export function CustomEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
   targetY,
-}: EdgeComponentProps) {
-  const trpc = useTRPC();
+  selected,
+}: EdgeProps) {
   const { deleteElements } = useReactFlow();
+  const [hovered, setHovered] = useState(false);
+  const [attribute, category] = useNodesData([source, target]);
   const [edgePath, labelX, labelY] = getStraightPath({
     sourceX,
     sourceY,
     targetX,
     targetY,
   });
-  const { mutate: disconnect } = useMutation(
-    trpc.admin.attributes.mutations.disconnect.mutationOptions(),
-  );
 
-  function handleDelete() {
-    const attributeId = Number(id?.split("-")?.[2]);
-    const categoryId = Number(id?.split("-")?.[4]);
-
-    if (!attributeId || !categoryId) {
-      return;
-    }
-
-    disconnect({
-      attributeId,
-      categoryId,
-    });
-    void deleteElements({ edges: [{ id: id ?? "edge" }] });
-  }
+  const attributeName = (attribute?.data as { name?: string } | undefined)
+    ?.name;
+  const categoryName = (category?.data as { name?: string } | undefined)?.name;
 
   return (
     <>
-      <BaseEdge id={id} path={edgePath} />
+      <BaseEdge id={id} path={edgePath} interactionWidth={0} />
+      {/* a wider invisible line, so the edge is easy to hover */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        className="react-flow__edge-interaction"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      />
       <EdgeLabelRenderer>
-        <Button
-          variant="destructive"
-          size="icon-xs"
-          className="size-4"
-          aria-label="Remove connection"
-          onClick={handleDelete}
+        <div
+          className="nodrag nopan absolute"
           style={{
-            position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-            zIndex: 50,
             pointerEvents: "all",
+            // above the edges' hit paths
+            zIndex: 50,
           }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         >
-          <XIcon />
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xs"
+            className={cn(
+              "bg-popover text-muted-foreground hover:text-destructive relative size-5 rounded-full opacity-0 transition-opacity after:absolute after:-inset-1 focus:opacity-100 [&_svg:not([class*='size-'])]:size-3",
+              (hovered || selected) && "opacity-100",
+            )}
+            aria-label={
+              attributeName && categoryName
+                ? `Remove ${attributeName} from ${categoryName}`
+                : "Remove connection"
+            }
+            onClick={() => void deleteElements({ edges: [{ id }] })}
+          >
+            <XIcon />
+          </Button>
+        </div>
       </EdgeLabelRenderer>
     </>
   );
