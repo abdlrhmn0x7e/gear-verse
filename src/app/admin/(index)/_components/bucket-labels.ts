@@ -21,7 +21,7 @@ export function bucketLabel(key: string, style: "long" | "short" = "long") {
   if (hour !== undefined) {
     const time = `${hour}:00`;
     return style === "long"
-      ? `${time}–${String(Number(hour) + 1).padStart(2, "0")}:00`
+      ? `${time} to ${String(Number(hour) + 1).padStart(2, "0")}:00`
       : hour;
   }
 

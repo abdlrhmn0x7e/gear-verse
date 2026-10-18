@@ -154,7 +154,7 @@ export function ProductsCombobox({
         </Avatar>
         <span className="truncate">
           {item?.title}{" "}
-          {item.values.length > 0 ? `– ${item.values.join(", ")}` : ""}
+          {item.values.length > 0 ? `· ${item.values.join(", ")}` : ""}
         </span>
       </div>
     );
