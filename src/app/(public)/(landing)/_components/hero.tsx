@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "~/components/features/products/product-card";
 import {
@@ -26,24 +26,29 @@ export async function Hero() {
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
             <p className="text-muted-foreground text-body-lg max-w-xl text-pretty md:text-xl/relaxed">
               A short list of keyboards, mice and IEMs we&apos;d buy ourselves,
-              delivered in 1–2 days. Not on the shelf?{" "}
-              <Link
-                href="/#request"
-                className="text-foreground underline decoration-from-font underline-offset-4"
-              >
-                We&apos;ll get it for you
-              </Link>
-              .
+              delivered in 1–2 days. Not on the shelf? We&apos;ll get it for
+              you.
             </p>
-            <Button
-              size="xl"
-              className="shrink-0"
-              nativeButton={false}
-              render={<Link href="/products" />}
-            >
-              Shop the shelf
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
+            <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row">
+              <Button
+                size="xl"
+                nativeButton={false}
+                render={<Link href="/products" />}
+              >
+                Shop the shelf
+                <ArrowRightIcon data-icon="inline-end" />
+              </Button>
+              {/* jumps down to the request form, so it points down rather than onward */}
+              <Button
+                variant="outline"
+                size="xl"
+                nativeButton={false}
+                render={<Link href="/#request" />}
+              >
+                Request an item
+                <ArrowDownIcon data-icon="inline-end" />
+              </Button>
+            </div>
           </div>
         </div>
 
