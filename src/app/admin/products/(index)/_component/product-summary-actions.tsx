@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useDialog } from "~/hooks/use-dialog";
+import { cn } from "~/lib/utils";
 
 export function ProductSummaryActions({
   id,
@@ -76,7 +77,7 @@ export function ProductSummaryActions({
 
       {/* drafts 404 on the store, so there is nothing to view yet */}
       {published && (
-        <Button variant="outline" className="ms-auto" asChild>
+        <Button variant="outline" className="ms-auto max-sm:flex-1" asChild>
           <Link href={storePath} target="_blank" rel="noopener">
             View on store
             <ArrowUpRightIcon data-icon="inline-end" />
@@ -84,7 +85,8 @@ export function ProductSummaryActions({
         </Button>
       )}
 
-      <Button className={published ? undefined : "ms-auto"} asChild>
+      {/* on a phone the three don't fit one row, so Edit wraps to a full-width row of its own */}
+      <Button className={cn("max-sm:flex-1", !published && "ms-auto")} asChild>
         <Link href={`/admin/products/${id}`}>
           <PencilIcon data-icon="inline-start" />
           Edit product

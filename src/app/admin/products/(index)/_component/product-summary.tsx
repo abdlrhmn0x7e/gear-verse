@@ -130,7 +130,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
             {product.published ? (
               <Badge variant="success">Published</Badge>
             ) : (
-              <Badge variant="secondary">Draft</Badge>
+              <Badge variant="outline">Draft</Badge>
             )}
             {!hasVariants && outCount > 0 ? (
               <Badge variant="error">
