@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, LockIcon, ShoppingBagIcon } from "lucide-react";
+import { ArrowRightIcon, LockIcon, ShoppingBagIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useTRPC } from "~/trpc/client";
 import { Button } from "./ui/button";
@@ -107,7 +107,20 @@ export function CartDrawer({
       )}
 
       <DrawerContent className="p-6">
-        <DrawerHeader className="px-2 pt-2 md:text-left">
+        <DrawerHeader className="relative px-2 pt-2 md:text-left">
+          {/* a side drawer has no handle to swipe, so it needs a visible way out */}
+          {!isMobile && (
+            <DrawerClose asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Close cart"
+                className="absolute top-1 right-0"
+              >
+                <XIcon />
+              </Button>
+            </DrawerClose>
+          )}
           <DrawerTitle className="text-title">Your cart</DrawerTitle>
           <DrawerDescription>
             {isPendingCart
