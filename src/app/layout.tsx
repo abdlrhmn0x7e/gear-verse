@@ -72,7 +72,7 @@ export default function RootLayout({
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
           >
