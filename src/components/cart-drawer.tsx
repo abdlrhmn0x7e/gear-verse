@@ -92,7 +92,7 @@ export function CartDrawer({
         </DrawerTrigger>
       )}
 
-      <DrawerContent className="p-6 sm:max-w-md">
+      <DrawerContent className="p-6">
         <DrawerHeader className="px-2 pt-2 md:text-left">
           <DrawerTitle className="text-title">Your cart</DrawerTitle>
           <DrawerDescription>
