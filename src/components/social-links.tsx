@@ -39,12 +39,15 @@ const SOCIAL_ICONS: { field: SocialField; icon: typeof IconBrandInstagram }[] =
     { field: "discordUrl", icon: IconBrandDiscord },
   ];
 
-/** An icon button per social link the store has filled in; nothing when none are. */
+/** An icon button per social link the store has filled in; nothing when none are. `ghost` is for menus, where the
+ * icons are a footnote rather than a row of outlined controls. */
 export function SocialLinks({
   links,
+  variant = "outline",
   className,
 }: {
   links: SocialLinksSettings;
+  variant?: "outline" | "ghost";
   className?: string;
 }) {
   const filled = SOCIAL_ICONS.flatMap(({ field, icon }) => {
@@ -59,8 +62,9 @@ export function SocialLinks({
       {filled.map((link) => (
         <li key={link.url}>
           <Button
-            variant="outline"
+            variant={variant}
             size="icon-lg"
+            className={cn(variant === "ghost" && "text-muted-foreground")}
             nativeButton={false}
             render={
               <a
