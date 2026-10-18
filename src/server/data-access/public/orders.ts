@@ -43,7 +43,7 @@ export const _orders = {
           productVariants,
           eq(orderItems.productVariantId, productVariants.id),
         )
-        .leftJoin(products, eq(productVariants.productId, products.id))
+        .leftJoin(products, eq(orderItems.productId, products.id))
         .where(and(...whereClause))
         .limit(pageSize)
         .orderBy(desc(orders.id))

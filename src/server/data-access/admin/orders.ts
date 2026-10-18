@@ -61,7 +61,7 @@ export const _orders = {
             productVariants,
             eq(orderItems.productVariantId, productVariants.id),
           )
-          .leftJoin(products, eq(productVariants.productId, products.id))
+          .leftJoin(products, eq(orderItems.productId, products.id))
           .groupBy(orders.id),
       );
 
