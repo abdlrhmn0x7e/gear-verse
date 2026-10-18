@@ -1,4 +1,5 @@
 import z from "zod";
+import { userRoles } from "../contracts/admin/users";
 
 export const userEntitySchema = z.object({
   id: z.number("ID must be a number").positive("ID must be positive"),
@@ -7,7 +8,7 @@ export const userEntitySchema = z.object({
   email: z.email("Email is required"),
   image: z.url("Image is required").nullish(),
 
-  role: z.enum(["user", "admin", "superadmin"]),
+  role: z.enum(userRoles),
 
   banned: z.boolean("Banned is required"),
   banReason: z.string("Ban reason is required").nullish(),
@@ -20,17 +21,21 @@ export const userEntitySchema = z.object({
 });
 export type User = z.infer<typeof userEntitySchema>;
 
-export const createUserInputSchema = userEntitySchema.omit({
-  id: true,
-  image: true,
+export const createUserInputSchema = userEntitySchema
+  .omit({
+    id: true,
+    image: true,
 
-  banned: true,
-  banReason: true,
-  banExpiresAt: true,
+    banned: true,
+    banReason: true,
+    banExpiresAt: true,
 
-  createdAt: true,
-  updatedAt: true,
-});
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    role: userEntitySchema.shape.role.default("user"),
+  });
 export type CreateUserInput = z.infer<typeof createUserInputSchema>;
 
 export const updateUserInputSchema = createUserInputSchema.partial();
