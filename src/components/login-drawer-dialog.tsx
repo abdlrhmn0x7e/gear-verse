@@ -45,7 +45,7 @@ export function LoginDrawerDialog({
         <DrawerDialogHeader className="gap-1">
           <Logo className="mx-auto mb-2 h-16" />
           <DrawerDialogTitle className="text-center text-2xl">
-            Welcome to GearVerse
+            Welcome to Gear Verse
           </DrawerDialogTitle>
           <DrawerDialogDescription className="text-center">
             Sign in/up to your account

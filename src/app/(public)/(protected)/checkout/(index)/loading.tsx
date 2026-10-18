@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Heading } from "~/components/heading";
-import { SparklesIcon } from "lucide-react";
 import { CheckoutFormSkeleton } from "./_components/checkout-form";
 
 export default function CheckoutLoading() {
@@ -13,13 +12,9 @@ export default function CheckoutLoading() {
       <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
         {/* Left Side - Form and Mobile Order Summary */}
         <div className="space-y-4 xl:col-span-2">
-          <div className="flex items-center gap-2">
-            <SparklesIcon className="mb-1 size-6" />
-
-            <Heading level={3} className="text-lg md:text-xl">
-              Gear Verse
-            </Heading>
-          </div>
+          <h1 className="text-headline-sm md:text-display-sm text-balance">
+            Checkout
+          </h1>
           {/* Checkout Form Skeleton */}
           <div className="space-y-4">
             <Heading level={2}>Your Details</Heading>

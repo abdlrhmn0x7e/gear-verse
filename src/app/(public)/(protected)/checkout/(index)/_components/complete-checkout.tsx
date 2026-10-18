@@ -2,7 +2,7 @@
 
 import { Button } from "~/components/ui/button";
 import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
-import { LockIcon, SparklesIcon } from "lucide-react";
+import { LockIcon } from "lucide-react";
 import { Heading } from "~/components/heading";
 import { useTRPC } from "~/trpc/client";
 import Link from "next/link";
@@ -47,13 +47,9 @@ export function CompleteCheckout({
 
   return (
     <div className={cn("relative flex flex-col gap-4", className)}>
-      <div className="flex items-center gap-2">
-        <SparklesIcon className="mb-1 size-6" />
-
-        <Heading level={3} className="text-lg md:text-xl">
-          Gear Verse
-        </Heading>
-      </div>
+      <h1 className="text-headline-sm md:text-display-sm text-balance">
+          Checkout
+        </h1>
 
       <div className="flex flex-1 flex-col gap-4">
         <div
