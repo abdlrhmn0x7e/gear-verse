@@ -56,10 +56,6 @@ export function CartDrawer({
     trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess }),
   );
 
-  if (isPendingCart) {
-    return <Skeleton className="size-10 rounded-full" />;
-  }
-
   // without a session there is no cart; the button stays so the way to the cart never disappears
   const items = cart?.items ?? [];
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -80,7 +76,11 @@ export function CartDrawer({
           <Button
             variant="ghost"
             size="icon-lg"
-            aria-label={`Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+            aria-label={
+              isPendingCart
+                ? "Cart"
+                : `Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+            }
           >
             <ShoppingBagIcon />
             {itemCount > 0 && (
@@ -96,13 +96,27 @@ export function CartDrawer({
         <DrawerHeader className="px-2 pt-2 md:text-left">
           <DrawerTitle className="text-title">Your cart</DrawerTitle>
           <DrawerDescription>
-            {itemCount === 0
-              ? "Nothing here yet."
-              : `${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+            {isPendingCart
+              ? "Loading your cart…"
+              : itemCount === 0
+                ? "Nothing here yet."
+                : `${itemCount} ${itemCount === 1 ? "item" : "items"}`}
           </DrawerDescription>
         </DrawerHeader>
 
-        {items.length > 0 ? (
+        {isPendingCart ? (
+          <div className="flex-1 divide-y px-2" aria-hidden>
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div key={index} className="flex gap-4 py-4">
+                <Skeleton className="size-20 shrink-0 rounded-xl" />
+                <div className="flex flex-1 flex-col gap-2 pt-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : items.length > 0 ? (
           <ul className="min-h-0 flex-1 divide-y overflow-y-auto px-2">
             {items.map((item) => {
               const name = item.title ?? "this item";
