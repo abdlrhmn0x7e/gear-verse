@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import {
   Accordion,
   AccordionContent,
@@ -8,18 +9,32 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { getStoreSettings } from "~/lib/store-settings";
+import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
+
+const inlineLinkClassName =
+  "text-foreground underline decoration-from-font underline-offset-4";
 
 const POLICY_LINK = (
-  <Link
-    href="/returns"
-    className="text-foreground underline decoration-from-font underline-offset-4"
-  >
+  <Link href="/returns" className={inlineLinkClassName}>
     Returns &amp; Refunds Policy
   </Link>
 );
 
 export async function FAQ() {
-  const { discordUrl } = await getStoreSettings();
+  const { discordUrl, whatsappNumber } = await getStoreSettings();
+
+  /** " on WhatsApp at +20 …", where a policy answer says to report a problem */
+  const onWhatsApp = whatsappNumber && (
+    <>
+      {" "}
+      on WhatsApp at{" "}
+      <WhatsAppNumberLink
+        number={whatsappNumber}
+        message={REPORT_ISSUE_MESSAGE}
+        className={`${inlineLinkClassName} tabular-nums`}
+      />
+    </>
+  );
   const faq: { question: string; answer: ReactNode }[] = [
     {
       question: "What is Gear Verse?",
@@ -29,7 +44,7 @@ export async function FAQ() {
     {
       question: "Do you deliver anywhere in Egypt?",
       answer:
-        "Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see \"How do I pay?\" below for how the fee is confirmed and paid.",
+        'Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see "How do I pay?" below for how the fee is confirmed and paid.',
     },
     {
       question: "How do I pay?",
@@ -41,12 +56,12 @@ export async function FAQ() {
       answer: (
         <>
           We accept a return and refund only when a product arrives defective or
-          damaged, or has a problem caused by us. Report the issue within 24
-          hours of opening the product and send photos or videos of it. Once our
-          team inspects the product and approves the return, we&apos;ll collect
-          it and process your refund within 7 days. We can&apos;t take back a
-          product that was opened and has no defect. Read the full {POLICY_LINK}
-          .
+          damaged, or has a problem caused by us. Report the issue
+          {onWhatsApp} within 24 hours of opening the product and send photos or
+          videos of it. Once our team inspects the product and approves the
+          return, we&apos;ll collect it and process your refund within 7 days.
+          We can&apos;t take back a product that was opened and has no defect.
+          Read the full {POLICY_LINK}.
         </>
       ),
     },
@@ -69,11 +84,11 @@ export async function FAQ() {
       question: "What if I receive a damaged or defective product?",
       answer: (
         <>
-          Report it to us within 24 hours of opening the product, with photos or
-          videos showing the problem. Our team will inspect the product and
-          verify the issue; once we approve it, we&apos;ll arrange to collect
-          the product and process your refund within 7 days of approval. See our{" "}
-          {POLICY_LINK} for the details.
+          Report it to us{onWhatsApp} within 24 hours of opening the product,
+          with photos or videos showing the problem. Our team will inspect the
+          product and verify the issue; once we approve it, we&apos;ll arrange
+          to collect the product and process your refund within 7 days of
+          approval. See our {POLICY_LINK} for the details.
         </>
       ),
     },

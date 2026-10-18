@@ -13,6 +13,10 @@ export function formatWhatsAppNumber(number: string) {
   return `+20 ${network} ${first} ${second}`;
 }
 
+/** Typed into the chat when a customer reports a defective or damaged product. */
+export const REPORT_ISSUE_MESSAGE =
+  "Hi Gear Verse, I'd like to report a problem with a product from my order.";
+
 /**
  * The wa.me link that opens a chat with a number, with `message` typed in
  * when given. wa.me wants the digits only, no "+".

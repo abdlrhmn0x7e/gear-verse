@@ -7,7 +7,7 @@ import {
 import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, type JSX } from "react";
+import { Suspense, type JSX, type ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -29,6 +29,7 @@ import {
 import { env } from "~/env";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { getStoreSettings } from "~/lib/store-settings";
+import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
@@ -41,34 +42,65 @@ import { ProductRow, ProductRowItem, StoreTile } from "./product-row";
 import { ProductVariantSelector } from "./product-variant-selector";
 import { PurchasePanel } from "./purchase-panel";
 
-/** Condensed from the FAQ answers, so the product page repeats policies the store already states. */
-const POLICY_ROWS: {
+const inlineLinkClassName =
+  "text-foreground underline decoration-from-font underline-offset-4";
+
+/**
+ * Condensed from the FAQ answers, so the product page repeats policies the
+ * store already states. With a WhatsApp number, the returns row says where to
+ * report a problem.
+ */
+function policyRows(whatsappNumber: string | null): {
   value: string;
   icon: LucideIcon;
   title: string;
-  body: string;
+  body: ReactNode;
   link?: { href: string; label: string };
-}[] = [
-  {
-    value: "delivery",
-    icon: PackageIcon,
-    title: "Delivery",
-    body: "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
-  },
-  {
-    value: "authenticity",
-    icon: AwardIcon,
-    title: "Authenticity & warranty",
-    body: "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
-  },
-  {
-    value: "returns",
-    icon: Undo2Icon,
-    title: "Returns & refunds",
-    body: "We refund a product only if it arrives defective or damaged, or has a problem caused by us. Report it within 24 hours of opening, with photos or videos of the problem. Once our team inspects it and approves the return, we collect the product and process your refund within 7 days.",
-    link: { href: "/returns", label: "Read the full Returns & Refunds Policy" },
-  },
-];
+}[] {
+  return [
+    {
+      value: "delivery",
+      icon: PackageIcon,
+      title: "Delivery",
+      body: "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
+    },
+    {
+      value: "authenticity",
+      icon: AwardIcon,
+      title: "Authenticity & warranty",
+      body: "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
+    },
+    {
+      value: "returns",
+      icon: Undo2Icon,
+      title: "Returns & refunds",
+      body: (
+        <>
+          We refund a product only if it arrives defective or damaged, or has a
+          problem caused by us. Report it
+          {whatsappNumber && (
+            <>
+              {" "}
+              on WhatsApp at{" "}
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                message={REPORT_ISSUE_MESSAGE}
+                className={`${inlineLinkClassName} tabular-nums`}
+              />
+            </>
+          )}{" "}
+          within 24 hours of opening, with photos or videos of the problem. Once
+          our team inspects it and approves the return, we collect the product
+          and process your refund within 7 days.
+        </>
+      ),
+      link: {
+        href: "/returns",
+        label: "Read the full Returns & Refunds Policy",
+      },
+    },
+  ];
+}
 
 export async function ProductDetails({
   slug,
@@ -194,7 +226,7 @@ export async function ProductDetails({
             <PayOnDelivery className="px-1" />
 
             <Accordion type="single" collapsible className="border-t">
-              {POLICY_ROWS.map((row) => (
+              {policyRows(whatsappNumber).map((row) => (
                 <AccordionItem key={row.value} value={row.value}>
                   <AccordionTrigger>
                     <span className="flex items-center gap-3">
@@ -213,7 +245,7 @@ export async function ProductDetails({
                       <p>
                         <Link
                           href={row.link.href}
-                          className="text-foreground underline decoration-from-font underline-offset-4"
+                          className={inlineLinkClassName}
                         >
                           {row.link.label}
                         </Link>

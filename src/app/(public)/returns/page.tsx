@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
+import { getStoreSettings } from "~/lib/store-settings";
+import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Gear Verse | Returns & Refunds Policy",
@@ -7,7 +10,9 @@ export const metadata: Metadata = {
     "We refund products that arrive defective or damaged when you report the issue within 24 hours of opening.",
 };
 
-export default function ReturnsPage() {
+export default async function ReturnsPage() {
+  const { whatsappNumber } = await getStoreSettings();
+
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
       <header className="max-w-2xl">
@@ -59,6 +64,22 @@ export default function ReturnsPage() {
           We may decline any return that doesn&apos;t meet the conditions above.
           By placing an order, you agree to this policy.
         </p>
+
+        {whatsappNumber && (
+          <>
+            <h2>How to report an issue</h2>
+            <p>
+              Report it on WhatsApp at{" "}
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                message={REPORT_ISSUE_MESSAGE}
+                className="tabular-nums"
+              />{" "}
+              within 24 hours of opening the product, with photos or videos
+              showing the problem.
+            </p>
+          </>
+        )}
       </article>
     </MaxWidthWrapper>
   );
