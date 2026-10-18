@@ -32,7 +32,7 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
       className={cn(
         "pointer-events-none fixed inset-x-4 bottom-4 z-50 mx-auto w-auto max-w-sm outline-none sm:right-6 sm:bottom-6 sm:left-auto sm:mx-0 sm:w-full",
         // An admin save bar pins itself to the bottom of the page; toasts stack above it rather than over its buttons.
-        "transition-[bottom] duration-200 ease-out [body:has([data-slot=save-bar])_&]:bottom-20 sm:[body:has([data-slot=save-bar])_&]:bottom-22",
+        "transition-[bottom] duration-200 ease-out [body:has([data-slot=save-bar])_&]:bottom-20 sm:[body:has([data-slot=save-bar])_&]:bottom-28",
         className,
       )}
       {...props}
@@ -265,11 +265,13 @@ function show(
   return toastManager.add({
     type,
     title,
+    // Re-showing an id merges into the toast that is up, so everything is
+    // spelled out: a loading toast's description doesn't linger on its
+    // success, and the countdown it turned off comes back.
+    description: undefined,
+    timeout: type === "loading" ? 0 : TOAST_TIMEOUT,
     // errors interrupt a screen reader; the rest wait their turn
     priority: type === "error" ? "high" : "low",
-    // Spelled out on every call: re-adding a loading toast's id as a success
-    // or error has to bring back the countdown the loading state turned off.
-    timeout: type === "loading" ? 0 : TOAST_TIMEOUT,
     ...options,
   });
 }
