@@ -17,10 +17,6 @@ export const _categories = {
       return data.public.categories.queries.findAllSlugs();
     },
 
-    findWithLiveProducts: async () => {
-      return data.public.categories.queries.findWithLiveProducts();
-    },
-
     findRoots: async () => {
       const { data: roots, error } = await tryCatch(
         data.public.categories.queries.getRoots(),

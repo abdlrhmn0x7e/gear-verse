@@ -131,7 +131,6 @@ export const _categories = {
      * of its sub-categories.
      */
     async findWithLiveProducts() {
-      // raw rows keep timestamps as strings
       return db.execute<{ id: number; slug: string; updatedAt: string }>(sql`
         WITH RECURSIVE subtree AS (
           SELECT id AS root_id, id FROM ${categories}
@@ -142,7 +141,12 @@ export const _categories = {
           FROM ${categories} AS child
           INNER JOIN subtree ON child.parent_id = subtree.id
         )
-        SELECT c.id, c.slug, c.updated_at AS "updatedAt"
+        SELECT
+          c.id,
+          c.slug,
+          -- ISO in UTC, as drizzle reads these columns; the raw string would
+          -- be parsed as local time
+          to_char(c.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "updatedAt"
         FROM ${categories} AS c
         WHERE EXISTS (
           SELECT 1

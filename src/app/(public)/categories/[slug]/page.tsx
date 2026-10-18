@@ -6,8 +6,8 @@ import { CategoryChips } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Skeleton } from "~/components/ui/skeleton";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
-import { findLiveCategories } from "~/lib/seo/live-categories";
 import { pageMetadata } from "~/lib/seo/metadata";
+import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
 import { app } from "~/server/application";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
@@ -37,16 +37,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const [{ category }, liveCategories] = await Promise.all([
+  const [{ category }, indexable] = await Promise.all([
     findCategoryBySlug(slug),
-    findLiveCategories(),
+    findSitemapEntries(),
   ]);
   if (!category) {
     notFound();
   }
 
   const title = `${category.name}: Imported, Delivered in Egypt`;
-  const isEmpty = !liveCategories.some((live) => live.slug === slug);
+  const isEmpty = !indexable.categories.some((live) => live.slug === slug);
 
   return {
     title,
