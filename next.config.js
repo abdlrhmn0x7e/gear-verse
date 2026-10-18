@@ -13,6 +13,9 @@ const config = {
   reactCompiler: true,
   experimental: {
     turbopackRustReactCompiler: true,
+    // On Vercel the restored Turbopack build cache recompiled from cold anyway (72s for a 4-file change, 3.2s locally),
+    // so it only added ~16s of compaction before deploy and a 936 MB cache upload after. Dev keeps its cache.
+    turbopackFileSystemCacheForBuild: false,
   },
   typescript: {
     ignoreBuildErrors: true,
