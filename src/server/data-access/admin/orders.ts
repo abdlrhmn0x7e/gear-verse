@@ -449,6 +449,13 @@ export const _orders = {
 
     delete: async (id: number) => {
       return db.transaction(async (tx) => {
+        const order = await tx
+          .select({ status: orders.status })
+          .from(orders)
+          .where(eq(orders.id, id))
+          .limit(1)
+          .then(([res]) => res);
+
         const deleted = await tx
           .delete(orderItems)
           .where(eq(orderItems.orderId, id))
@@ -458,7 +465,9 @@ export const _orders = {
             quantity: orderItems.quantity,
           });
 
-        for (const item of deleted) {
+        // a cancelled order was already restocked when it was cancelled
+        const toRestock = order?.status === "CANCELLED" ? [] : deleted;
+        for (const item of toRestock) {
           const preds = [eq(inventoryItems.productId, item.productId)];
           if (item.productVariantId) {
             preds.push(
