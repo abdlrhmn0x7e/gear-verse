@@ -71,7 +71,7 @@ export function ReviewForm({
           }
         }}
       >
-        <div className="surface-control surface-field focus-within:outline-focus flex flex-col rounded-[24px] [--surface-radius:24px] focus-within:outline-2 focus-within:-outline-offset-1">
+        <div className="surface-control surface-field focus-within:outline-focus flex flex-col rounded-[24px] focus-within:outline-2 focus-within:-outline-offset-1">
           <FormField
             control={form.control}
             name="comment"

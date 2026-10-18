@@ -399,26 +399,17 @@
   }
 }
 
-/* Outlined controls and floating surfaces: hairline border, soft drop shadow and a 1px lip.
+/* Outlined controls and floating surfaces: a hairline border on a flat fill. Shadows only mark elevation, so controls
+   have none; floating layers (menus, popovers, dialogs) set --surface-shadow instead of shadow-*, since two utilities
+   writing box-shadow have no guaranteed order.
    Interactive states only apply to buttons and links, so popovers and dialogs stay static.
-   Floating surfaces set --surface-radius to match their rounded-* class (it shapes the lip),
-   and --surface-shadow instead of shadow-*, since two utilities writing box-shadow have no guaranteed order.
    Text fields add surface-field, which swaps the fill through --surface-fill for the same reason. */
 @utility surface-control {
   position: relative;
   border: 1px solid var(--input);
   background-color: var(--surface-fill, var(--popover));
   background-clip: padding-box;
-  box-shadow: var(--surface-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: calc(var(--surface-radius, 9999px) - 1px);
-    box-shadow: 0 1px rgb(0 0 0 / 0.04);
-  }
+  box-shadow: var(--surface-shadow, none);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:hover,
@@ -428,12 +419,6 @@
         color-mix(in oklab, var(--accent) 50%, var(--popover))
       );
     }
-    &:active {
-      box-shadow: none;
-    }
-    &:active::before {
-      box-shadow: none;
-    }
   }
 
   @variant dark {
@@ -441,10 +426,6 @@
       --surface-fill,
       color-mix(in oklab, var(--input) 32%, var(--background))
     );
-
-    &::before {
-      box-shadow: 0 -1px rgb(255 255 255 / 0.06);
-    }
 
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
       &:hover,
@@ -458,8 +439,8 @@
   }
 }
 
-/* Text fields, search and select triggers sit on the card surface; the border and shadow from surface-control
-   keep them readable when the field itself is placed on a card. */
+/* Text fields, search and select triggers sit on the card surface; the border from surface-control
+   keeps them readable when the field itself is placed on a card. */
 @utility surface-field {
   --surface-fill: var(--input-background);
   --surface-fill-hover: color-mix(
@@ -469,56 +450,31 @@
   );
 }
 
-/* Filled primary action: plum in both themes, so the white top highlight works in each. */
+/* Filled primary action: flat plum in both themes. No inset highlight either: the colour alone carries the emphasis. */
 @utility surface-solid {
   border: 1px solid var(--primary);
   background-color: var(--primary);
   color: var(--primary-foreground);
-  box-shadow:
-    inset 0 1px rgb(255 255 255 / 0.16),
-    0 1px 2px 0 color-mix(in oklab, var(--primary) 24%, transparent);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover {
-      border-color: var(--primary-hover);
-      background-color: var(--primary-hover);
-    }
+    &:hover,
     &:active {
       border-color: var(--primary-hover);
       background-color: var(--primary-hover);
-      box-shadow: none;
     }
-  }
-
-  @variant dark {
-    box-shadow:
-      inset 0 1px rgb(255 255 255 / 0.12),
-      0 1px 2px 0 rgb(0 0 0 / 0.4);
   }
 }
 
-/* Filled selection state for chips and option pickers. The dark fill is near-white, so it swaps the white highlight for a black shadow. */
+/* Filled selection state for chips and option pickers, flat like the primary. */
 @utility surface-selected {
   border: 1px solid var(--selected);
   background-color: var(--selected);
   color: var(--selected-foreground);
-  box-shadow:
-    inset 0 1px rgb(255 255 255 / 0.16),
-    0 1px 2px 0 color-mix(in oklab, var(--selected) 24%, transparent);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:hover {
       background-color: color-mix(in oklab, var(--selected) 90%, transparent);
     }
-    &:active {
-      box-shadow: none;
-    }
-  }
-
-  @variant dark {
-    box-shadow:
-      inset 0 1px rgb(0 0 0 / 0.06),
-      0 1px 2px 0 rgb(0 0 0 / 0.4);
   }
 }
 

@@ -41,13 +41,13 @@ export function ThemeSegmentedControl({ className }: { className?: string }) {
       value={theme}
       // a single toggle group can be cleared by pressing the active item; the theme always keeps a value
       onValueChange={(value) => value && setTheme(value)}
-      className={cn("bg-muted flex rounded-full p-1", className)}
+      className={cn("bg-accent flex rounded-full p-1", className)}
     >
       {THEME_OPTIONS.map((option) => (
         <ToggleGroup.Item
           key={option.value}
           value={option.value}
-          className="text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground focus-visible:outline-focus flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-[background-color,color,box-shadow] duration-150 outline-none focus-visible:outline-2 data-[state=on]:shadow-sm"
+          className="text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground focus-visible:outline-focus flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-[background-color,color] duration-150 outline-none focus-visible:outline-2"
         >
           <option.icon className="size-4" aria-hidden />
           {option.label}

@@ -124,7 +124,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "surface-control absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-radius:24px] [--surface-shadow:var(--shadow-xl)]",
+                "surface-control absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",

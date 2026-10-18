@@ -11,7 +11,7 @@ export function TrustPromiseItem({
 }) {
   return (
     <li className={cn("flex items-center gap-4", className)}>
-      <span className="bg-raised flex size-12 shrink-0 items-center justify-center rounded-lg shadow-xs">
+      <span className="bg-raised flex size-12 shrink-0 items-center justify-center rounded-lg">
         <promise.icon className="size-5" strokeWidth={1.5} aria-hidden />
       </span>
       <div className="min-w-0 space-y-0.5">
