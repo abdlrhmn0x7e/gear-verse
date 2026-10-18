@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navTextClassName =
-  "text-muted-foreground hover:text-foreground aria-[current=page]:text-foreground data-[state=open]:text-foreground inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "text-muted-foreground hover:text-foreground active:text-foreground aria-[current=page]:text-foreground data-[state=open]:text-foreground inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 function NavTextLink({
   href,

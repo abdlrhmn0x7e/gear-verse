@@ -87,7 +87,7 @@ export function MobileNav({
                   <Link
                     href={link.href}
                     onNavigate={drawer.dismiss}
-                    className="text-title focus-visible:outline-focus block rounded-md py-2 outline-none focus-visible:outline-2"
+                    className="text-title focus-visible:outline-focus block rounded-md py-2 transition-opacity duration-150 outline-none focus-visible:outline-2 active:opacity-60"
                   >
                     {link.title}
                   </Link>

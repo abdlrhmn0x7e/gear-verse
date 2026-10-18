@@ -35,7 +35,7 @@ export function ProductCard({
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col gap-4 rounded-3xl outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+      className="group focus-visible:outline-focus flex flex-col gap-4 rounded-3xl transition-[scale,opacity] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-4 motion-safe:active:scale-[0.98] motion-reduce:active:opacity-70"
     >
       <div className="image-well relative aspect-square overflow-hidden rounded-3xl">
         {discount > 0 && (
@@ -71,9 +71,7 @@ export function ProductCard({
           )}
         </p>
         {optionCount > 1 && (
-          <p className="text-muted-foreground text-sm">
-            {optionCount} options
-          </p>
+          <p className="text-muted-foreground text-sm">{optionCount} options</p>
         )}
       </div>
     </Link>

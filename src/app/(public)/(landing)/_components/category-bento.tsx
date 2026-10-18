@@ -48,7 +48,7 @@ export async function CategoryBento() {
                 <Link
                   href={`/categories/${category.slug}`}
                   className={cn(
-                    "bg-card group flex size-full flex-col gap-4 rounded-3xl p-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus md:p-5",
+                    "bg-card group focus-visible:outline-focus flex size-full flex-col gap-4 rounded-3xl p-4 transition-[scale,opacity] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-4 motion-safe:active:scale-[0.98] motion-reduce:active:opacity-70 md:p-5",
                     layout === "wide" && "sm:flex-row sm:items-stretch",
                   )}
                 >
