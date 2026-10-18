@@ -120,7 +120,12 @@ export const _users = {
     /** A registered user, for checks before changing them. */
     findRegisteredById: async (id: number) => {
       return db
-        .select({ id: users.id, role: users.role })
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+        })
         .from(users)
         .where(and(eq(users.id, id), isRegistered))
         .then(([user]) => user ?? null);

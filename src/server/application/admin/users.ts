@@ -63,8 +63,12 @@ export const _users = {
 
     /** A user's most recent orders, newest first. */
     getOrders: async ({ userId }: UserIdInput) => {
-      await requireRegisteredUser(userId);
-      return data.public.orders.queries.getPage({ userId, pageSize: 20 });
+      const { name, email } = await requireRegisteredUser(userId);
+      const orders = await data.public.orders.queries.getPage({
+        userId,
+        pageSize: 20,
+      });
+      return { user: { name, email }, orders };
     },
 
     getCount: async () => {
