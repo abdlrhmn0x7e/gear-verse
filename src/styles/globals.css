@@ -10,6 +10,7 @@
   --plum-50: oklch(0.975 0.012 325);
   --plum-100: oklch(0.95 0.028 325);
   --plum-200: oklch(0.9 0.06 325);
+  --plum-250: oklch(0.86 0.09 325);
   --plum-300: oklch(0.83 0.1 325);
   --plum-400: oklch(0.73 0.15 325);
   --plum-500: oklch(0.62 0.19 325);
@@ -17,18 +18,25 @@
   --plum-700: oklch(0.45 0.165 325);
   --plum-800: oklch(0.38 0.14 325);
   --plum-900: oklch(0.3257 0.1161 325);
+  --plum-925: oklch(0.32 0.09 325);
   --plum-950: oklch(0.24 0.08 325);
 
+  /* the in-between steps (75, 250, 350, 750, 850) and the warmer 800/900 exist for the dark theme */
   --neutral-50: oklch(0.99 0.003 325);
+  --neutral-75: oklch(0.97 0.006 325);
   --neutral-100: oklch(0.965 0.005 325);
   --neutral-200: oklch(0.925 0.007 325);
+  --neutral-250: oklch(0.88 0.01 325);
   --neutral-300: oklch(0.87 0.009 325);
+  --neutral-350: oklch(0.74 0.015 325);
   --neutral-400: oklch(0.71 0.013 325);
   --neutral-500: oklch(0.53 0.015 325);
   --neutral-600: oklch(0.45 0.015 325);
   --neutral-700: oklch(0.37 0.014 325);
-  --neutral-800: oklch(0.27 0.012 325);
-  --neutral-900: oklch(0.205 0.011 325);
+  --neutral-750: oklch(0.34 0.02 325);
+  --neutral-800: oklch(0.29 0.02 325);
+  --neutral-850: oklch(0.25 0.018 325);
+  --neutral-900: oklch(0.205 0.014 325);
   --neutral-950: oklch(0.145 0.008 325);
 
   --background: var(--neutral-50);
@@ -57,6 +65,11 @@
   --input: var(--neutral-200);
   --input-background: var(--card);
   --ring: var(--neutral-400);
+  /* a card placed on a popover or drawer; in dark the popover is the card colour, so the tile steps up */
+  --tile: var(--neutral-100);
+  --tile-hover: var(--neutral-200);
+  /* an icon tile lifted off a card panel */
+  --raised: var(--neutral-50);
   /* --ring is 2.5:1 on the light page, too faint for a keyboard focus indicator */
   --focus: var(--neutral-950);
 
@@ -66,7 +79,7 @@
   --brand-solid-foreground: var(--plum-50);
   --selection: var(--plum-200);
 
-  /* the same light well in both themes: multiply makes white-backed photos vanish on a dark tile */
+  /* a light well in both themes: multiply makes white-backed photos vanish on a dark tile */
   --image-well: var(--neutral-100);
   --image-outline: oklch(0 0 0 / 0.1);
 
@@ -111,38 +124,44 @@
 }
 
 .dark {
-  --background: var(--neutral-950);
-  --foreground: var(--neutral-50);
-  --card: var(--neutral-900);
-  --popover: var(--neutral-900);
-  /* white on plum-600 measures 5.86:1; hover goes darker, since white on plum-500 drops to 4.01:1 */
+  /* a soft charcoal rather than near-black: surfaces step up by lightness, text stays at 7:1 or better */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-75);
+  --card: var(--neutral-850);
+  --popover: var(--neutral-850);
   --primary: var(--plum-600);
   --primary-foreground: oklch(1 0 0);
+  /* white on plum-600 measures 5.86:1; hover goes darker, since white on plum-500 drops to 4.01:1 */
   --primary-hover: var(--plum-700);
-  --selected: var(--neutral-50);
-  --selected-foreground: var(--neutral-950);
+  --selected: var(--neutral-75);
+  --selected-foreground: var(--neutral-900);
   --secondary: var(--neutral-800);
-  --secondary-foreground: var(--neutral-50);
-  --muted: var(--neutral-900);
-  --muted-foreground: var(--neutral-400);
+  --secondary-foreground: var(--neutral-75);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-350);
   --accent: var(--neutral-800);
   --destructive: oklch(0.704 0.191 22.216);
   /* white on this red measures 2.89:1, so destructive fills take dark text */
   --destructive-foreground: var(--neutral-950);
-  --border: var(--neutral-800);
-  --input: var(--neutral-800);
+  --border: var(--neutral-750);
+  --input: var(--neutral-750);
   --ring: var(--neutral-500);
-  --focus: var(--neutral-50);
+  --focus: var(--neutral-75);
+  --tile: var(--neutral-800);
+  --tile-hover: var(--neutral-750);
+  --raised: var(--neutral-800);
 
-  --brand-subtle: var(--plum-950);
-  --brand-text: var(--plum-200);
+  --brand-subtle: var(--plum-925);
+  --brand-text: var(--plum-250);
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
   --selection: var(--plum-800);
 
+  /* photos ship on white, so the well stays light, only dimmer than the light theme's */
+  --image-well: var(--neutral-250);
   --image-outline: oklch(1 0 0 / 0.1);
 
-  --sidebar: var(--neutral-900);
+  --sidebar: var(--neutral-850);
 
   --shadow-2xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
   --shadow-xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
@@ -183,6 +202,9 @@
   --color-input: var(--input);
   --color-input-background: var(--input-background);
   --color-ring: var(--ring);
+  --color-tile: var(--tile);
+  --color-tile-hover: var(--tile-hover);
+  --color-raised: var(--raised);
   --color-focus: var(--focus);
   --color-brand-subtle: var(--brand-subtle);
   --color-brand-text: var(--brand-text);

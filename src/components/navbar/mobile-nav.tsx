@@ -103,7 +103,7 @@ export function MobileNav() {
                             <Link
                               href={`/categories/${category.slug}`}
                               onNavigate={drawer.dismiss}
-                              className="bg-card active:bg-accent focus-visible:outline-focus flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2"
+                              className="bg-tile active:bg-tile-hover focus-visible:outline-focus flex flex-col gap-4 rounded-2xl p-4 text-sm font-medium outline-none focus-visible:outline-2"
                             >
                               <Icon
                                 className="size-5"
