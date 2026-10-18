@@ -1,242 +1,185 @@
 "use client";
 
-import { ListFilterIcon, TagIcon, TargetIcon } from "lucide-react";
+import { TagIcon, TargetIcon } from "lucide-react";
+import { useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { debounce } from "nuqs";
 import { SearchInput } from "../../inputs/search-input";
 import { useProductSearchParams } from "../../../_hooks/use-product-search-params";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { useEffect, useMemo, useState } from "react";
-import { cn } from "~/lib/utils";
-import { BrandsCommand } from "../../inputs/brands-combobox";
-import { useTRPC } from "~/trpc/client";
-import { useInView } from "react-intersection-observer";
+  useFilterQuery,
+  type CommittedFilter,
+} from "../../../_hooks/use-filter-query";
 import {
-  keepPreviousData,
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
-import { debounce } from "nuqs";
-import { CategoriesCommand } from "../../inputs/categories-combobox";
-import { FilterList, type FilterKey } from "../../filter-list";
-import { Button } from "~/components/ui/button";
+  Filters,
+  type FilterField,
+  type FilterOption,
+} from "~/components/reui/filters/filters";
+import { useFlatCategories } from "~/hooks/use-flat-categories";
+import { iconsMap } from "~/lib/icons-map";
+import { cn } from "~/lib/utils";
+import { useTRPC } from "~/trpc/client";
 
-export function ProductsFilter() {
+// The server keeps a product when its brand (or category) is any of the
+// picked ones, so that is the only condition either field offers.
+const isAnyOf = [
+  { value: "is_any_of", label: "is any of", arity: "many" },
+] as const;
+
+const BRANDS_PAGE_SIZE = 20;
+
+function ids(filters: CommittedFilter[], field: string) {
+  const value = filters.find((filter) => filter.field === field)?.value;
+  const picked = (Array.isArray(value) ? value : [])
+    .map(Number)
+    .filter(Number.isInteger);
+  return picked.length > 0 ? picked : null;
+}
+
+/**
+ * Title search plus brand and category chips, all held in the products
+ * search params.
+ */
+export function ProductsFilters({ className }: { className?: string }) {
   const trpc = useTRPC();
-  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useProductSearchParams();
 
-  const { data: categories, isPending: categoriesPending } = useQuery(
+  const { data: categories } = useQuery(
     trpc.admin.categories.queries.findAll.queryOptions(),
   );
+  const flatCategories = useFlatCategories(categories ?? []);
 
-  const {
-    data: brands,
-    fetchNextPage,
-    hasNextPage,
-    isPending: brandsPending,
-  } = useInfiniteQuery(
-    trpc.admin.brands.queries.getPage.infiniteQueryOptions(
+  const fields = useMemo<FilterField<string | string[]>[]>(() => {
+    // Brands come a page at a time, so the list loads more as it scrolls and
+    // a search narrows each page as it arrives.
+    const brandPage = (cursor?: string) =>
+      queryClient.fetchQuery(
+        trpc.admin.brands.queries.getPage.queryOptions({
+          pageSize: BRANDS_PAGE_SIZE,
+          cursor,
+        }),
+      );
+    const brandOption = (brand: { id: number; name: string }) => ({
+      value: brand.id.toString(),
+      label: brand.name,
+    });
+
+    return [
       {
-        pageSize: 10,
+        id: "brands",
+        label: "Brand",
+        icon: <TargetIcon />,
+        type: "select",
+        operators: [...isAnyOf],
+        placeholder: "Search brands...",
+        loadOptions: async (query, { cursor }) => {
+          const page = await brandPage(cursor);
+          const needle = query.trim().toLowerCase();
+          return {
+            items: page.data
+              .filter((brand) => brand.name.toLowerCase().includes(needle))
+              .map(brandOption),
+            nextCursor: page.nextCursor ?? undefined,
+          };
+        },
+        // A chip restored from the URL knows only ids: walk the pages until
+        // every picked brand has a name.
+        resolveValues: async (values) => {
+          const wanted = new Set(values);
+          const found: FilterOption[] = [];
+          let cursor: string | undefined;
+          do {
+            const page = await brandPage(cursor);
+            for (const brand of page.data) {
+              if (wanted.delete(brand.id.toString())) {
+                found.push(brandOption(brand));
+              }
+            }
+            cursor = page.nextCursor ?? undefined;
+          } while (cursor && wanted.size > 0);
+          return found;
+        },
       },
       {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-        placeholderData: keepPreviousData,
+        id: "categories",
+        label: "Category",
+        icon: <TagIcon />,
+        type: "select",
+        operators: [...isAnyOf],
+        placeholder: "Search categories...",
+        options: flatCategories.map((category) => {
+          const Icon = iconsMap.get(category.icon);
+          const parents = category.path.slice(0, -1).map((step) => step.name);
+          return {
+            value: category.id.toString(),
+            label: category.name,
+            icon: Icon ? <Icon /> : undefined,
+            description: parents.length ? parents.join(" › ") : undefined,
+            keywords: parents,
+          };
+        }),
       },
-    ),
-  );
-  const filteredBrands = useMemo(() => {
-    return brands?.pages
-      .flatMap((page) => page.data)
-      .filter((brand) => filters.brands?.includes(brand.id));
-  }, [filters, brands]);
+    ];
+  }, [flatCategories, queryClient, trpc]);
 
-  const { ref: brandsSpinnerRef, inView: brandsSpinnerInView } = useInView();
-  useEffect(() => {
-    if (brandsSpinnerInView && hasNextPage) {
-      void fetchNextPage();
-    }
-  }, [brandsSpinnerInView, fetchNextPage, hasNextPage]);
+  const committed: CommittedFilter[] = [];
+  if (filters.brands?.length) {
+    committed.push({
+      field: "brands",
+      operator: "is_any_of",
+      value: filters.brands.map(String),
+    });
+  }
+  if (filters.categories?.length) {
+    committed.push({
+      field: "categories",
+      operator: "is_any_of",
+      value: filters.categories.map(String),
+    });
+  }
+
+  const chips = useFilterQuery({
+    fields,
+    committed,
+    onCommit: (next) =>
+      void setFilters(
+        { brands: ids(next, "brands"), categories: ids(next, "categories") },
+        { limitUrlUpdates: debounce(500) },
+      ),
+  });
 
   function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
 
     void setFilters(
-      (prev) => {
-        if (!value) {
-          return {
-            title: null,
-          };
-        }
-
-        return {
-          title: value,
-        };
-      },
+      { title: value ? value : null },
       { limitUrlUpdates: debounce(500) },
     );
-  }
-
-  function handleBrandsChange(value: number) {
-    void setFilters(
-      (prev) => {
-        if (prev.brands?.includes(value)) {
-          const filteredBrands = prev.brands.filter((brand) => brand !== value);
-          return {
-            ...prev,
-            brands: filteredBrands.length > 0 ? filteredBrands : null,
-          };
-        }
-
-        return { ...prev, brands: [...(prev.brands ?? []), value] };
-      },
-      { limitUrlUpdates: debounce(500) },
-    );
-  }
-
-  function handleCategoriesChange(value: number) {
-    void setFilters(
-      (prev) => {
-        if (prev.categories?.includes(value)) {
-          const filteredCategories = prev.categories.filter(
-            (category) => category !== value,
-          );
-          return {
-            categories:
-              filteredCategories.length > 0 ? filteredCategories : null,
-          };
-        }
-
-        return { categories: [...(prev.categories ?? []), value] };
-      },
-      { limitUrlUpdates: debounce(500) },
-    );
-  }
-
-  function handleFilterRemove({
-    key,
-    value,
-  }: {
-    key: FilterKey;
-    value: number | string | null;
-  }) {
-    void setFilters((prev) => {
-      const prevValue = prev[key as "brands" | "categories"]?.filter(
-        (item) => item !== value,
-      );
-      if (prevValue?.length === 0) {
-        return { ...prev, [key]: null };
-      }
-
-      return {
-        ...prev,
-        [key]: prevValue,
-      };
-    });
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className={cn(
+        "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center",
+        className,
+      )}
+    >
       <SearchInput
-        className="w-full max-w-sm"
+        className="w-full sm:max-w-xs"
+        placeholder="Search by title"
         value={filters.title ?? ""}
         onChange={handleSearchChange}
-      >
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger
-            className={cn(isOpen && "dark:text-primary-foreground")}
-            asChild
-          >
-            <Button variant="ghost" size="icon-sm" className="focus:ring-0">
-              <ListFilterIcon />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent
-            align="end"
-            className="w-sm"
-            sideOffset={10}
-            alignOffset={-8}
-          >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger disabled={brandsPending}>
-                  <TargetIcon className="mr-2 size-4" />
-                  Brands
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent
-                    sideOffset={8}
-                    alignOffset={-36}
-                    className="p-0"
-                  >
-                    {brands && (
-                      <BrandsCommand
-                        brands={brands.pages.flatMap((page) => page.data)}
-                        value={0}
-                        onValueChange={handleBrandsChange}
-                        setOpen={setIsOpen}
-                        hasNextPage={hasNextPage}
-                        ref={brandsSpinnerRef}
-                      />
-                    )}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger disabled={categoriesPending}>
-                  <TagIcon className="mr-2 size-4" />
-                  Categories
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent
-                    sideOffset={8}
-                    alignOffset={-36}
-                    className="p-0"
-                  >
-                    <CategoriesCommand
-                      categories={categories ?? []}
-                      setValue={handleCategoriesChange}
-                      setOpen={setIsOpen}
-                      value={0}
-                    />
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SearchInput>
-
-      {categories && filteredBrands && (
-        <FilterList
-          brands={filteredBrands}
-          categories={categories}
-          filters={[
-            {
-              key: "brands",
-              value: filters.brands ?? [],
-            },
-            {
-              key: "categories",
-              value: filters.categories ?? [],
-            },
-          ]}
-          loading={brandsPending || categoriesPending}
-          onRemove={handleFilterRemove}
-        />
-      )}
+      />
+      <Filters
+        fields={chips.fields}
+        query={chips.query}
+        onQueryChange={chips.onQueryChange}
+        ruleMenu="remove"
+        showClear
+        // A chip reads as one phrase, so it wraps as a whole, never inside.
+        className="[&_[data-slot=filter-chip]]:whitespace-nowrap"
+      />
     </div>
   );
 }
