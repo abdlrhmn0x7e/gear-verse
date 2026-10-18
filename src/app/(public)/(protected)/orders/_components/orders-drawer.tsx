@@ -53,7 +53,7 @@ export function OrdersDrawer({
         <DrawerHeader>
           <DrawerTitle>
             <Header
-              title="Order Details"
+              title="Order details"
               description=""
               Icon={PackageOpenIcon}
             />
@@ -84,13 +84,13 @@ function OrderDetails({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Payment Method</p>
+          <p className="text-muted-foreground font-medium">Payment method</p>
 
           <PaymentMethod paymentMethod={order.paymentMethod} />
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Total Price</p>
+          <p className="text-muted-foreground font-medium">Total</p>
           {/* shipping is confirmed by the team per address, so it isn't added here */}
           <p className="font-medium">
             {formatCurrency(

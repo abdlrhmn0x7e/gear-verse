@@ -62,7 +62,7 @@ function OrderSummary({
   if (isMobile) {
     return (
       <div className="space-y-3">
-        <Heading level={4}>Order Summary</Heading>
+        <Heading level={4}>Order summary</Heading>
         {empty}
 
         {cart.items.map((item, index) => (
@@ -104,7 +104,7 @@ function OrderSummary({
   return (
     <Card className="h-fit space-y-3">
       <CardHeader>
-        <CardTitle className="text-xl">Order Summary</CardTitle>
+        <CardTitle className="text-xl">Order summary</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-8">

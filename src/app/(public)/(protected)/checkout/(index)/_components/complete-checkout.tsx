@@ -38,7 +38,7 @@ export function CompleteCheckout({
         toast.error(
           error.data?.code === "BAD_REQUEST" && !error.data.zodError
             ? error.message
-            : "Something went wrong please make sure the items in your cart are still available in the store",
+            : "Unable to place your order. Check that the items in your cart are still in stock, then try again.",
         );
       },
     }),
@@ -61,7 +61,7 @@ export function CompleteCheckout({
             checkoutPending && "pointer-events-none opacity-50",
           )}
         >
-          <Heading level={2}>Your Details</Heading>
+          <Heading level={2}>Your details</Heading>
 
           <CheckoutForm onSubmit={onSubmit} />
 

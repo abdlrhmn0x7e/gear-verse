@@ -17,7 +17,7 @@ export default function CheckoutLoading() {
           </h1>
           {/* Checkout Form Skeleton */}
           <div className="space-y-4">
-            <Heading level={2}>Your Details</Heading>
+            <Heading level={2}>Your details</Heading>
             {/* Payment Method Section */}
 
             <CheckoutFormSkeleton />
@@ -25,7 +25,7 @@ export default function CheckoutLoading() {
 
           {/* Mobile Order Summary */}
           <div className="space-y-3 lg:hidden">
-            <Heading level={4}>Order Summary</Heading>
+            <Heading level={4}>Order summary</Heading>
 
             {[0, 1].map((index) => (
               <div className="flex gap-3" key={index}>

@@ -59,7 +59,7 @@ export function SearchDrawer() {
       </DrawerTrigger>
       <DrawerContent className="min-h-[75svh]">
         <DrawerHeader>
-          <DrawerTitle>Search Products</DrawerTitle>
+          <DrawerTitle>Search products</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 px-4 pb-4">
           <InputGroup>

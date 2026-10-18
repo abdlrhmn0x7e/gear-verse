@@ -106,7 +106,7 @@ export function ProductSearchDialog({
               "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           )}
         >
-          <Dialog.Title className="sr-only">Search Products</Dialog.Title>
+          <Dialog.Title className="sr-only">Search products</Dialog.Title>
 
           <div
             className={cn("h-[350px] rounded-lg", className)}
@@ -289,9 +289,9 @@ export function ProductSearchError() {
         <EmptyMedia variant="icon">
           <IconShoppingBagX />
         </EmptyMedia>
-        <EmptyTitle>An Error Occurred</EmptyTitle>
+        <EmptyTitle>Unable to load products</EmptyTitle>
         <EmptyDescription>
-          An error occurred while fetching the products. Please try again later.
+          Check your connection and search again.
         </EmptyDescription>
       </EmptyHeader>
     </Empty>

@@ -55,7 +55,7 @@ export function AddAddressDrawerDialog({
 
       <DrawerDialogContent>
         <DrawerDialogHeader>
-          <DrawerDialogTitle>Add Address</DrawerDialogTitle>
+          <DrawerDialogTitle>Add address</DrawerDialogTitle>
         </DrawerDialogHeader>
 
         <DrawerDialogBody>
@@ -69,7 +69,7 @@ export function AddAddressDrawerDialog({
             ) : (
               <IconHomePlus data-icon="inline-start" />
             )}
-            Add Address
+            Add address
           </Button>
         </DrawerDialogFooter>
       </DrawerDialogContent>

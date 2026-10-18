@@ -52,7 +52,7 @@ export default async function SuccessPage({
         <div className="flex flex-col items-center gap-4">
           <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
           <div className="space-y-2 text-center">
-            <Heading level={1}>Order Success</Heading>
+            <Heading level={1}>Order placed</Heading>
             <p className="text-muted-foreground text-pretty">
               Thank you for your order!
             </p>
@@ -68,7 +68,7 @@ export default async function SuccessPage({
         {/* Order Summary */}
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Order Summary</CardTitle>
+            <CardTitle className="text-2xl font-bold">Order summary</CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -79,7 +79,7 @@ export default async function SuccessPage({
               </div>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-muted-foreground font-medium">
-                  Payment Method
+                  Payment method
                 </p>
 
                 <PaymentMethod paymentMethod={order.paymentMethod} />
@@ -114,7 +114,7 @@ export default async function SuccessPage({
 
                   <div className="flex items-end justify-between">
                     <p className="text-muted-foreground text-sm font-medium">
-                      Sub Total
+                      Item total
                     </p>
 
                     <p className="text-lg font-medium">
