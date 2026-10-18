@@ -20,6 +20,8 @@ export default defineConfig(
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agent worktrees are full copies of the repo.
+    ".claude/**",
   ]),
   {
     extends: [
