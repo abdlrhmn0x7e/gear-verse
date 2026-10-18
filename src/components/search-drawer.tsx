@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -31,6 +31,7 @@ export function SearchDrawer() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
   const {
     data: products,
@@ -59,13 +60,21 @@ export function SearchDrawer() {
       </DrawerTrigger>
       {/* a fixed height rather than a min-height: vaul shrinks the drawer inline when the keyboard opens, and a
           min-height would win and push its top off screen */}
-      <DrawerContent className="h-[75svh]">
+      <DrawerContent
+        className="h-[75svh]"
+        // the drawer exists to type into, so its field takes focus rather than the panel
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          inputRef.current?.focus();
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle>Search products</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 px-4 pb-4">
           <InputGroup>
             <InputGroupInput
+              ref={inputRef}
               aria-label="Search products"
               placeholder="Keyboards, mice, IEMs…"
               value={search}
