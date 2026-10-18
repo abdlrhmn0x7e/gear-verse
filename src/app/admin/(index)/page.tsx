@@ -6,7 +6,7 @@ import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { PageLayout } from "../_components/page-layout";
 import { DashboardActions, DashboardPanels } from "./_components/dashboard";
 import { firstName, greetingFor } from "./_components/format";
-import { loadDashboardSearchParams } from "./_components/use-dashboard-range";
+import { loadDashboardSearchParams } from "./_components/dashboard-range-params";
 import {
   WaitingSummary,
   WaitingSummarySkeleton,
