@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightIcon, PackageSearchIcon } from "lucide-react";
+import { ArrowRightIcon, FunnelXIcon, PackageSearchIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
@@ -21,7 +21,9 @@ export function ProductsEmptyState({
       />
       <div className="max-w-sm space-y-2">
         <h2 className="text-title text-balance">
-          {hasFilters ? "Nothing matches these filters" : "Nothing in stock here yet"}
+          {hasFilters
+            ? "Nothing matches these filters"
+            : "Nothing in stock here yet"}
         </h2>
         <p className="text-muted-foreground text-pretty">
           {hasFilters
@@ -30,7 +32,12 @@ export function ProductsEmptyState({
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
-        {hasFilters && <Button onClick={onClearFilters}>Clear filters</Button>}
+        {hasFilters && (
+          <Button onClick={onClearFilters}>
+            <FunnelXIcon data-icon="inline-start" />
+            Clear filters
+          </Button>
+        )}
         <Button variant={hasFilters ? "outline" : "default"} asChild>
           <Link href="/products">
             Browse all products
