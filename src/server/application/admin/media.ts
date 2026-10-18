@@ -8,6 +8,7 @@ import {
 import z from "zod";
 import { allowedMimeTypesEnum } from "~/lib/schemas/contracts/admin/allowed-mime-types";
 import { AppError } from "~/lib/errors/app-error";
+import { s3IsPublicUrl } from "~/lib/s3";
 
 export const _media = {
   queries: {
@@ -28,7 +29,16 @@ export const _media = {
 
       const parsedInput = validationSchema.safeParse(input);
       if (parsedInput.error) {
-        throw new AppError("Invalid mime type", "VALIDATION");
+        throw new AppError("Invalid mime type", "BAD_REQUEST");
+      }
+
+      // media is only ever uploaded to the bucket, so a URL anywhere else
+      // didn't come from an upload
+      if (!parsedInput.data.every((media) => s3IsPublicUrl(media.url))) {
+        throw new AppError(
+          "Media has to be uploaded to the store's storage bucket",
+          "BAD_REQUEST",
+        );
       }
 
       return data.admin.media.mutations.createMany(parsedInput.data);

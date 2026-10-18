@@ -46,4 +46,24 @@ function s3GetPublicUrl(key: string) {
   return `https://${env.AWS_S3_BUCKET_NAME}.s3.${env.AWS_S3_REGION}.amazonaws.com/${key}`;
 }
 
-export { s3, s3GetPresignedUrl, s3GetPublicUrl };
+/** Whether a URL points at an object in the project's bucket. */
+function s3IsPublicUrl(url: string) {
+  const bucket = new URL(s3GetPublicUrl(""));
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+
+  return (
+    parsed.protocol === bucket.protocol &&
+    parsed.host === bucket.host &&
+    !parsed.username &&
+    !parsed.password &&
+    parsed.pathname.length > 1
+  );
+}
+
+export { s3, s3GetPresignedUrl, s3GetPublicUrl, s3IsPublicUrl };
