@@ -9,6 +9,7 @@ import {
   ProductSearchPlaceholder,
 } from "~/components/product-search-dialog";
 import { SearchDrawer } from "~/components/search-drawer";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { Kbd } from "~/components/ui/kbd";
 import { CartDrawer } from "../cart-drawer";
 import { ProfileDropdown } from "../profile-dropdown";
@@ -75,11 +76,14 @@ export function Navbar() {
               <AdminNav />
             </Suspense>
 
+            {/* phones switch themes from the menu drawer, keeping the bar to search, cart and menu */}
+            <ThemeToggle className="hidden md:inline-flex" />
+
             <Suspense>
               <CartDrawer />
             </Suspense>
 
-            <ProfileDropdown className="ml-1" />
+            <ProfileDropdown className="ml-1 hidden md:inline-flex" />
 
             <Suspense>
               <MobileNav />
