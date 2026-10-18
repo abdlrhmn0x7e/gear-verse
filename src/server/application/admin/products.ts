@@ -38,6 +38,22 @@ export const _products = {
 
       return product;
     },
+
+    /** The storefront's view of a product, drafts included. */
+    findSummaryBySlug: async (slug: string) => {
+      const product = await data.public.products.queries.findBySlug(slug, {
+        includeDrafts: true,
+      });
+      if (!product) {
+        throw new AppError("Product not found", "NOT_FOUND");
+      }
+
+      return product;
+    },
+
+    getSalesStats: (id: number) => {
+      return data.admin.products.queries.getSalesStats(id);
+    },
   },
 
   mutations: {

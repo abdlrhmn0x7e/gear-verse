@@ -119,7 +119,11 @@ export const _products = {
         .orderBy(...orderBy);
     },
 
-    findBySlug: async (slug: string) => {
+    findBySlug: async (
+      slug: string,
+      // the admin's product summary also shows drafts
+      { includeDrafts = false }: { includeDrafts?: boolean } = {},
+    ) => {
       const brandsMedia = alias(media, "brands_media");
 
       const productMediaSubQuery = db
@@ -185,7 +189,7 @@ export const _products = {
         .where(
           and(
             eq(products.slug, slug),
-            eq(products.published, true),
+            includeDrafts ? undefined : eq(products.published, true),
             eq(products.archived, false),
           ),
         )

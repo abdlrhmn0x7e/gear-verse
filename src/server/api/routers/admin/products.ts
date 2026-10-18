@@ -42,6 +42,19 @@ export const productsRouter = createTRPCRouter({
 
         return product;
       }),
+
+    getSalesStats: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.queries.getSalesStats(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
   },
 
   /**
