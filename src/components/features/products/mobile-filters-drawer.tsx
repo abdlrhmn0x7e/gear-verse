@@ -1,4 +1,8 @@
+"use client";
+
 import { SlidersHorizontalIcon } from "lucide-react";
+import { useState } from "react";
+import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -11,9 +15,16 @@ import {
 } from "~/components/ui/drawer";
 
 /** Bottom sheet that hosts the same filter panel the desktop side column shows. */
-export function MobileFiltersDrawer({ children }: { children: React.ReactNode }) {
+export function MobileFiltersDrawer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  useCloseOnBack(open, () => setOpen(false));
+
   return (
-    <Drawer>
+    <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         <Button variant="outline" className="lg:hidden">
           <SlidersHorizontalIcon data-icon="inline-start" />

@@ -549,13 +549,21 @@
   background-clip: padding-box;
   box-shadow: var(--surface-shadow, none);
 
+  /* A tap leaves :hover on the element until the next tap elsewhere, so hover only paints with a real pointer */
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover,
+    --surface-control-hover: var(
+      --surface-fill-hover,
+      color-mix(in oklab, var(--accent) 50%, var(--background))
+    );
+
     &[aria-expanded="true"] {
-      background-color: var(
-        --surface-fill-hover,
-        color-mix(in oklab, var(--accent) 50%, var(--background))
-      );
+      background-color: var(--surface-control-hover);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--surface-control-hover);
+      }
     }
   }
 
@@ -566,13 +574,10 @@
     );
 
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-      &:hover,
-      &[aria-expanded="true"] {
-        background-color: var(
-          --surface-fill-hover,
-          color-mix(in oklab, var(--input) 64%, var(--background))
-        );
-      }
+      --surface-control-hover: var(
+        --surface-fill-hover,
+        color-mix(in oklab, var(--input) 64%, var(--background))
+      );
     }
   }
 }
@@ -581,6 +586,15 @@
    floating hairline. --border is swapped inside the layer too, so its dividers (under a search field, between
    sections) are the same hairline rather than a solid line paler than the fill. Layers drawn with a ring instead of
    surface-control add this for the dividers and set ring-(--floating-border) for the edge. */
+/* swipe rows (testimonials, category chips, thumbnails) scroll by touch and snap, so they hide the bar */
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility surface-floating {
   --surface-fill: var(--popover);
   --surface-border: var(--floating-border);
@@ -616,10 +630,16 @@
   color: var(--primary-foreground);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover,
     &:active {
       border-color: var(--primary-hover);
       background-color: var(--primary-hover);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--primary-hover);
+        background-color: var(--primary-hover);
+      }
     }
   }
 }
@@ -631,8 +651,10 @@
   color: var(--selected-foreground);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover {
-      background-color: color-mix(in oklab, var(--selected) 90%, transparent);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: color-mix(in oklab, var(--selected) 90%, transparent);
+      }
     }
   }
 }

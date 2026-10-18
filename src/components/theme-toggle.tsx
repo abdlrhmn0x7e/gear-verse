@@ -47,7 +47,7 @@ export function ThemeSegmentedControl({ className }: { className?: string }) {
         <ToggleGroup.Item
           key={option.value}
           value={option.value}
-          className="text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground focus-visible:outline-focus flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-[background-color,color] duration-150 outline-none focus-visible:outline-2"
+          className="text-muted-foreground data-[state=on]:bg-background data-[state=on]:text-foreground focus-visible:outline-focus relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-[background-color,color] duration-150 outline-none focus-visible:outline-2 pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:top-1/2 pointer-coarse:after:h-11 pointer-coarse:after:-translate-y-1/2"
         >
           <option.icon className="size-4" aria-hidden />
           {option.label}

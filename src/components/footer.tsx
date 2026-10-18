@@ -17,8 +17,9 @@ const HELP_LINKS = [
   { title: "Returns & refunds", href: "/returns" },
 ];
 
+// phones get a 44px row per link; the columns keep their spacing on desktop
 const linkClassName =
-  "text-muted-foreground hover:text-foreground rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "text-muted-foreground hover:text-foreground active:text-foreground pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:min-w-11 pointer-coarse:items-center rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export async function Footer() {
   const settings = await getStoreSettings();
@@ -43,20 +44,20 @@ export async function Footer() {
         >
           <Link
             href="/"
-            className="rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+            className="focus-visible:outline-focus rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4"
           >
             <Logo className="h-14" />
           </Link>
           <p className="text-muted-foreground max-w-xs text-pretty">
-            The world&apos;s best gear, hand-imported to Egypt. Customs
-            cleared, insured and delivered.
+            The world&apos;s best gear, hand-imported to Egypt. Customs cleared,
+            insured and delivered.
           </p>
           <SocialLinks links={settings} />
         </div>
 
         <nav aria-label="Shop" className="space-y-4">
           <h2 className="text-sm font-medium">Shop</h2>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-3 text-sm pointer-coarse:space-y-0">
             <li>
               <Link href="/products" className={linkClassName}>
                 All products
@@ -70,7 +71,7 @@ export async function Footer() {
 
         <nav aria-label="Help" className="space-y-4">
           <h2 className="text-sm font-medium">Help</h2>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-3 text-sm pointer-coarse:space-y-0">
             {HELP_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClassName}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -18,6 +19,7 @@ import {
   InputGroupInput,
 } from "~/components/ui/input-group";
 import { Separator } from "~/components/ui/separator";
+import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useTRPC } from "~/trpc/client";
 import {
@@ -31,6 +33,8 @@ export function SearchDrawer() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const navigateAway = useCloseOnBack(open, () => setOpen(false));
   const inputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
   const {
@@ -72,13 +76,25 @@ export function SearchDrawer() {
           <DrawerTitle>Search products</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 px-4 pb-4">
-          <InputGroup>
+          <InputGroup className="pointer-coarse:h-11">
             <InputGroupInput
               ref={inputRef}
+              type="search"
+              enterKeyHint="search"
               aria-label="Search products"
               placeholder="Keyboards, mice, IEMs…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                // the keyboard's Search key shows everything that matches, as Enter does in the desktop dialog
+                const query = search.trim();
+                if (e.key !== "Enter" || !query) return;
+                e.preventDefault();
+                navigateAway();
+                setOpen(false);
+                router.push(`/products?title=${encodeURIComponent(query)}`);
+              }}
+              className="[&::-webkit-search-cancel-button]:appearance-none"
             />
             <InputGroupAddon>
               <SearchIcon />

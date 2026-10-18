@@ -18,7 +18,7 @@ export function FilterChip({
       aria-pressed={pressed}
       onClick={() => onPressedChange(!pressed)}
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-[scale,background-color,color,box-shadow] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-safe:active:scale-[0.96]",
+        "focus-visible:outline-focus inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-[scale,background-color,color,box-shadow] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:active:scale-[0.96] pointer-coarse:h-11",
         pressed ? "surface-selected" : "surface-control",
         className,
       )}

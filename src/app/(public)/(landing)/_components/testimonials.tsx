@@ -21,7 +21,7 @@ export function Testimonials({
             description="Real customers, in their own words."
           />
 
-          <ul className="grid gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
+          <ul className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto *:w-[85%] *:shrink-0 *:snap-start md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:*:w-auto xl:grid-cols-4">
             {testimonials.map((testimonial) => (
               <li
                 key={testimonial.name}

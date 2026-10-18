@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
+import { ThemeColorScript, ThemeColorSync } from "~/components/theme-color";
 import { Toaster } from "~/components/ui/toast";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -61,12 +62,11 @@ export const metadata: Metadata = {
   },
 };
 
-// --background in globals.css (neutral-50 and neutral-900) as hex
+// No themeColor: it follows the site's theme rather than the phone's, so ThemeColorScript and ThemeColorSync own it
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fdfbfd" },
-    { media: "(prefers-color-scheme: dark)", color: "#1b151b" },
-  ],
+  // the page runs under the notch and the home indicator; body keeps flow content inside the side and bottom insets,
+  // and fixed bars pad themselves
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -80,17 +80,18 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("font-sans", geist.variable)}
     >
-      {/* <head>
-        <script
+      <head>
+        <ThemeColorScript />
+        {/* <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
-      </head> */}
+        /> */}
+      </head>
 
       <body
         className={cn(
           jetBrainsMono.variable,
-          "flex min-h-screen flex-col font-sans antialiased",
+          "flex min-h-dvh flex-col pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans antialiased max-lg:has-[[data-slot=buy-bar]]:pb-[calc(4.5rem+env(safe-area-inset-bottom))]",
         )}
       >
         <Suspense fallback={null}>
@@ -103,6 +104,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ThemeColorSync />
             <TRPCReactProvider>
               <TooltipProvider>{children}</TooltipProvider>
               <Toaster />

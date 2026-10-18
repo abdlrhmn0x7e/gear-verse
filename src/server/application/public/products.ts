@@ -46,6 +46,10 @@ export const _products = {
       return product;
     },
 
+    getPriceRange: (filters?: Partial<{ categorySlug: string }>) => {
+      return data.public.products.queries.getPriceRange(filters);
+    },
+
     findAllSlugs: async () => {
       const slugs = await data.public.products.queries.findAllSlugs();
 

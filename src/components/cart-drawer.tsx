@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "~/components/ui/toast";
 import type { JSX } from "react/jsx-dev-runtime";
+import { useState } from "react";
+import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { getStockIssue } from "~/lib/utils/cart-stock";
 import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
@@ -43,6 +45,15 @@ export function CartDrawer({
   const router = useRouter();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+
+  // the navbar's cart opens itself; other callers control it
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isOpen = open ?? uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    if (open === undefined) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
+  useCloseOnBack(isOpen, () => setOpen(false));
 
   const { data: cart, isPending: isPendingCart } = useQuery(
     trpc.public.carts.queries.find.queryOptions(),
@@ -82,8 +93,8 @@ export function CartDrawer({
   return (
     <Drawer
       direction={isMobile ? "bottom" : "right"}
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={setOpen}
     >
       {Trigger ?? (
         <DrawerTrigger asChild>

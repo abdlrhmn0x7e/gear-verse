@@ -14,7 +14,7 @@ import { SubCategoryFilterItem } from "./sub-category-filter-item";
 export async function Filters({ slug }: { slug: string }) {
   "use cache";
 
-  const [subCategories, attributes, brands] = await Promise.all([
+  const [subCategories, attributes, brands, priceRange] = await Promise.all([
     app.public.categories.queries.getChildren(slug),
     app.public.categories.queries.getAttributes(slug),
     app.public.brands.queries.findAll({
@@ -22,9 +22,10 @@ export async function Filters({ slug }: { slug: string }) {
         categorySlug: slug,
       },
     }),
+    app.public.products.queries.getPriceRange({ categorySlug: slug }),
   ]);
 
-  // the brands only list ones with a live product, which product edits change
+  // the brands and the price range only count live products, which product edits change
   cacheTag("category-filters", slug, "recent-products");
 
   return (
@@ -91,7 +92,7 @@ export async function Filters({ slug }: { slug: string }) {
       </FilterSection>
 
       <FilterSection title="Price">
-        <PriceFilter />
+        <PriceFilter range={priceRange} />
       </FilterSection>
 
       <ClearAllFiltersButton />

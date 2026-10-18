@@ -12,10 +12,13 @@ import { ClearAllFiltersButton } from "./clear-all-filters-button";
 export async function Filters() {
   "use cache";
 
-  // the brands only list ones with a live product, which product edits change
+  // the brands and the price range only count live products, which product edits change
   cacheTag("filters", "recent-products");
 
-  const brands = await app.public.brands.queries.findAll();
+  const [brands, priceRange] = await Promise.all([
+    app.public.brands.queries.findAll(),
+    app.public.products.queries.getPriceRange(),
+  ]);
 
   return (
     <div className="flex flex-col gap-10">
@@ -32,7 +35,7 @@ export async function Filters() {
       </FilterSection>
 
       <FilterSection title="Price">
-        <PriceFilter />
+        <PriceFilter range={priceRange} />
       </FilterSection>
 
       <ClearAllFiltersButton />
