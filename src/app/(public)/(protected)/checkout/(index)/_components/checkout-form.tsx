@@ -162,6 +162,12 @@ export function CheckoutForm({
                         Add Address
                       </Button>
                     </AddAddressDrawerDialog>
+                    {/* without this, submitting with no address does nothing visible */}
+                    {fieldState.invalid && (
+                      <FieldError>
+                        Add an address to place your order.
+                      </FieldError>
+                    )}
                   </EmptyContent>
                 </Empty>
               ) : (
