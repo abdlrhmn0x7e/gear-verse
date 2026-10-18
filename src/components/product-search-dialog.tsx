@@ -79,7 +79,7 @@ export function ProductSearchDialog({
 
             <span
               className={cn(
-                "surface-control absolute inset-0 rounded-full",
+                "surface-control surface-field absolute inset-0 rounded-full",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-button-in group-data-[state=closed]:animate-search-button-out",
               )}

@@ -53,7 +53,9 @@
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: var(--neutral-200);
+  /* --input is the field BORDER (shadcn's meaning); the field fill is --input-background, the card surface */
   --input: var(--neutral-200);
+  --input-background: var(--card);
   --ring: var(--neutral-400);
   /* --ring is 2.5:1 on the light page, too faint for a keyboard focus indicator */
   --focus: var(--neutral-950);
@@ -179,6 +181,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-input-background: var(--input-background);
   --color-ring: var(--ring);
   --color-focus: var(--focus);
   --color-brand-subtle: var(--brand-subtle);
@@ -360,11 +363,12 @@
 /* Outlined controls and floating surfaces: hairline border, soft drop shadow and a 1px lip.
    Interactive states only apply to buttons and links, so popovers and dialogs stay static.
    Floating surfaces set --surface-radius to match their rounded-* class (it shapes the lip),
-   and --surface-shadow instead of shadow-*, since two utilities writing box-shadow have no guaranteed order. */
+   and --surface-shadow instead of shadow-*, since two utilities writing box-shadow have no guaranteed order.
+   Text fields add surface-field, which swaps the fill through --surface-fill for the same reason. */
 @utility surface-control {
   position: relative;
   border: 1px solid var(--input);
-  background-color: var(--popover);
+  background-color: var(--surface-fill, var(--popover));
   background-clip: padding-box;
   box-shadow: var(--surface-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
 
@@ -380,7 +384,10 @@
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:hover,
     &[aria-expanded="true"] {
-      background-color: color-mix(in oklab, var(--accent) 50%, var(--popover));
+      background-color: var(
+        --surface-fill-hover,
+        color-mix(in oklab, var(--accent) 50%, var(--popover))
+      );
     }
     &:active {
       box-shadow: none;
@@ -391,10 +398,9 @@
   }
 
   @variant dark {
-    background-color: color-mix(
-      in oklab,
-      var(--input) 32%,
-      var(--background)
+    background-color: var(
+      --surface-fill,
+      color-mix(in oklab, var(--input) 32%, var(--background))
     );
 
     &::before {
@@ -404,14 +410,24 @@
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
       &:hover,
       &[aria-expanded="true"] {
-        background-color: color-mix(
-          in oklab,
-          var(--input) 64%,
-          var(--background)
+        background-color: var(
+          --surface-fill-hover,
+          color-mix(in oklab, var(--input) 64%, var(--background))
         );
       }
     }
   }
+}
+
+/* Text fields, search and select triggers sit on the card surface; the border and shadow from surface-control
+   keep them readable when the field itself is placed on a card. */
+@utility surface-field {
+  --surface-fill: var(--input-background);
+  --surface-fill-hover: color-mix(
+    in oklab,
+    var(--accent) 50%,
+    var(--input-background)
+  );
 }
 
 /* Filled primary action: plum in both themes, so the white top highlight works in each. */
