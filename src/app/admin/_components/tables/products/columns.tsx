@@ -58,13 +58,15 @@ export const productColumns: ListColumn<ProductRow>[] = [
           <ImageWithFallback
             src={row.original.thumbnail?.url}
             alt={row.original.title ?? "Product Thumbnail"}
-            className="bg-white"
+            className="shrink-0 bg-white"
             width={40}
             height={40}
           />
 
           <div className="text-muted-foreground text-sm">
-            <p className="font-medium">{row.original.title}</p>
+            <p className="text-foreground font-medium whitespace-normal">
+              {row.original.title}
+            </p>
             <div className="flex items-center gap-1">
               {row.original.category.parent && (
                 <>
