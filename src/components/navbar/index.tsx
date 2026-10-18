@@ -110,5 +110,10 @@ export function Navbar() {
 async function StoreMobileNav() {
   const settings = await getStoreSettings();
 
-  return <MobileNav socialLinks={pickSocialLinks(settings)} />;
+  return (
+    <MobileNav
+      whatsappNumber={settings.whatsappNumber}
+      socialLinks={pickSocialLinks(settings)}
+    />
+  );
 }
