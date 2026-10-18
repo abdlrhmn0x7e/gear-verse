@@ -27,7 +27,7 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
 
 /* sideOffset is the gap past the arrow: the arrow's tip pokes out of the bubble, so the bubble keeps this much more
    distance from the trigger (what Radix added from the arrow's measured box) */
-const ARROW_CLEARANCE = 8;
+const ARROW_CLEARANCE = 10;
 
 function TooltipContent({
   className,
