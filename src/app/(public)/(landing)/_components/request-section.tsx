@@ -1,8 +1,10 @@
 import { IconBrandWhatsapp } from "@tabler/icons-react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { Bubble, BubbleContent } from "~/components/ui/bubble";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Message, MessageContent, MessageGroup } from "~/components/ui/message";
 import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
 import { ChatReveal } from "./chat-reveal";
@@ -113,33 +115,51 @@ export async function RequestSection() {
                 </p>
               </div>
             </div>
-            <ChatReveal className="bg-input-background flex flex-col gap-2 rounded-[1.5rem] p-4 sm:p-5">
-              <ol className="contents" aria-label="An example request">
-                {CHAT.map((message, index) => (
-                  <li
-                    key={message.time}
-                    style={{ transitionDelay: `${index * 450}ms` }}
-                    className={cn(
-                      message.phoneHidden && "max-sm:hidden",
-                      "max-w-[85%] rounded-2xl px-4 py-2.5 text-pretty transition-[opacity,translate,scale] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:translate-y-2 motion-safe:scale-[0.97] motion-safe:opacity-0 motion-safe:group-data-shown/chat:translate-y-0 motion-safe:group-data-shown/chat:scale-100 motion-safe:group-data-shown/chat:opacity-100",
-                      message.from === "you"
-                        ? "bg-primary text-primary-foreground origin-bottom-right self-end rounded-br-md"
-                        : "bg-card origin-bottom-left self-start rounded-bl-md",
-                    )}
-                  >
-                    <span className="sr-only">
-                      {message.from === "you" ? "You: " : "Gear Verse: "}
-                    </span>
-                    {message.text}
-                    <span
-                      className="ms-3 inline-block translate-y-0.5 text-xs tabular-nums opacity-60"
-                      aria-hidden
+            <ChatReveal className="bg-background rounded-[1.5rem] p-4 sm:p-5">
+              <MessageGroup role="list" aria-label="An example request">
+                {CHAT.map((message, index) => {
+                  const fromYou = message.from === "you";
+                  return (
+                    <Message
+                      key={message.time}
+                      role="listitem"
+                      align={fromYou ? "end" : "start"}
+                      style={{ transitionDelay: `${index * 450}ms` }}
+                      className={cn(
+                        message.phoneHidden && "max-sm:hidden",
+                        "transition-[opacity,translate,scale] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:translate-y-2 motion-safe:scale-[0.97] motion-safe:opacity-0 motion-safe:group-data-shown/chat:translate-y-0 motion-safe:group-data-shown/chat:scale-100 motion-safe:group-data-shown/chat:opacity-100",
+                        fromYou ? "origin-bottom-right" : "origin-bottom-left",
+                      )}
                     >
-                      {message.time}
-                    </span>
-                  </li>
-                ))}
-              </ol>
+                      <MessageContent>
+                        <Bubble
+                          variant={fromYou ? "default" : "muted"}
+                          align={fromYou ? "end" : "start"}
+                          className="max-w-[85%]"
+                        >
+                          <BubbleContent
+                            className={cn(
+                              "px-4 text-base text-pretty",
+                              fromYou ? "rounded-br-md" : "rounded-bl-md",
+                            )}
+                          >
+                            <span className="sr-only">
+                              {fromYou ? "You: " : "Gear Verse: "}
+                            </span>
+                            {message.text}
+                            <span
+                              className="ms-3 inline-block translate-y-0.5 text-xs tabular-nums opacity-60"
+                              aria-hidden
+                            >
+                              {message.time}
+                            </span>
+                          </BubbleContent>
+                        </Bubble>
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
+              </MessageGroup>
             </ChatReveal>
           </div>
           <figcaption className="text-muted-foreground px-3 text-sm">
