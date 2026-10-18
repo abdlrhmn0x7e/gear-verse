@@ -78,7 +78,7 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="bg-accent hover:bg-tile-hover absolute top-4 right-4"
+              className="bg-tile hover:bg-tile-hover absolute top-4 right-4"
               size="icon-sm"
             >
               <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />

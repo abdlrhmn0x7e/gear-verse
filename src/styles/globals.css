@@ -51,8 +51,8 @@
   --foreground: var(--neutral-950);
   --card: var(--neutral-100);
   --card-foreground: var(--foreground);
-  /* menus, dialogs and drawers share the input surface, so the search pill opens into the same colour */
-  --popover: var(--card);
+  /* menus, dialogs and drawers are white and lifted by their shadow; what they hold steps down to the card gray */
+  --popover: var(--raised);
   --popover-foreground: var(--foreground);
   /* the logo colour: white on plum-900 measures 13.13:1 (12.74:1 against the page); hover goes darker, 16.90:1 */
   --primary: var(--plum-900);
@@ -76,13 +76,14 @@
      popover fill where a solid --border would read paler */
   --floating-border: oklch(0 0 0 / 8%);
   /* --input is the field BORDER (shadcn's meaning). --input-background fills fields and the boxes nested in a panel
-     (tables, option groups): the card gray on the page, and --raised inside a card, dialog or drawer (rule below) */
+     (tables, option groups): the card gray on the page and in floating layers, --raised inside a card (rules below) */
   --input: var(--neutral-200);
   --input-background: var(--card);
+  --floating-field: var(--card);
   --ring: var(--neutral-400);
-  /* a card placed on a popover or drawer, which are the card colour, so the tile steps down (up in dark) */
-  --tile: var(--neutral-200);
-  --tile-hover: var(--neutral-250);
+  /* a card placed on a popover or drawer: the card gray on the white layer (a lighter step in dark) */
+  --tile: var(--neutral-100);
+  --tile-hover: var(--neutral-200);
   /* a field, nested box or icon tile lifted off a card panel: plain white, as on Apple's gray cards */
   --raised: oklch(1 0 0);
   /* grey tiles holding the full-colour payment marks and their labels; the label keeps 4.5:1 (5.99:1) on the tile */
@@ -209,6 +210,8 @@
   --tile: var(--neutral-800);
   --tile-hover: var(--neutral-750);
   --raised: var(--neutral-800);
+  /* the dark layer is already a step above the page, so its fields step up again rather than down */
+  --floating-field: var(--raised);
   /* payment marks are full colour and InstaPay's purple measures 1.28:1 on a dark tile, so the tiles stay light like the
      image well: 7.74:1 for that purple, 3.03:1 and up for the reds, 7.29:1 for the label */
   --logo-tile: var(--neutral-250);
@@ -272,14 +275,11 @@
 }
 
 /* Panels are the card gray, so a field or nested box inside one steps up to --raised (white in light, a lighter step
-   in dark) rather than sitting flat on its own colour. Keyed to the card colour as well as the components, so a plain
-   div painted bg-card (the checkout's inline address form) gets it too. Floating menus are portalled out and keep the
-   popover fill. */
+   in dark) rather than sitting flat on its own colour. Keyed to the card colour as well as the component, so a plain
+   div painted bg-card (the checkout's inline address form) gets it too. Floating layers set their own in
+   surface-floating. */
 .bg-card,
-.bg-popover,
-[data-slot="card"],
-[data-slot="dialog-content"],
-[data-slot="drawer-content"] {
+[data-slot="card"] {
   --input-background: var(--raised);
 }
 
@@ -590,10 +590,6 @@
   }
 }
 
-/* Menus, popovers and dialogs take the popover fill, which is the input surface in both themes, edged with the
-   floating hairline. --border is swapped inside the layer too, so its dividers (under a search field, between
-   sections) are the same hairline rather than a solid line paler than the fill. Layers drawn with a ring instead of
-   surface-control add this for the dividers and set ring-(--floating-border) for the edge. */
 /* swipe rows (testimonials, category chips, thumbnails) scroll by touch and snap, so they hide the bar */
 @utility no-scrollbar {
   scrollbar-width: none;
@@ -603,8 +599,13 @@
   }
 }
 
+/* Menus, popovers, dialogs and drawers take the popover fill, edged with the floating hairline and lifted by
+   --surface-shadow, and the fields inside them step down to --floating-field. --border is swapped inside the layer too, so its dividers (under a search field, between
+   sections) are the same hairline rather than a solid line paler than the fill. Layers drawn with a ring instead of
+   surface-control add this for the dividers and set ring-(--floating-border) for the edge. */
 @utility surface-floating {
   --surface-fill: var(--popover);
+  --input-background: var(--floating-field);
   --surface-border: var(--floating-border);
   --border: var(--floating-border);
 }
