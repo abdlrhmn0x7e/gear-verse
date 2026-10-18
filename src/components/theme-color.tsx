@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
 // --background in globals.css (neutral-50 and neutral-900) as hex
-const THEME_COLORS = { light: "#fdfbfd", dark: "#1b151b" } as const;
+const THEME_COLORS = { light: "#fcfcfc", dark: "#1b151b" } as const;
 
 // next-themes' storage key and default; the site stays light until someone picks dark or system
 const themeColorScript = `(function(){try{var t=localStorage.getItem("theme")||"light";if(t==="system")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var m=document.createElement("meta");m.name="theme-color";m.content=t==="dark"?"${THEME_COLORS.dark}":"${THEME_COLORS.light}";document.head.appendChild(m)}catch(e){}})()`;
