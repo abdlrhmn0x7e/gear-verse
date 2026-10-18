@@ -46,6 +46,8 @@ function NavLink(props: React.ComponentProps<typeof Link>) {
   );
 }
 
+// An open menu turns the bar into the popover surface, so its content is a floating layer: outlined tiles in it take
+// the floating hairline.
 function NavContent({
   className,
   ...props
@@ -53,7 +55,7 @@ function NavContent({
   return (
     <NavigationMenu.Content
       className={cn(
-        "data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in-0 data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out-0 px-6 pt-2 pb-8 lg:px-8",
+        "surface-floating data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in-0 data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out-0 px-6 pt-2 pb-8 lg:px-8",
         className,
       )}
       {...props}

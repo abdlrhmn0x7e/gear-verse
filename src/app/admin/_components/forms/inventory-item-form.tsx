@@ -147,7 +147,7 @@ export function InventoryItemForm({
       <Item
         variant="outline"
         style={{ visibility: "hidden" }}
-        className="bg-popover text-popover-foreground data-[state=visible]:animate-item-in data-[state=hidden]:animate-item-out starting-opacity-0-fix fixed inset-x-2 bottom-4 z-20 w-auto shadow-lg md:inset-x-auto md:right-12 md:bottom-12 md:max-w-lg"
+        className="surface-floating bg-popover text-popover-foreground data-[state=visible]:animate-item-in data-[state=hidden]:animate-item-out starting-opacity-0-fix fixed inset-x-2 bottom-4 z-20 w-auto shadow-lg md:inset-x-auto md:right-12 md:bottom-12 md:max-w-lg"
         data-state={form.formState.isDirty ? "visible" : "hidden"}
         ref={setItemRef}
       >

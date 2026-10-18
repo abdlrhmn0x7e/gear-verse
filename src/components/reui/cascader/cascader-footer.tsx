@@ -114,7 +114,7 @@ function CascaderFooter({
       aria-label={labels.actionsLabel}
       onKeyDown={handleKeyDown}
       className={cn(
-        "border-border/60 flex shrink-0 flex-col gap-0.5 border-t",
+        "border-border flex shrink-0 flex-col gap-0.5 border-t",
         /* The LIST's padding, not a flat `p-1`: with a padding of its own the
            two columns of text were 2px out in luma and sera and 4px out in
            lyra. It also gives a separator in here a number to cancel. */
@@ -241,7 +241,7 @@ export interface CascaderActionProps extends Omit<
  * rather than ReUI theme CSS so an installed footer needs only Tailwind.
  */
 const FLYOUT_SURFACE_CLASS =
-  "bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 max-h-72 overflow-hidden ring-1 duration-100 ring-foreground/5 dark:ring-foreground/10 rounded-3xl shadow-lg";
+  "bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 max-h-72 overflow-hidden ring-1 duration-100 surface-floating ring-(--floating-border) rounded-3xl shadow-lg";
 
 /**
  * One footer command, shaped like a row and deliberately NOT one. A real

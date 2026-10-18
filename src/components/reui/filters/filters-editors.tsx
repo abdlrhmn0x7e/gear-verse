@@ -1069,8 +1069,8 @@ export function FilterMenu({
         */}
         <CascaderNav
           className={cn(
-            /* The nav's divider is `border-border/60` and the group separator
-               is a full-opacity `bg-border`; two strengths read as a mistake. */
+            /* Same strength as the group separator's `bg-border`; two
+               strengths of divider read as a mistake. */
             "border-border",
             !searchable && "sr-only",
           )}

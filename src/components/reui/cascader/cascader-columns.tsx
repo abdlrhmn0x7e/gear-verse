@@ -113,7 +113,7 @@ function CascaderColumns({
  * is also the BOUND, the same `min(--available-height, cap)` the single list
  * uses, and the `ScrollArea` inside scrolls, so every column shows a thumb.
  */
-const PANEL_CLASS = `flex w-(--cascader-column-width) shrink-0 flex-col overscroll-contain not-first:w-[calc(var(--cascader-column-width)_+_1px)] not-first:border-border/60 not-first:border-s ${CASCADER_LIST_HEIGHT_CLASS}`;
+const PANEL_CLASS = `flex w-(--cascader-column-width) shrink-0 flex-col overscroll-contain not-first:w-[calc(var(--cascader-column-width)_+_1px)] not-first:border-border not-first:border-s ${CASCADER_LIST_HEIGHT_CLASS}`;
 
 export interface CascaderColumnPanelProps {
   column: CascaderColumn;

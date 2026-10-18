@@ -96,7 +96,7 @@ function CascaderNav({
         /* `py-1`, not `py-1.5`: the row inside sets its own per-style height,
            so even padding read too tall. 6px beside the field, 4px above and
            below. */
-        "border-border/60 flex shrink-0 flex-col gap-1 border-b px-1.5 py-1",
+        "border-border flex shrink-0 flex-col gap-1 border-b px-1.5 py-1",
         className,
       )}
       {...props}
