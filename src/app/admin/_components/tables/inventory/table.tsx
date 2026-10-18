@@ -1,9 +1,7 @@
 "use client";
 
-import { flexRender, useTable } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { InventoryTableHeader } from "./header";
 import { useInventoryTableColumns } from "./columns";
+import { ListGrid, useListTable } from "../list-grid";
 
 import {
   keepPreviousData,
@@ -14,9 +12,6 @@ import { useInView } from "react-intersection-observer";
 import { useInventorySearchParams } from "~/app/admin/_hooks/use-inventory-search-params";
 import { useTRPC } from "~/trpc/client";
 import { useDebounce } from "~/hooks/use-debounce";
-import { LoadMore } from "~/components/load-more";
-import { PackageOpenIcon } from "lucide-react";
-import { dataTableFeatures } from "~/lib/table-features";
 
 export function InventoryTable() {
   const [params] = useInventorySearchParams();
@@ -24,6 +19,7 @@ export function InventoryTable() {
   const debouncedFilters = useDebounce(params);
   const {
     data: items,
+    isFetching,
     hasNextPage,
     fetchNextPage,
   } = useSuspenseInfiniteQuery(
@@ -50,54 +46,31 @@ export function InventoryTable() {
   }, [inView, hasNextPage, fetchNextPage]);
 
   const columns = useInventoryTableColumns();
-  const table = useTable({
-    features: dataTableFeatures,
+  const table = useListTable({
     data,
     columns,
+    getRowId: (row) => row.id.toString(),
   });
 
   return (
-    <Table containerClassName="border rounded-lg bg-background h-fit max-h-[75svh] overflow-y-auto pb-24">
-      <InventoryTableHeader />
-
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && "selected"}
-              className="cursor-pointer"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="text-center">
-              <div className="flex flex-col items-center justify-center gap-2 py-32">
-                <PackageOpenIcon size={64} />
-                <p className="text-lg font-medium">No Items Found.</p>
-                <p className="text-muted-foreground text-sm">
-                  What a shame get your ass to work and create some
-                </p>
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-        {hasNextPage && (
-          <TableRow>
-            <TableCell colSpan={columns.length}>
-              <div className="flex flex-col items-center justify-center">
-                <LoadMore ref={ref} hasNextPage={hasNextPage} />
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <ListGrid
+      table={table}
+      isFetching={isFetching}
+      hasNextPage={hasNextPage}
+      loadMoreRef={ref}
+      // Room under the last row for the floating unsaved-changes bar.
+      className="pb-24"
+      empty={
+        params.inventorySearch
+          ? {
+              title: "No items match this search",
+              description: "Try a different product name.",
+            }
+          : {
+              title: "No Items Found.",
+              description: "What a shame get your ass to work and create some",
+            }
+      }
+    />
   );
 }

@@ -1,7 +1,5 @@
 "use client";
 
-import { flexRender, useTable } from "@tanstack/react-table";
-
 // React & Next
 import { useEffect, useMemo } from "react";
 
@@ -12,11 +10,6 @@ import {
 } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
-// UI & Icons
-import { PackageOpenIcon } from "lucide-react";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-
 // Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
 import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
@@ -24,11 +17,8 @@ import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 // Table logic & components
 import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
-import { OrdersTableHeader } from "./header";
-import { OrdersFilter } from "./filters";
-import { cn } from "~/lib/utils";
-import { dataTableFeatures } from "~/lib/table-features";
-import { LoadMore } from "~/components/load-more";
+import { OrdersFilters } from "./filters";
+import { ListGrid, useListTable } from "../list-grid";
 
 export function OrdersTable() {
   const trpc = useTRPC();
@@ -63,10 +53,10 @@ export function OrdersTable() {
 
   const { ref, inView } = useInView();
 
-  const table = useTable({
-    features: dataTableFeatures,
+  const table = useListTable({
     data: ordersData,
     columns: ordersColumns,
+    getRowId: (row) => row.id.toString(),
   });
 
   useEffect(() => {
@@ -75,73 +65,34 @@ export function OrdersTable() {
     }
   }, [inView, fetchNextPage]);
 
+  const filtered = [params.search, params.status, params.paymentMethod].some(
+    Boolean,
+  );
+
   return (
-    <Card className="gap-2 py-2">
-      <CardHeader className="px-2">
-        <OrdersFilter />
-      </CardHeader>
+    <div className="space-y-4">
+      <OrdersFilters />
 
-      <CardContent className="px-2">
-        <div
-          className={cn(
-            "bg-background overflow-hidden rounded-lg border transition-opacity",
-            isFetching && "opacity-75",
-          )}
-        >
-          <Table containerClassName="h-fit max-h-[75svh] overflow-y-auto">
-            <OrdersTableHeader />
-
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    onClick={() =>
-                      setParams({ ...params, orderId: row.original.id })
-                    }
-                    className="cursor-pointer"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={ordersColumns.length}
-                    className="text-center"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-2 py-32">
-                      <PackageOpenIcon size={64} />
-                      <p className="text-lg font-medium">No Orders Found.</p>
-                      <p className="text-muted-foreground text-sm">
-                        What a shame get your ass to work and generate some
-                        orders.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-              {hasNextPage && (
-                <TableRow>
-                  <TableCell colSpan={ordersColumns.length}>
-                    <div className="flex flex-col items-center justify-center">
-                      <LoadMore ref={ref} hasNextPage={hasNextPage} />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+      <ListGrid
+        table={table}
+        isFetching={isFetching}
+        onRowClick={(order) => setParams({ ...params, orderId: order.id })}
+        hasNextPage={hasNextPage}
+        loadMoreRef={ref}
+        empty={
+          filtered
+            ? {
+                title: "No orders match these filters",
+                description:
+                  "Try a different phone number, status or payment method.",
+              }
+            : {
+                title: "No Orders Found.",
+                description:
+                  "What a shame get your ass to work and generate some orders.",
+              }
+        }
+      />
+    </div>
   );
 }

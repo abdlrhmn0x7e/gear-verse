@@ -1,38 +1,32 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { EyeIcon, FileIcon } from "lucide-react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
+import { DataGridTableRowSelect } from "~/components/reui/data-grid/data-grid-table";
 
 import type { RouterOutput } from "~/trpc/client";
 import { cn } from "~/lib/utils";
 import { useMediaStore } from "../../../_stores/media/provider";
-import type { DataTableFeatures } from "~/lib/table-features";
+import type { ListColumn } from "../list-grid";
 
 type Media =
   RouterOutput["admin"]["media"]["queries"]["getPage"]["data"][number];
-export const mediaColumns: ColumnDef<DataTableFeatures, Media>[] = [
+export const mediaColumns: ListColumn<Media>[] = [
   {
     id: "select",
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      );
-    },
+    header: () => <span className="sr-only">Select</span>,
+    cell: ({ row }) => <DataGridTableRowSelect row={row} />,
+    meta: { headerTitle: "Select", headerClassName: "w-10" },
   },
   {
     id: "name",
     accessorKey: "name",
     header: "Name",
+    meta: { headerClassName: "w-full" },
     cell: ({ row }) => {
       const mediaPreviewUrl = useMediaStore((state) => state.previewUrl);
       const setMediaPreviewUrl = useMediaStore((state) => state.setPreviewUrl);

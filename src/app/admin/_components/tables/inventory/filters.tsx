@@ -3,7 +3,11 @@
 import { useInventorySearchParams } from "~/app/admin/_hooks/use-inventory-search-params";
 import { SearchInput } from "../../inputs/search-input";
 
-export function InventoryItemFilter({ className }: { className?: string }) {
+/**
+ * Search across inventory items. The server filters inventory by this search
+ * alone, so there are no filter chips here.
+ */
+export function InventoryFilters({ className }: { className?: string }) {
   const [filters, setFilters] = useInventorySearchParams();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -19,3 +23,6 @@ export function InventoryItemFilter({ className }: { className?: string }) {
     />
   );
 }
+
+/** The name the inventory page and its loading state import. */
+export { InventoryFilters as InventoryItemFilter };
