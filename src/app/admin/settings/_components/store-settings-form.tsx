@@ -350,7 +350,8 @@ function SaveBar({
           <div
             role="region"
             aria-label="Unsaved changes"
-            className="surface-control surface-floating flex w-full max-w-xl items-center gap-3 rounded-full py-2 pr-2 pl-5 [--surface-shadow:var(--shadow-lg)]"
+            // The buttons would inherit the bar's elevation variable; they stay flat.
+            className="surface-control surface-floating flex w-full max-w-xl items-center gap-3 rounded-full py-2 pr-2 pl-5 [--surface-shadow:var(--shadow-lg)] [&_[data-slot]]:[--surface-shadow:none]"
           >
             <p className="flex-1 text-sm font-medium">Unsaved changes</p>
             <Button
