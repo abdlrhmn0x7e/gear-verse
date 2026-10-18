@@ -11,20 +11,13 @@ import {
   IconBrandYoutube,
 } from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
-import {
-  ArrowUpRightIcon,
-  CheckIcon,
-  DatabaseIcon,
-  Undo2Icon,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { ArrowUpRightIcon, DatabaseIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Spinner } from "~/components/spinner";
+import { SaveBar } from "../../_components/save-bar";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import {
   Form,
@@ -234,6 +227,7 @@ export function StoreSettingsForm({ settings }: { settings: Settings }) {
         </Section>
 
         <SaveBar
+          form="store-settings-form"
           visible={isDirty || isPending}
           saving={isPending}
           canSave={settings.ready}
@@ -320,62 +314,6 @@ function Section({
         <CardContent>{children}</CardContent>
       </Card>
     </section>
-  );
-}
-
-/**
- * Pinned to the bottom of the page while there are unsaved changes, so saving
- * is always one click away and a clean form has nothing to save.
- */
-function SaveBar({
-  visible,
-  saving,
-  canSave,
-  onDiscard,
-}: {
-  visible: boolean;
-  saving: boolean;
-  canSave: boolean;
-  onDiscard: () => void;
-}) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          className="sticky bottom-4 z-20 flex justify-center"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-        >
-          <div
-            role="region"
-            aria-label="Unsaved changes"
-            // The buttons would inherit the bar's elevation variable; they stay flat.
-            className="surface-control surface-floating flex w-full max-w-xl items-center gap-3 rounded-full py-2 pr-2 pl-5 [--surface-shadow:var(--shadow-lg)] [&_[data-slot]]:[--surface-shadow:none]"
-          >
-            <p className="flex-1 text-sm font-medium">Unsaved changes</p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onDiscard}
-              disabled={saving}
-            >
-              <Undo2Icon />
-              Discard
-            </Button>
-            <Button
-              type="submit"
-              form="store-settings-form"
-              disabled={saving || !canSave}
-            >
-              {saving ? <Spinner /> : <CheckIcon />}
-              Save
-            </Button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
 
