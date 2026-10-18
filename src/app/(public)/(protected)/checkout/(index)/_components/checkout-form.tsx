@@ -91,7 +91,7 @@ export function CheckoutForm({
                 <RadioGroup
                   onValueChange={field.onChange}
                   value={field.value}
-                  className="grid grid-cols-2 gap-2"
+                  className="grid gap-2 sm:grid-cols-2"
                 >
                   <FormItem className="has-checked:bg-primary/5 has-checked:border-primary has-checked:text-foreground flex items-center gap-2 rounded-lg border p-4">
                     <FormControl>
@@ -236,7 +236,7 @@ export function CheckoutFormSkeleton() {
       {/* Payment Method Section */}
       <div className="space-y-2">
         <Skeleton className="h-4 w-40" />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           <div className="rounded-lg border p-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
