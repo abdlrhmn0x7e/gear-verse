@@ -117,7 +117,7 @@ export function CartDrawer({
             ))}
           </div>
         ) : items.length > 0 ? (
-          <ul className="min-h-0 flex-1 divide-y overflow-y-auto px-2">
+          <ul className="scroll-fade min-h-0 flex-1 divide-y overflow-y-auto px-2">
             {items.map((item) => {
               const name = item.title ?? "this item";
               return (
