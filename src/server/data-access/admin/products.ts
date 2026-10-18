@@ -365,7 +365,8 @@ export const _products = {
           >`coalesce(${optionsQuery.options}, '[]'::jsonb)`,
 
           thumbnail: {
-            mediaId: sql<number>`${media.id}`,
+            // a raw bigint comes back as a string, which the form rejects
+            mediaId: sql<number>`${media.id}`.mapWith(Number),
             url: sql<string>`${media.url}`,
           },
           media: sql<
