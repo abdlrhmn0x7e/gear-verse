@@ -177,6 +177,8 @@ export function ProductsFilters({ className }: { className?: string }) {
         onQueryChange={chips.onQueryChange}
         ruleMenu="remove"
         showClear
+        // A chip reads as one phrase, so it wraps as a whole, never inside.
+        className="[&_[data-slot=filter-chip]]:whitespace-nowrap"
       />
     </div>
   );

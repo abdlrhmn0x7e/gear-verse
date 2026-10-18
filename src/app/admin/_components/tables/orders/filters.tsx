@@ -41,7 +41,7 @@ const fields: FilterField<string | string[]>[] = [
   },
   {
     id: "paymentMethod",
-    label: "Payment method",
+    label: "Payment",
     icon: <CoinsIcon />,
     type: "select",
     operators: is,
@@ -113,6 +113,8 @@ export function OrdersFilters({ className }: { className?: string }) {
         onQueryChange={chips.onQueryChange}
         ruleMenu="remove"
         showClear
+        // A chip reads as one phrase, so it wraps as a whole, never inside.
+        className="[&_[data-slot=filter-chip]]:whitespace-nowrap"
       />
     </div>
   );
