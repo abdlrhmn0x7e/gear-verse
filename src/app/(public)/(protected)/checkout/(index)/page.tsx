@@ -33,7 +33,7 @@ export default async function CheckoutPage() {
           </CompleteCheckout>
         </HydrateClient>
 
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <OrderSummary cart={cart} cols={cols} />
         </div>
       </MaxWidthWrapper>

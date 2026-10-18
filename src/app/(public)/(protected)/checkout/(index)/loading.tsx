@@ -24,7 +24,7 @@ export default function CheckoutLoading() {
           </div>
 
           {/* Mobile Order Summary */}
-          <div className="space-y-3 lg:hidden">
+          <div className="space-y-3 xl:hidden">
             <Heading level={4}>Order summary</Heading>
 
             {[0, 1].map((index) => (
@@ -43,7 +43,7 @@ export default function CheckoutLoading() {
         </div>
 
         {/* Right Side - Desktop Order Summary */}
-        <div className="hidden lg:block">
+        <div className="hidden xl:block">
           <Card className="h-fit space-y-3">
             <CardHeader>
               <CardTitle className="text-xl">

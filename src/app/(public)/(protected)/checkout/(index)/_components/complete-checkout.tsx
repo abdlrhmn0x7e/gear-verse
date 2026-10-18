@@ -66,7 +66,7 @@ export function CompleteCheckout({
           <CheckoutForm onSubmit={onSubmit} />
 
           {/* Order Summary for Mobile */}
-          <div className="block lg:hidden">{children}</div>
+          <div className="block xl:hidden">{children}</div>
         </div>
 
         {/* the button below stays disabled without items, so say why and point back to the store */}
