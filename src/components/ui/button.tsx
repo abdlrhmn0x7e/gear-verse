@@ -13,8 +13,10 @@ const buttonVariants = cva(
         outline: "surface-control text-foreground",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-accent aria-expanded:bg-accent",
+        // a see-through fill rather than --accent, which equals --raised in dark mode and so vanished on a
+        // field-coloured box inside a card; a tint of the text colour steps off whichever surface is underneath
         ghost:
-          "border-transparent text-foreground hover:bg-accent aria-expanded:bg-accent",
+          "border-transparent text-foreground hover:bg-foreground/6 aria-expanded:bg-foreground/6 dark:hover:bg-foreground/8 dark:aria-expanded:bg-foreground/8",
         destructive:
           "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-destructive",
         link: "border-transparent text-foreground underline-offset-4 hover:underline active:scale-100",
