@@ -140,7 +140,9 @@ export const _products = {
       const productMediaSubQuery = db
         .select({
           productId: productsMedia.productId,
-          json: sql<string[]>`jsonb_agg(${media.url})`.as("media_json"),
+          json: sql<string[]>`
+            jsonb_agg(${media.url} order by ${productsMedia.order}, ${productsMedia.id})
+          `.as("media_json"),
         })
         .from(productsMedia)
         .leftJoin(media, eq(productsMedia.mediaId, media.id))
