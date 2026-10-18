@@ -24,6 +24,25 @@ export const _checkout = {
 
       return addresses;
     },
+
+    isOwnedAddress: async ({
+      addressId,
+      userId,
+    }: {
+      addressId: number;
+      userId: number;
+    }) => {
+      const { data: address, error } = await tryCatch(
+        data.public.addresses.queries.findOwned({ id: addressId, userId }),
+      );
+      if (error) {
+        throw new AppError("Failed to find address", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      return address !== null;
+    },
   },
 
   mutations: {

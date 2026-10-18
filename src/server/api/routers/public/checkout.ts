@@ -38,6 +38,25 @@ export const userCheckoutRouter = createTRPCRouter({
     complete: protectedProcedure
       .input(checkoutInputSchema)
       .mutation(async ({ ctx, input }) => {
+        // the address must be one of the customer's own saved addresses
+        const { data: isOwnedAddress, error: findAddressError } =
+          await tryCatch(
+            ctx.app.public.checkout.queries.isOwnedAddress({
+              addressId: input.addressId,
+              userId: ctx.user.id,
+            }),
+          );
+        if (findAddressError) {
+          throw errorMap(findAddressError);
+        }
+
+        if (!isOwnedAddress) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Please choose one of your saved addresses",
+          });
+        }
+
         // validate cart
         const { data: cart, error: findCartError } = await tryCatch(
           ctx.app.public.carts.queries.find(ctx.user.id),
