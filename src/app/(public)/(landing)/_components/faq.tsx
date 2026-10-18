@@ -19,7 +19,12 @@ export function FAQ() {
     {
       question: "Do you deliver anywhere in Egypt?",
       answer:
-        "Yes! We offer nationwide delivery across Egypt. Shipping times and costs may vary depending on your location. You can check the estimated delivery time during checkout.",
+        "Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see \"How do I pay?\" below for how the fee is confirmed and paid.",
+    },
+    {
+      question: "How do I pay?",
+      answer:
+        "Cash on delivery is available. After you place your order, our team contacts you to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet.",
     },
     {
       question: "What is your return policy?",

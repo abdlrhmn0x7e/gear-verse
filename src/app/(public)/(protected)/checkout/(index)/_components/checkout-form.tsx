@@ -103,7 +103,9 @@ export function CheckoutForm({
                         Cash on Delivery
                       </span>
                       <span className="text-muted-foreground text-xs font-normal">
-                        Pay the courier in cash, InstaPay or mobile wallet
+                        We&apos;ll contact you to confirm your order and the
+                        shipping fee, which you pay in advance by InstaPay or
+                        mobile wallet. The rest is paid to the courier.
                       </span>
                     </FormLabel>
                   </FormItem>
@@ -123,7 +125,7 @@ export function CheckoutForm({
                   </FormItem>
                 </RadioGroup>
               </FormControl>
-              <PayOnDelivery label="You can pay the courier with" />
+              <PayOnDelivery label="You can pay with" note={null} />
               <FormMessage />
             </FormItem>
           )}

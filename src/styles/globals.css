@@ -73,7 +73,7 @@
   --tile-hover: var(--neutral-250);
   /* an icon tile lifted off a card panel */
   --raised: var(--neutral-50);
-  /* grey tiles holding payment and brand wordmarks; the wordmark is text, so it keeps 4.5:1 on the tile */
+  /* grey tiles holding the full-colour payment marks and their labels; the label keeps 4.5:1 (5.99:1) on the tile */
   --logo-tile: var(--neutral-200);
   --logo-tile-foreground: var(--neutral-600);
   /* --ring is 2.5:1 on the light page, too faint for a keyboard focus indicator */
@@ -160,8 +160,10 @@
   --tile: var(--neutral-800);
   --tile-hover: var(--neutral-750);
   --raised: var(--neutral-800);
-  --logo-tile: var(--neutral-800);
-  --logo-tile-foreground: var(--neutral-350);
+  /* payment marks are full colour and InstaPay's purple measures 1.28:1 on a dark tile, so the tiles stay light like the
+     image well: 7.74:1 for that purple, 3.03:1 and up for the reds, 7.29:1 for the label */
+  --logo-tile: var(--neutral-250);
+  --logo-tile-foreground: var(--neutral-700);
 
   --brand-subtle: var(--plum-925);
   --brand-text: var(--plum-250);

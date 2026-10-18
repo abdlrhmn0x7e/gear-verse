@@ -1,59 +1,87 @@
 import { BanknoteIcon, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 import { cn } from "~/lib/utils";
 
 type PayOnDeliveryMethod = {
   name: string;
-  /** shown before the wordmark when there is no logo */
+  /** a line icon for methods without a brand mark (cash) */
   icon?: LucideIcon;
-  /** an official SVG mark; once one is added it replaces the wordmark, rendered grayscale to match the row */
-  logo?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  /** the official mark from /public/payments; its alt is the brand part of the name, so mark + label reads as the full name */
+  logo?: { src: string; width: number; height: number; alt: string };
+  /** text beside the icon or mark; a mark that already spells the name (InstaPay) has none */
+  label?: string;
 };
 
-/** How customers pay the courier at the door. Every order is paid on delivery; nothing is charged online. */
+/** The ways customers pay: the shipping fee in advance by InstaPay or wallet, the rest to the courier in cash, InstaPay or wallet. */
 export const PAY_ON_DELIVERY_METHODS: readonly PayOnDeliveryMethod[] = [
-  { name: "Cash", icon: BanknoteIcon },
-  { name: "InstaPay" },
-  { name: "Vodafone Cash" },
-  { name: "Orange Cash" },
-  { name: "e& cash" },
+  { name: "Cash", icon: BanknoteIcon, label: "Cash" },
+  {
+    name: "InstaPay",
+    logo: { src: "/payments/instapay.png", width: 152, height: 96, alt: "InstaPay" },
+  },
+  {
+    name: "Vodafone Cash",
+    logo: { src: "/payments/vodafone.svg", width: 141, height: 35, alt: "Vodafone" },
+    label: "Cash",
+  },
+  {
+    name: "Orange Cash",
+    logo: { src: "/payments/orange.svg", width: 20, height: 20, alt: "Orange" },
+    label: "Cash",
+  },
+  {
+    name: "e& cash",
+    logo: { src: "/payments/eand.svg", width: 530, height: 494, alt: "e&" },
+    label: "cash",
+  },
 ];
 
-/** A label with the accepted methods as grey wordmark tiles; stacks when its container is narrow. */
+/** Shipping is confirmed per order, so the short promise never quotes a fee. */
+export const PAYMENT_NOTE =
+  "Cash on delivery available. Shipping depends on your location, and we'll confirm it with you.";
+
+/** A label and note with the accepted methods as logo tiles; stacks when its container is narrow. */
 export function PayOnDelivery({
-  label = "Pay on delivery",
+  label = "Ways to pay",
+  note = PAYMENT_NOTE,
   className,
 }: {
   label?: string;
+  /** pass null where the surrounding copy already explains shipping */
+  note?: string | null;
   className?: string;
 }) {
   return (
     <div className={cn("@container", className)}>
-      <div className="flex flex-col gap-3 @xl:flex-row @xl:items-center @xl:justify-between @xl:gap-6">
-        <p className="text-sm font-medium">{label}</p>
+      <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-center @2xl:justify-between @2xl:gap-8">
+        <div className="space-y-1">
+          <p className="text-sm font-medium">{label}</p>
+          {note && (
+            <p className="text-muted-foreground max-w-sm text-sm text-pretty">
+              {note}
+            </p>
+          )}
+        </div>
         <ul aria-label={label} className="flex flex-wrap gap-2">
           {PAY_ON_DELIVERY_METHODS.map((method) => (
             <li
               key={method.name}
-              className="bg-logo-tile text-logo-tile-foreground inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold tracking-tight whitespace-nowrap"
+              className="bg-logo-tile text-logo-tile-foreground inline-flex h-11 items-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold tracking-tight whitespace-nowrap"
             >
-              {method.logo ? (
-                <method.logo
-                  role="img"
-                  aria-label={method.name}
-                  className="h-4 w-auto grayscale"
-                />
-              ) : (
-                <>
-                  {method.icon && (
-                    <method.icon
-                      className="size-4"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                  )}
-                  {method.name}
-                </>
+              {method.icon && (
+                <method.icon className="size-5" strokeWidth={1.75} aria-hidden />
               )}
+              {method.logo && (
+                <Image
+                  src={method.logo.src}
+                  alt={method.logo.alt}
+                  width={method.logo.width}
+                  height={method.logo.height}
+                  // full colour; add `grayscale` here for monochrome tiles
+                  className="h-5 w-auto"
+                />
+              )}
+              {method.label}
             </li>
           ))}
         </ul>
