@@ -19,7 +19,8 @@ import type {
 } from "~/components/reui/cascader/cascader-types";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 import { useDirection } from "@base-ui/react/direction-provider";
-import { Slot } from "radix-ui";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 
 import { cn } from "~/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -40,70 +41,33 @@ function PathChevron() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                            asChild for built parts                         */
-/* -------------------------------------------------------------------------- */
-
-/**
- * The child element `Slot.Root` should be handed, with this part's own content
- * already cloned inside it, REPLACING that element's own children.
- *
- * `CascaderBreadcrumb` and `CascaderValue` BUILD their children, so handing
- * `Slot.Root` that content directly deleted the part: Radix clones its child to
- * merge props onto it, and a Fragment or an array rejects them. Answers `null`
- * for anything that is not a single element, so the caller falls back to its
- * default tag rather than vanishing.
- *
- * The base twin ships no counterpart: Base UI's `useRender` already splits the
- * element (`render`) from the content (the merged `children`), and this is the
- * same split expressed the Radix way.
- */
-function cascaderSlotChild(
-  child: React.ReactNode,
-  content: React.ReactNode,
-): React.ReactElement | null {
-  if (!React.isValidElement(child)) return null;
-  return React.cloneElement(
-    child as React.ReactElement<{ children?: React.ReactNode }>,
-    undefined,
-    content,
-  );
-}
-
-/* -------------------------------------------------------------------------- */
 /*                                     Nav                                    */
 /* -------------------------------------------------------------------------- */
 
-export interface CascaderNavProps extends React.ComponentProps<"div"> {
-  asChild?: boolean;
-}
+export type CascaderNavProps = useRender.ComponentProps<"div">;
 
 /**
  * Header: back control, search input, and the separator under them. The
  * breadcrumb belongs with the list below: it describes the rows, not the field.
  */
-function CascaderNav({
-  className,
-  asChild = false,
-  children,
-  ...props
-}: CascaderNavProps) {
-  const Comp = asChild ? Slot.Root : "div";
-
-  return (
-    <Comp
-      data-slot="cascader-nav"
-      className={cn(
-        /* `py-1`, not `py-1.5`: the row inside sets its own per-style height,
-           so even padding read too tall. 6px beside the field, 4px above and
-           below. */
-        "border-border flex shrink-0 flex-col gap-1 border-b px-1.5 py-1",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </Comp>
-  );
+function CascaderNav({ className, render, ...props }: CascaderNavProps) {
+  return useRender({
+    defaultTagName: "div",
+    render,
+    props: mergeProps<"div">(
+      {
+        "data-slot": "cascader-nav",
+        className: cn(
+          /* `py-1`, not `py-1.5`: the row inside sets its own per-style height,
+             so even padding read too tall. 6px beside the field, 4px above and
+             below. */
+          "border-border flex shrink-0 flex-col gap-1 border-b px-1.5 py-1",
+          className,
+        ),
+      } as React.ComponentProps<"div">,
+      props,
+    ),
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,54 +75,53 @@ function CascaderNav({
 /* -------------------------------------------------------------------------- */
 
 export interface CascaderBackProps extends Omit<
-  React.ComponentProps<"button">,
+  useRender.ComponentProps<"button">,
   "children"
 > {
-  asChild?: boolean;
   children?: React.ReactNode;
 }
 
 /** Pops one level. Renders nothing at the root, so no dead header space. */
 function CascaderBack({
   className,
-  asChild = false,
+  render,
   children,
   ...props
 }: CascaderBackProps) {
   const { popLevel, labels, mode } = useCascaderActions();
   const { path } = useCascaderState();
 
-  // Returning early is safe only because the context read above is this
-  // component's last hook: one below this line would change the hook count
-  // between the root level and any deeper one.
   const hidden = mode !== "drill" || path.length === 0;
-  if (hidden) return null;
 
-  const Comp = asChild ? Slot.Root : "button";
+  const element = useRender({
+    defaultTagName: "button",
+    render,
+    enabled: !hidden,
+    props: mergeProps<"button">(
+      {
+        "data-slot": "cascader-back",
+        type: "button",
+        "aria-label": labels.back,
+        onClick: () => popLevel(),
+        className: cn(
+          "text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring/50 flex shrink-0 items-center justify-center rounded-md outline-hidden transition-colors focus-visible:ring-2",
+          /* A notch under the row height: an affordance, not a second field. */
+          "size-6",
+          className,
+        ),
+        children: children ?? (
+          <HugeiconsIcon
+            icon={ArrowLeft01Icon}
+            strokeWidth={2}
+            className="size-4 rtl:-scale-x-100"
+          />
+        ),
+      } as React.ComponentProps<"button">,
+      props,
+    ),
+  });
 
-  return (
-    <Comp
-      data-slot="cascader-back"
-      type="button"
-      aria-label={labels.back}
-      onClick={() => popLevel()}
-      className={cn(
-        "text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring/50 flex shrink-0 items-center justify-center rounded-md outline-hidden transition-colors focus-visible:ring-2",
-        /* A notch under the row height: an affordance, not a second field. */
-        "size-6",
-        className,
-      )}
-      {...props}
-    >
-      {children ?? (
-        <HugeiconsIcon
-          icon={ArrowLeft01Icon}
-          strokeWidth={2}
-          className="size-4 rtl:-scale-x-100"
-        />
-      )}
-    </Comp>
-  );
+  return hidden ? null : element;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -174,12 +137,8 @@ export interface CascaderBreadcrumbProps extends Omit<
   collapse?: CascaderCollapse;
   /** Clicking a segment navigates back to that level. Defaults to true. */
   interactive?: boolean;
-  asChild?: boolean;
-  /**
-   * With `asChild`, the single element the trail renders into: the trail is
-   * built here and becomes that element's children. Ignored without `asChild`.
-   */
-  children?: React.ReactElement;
+  /** The element the trail renders into: the trail is built here and becomes its children. */
+  render?: React.ReactElement;
 }
 
 /**
@@ -193,8 +152,7 @@ function CascaderBreadcrumb({
   maxSegments = 3,
   collapse = "middle",
   interactive = true,
-  asChild = false,
-  children,
+  render,
   ...props
 }: CascaderBreadcrumbProps) {
   const { goToDepth, mode, labels } = useCascaderActions();
@@ -210,9 +168,7 @@ function CascaderBreadcrumb({
   // mode that ever changes that cannot mark an ancestor as the current page.
   const currentValue = nodes.length ? nodes[nodes.length - 1]!.value : null;
 
-  // See `CascaderBack`: no hook may run below this early return.
   const hidden = mode !== "drill" || nodes.length === 0;
-  if (hidden) return null;
 
   const goTo = (node: CascaderNode) => {
     const depth = path.indexOf(node.value);
@@ -266,29 +222,29 @@ function CascaderBreadcrumb({
     </React.Fragment>
   ));
 
-  // See `cascaderSlotChild`: the trail is built here, so `asChild` works only
-  // if the consumer's element receives it.
-  const slotChild = asChild ? cascaderSlotChild(children, trail) : null;
-
-  const shared = {
-    "data-slot": "cascader-breadcrumb",
-    "aria-label": labels.breadcrumbLabel,
-    className: cn(
-      "text-muted-foreground flex min-w-0 shrink-0 items-center gap-0.5 pt-1.5 pb-0.5 text-xs",
-      // Lines up with the ROWS, not the header: each style's list padding plus
-      // its row inset. vega/mira/rhea `p-1`+`pl-2`, nova `p-1`+`pl-1.5`, maia
-      // `p-1`+`pl-3`, lyra `pl-2`, luma/sera `p-1.5`+`pl-3`, per style-*.css.
-      "px-4.5",
-      className,
+  const element = useRender({
+    defaultTagName: "nav",
+    render,
+    enabled: !hidden,
+    props: mergeProps<"nav">(
+      {
+        "data-slot": "cascader-breadcrumb",
+        "aria-label": labels.breadcrumbLabel,
+        className: cn(
+          "text-muted-foreground flex min-w-0 shrink-0 items-center gap-0.5 pt-1.5 pb-0.5 text-xs",
+          // Lines up with the ROWS, not the header: each style's list padding plus
+          // its row inset. vega/mira/rhea `p-1`+`pl-2`, nova `p-1`+`pl-1.5`, maia
+          // `p-1`+`pl-3`, lyra `pl-2`, luma/sera `p-1.5`+`pl-3`, per style-*.css.
+          "px-4.5",
+          className,
+        ),
+        children: trail,
+      } as React.ComponentProps<"nav">,
+      props,
     ),
-    ...props,
-  };
+  });
 
-  return slotChild ? (
-    <Slot.Root {...shared}>{slotChild}</Slot.Root>
-  ) : (
-    <nav {...shared}>{trail}</nav>
-  );
+  return hidden ? null : element;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -603,14 +559,15 @@ export interface CascaderValueProps extends Omit<
   /** Renders the selected node's icon before the trail. */
   showIcon?: boolean;
   placeholder?: React.ReactNode;
-  asChild?: boolean;
+  /** The element the display renders into. */
+  render?: React.ReactElement;
   /**
-   * A function replaces the whole rendering, receiving the resolved selection
-   * and path; with `asChild`, the element the display renders into instead.
+   * Replaces the whole rendering, receiving the resolved selection and path.
    */
-  children?:
-    | ((selected: CascaderNode[], path: CascaderNode[]) => React.ReactNode)
-    | React.ReactElement;
+  children?: (
+    selected: CascaderNode[],
+    path: CascaderNode[],
+  ) => React.ReactNode;
 }
 
 /**
@@ -625,7 +582,7 @@ function CascaderValue({
   separator,
   showIcon = true,
   placeholder,
-  asChild = false,
+  render,
   children,
   ...props
 }: CascaderValueProps) {
@@ -648,15 +605,10 @@ function CascaderValue({
         ? selected
         : [];
 
-  // Split on the type, not on `asChild`, so passing the wrong one is a type
-  // error at the call site instead of a silent no-op.
-  const renderContent = typeof children === "function" ? children : undefined;
-  const slotElement = typeof children === "function" ? undefined : children;
-
   let content: React.ReactNode;
 
-  if (renderContent) {
-    content = renderContent(selected, path);
+  if (children) {
+    content = children(selected, path);
   } else if (selectedValues.length === 0) {
     content = (
       <span className="text-muted-foreground truncate">{placeholder}</span>
@@ -711,21 +663,18 @@ function CascaderValue({
     );
   }
 
-  // See `cascaderSlotChild`: `Slot.Root` cannot clone the Fragment the default
-  // branch produces, so the consumer's element has to receive the content.
-  const slotChild = asChild ? cascaderSlotChild(slotElement, content) : null;
-
-  const shared = {
-    "data-slot": "cascader-value",
-    className: cn("flex min-w-0 items-center gap-1 truncate", className),
-    ...props,
-  };
-
-  return slotChild ? (
-    <Slot.Root {...shared}>{slotChild}</Slot.Root>
-  ) : (
-    <span {...shared}>{content}</span>
-  );
+  return useRender({
+    defaultTagName: "span",
+    render,
+    props: mergeProps<"span">(
+      {
+        "data-slot": "cascader-value",
+        className: cn("flex min-w-0 items-center gap-1 truncate", className),
+        children: content,
+      } as React.ComponentProps<"span">,
+      props,
+    ),
+  });
 }
 
 export {

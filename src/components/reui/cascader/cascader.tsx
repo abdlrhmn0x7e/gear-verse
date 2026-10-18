@@ -80,7 +80,8 @@ import type {
   CascaderSelectable,
 } from "~/components/reui/cascader/cascader-types";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react";
-import { Slot } from "radix-ui";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 
 import { cn } from "~/lib/utils";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -2778,9 +2779,7 @@ function CascaderContent({
 /*                                    Panel                                   */
 /* -------------------------------------------------------------------------- */
 
-export interface CascaderPanelProps extends React.ComponentProps<"div"> {
-  asChild?: boolean;
-}
+export type CascaderPanelProps = useRender.ComponentProps<"div">;
 
 /**
  * The nav + list(s) + footer container, with no positioning of its own: inside
@@ -2795,13 +2794,11 @@ export interface CascaderPanelProps extends React.ComponentProps<"div"> {
  */
 function CascaderPanel({
   className,
-  asChild = false,
-  children,
+  render,
   onKeyDown,
   ...props
 }: CascaderPanelProps) {
   const { mode } = useCascaderActions();
-  const Comp = asChild ? Slot.Root : "div";
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -2826,17 +2823,19 @@ function CascaderPanel({
     [onKeyDown],
   );
 
-  return (
-    <Comp
-      data-slot="cascader-panel"
-      data-mode={mode}
-      onKeyDown={handleKeyDown}
-      className={cn("flex max-h-full min-h-0 w-full flex-col", className)}
-      {...props}
-    >
-      {children}
-    </Comp>
-  );
+  return useRender({
+    defaultTagName: "div",
+    render,
+    props: mergeProps<"div">(
+      {
+        "data-slot": "cascader-panel",
+        "data-mode": mode,
+        onKeyDown: handleKeyDown,
+        className: cn("flex max-h-full min-h-0 w-full flex-col", className),
+      } as React.ComponentProps<"div">,
+      props,
+    ),
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3020,9 +3019,7 @@ function CascaderEmpty({
   );
 }
 
-export interface CascaderStatusProps extends ComboboxPrimitive.Status.Props {
-  asChild?: boolean;
-}
+export type CascaderStatusProps = ComboboxPrimitive.Status.Props;
 
 /**
  * Polite live region for the current level and result count, which drill-down
@@ -3033,20 +3030,14 @@ export interface CascaderStatusProps extends ComboboxPrimitive.Status.Props {
 function CascaderStatus({
   className,
   children,
-  asChild = false,
   ...props
 }: CascaderStatusProps) {
   const { announcement } = useCascaderState();
-
-  // `asChild` only engages when there IS an element to slot into: with a bare
-  // string, Radix's `Slot` answers `null` and deletes the live region.
-  const asSlot = asChild && React.isValidElement(children);
 
   return (
     <ComboboxPrimitive.Status
       data-slot="cascader-status"
       className={cn("sr-only", className)}
-      {...(asSlot ? { render: <Slot.Root /> } : null)}
       {...props}
     >
       {children ?? announcement}

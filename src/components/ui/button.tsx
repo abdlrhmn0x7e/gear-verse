@@ -1,7 +1,8 @@
 import * as React from "react";
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "~/lib/utils";
-import { Slot } from "radix-ui";
 
 const buttonVariants = cva(
   "group/button relative inline-flex shrink-0 items-center justify-center rounded-full border bg-clip-padding text-sm font-medium whitespace-nowrap transition-[scale,background-color,border-color,color,box-shadow,opacity] duration-150 ease-out outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-safe:active:not-aria-[haspopup]:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 pointer-coarse:after:absolute pointer-coarse:after:top-1/2 pointer-coarse:after:left-1/2 pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 pointer-coarse:after:-translate-1/2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -45,27 +46,43 @@ const buttonVariants = cva(
   },
 );
 
+type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants>;
+
 function Button({
   className,
   variant = "default",
   size = "default",
-  asChild = false,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot.Root : "button";
+}: ButtonProps) {
+  const shared = {
+    "data-slot": "button",
+    "data-variant": variant,
+    "data-size": size,
+  };
+  const classes = cn(buttonVariants({ variant, size, className }));
 
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  // Base UI's Button gives whatever it renders role="button", and its docs keep links out of it; a link styled as a
+  // button stays a link, as it was under Radix's Slot
+  if (
+    React.isValidElement<{ href?: unknown }>(props.render) &&
+    props.render.props.href !== undefined
+  ) {
+    return <ButtonLink {...shared} {...props} className={classes} />;
+  }
+
+  return <ButtonPrimitive {...shared} {...props} className={classes} />;
+}
+
+function ButtonLink({
+  render,
+  nativeButton: _nativeButton,
+  focusableWhenDisabled: _focusableWhenDisabled,
+  ...props
+}: ButtonPrimitive.Props) {
+  return useRender({
+    render: render as React.ReactElement,
+    props,
+  });
 }
 
 export { Button, buttonVariants };
