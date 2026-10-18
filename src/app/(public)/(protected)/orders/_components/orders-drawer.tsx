@@ -60,7 +60,7 @@ export function OrdersDrawer({
       onOpenChange={handleOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[92dvh] data-[vaul-drawer-direction=right]:sm:max-w-xl">
+      <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[vaul-drawer-direction=right]:sm:max-w-xl">
         <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-left group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
           <DrawerTitle className="text-title">Order #{shownId}</DrawerTitle>
           <DrawerDescription asChild>
