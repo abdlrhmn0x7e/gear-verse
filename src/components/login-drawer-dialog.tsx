@@ -43,7 +43,7 @@ export function LoginDrawerDialog({
       <DrawerDialogTrigger asChild>{children}</DrawerDialogTrigger>
       <DrawerDialogContent>
         <DrawerDialogHeader className="gap-1">
-          <Logo className="mx-auto" />
+          <Logo className="mx-auto mb-2 h-16" />
           <DrawerDialogTitle className="text-center text-2xl">
             Welcome to GearVerse
           </DrawerDialogTitle>

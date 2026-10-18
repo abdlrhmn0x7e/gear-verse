@@ -56,7 +56,7 @@ export function MobileNav() {
           <DrawerHeader className="px-2 pt-2 pb-2 text-left">
             <DrawerTitle asChild>
               <Link href="/" onNavigate={drawer.dismiss} className="w-fit">
-                <Logo className="h-9" />
+                <Logo className="h-11" />
               </Link>
             </DrawerTitle>
             <DrawerDescription className="sr-only">

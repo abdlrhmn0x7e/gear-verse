@@ -81,6 +81,8 @@
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
   --selection: var(--plum-200);
+  /* the wordmark's own purple (#501854); 12.74:1 on the page, 11.84:1 on the footer card */
+  --brand-logo: var(--plum-900);
 
   /* a light well in both themes: multiply makes white-backed photos vanish on a dark tile */
   --image-well: var(--neutral-100);
@@ -161,6 +163,8 @@
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
   --selection: var(--plum-800);
+  /* lavender at the brand hue; 10.82:1 on the page, 9.69:1 on the footer card */
+  --brand-logo: oklch(0.84 0.045 325);
 
   /* photos ship on white, so the well stays light, only dimmer than the light theme's */
   --image-well: var(--neutral-250);
@@ -217,6 +221,7 @@
   --color-brand-text: var(--brand-text);
   --color-brand-solid: var(--brand-solid);
   --color-brand-solid-foreground: var(--brand-solid-foreground);
+  --color-brand-logo: var(--brand-logo);
   --color-image-outline: var(--image-outline);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);

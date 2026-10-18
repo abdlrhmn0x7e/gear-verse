@@ -25,7 +25,7 @@ export function Footer() {
             href="/"
             className="rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
           >
-            <Logo className="h-11" />
+            <Logo className="h-14" />
           </Link>
           <p className="text-muted-foreground max-w-xs text-pretty">
             The world&apos;s best gear, hand-imported to Egypt. Customs
