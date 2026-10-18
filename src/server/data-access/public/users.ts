@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "~/server/db";
 import {
   addresses,
@@ -12,46 +12,6 @@ import {
 import { cartLineKey, mergeCartLines } from "../common/merge-cart-lines";
 
 export const _users = {
-  queries: {
-    getCustomerSummary: async () => {
-      const latestUsersCte = db.$with("latest_users_cte").as(
-        db
-          .select({
-            name: users.name,
-            image: users.image,
-          })
-          .from(users)
-          .where(eq(users.isAnonymous, false))
-          .orderBy(desc(users.id)) // Assuming 'id' can be used to determine latest if 'createdAt' isn't available
-          .limit(5),
-      );
-
-      return db
-        .with(latestUsersCte)
-        .select({
-          summary: sql<Array<{ name: string; image: string | null }>>`(
-                      SELECT coalesce(
-                        json_agg(
-                          jsonb_build_object(
-                            'name', ${latestUsersCte.name},
-                            'image', ${latestUsersCte.image}
-                          )
-                        ), '[]'::json)
-                      FROM ${latestUsersCte}
-                   )`.as("summary"),
-
-          // anonymous visitors aren't customers
-          count:
-            sql<number>`(SELECT COUNT(*) FROM ${users} WHERE ${users.isAnonymous} IS NOT TRUE)`.as(
-              "count",
-            ),
-        })
-        .from(users)
-        .limit(1)
-        .then(([res]) => res);
-    },
-  },
-
   mutations: {
     /**
      * Hands everything an anonymous visitor owns over to the account they

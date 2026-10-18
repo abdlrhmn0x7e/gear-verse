@@ -5,7 +5,6 @@ import { _categories } from "./categories";
 import { _reviews } from "./reviews";
 import { _checkout } from "./check-out";
 import { _orders } from "./orders";
-import { _customers } from "./customers";
 import { _settings } from "./settings";
 import { _sitemap } from "./sitemap";
 
@@ -17,7 +16,6 @@ export const _public = {
   reviews: _reviews,
   checkout: _checkout,
   orders: _orders,
-  customers: _customers,
   settings: _settings,
   sitemap: _sitemap,
 };
