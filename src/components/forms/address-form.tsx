@@ -156,7 +156,7 @@ export function AddressForm({
             <FormItem>
               <FormLabel>Building Name/Number</FormLabel>
               <FormControl>
-                <Input placeholder="skibidi tower" {...field} />
+                <Input placeholder="Building 12, floor 3, apt 5" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
