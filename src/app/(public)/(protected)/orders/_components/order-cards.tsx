@@ -1,6 +1,6 @@
 "use client";
 
-import { EyeIcon } from "lucide-react";
+import { ArrowRightIcon, EyeIcon } from "lucide-react";
 import { PaymentMethod } from "~/components/payment-method";
 import { Button } from "~/components/ui/button";
 import {
@@ -28,7 +28,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { IconArrowUpRight, IconShoppingCartX } from "@tabler/icons-react";
+import { IconShoppingCartX } from "@tabler/icons-react";
 import Link from "next/link";
 
 export function OrderCards() {
@@ -61,17 +61,16 @@ export function OrderCards() {
           <EmptyMedia variant="icon">
             <IconShoppingCartX />
           </EmptyMedia>
-          <EmptyTitle>No Orders Yet</EmptyTitle>
+          <EmptyTitle>No orders yet</EmptyTitle>
           <EmptyDescription>
-            You haven&apos;t created any orders yet. Get started by creating
-            your first order.
+            Orders you place show up here so you can follow them to your door.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button asChild>
             <Link href="/products">
-              Checkout Our Products
-              <IconArrowUpRight />
+              Browse the store
+              <ArrowRightIcon data-icon="inline-end" />
             </Link>
           </Button>
         </EmptyContent>
