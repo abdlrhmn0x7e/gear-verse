@@ -67,7 +67,9 @@ function DialogContent({
 }) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      {/* Base UI leaves out the backdrop of a dialog opened from a drawer or another dialog, so the layer under it
+          stayed bright beside it */}
+      <DialogOverlay forceRender />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(

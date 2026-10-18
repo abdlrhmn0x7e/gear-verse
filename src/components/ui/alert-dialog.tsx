@@ -47,7 +47,9 @@ function AlertDialogContent({
 }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      {/* Base UI leaves out the backdrop of a dialog opened from a drawer or another dialog, so the layer under it
+          stayed bright beside it */}
+      <AlertDialogOverlay forceRender />
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
         data-size={size}
