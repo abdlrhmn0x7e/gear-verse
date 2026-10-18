@@ -46,18 +46,78 @@ function DrawerOverlay({
   );
 }
 
+function subscribeToVisualViewport(onChange: () => void) {
+  window.visualViewport?.addEventListener("resize", onChange);
+  window.visualViewport?.addEventListener("scroll", onChange);
+  return () => {
+    window.visualViewport?.removeEventListener("resize", onChange);
+    window.visualViewport?.removeEventListener("scroll", onChange);
+  };
+}
+
+/** The visible height above the keyboard; vaul pins the drawer's bottom to the keyboard's top, assuming iOS has not
+ * panned the page, and when it has, the panned-away strip at the top is out of reach too. */
+function getVisibleHeight() {
+  const viewport = window.visualViewport;
+  return viewport ? viewport.height - viewport.offsetTop : undefined;
+}
+
 function DrawerContent({
   className,
   children,
+  style,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const returnFocusTo = React.useRef<HTMLElement | null>(null);
+  // iOS lays the keyboard over the page and shrinks only the visual viewport, so vh, svh and dvh all stay put while
+  // vaul lifts the drawer above the keyboard; capping the drawer at the visual viewport keeps its top on screen
+  const visibleHeight = React.useSyncExternalStore(
+    subscribeToVisualViewport,
+    getVisibleHeight,
+    () => undefined,
+  );
+
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
+        style={
+          {
+            "--drawer-visible-height": visibleHeight
+              ? `${visibleHeight}px`
+              : undefined,
+            ...style,
+          } as React.CSSProperties
+        }
+        // Radix focuses the first button on open and the trigger on close. A tap on iOS focuses nothing, and WebKit
+        // shows the focus ring for any focus a script moves unless the last focus came from a click, so every drawer
+        // opened by touch drew the ring on its first button. The panel takes focus instead (Tab reaches its controls),
+        // and on close focus only goes back where it was, which after a tap is nowhere
+        onOpenAutoFocus={(event) => {
+          const active = document.activeElement;
+          returnFocusTo.current =
+            active instanceof HTMLElement && active !== document.body
+              ? active
+              : null;
+          onOpenAutoFocus?.(event);
+          if (event.defaultPrevented) return;
+          event.preventDefault();
+          (event.currentTarget as HTMLElement).focus({ preventScroll: true });
+        }}
+        onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event);
+          if (event.defaultPrevented) return;
+          event.preventDefault();
+          if (returnFocusTo.current?.isConnected) {
+            returnFocusTo.current.focus({ preventScroll: true });
+          }
+          returnFocusTo.current = null;
+        }}
         className={cn(
-          "group/drawer-content surface-floating outline-none before:border-(--floating-border) before:bg-popover before:bg-clip-padding fixed z-50 flex h-auto flex-col bg-transparent p-4 text-sm before:absolute before:inset-2 before:-z-10 before:rounded-[28px] before:border before:shadow-2xl data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=left]:sm:max-w-md data-[vaul-drawer-direction=right]:sm:max-w-md",
+          "group/drawer-content surface-floating before:bg-popover fixed z-50 flex h-auto flex-col bg-transparent p-4 text-sm outline-none before:absolute before:inset-2 before:-z-10 before:rounded-[28px] before:border before:border-(--floating-border) before:bg-clip-padding before:shadow-2xl data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[min(80svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[min(80svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[vaul-drawer-direction=left]:sm:max-w-md data-[vaul-drawer-direction=right]:sm:max-w-md",
           className,
         )}
         {...props}
@@ -86,7 +146,10 @@ function DrawerBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-body"
-      className={cn("scroll-fade min-h-0 flex-1 overflow-y-auto px-4 pb-4", className)}
+      className={cn(
+        "scroll-fade min-h-0 flex-1 overflow-y-auto px-4 pb-4",
+        className,
+      )}
       {...props}
     />
   );
