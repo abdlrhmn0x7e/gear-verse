@@ -231,7 +231,7 @@ export function VariantsTable({
             <FormField
               control={form.control}
               name={`variants.${row.index}.stock`}
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormControl>
                     <NumberInput
@@ -239,6 +239,8 @@ export function VariantsTable({
                       min={0}
                       {...field}
                       value={field.value ?? 0}
+                      // unlike onChange, this also fires for the stepper arrows
+                      onValueChange={(value) => onChange(value ?? 0)}
                     />
                   </FormControl>
                   <FormMessage />

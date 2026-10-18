@@ -131,6 +131,22 @@ function InputGroupInput({
   );
 }
 
+/**
+ * Sets the value through the input itself, the way typing does, so React
+ * fires onChange and forms (react-hook-form) see the stepped value.
+ */
+function stepInputValue(stepper: HTMLButtonElement, value: number) {
+  const input = stepper
+    .closest('[data-slot="input-control"]')
+    ?.querySelector("input");
+  if (!input) return;
+
+  // React tracks the value through the input's own setter, so set it through
+  // the prototype one or React ignores the input event as "no change"
+  Reflect.set(HTMLInputElement.prototype, "value", String(value), input);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
 function InputGroupNumberInput({
   className,
   step = 1,
@@ -158,12 +174,12 @@ function InputGroupNumberInput({
 
   function handleIncrement(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setSteppedValue((prev) => (prev ? prev + step : step));
+    stepInputValue(e.currentTarget, steppedValue ? steppedValue + step : step);
   }
 
   function handleDecrement(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    setSteppedValue((prev) => (prev ? prev - step : 0));
+    stepInputValue(e.currentTarget, steppedValue ? steppedValue - step : 0);
   }
 
   return (

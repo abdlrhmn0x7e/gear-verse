@@ -276,10 +276,14 @@ export function OrderForm({
                       <Controller
                         control={form.control}
                         name={`items.${index}.quantity`}
-                        render={({ field, fieldState }) => (
+                        render={({
+                          field: { onChange, ...field },
+                          fieldState,
+                        }) => (
                           <Field data-invalid={fieldState.invalid}>
                             <NumberInput
                               {...field}
+                              onValueChange={onChange}
                               id={field.name}
                               aria-invalid={fieldState.invalid}
                               placeholder="1"
