@@ -108,7 +108,7 @@ export function CartDrawer({
           <div className="flex-1 divide-y px-2" aria-hidden>
             {Array.from({ length: 2 }).map((_, index) => (
               <div key={index} className="flex gap-4 py-4">
-                <Skeleton className="size-20 shrink-0 rounded-xl" />
+                <Skeleton className="size-16 shrink-0 rounded-xl sm:size-20" />
                 <div className="flex flex-1 flex-col gap-2 pt-1">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/3" />
@@ -125,7 +125,7 @@ export function CartDrawer({
                   key={`${item.productId}-${item.productVariantId}`}
                   className="flex gap-4 py-4"
                 >
-                  <div className="image-well outline-image-outline size-20 shrink-0 overflow-hidden rounded-xl outline-1 -outline-offset-1">
+                  <div className="image-well outline-image-outline size-16 shrink-0 overflow-hidden rounded-xl outline-1 -outline-offset-1 sm:size-20">
                     <ImageWithFallback
                       src={item.thumbnailUrl}
                       alt=""
@@ -135,42 +135,42 @@ export function CartDrawer({
                     />
                   </div>
 
+                  {/* the price sits on the stepper row so the title gets the full width, even on a phone */}
                   <div className="flex min-w-0 flex-1 flex-col gap-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="line-clamp-2 text-sm font-medium">
-                          {item.title}
+                    <div className="min-w-0">
+                      <p className="line-clamp-2 text-sm font-medium">
+                        {item.title}
+                      </p>
+                      {item.values && item.values.length > 0 && (
+                        <p className="text-muted-foreground text-sm capitalize">
+                          {item.values.join(", ")}
                         </p>
-                        {item.values && item.values.length > 0 && (
-                          <p className="text-muted-foreground text-sm capitalize">
-                            {item.values.join(", ")}
-                          </p>
-                        )}
-                      </div>
-                      <p className="shrink-0 text-sm font-medium tabular-nums">
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <QuantityStepper
+                        quantity={item.quantity}
+                        itemLabel={name}
+                        pending={pending}
+                        canIncrement={(item.stock ?? 0) > item.quantity}
+                        onDecrement={() =>
+                          removeItem({
+                            productId: item.productId,
+                            productVariantId: item.productVariantId,
+                          })
+                        }
+                        onIncrement={() =>
+                          addItem({
+                            productId: item.productId,
+                            productVariantId: item.productVariantId,
+                          })
+                        }
+                      />
+                      <p className="text-sm font-medium tabular-nums">
                         {formatCurrency((item.price ?? 0) * item.quantity)}
                       </p>
                     </div>
-
-                    <QuantityStepper
-                      quantity={item.quantity}
-                      itemLabel={name}
-                      pending={pending}
-                      canIncrement={(item.stock ?? 0) > item.quantity}
-                      onDecrement={() =>
-                        removeItem({
-                          productId: item.productId,
-                          productVariantId: item.productVariantId,
-                        })
-                      }
-                      onIncrement={() =>
-                        addItem({
-                          productId: item.productId,
-                          productVariantId: item.productVariantId,
-                        })
-                      }
-                      className="self-start"
-                    />
                   </div>
                 </li>
               );
