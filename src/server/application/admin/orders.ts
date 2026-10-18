@@ -9,6 +9,9 @@ import type {
 import { tryCatch } from "~/lib/utils/try-catch";
 import { invalidateProducts } from "~/server/actions/cache";
 
+const EMPTY_ORDER_MESSAGE =
+  "An order needs at least one item. Cancel the order instead.";
+
 /** An order may only ship to one of its own customer's addresses. */
 async function assertAddressBelongsToUser(addressId: number, userId: number) {
   const ownerId = await data.admin.addresses.queries.findOwnerId(addressId);
@@ -59,6 +62,9 @@ export const _orders = {
   mutations: {
     create: async (input: CreateFullOrderInput) => {
       const { items, ...order } = input;
+      if (items.length === 0) {
+        throw new AppError("An order needs at least one item.", "BAD_REQUEST");
+      }
       await assertAddressBelongsToUser(order.addressId, order.userId);
 
       const { data: newOrder, error } = await tryCatch(
@@ -76,6 +82,9 @@ export const _orders = {
 
     update: async (input: UpdateFullOrderInput & { id: number }) => {
       const { id, items, ...order } = input;
+      if (items?.length === 0) {
+        throw new AppError(EMPTY_ORDER_MESSAGE, "BAD_REQUEST");
+      }
 
       // the form only sends dirty fields, so check the address against the
       // order's current customer unless the customer is changing too

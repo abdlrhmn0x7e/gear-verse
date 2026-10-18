@@ -46,8 +46,19 @@ import { CustomersCombobox } from "./customers-combobox";
 import { ProductsCombobox } from "./products-combobox";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 
-const orderFormSchema = createFullOrderInputSchema;
-export type OrderFormValues = z.infer<typeof orderFormSchema>;
+const itemsSchema = createFullOrderInputSchema.shape.items;
+
+// the server rejects an order without items, so say so before it's sent
+const createOrderFormSchema = createFullOrderInputSchema.extend({
+  items: itemsSchema.min(1, "Add at least one item to the order."),
+});
+const editOrderFormSchema = createFullOrderInputSchema.extend({
+  items: itemsSchema.min(
+    1,
+    "An order needs at least one item. Cancel the order instead.",
+  ),
+});
+export type OrderFormValues = z.infer<typeof createOrderFormSchema>;
 
 const PAYMENT_METHODS = [
   {
@@ -72,7 +83,9 @@ export function OrderForm({
   defaultValues?: Partial<OrderFormValues>;
 }) {
   const form = useForm<OrderFormValues>({
-    resolver: zodResolver(orderFormSchema),
+    resolver: zodResolver(
+      defaultValues ? editOrderFormSchema : createOrderFormSchema,
+    ),
     defaultValues: defaultValues ?? {
       paymentMethod: "COD",
       status: "PENDING",
@@ -89,10 +102,9 @@ export function OrderForm({
   } = useFieldArray({
     control: form.control,
     name: "items",
-    rules: {
-      minLength: 1,
-    },
   });
+
+  const itemsError = form.formState.errors.items;
 
   const userId = useWatch({
     control: form.control,
@@ -320,6 +332,7 @@ export function OrderForm({
               </EmptyHeader>
             </Empty>
           )}
+          <FieldError errors={[itemsError?.root ?? itemsError]} />
         </FramePanel>
       </Frame>
     </form>
