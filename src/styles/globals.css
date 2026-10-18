@@ -502,13 +502,21 @@
   background-clip: padding-box;
   box-shadow: var(--surface-shadow, none);
 
+  /* A tap leaves :hover on the element until the next tap elsewhere, so hover only paints with a real pointer */
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover,
+    --surface-control-hover: var(
+      --surface-fill-hover,
+      color-mix(in oklab, var(--accent) 50%, var(--background))
+    );
+
     &[aria-expanded="true"] {
-      background-color: var(
-        --surface-fill-hover,
-        color-mix(in oklab, var(--accent) 50%, var(--background))
-      );
+      background-color: var(--surface-control-hover);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--surface-control-hover);
+      }
     }
   }
 
@@ -519,13 +527,10 @@
     );
 
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-      &:hover,
-      &[aria-expanded="true"] {
-        background-color: var(
-          --surface-fill-hover,
-          color-mix(in oklab, var(--input) 64%, var(--background))
-        );
-      }
+      --surface-control-hover: var(
+        --surface-fill-hover,
+        color-mix(in oklab, var(--input) 64%, var(--background))
+      );
     }
   }
 }
@@ -569,10 +574,16 @@
   color: var(--primary-foreground);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover,
     &:active {
       border-color: var(--primary-hover);
       background-color: var(--primary-hover);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--primary-hover);
+        background-color: var(--primary-hover);
+      }
     }
   }
 }
@@ -584,8 +595,10 @@
   color: var(--selected-foreground);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
-    &:hover {
-      background-color: color-mix(in oklab, var(--selected) 90%, transparent);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: color-mix(in oklab, var(--selected) 90%, transparent);
+      }
     }
   }
 }
