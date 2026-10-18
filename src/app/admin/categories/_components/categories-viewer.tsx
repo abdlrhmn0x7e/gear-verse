@@ -8,6 +8,7 @@ import {
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
   DragableContext,
@@ -158,6 +159,9 @@ export function CategoriesViewer() {
       onSuccess: () => {
         void queryClient.invalidateQueries(trpc.admin.categories.pathFilter());
       },
+      onError: (error) => {
+        toast.error(error.message || "Couldn't move the category");
+      },
     }),
   );
 
@@ -208,6 +212,19 @@ export function CategoriesViewer() {
     if (activeInfo.type === "category" && overInfo.type === "category") {
       // if the target is the same as the source, don't move the category
       if (activeInfo.id === overInfo.id) {
+        setTimeout(() => setActiveId(null), 180);
+        return;
+      }
+
+      // nesting it under one of its own sub-categories would make a loop
+      if (
+        overInfo.id !== 0 &&
+        activeCategory &&
+        findCategory([activeCategory], overInfo.id)
+      ) {
+        toast.error(
+          "A category can't move inside one of its own sub-categories.",
+        );
         setTimeout(() => setActiveId(null), 180);
         return;
       }

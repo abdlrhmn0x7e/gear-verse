@@ -80,6 +80,22 @@ export const _categories = {
     update: async (input: UpdateCategoryInput) => {
       const { id, ...updatedData } = input;
 
+      // nesting a category under itself or one of its own sub-categories
+      // makes a loop, and the whole branch drops out of the tree
+      if (typeof updatedData.parent_id === "number") {
+        const parentLine =
+          await data.admin.categories.queries.findSelfAndAncestorIds(
+            updatedData.parent_id,
+          );
+
+        if (parentLine.includes(id)) {
+          throw new AppError(
+            "A category can't move inside itself or one of its sub-categories.",
+            "BAD_REQUEST",
+          );
+        }
+      }
+
       const { data: updatedCategory, error } = await tryCatch(
         data.admin.categories.mutations.update(id, updatedData),
       );

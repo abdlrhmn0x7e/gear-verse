@@ -10,6 +10,7 @@ import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
 import { useEffect, useId } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function EditCategory({
   id,
@@ -35,6 +36,9 @@ export function EditCategory({
           trpc.admin.categories.queries.findRoots.queryFilter(),
         );
         onSuccess();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Couldn't save the category");
       },
     }),
   );
