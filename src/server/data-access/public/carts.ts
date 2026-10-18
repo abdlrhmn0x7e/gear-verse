@@ -299,9 +299,11 @@ export const _carts = {
           eq(cartItems.cartId, cartId),
           eq(cartItems.productId, productId),
         ];
-        if (productVariantId) {
-          whereClause.push(eq(cartItems.productVariantId, productVariantId));
-        }
+        whereClause.push(
+          productVariantId
+            ? eq(cartItems.productVariantId, productVariantId)
+            : isNull(cartItems.productVariantId),
+        );
 
         const [updated] = await tx
           .update(cartItems)
