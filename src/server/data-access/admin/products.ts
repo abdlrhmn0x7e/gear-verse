@@ -365,8 +365,8 @@ export const _products = {
           >`coalesce(${optionsQuery.options}, '[]'::jsonb)`,
 
           thumbnail: {
-            mediaId: sql<number>`${media.id}`,
-            url: sql<string>`${media.url}`,
+            mediaId: media.id,
+            url: media.url,
           },
           media: sql<
             { mediaId: number; url: string }[]
@@ -381,7 +381,7 @@ export const _products = {
           productMediaQuery,
           eq(productMediaQuery.productId, products.id),
         )
-        .leftJoin(media, eq(media.id, products.thumbnailMediaId))
+        .innerJoin(media, eq(media.id, products.thumbnailMediaId))
         .leftJoin(
           productAttributesQuery,
           eq(productAttributesQuery.productId, products.id),
