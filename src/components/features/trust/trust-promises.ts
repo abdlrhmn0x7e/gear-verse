@@ -1,4 +1,4 @@
-import { BadgeCheckIcon, ShieldCheckIcon, TruckIcon } from "lucide-react";
+import { BadgeCheckIcon, BanknoteIcon, TruckIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type TrustPromise = {
@@ -16,13 +16,13 @@ export const TRUST_PROMISES = [
     description: "To most areas in Egypt",
   },
   {
-    icon: ShieldCheckIcon,
-    title: "Customs cleared & insured",
-    description: "No surprise fees at your door",
+    icon: BadgeCheckIcon,
+    title: "Originals only",
+    description: "Most with the brand's warranty",
   },
   {
-    icon: BadgeCheckIcon,
-    title: "Authentic gear",
-    description: "From trusted brands",
+    icon: BanknoteIcon,
+    title: "Cash on delivery",
+    description: "Only shipping is paid up front",
   },
 ] as const satisfies readonly TrustPromise[];

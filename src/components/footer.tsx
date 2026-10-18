@@ -12,6 +12,7 @@ import { SocialLinks } from "./social-links";
 import { WhatsAppNumberLink } from "./whatsapp-number-link";
 
 const HELP_LINKS = [
+  { title: "Request an item", href: "/#request" },
   { title: "FAQ", href: "/#faq" },
   { title: "My orders", href: "/orders" },
   { title: "Returns & refunds", href: "/returns" },
@@ -49,8 +50,8 @@ export async function Footer() {
             <Logo className="h-14" />
           </Link>
           <p className="text-muted-foreground max-w-xs text-pretty">
-            The world&apos;s best gear, hand-imported to Egypt. Customs cleared,
-            insured and delivered.
+            Gear worth the money, in stock in Egypt. If it&apos;s not on the
+            shelf, we&apos;ll get it.
           </p>
           <SocialLinks links={settings} />
         </div>

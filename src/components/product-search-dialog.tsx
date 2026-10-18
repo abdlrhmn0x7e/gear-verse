@@ -1,6 +1,6 @@
 "use client";
 
-import { IconShoppingBagX } from "@tabler/icons-react";
+import { IconBrandWhatsapp, IconShoppingBagX } from "@tabler/icons-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { motion } from "motion/react";
@@ -10,6 +10,7 @@ import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Spinner } from "~/components/spinner";
+import { Button } from "~/components/ui/button";
 import { DialogOverlay } from "~/components/ui/dialog";
 import {
   Empty,
@@ -263,7 +264,9 @@ function Content({ close }: { close: () => void }) {
 
       {isError && <ProductSearchError />}
 
-      {data?.data.length === 0 && <ProductSearchEmpty />}
+      {data?.data.length === 0 && (
+        <ProductSearchEmpty query={debouncedSearch} />
+      )}
 
       {data && data.data.length > 0 && (
         <ul className="scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
@@ -309,7 +312,10 @@ export function ProductSearchError() {
   );
 }
 
-export function ProductSearchEmpty() {
+/** No match still ends in a way forward: request what was searched for on WhatsApp. */
+export function ProductSearchEmpty({ query }: { query: string }) {
+  const item = query.trim();
+
   return (
     <Empty className="gap-0">
       <EmptyHeader>
@@ -317,10 +323,18 @@ export function ProductSearchEmpty() {
           <IconShoppingBagX />
         </EmptyMedia>
       </EmptyHeader>
-      <EmptyTitle>No products found</EmptyTitle>
-      <EmptyDescription>
-        Try adjusting your search or check back later.
-      </EmptyDescription>
+      <EmptyTitle>Not on the shelf</EmptyTitle>
+      <EmptyDescription>We can still get it for you.</EmptyDescription>
+      <Button variant="outline" asChild className="mt-6 max-w-full">
+        <a
+          href={`/request?item=${encodeURIComponent(item)}`}
+          target="_blank"
+          rel="noopener"
+        >
+          <IconBrandWhatsapp data-icon="inline-start" stroke={1.75} />
+          <span className="truncate">Request &ldquo;{item}&rdquo;</span>
+        </a>
+      </Button>
     </Empty>
   );
 }

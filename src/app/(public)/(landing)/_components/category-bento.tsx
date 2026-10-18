@@ -32,7 +32,7 @@ export async function CategoryBento() {
         <SectionHeader
           id="categories-heading"
           title="Shop by category"
-          description="Find your next upgrade, from audio to input."
+          description="Each one is a short list, so picking takes minutes."
         />
 
         <ul

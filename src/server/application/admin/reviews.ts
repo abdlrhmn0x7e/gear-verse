@@ -1,6 +1,7 @@
 import { data } from "~/server/data-access";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
+import { invalidateCache } from "~/server/actions/cache";
 
 export const _reviews = {
   queries: {
@@ -27,6 +28,7 @@ export const _reviews = {
         });
       }
 
+      await invalidateCache("reviews");
       return updatedReview;
     },
   },

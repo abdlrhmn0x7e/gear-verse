@@ -39,12 +39,25 @@ export async function FAQ() {
     {
       question: "What is Gear Verse?",
       answer:
-        "Gear Verse is your premier destination for gaming gear in Egypt. We provide access to the latest gaming accessories, peripherals, and equipment that might not be readily available locally, delivering them right to your doorstep.",
+        "A gear store in Egypt with a short list: keyboards, mice and IEMs we think are worth the money, in stock and delivered in 1–2 days. If you want something we don't carry, request it and we'll get it for you.",
+    },
+    {
+      question: "Can you get something you don't sell?",
+      answer: (
+        <>
+          Yes.{" "}
+          <a href="#request" className={inlineLinkClassName}>
+            Send us the model or a link
+          </a>{" "}
+          on WhatsApp and we&apos;ll reply with the price and delivery time
+          before you commit to anything.
+        </>
+      ),
     },
     {
       question: "Do you deliver anywhere in Egypt?",
       answer:
-        'Yes! We deliver across Egypt. Delivery times and the shipping fee depend on your location; see "How do I pay?" below for how the fee is confirmed and paid.',
+        'Yes, anywhere in Egypt. Delivery times and the shipping fee depend on your location; see "How do I pay?" below for how the fee is confirmed and paid.',
     },
     {
       question: "How do I pay?",
@@ -73,12 +86,12 @@ export async function FAQ() {
     {
       question: "Are the products authentic and covered by warranty?",
       answer:
-        "Absolutely! We only sell authentic gaming gear from trusted brands. Most products come with the manufacturer's warranty.",
+        "Yes. Everything we sell is original, and most products come with the manufacturer's warranty. Ask us on WhatsApp if you want to check a specific product.",
     },
     {
       question: "How long does delivery take?",
       answer:
-        "Delivery times vary based on your location and product availability. Typically, orders are delivered within 1-2 business days for most areas in Egypt. Rush delivery options may be available for certain locations.",
+        "1–2 business days to most areas in Egypt. Farther areas can take a little longer, and we'll tell you when we confirm your order.",
     },
     {
       question: "What if I receive a damaged or defective product?",

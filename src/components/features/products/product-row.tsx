@@ -50,7 +50,7 @@ export function StoreTile({ className }: { className?: string }) {
       )}
     >
       <p className="text-title max-w-xs text-balance">
-        A curated store of the best international brands.
+        A short list, and every pick on it is worth the money.
       </p>
       <span className="inline-flex items-center gap-2 text-sm font-medium">
         See the whole store

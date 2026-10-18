@@ -1,15 +1,13 @@
-import { StarIcon } from "lucide-react";
-import type { TestimonialItem } from "~/components/features/testimonials/testimonials";
+import Link from "next/link";
+import { StarRating } from "~/components/features/reviews/star-rating";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import { cn } from "~/lib/utils";
+import { getFeaturedReviews, shortReviewerName } from "~/lib/featured-reviews";
 import { SectionHeader } from "./section-header";
 
-export function Testimonials({
-  testimonials,
-}: {
-  testimonials: TestimonialItem[];
-}) {
-  if (testimonials.length === 0) return null;
+/** Real product reviews only; the section stays hidden until customers have left some. */
+export async function Testimonials() {
+  const reviews = await getFeaturedReviews(4);
+  if (reviews.length === 0) return null;
 
   return (
     <section className="py-12 md:py-16" aria-labelledby="testimonials-heading">
@@ -18,43 +16,30 @@ export function Testimonials({
           <SectionHeader
             id="testimonials-heading"
             title="What customers say"
-            description="Real customers, in their own words."
+            description="Reviews left on the gear they bought, unedited."
           />
 
           <ul className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto *:w-[85%] *:shrink-0 *:snap-start md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:*:w-auto xl:grid-cols-4">
-            {testimonials.map((testimonial) => (
+            {reviews.map((review) => (
               <li
-                key={testimonial.name}
+                key={review.id}
                 className="bg-raised flex flex-col gap-5 rounded-3xl p-6"
               >
-                <div
-                  className="flex gap-0.5"
-                  role="img"
-                  aria-label={`${testimonial.rating} out of 5 stars`}
-                >
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <StarIcon
-                      key={index}
-                      aria-hidden
-                      className={cn(
-                        "size-4",
-                        index < testimonial.rating
-                          ? "fill-rating text-rating-edge"
-                          : "text-muted-foreground",
-                      )}
-                      strokeWidth={1.5}
-                    />
-                  ))}
-                </div>
+                <StarRating rating={review.rating} size="sm" />
                 <blockquote
-                  lang="ar"
-                  dir="rtl"
+                  dir="auto"
                   className="text-body-lg leading-relaxed text-pretty"
                 >
-                  {testimonial.content}
+                  {review.comment}
                 </blockquote>
                 <p className="text-muted-foreground mt-auto text-sm">
-                  {testimonial.name}
+                  {shortReviewerName(review.name)} on{" "}
+                  <Link
+                    href={`/products/${review.product.slug}`}
+                    className="text-foreground underline decoration-from-font underline-offset-4"
+                  >
+                    {review.product.title}
+                  </Link>
                 </p>
               </li>
             ))}

@@ -17,6 +17,17 @@ export function formatWhatsAppNumber(number: string) {
 export const REPORT_ISSUE_MESSAGE =
   "Hi Gear Verse, I'd like to report a problem with a product from my order.";
 
+/** Longest item text carried into a request chat, so a pasted page can't build an unwieldy link. */
+const REQUEST_ITEM_MAX_LENGTH = 300;
+
+/** Typed into the chat when a customer asks for something that isn't on the shelf. */
+export function requestItemMessage(item?: string | null) {
+  const wanted = item?.trim().slice(0, REQUEST_ITEM_MAX_LENGTH);
+  return wanted
+    ? `Hi Gear Verse, can you get me this? ${wanted}`
+    : "Hi Gear Verse, I'm looking for something that isn't on the shelf.";
+}
+
 /**
  * The wa.me link that opens a chat with a number, with `message` typed in
  * when given. wa.me wants the digits only, no "+".

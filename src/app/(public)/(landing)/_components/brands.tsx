@@ -13,7 +13,7 @@ export async function Brands() {
       <MaxWidthWrapper className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
         <SectionHeader
           id="brands-heading"
-          title="Brands we import"
+          title="Brands on the shelf"
           description="Tap a brand to see everything we carry from it."
         />
 

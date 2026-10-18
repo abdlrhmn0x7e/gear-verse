@@ -1,10 +1,11 @@
 import { CheckCircleIcon } from "lucide-react";
+import Link from "next/link";
 import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { app } from "~/server/application";
 import { getSession } from "~/server/auth";
-import { TESTIMONIALS } from "../testimonials/testimonials";
+import { getFeaturedReviews, shortReviewerName } from "~/lib/featured-reviews";
 import { AddReview } from "./add-review";
 import { DeleteReviewDialog } from "./delete-review";
 import { EditReview } from "./edit-reviews";
@@ -15,9 +16,6 @@ const dateFormat = new Intl.DateTimeFormat("en", {
   month: "short",
   year: "numeric",
 });
-
-/** Product without reviews: a few things customers said about the store, so the section still reassures. */
-const FALLBACK_TESTIMONIALS = TESTIMONIALS.slice(0, 3);
 
 // a snap row on phones so the next card peeks (like the home hero), three columns from tablets up
 const cardRowClassName =
@@ -31,6 +29,8 @@ export async function Reviews({ productId }: { productId: number }) {
   const userHasReviewed = reviews.some(
     (review) => review.user?.id === Number(data?.user.id),
   );
+  // a product without reviews borrows real ones from other gear, labelled as such, so the section still reassures
+  const otherReviews = reviews.length === 0 ? await getFeaturedReviews(3) : [];
   const average =
     reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
@@ -55,8 +55,9 @@ export async function Reviews({ productId }: { productId: number }) {
           </div>
         ) : (
           <p className="text-muted-foreground text-pretty">
-            No reviews for this product yet. Here&apos;s what customers say
-            about shopping with us.
+            {otherReviews.length > 0
+              ? "No reviews for this product yet. Here's what customers said about other gear from us."
+              : "No reviews for this product yet."}
           </p>
         )}
       </div>
@@ -103,21 +104,33 @@ export async function Reviews({ productId }: { productId: number }) {
           ))}
         </ul>
       ) : (
-        <ul className={cardRowClassName}>
-          {FALLBACK_TESTIMONIALS.map((testimonial) => (
-            <li key={testimonial.name} className={cardClassName}>
-              <StarRating rating={testimonial.rating} size="sm" />
-              <blockquote
-                lang="ar"
-                dir="rtl"
-                className="text-muted-foreground text-body-lg leading-relaxed text-pretty"
-              >
-                {testimonial.content}
-              </blockquote>
-              <p className="mt-auto font-medium">{testimonial.name}</p>
-            </li>
-          ))}
-        </ul>
+        otherReviews.length > 0 && (
+          <ul className={cardRowClassName}>
+            {otherReviews.map((review) => (
+              <li key={review.id} className={cardClassName}>
+                <StarRating rating={review.rating} size="sm" />
+                <blockquote
+                  dir="auto"
+                  className="text-muted-foreground text-body-lg leading-relaxed text-pretty"
+                >
+                  {review.comment}
+                </blockquote>
+                <p className="mt-auto font-medium">
+                  {shortReviewerName(review.name)}{" "}
+                  <span className="text-muted-foreground font-normal">
+                    on{" "}
+                    <Link
+                      href={`/products/${review.product.slug}`}
+                      className="text-foreground underline decoration-from-font underline-offset-4"
+                    >
+                      {review.product.title}
+                    </Link>
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        )
       )}
 
       {data && !userHasReviewed && (

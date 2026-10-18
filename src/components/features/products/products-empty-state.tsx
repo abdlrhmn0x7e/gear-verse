@@ -1,10 +1,15 @@
 "use client";
 
-import { ArrowRightIcon, FunnelXIcon, PackageSearchIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  FunnelXIcon,
+  MessageSquarePlusIcon,
+  PackageSearchIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
-/** Every listing ends in a way forward: clear what narrowed it, or go to the full store. */
+/** Every listing ends in a way forward: clear what narrowed it, request what isn't stocked, or go to the full store. */
 export function ProductsEmptyState({
   hasFilters,
   onClearFilters,
@@ -23,22 +28,30 @@ export function ProductsEmptyState({
         <h2 className="text-title text-balance">
           {hasFilters
             ? "Nothing matches these filters"
-            : "Nothing in stock here yet"}
+            : "Nothing on this shelf yet"}
         </h2>
         <p className="text-muted-foreground text-pretty">
           {hasFilters
             ? "Try removing a filter, or browse everything in the store."
-            : "Check back soon, or browse the rest of the store."}
+            : "Tell us what you're after and we'll get it for you."}
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
-        {hasFilters && (
+        {hasFilters ? (
           <Button onClick={onClearFilters}>
             <FunnelXIcon data-icon="inline-start" />
             Clear filters
           </Button>
+        ) : (
+          <Button asChild>
+            {/* a route that opens WhatsApp with the request typed, so a plain link and a new tab */}
+            <a href="/request" target="_blank" rel="noopener">
+              <MessageSquarePlusIcon data-icon="inline-start" />
+              Request an item
+            </a>
+          </Button>
         )}
-        <Button variant={hasFilters ? "outline" : "default"} asChild>
+        <Button variant="outline" asChild>
           <Link href="/products">
             Browse all products
             <ArrowRightIcon data-icon="inline-end" />

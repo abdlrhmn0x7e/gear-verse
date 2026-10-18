@@ -108,7 +108,9 @@ export function SearchDrawer() {
         <DrawerBody>
           {productsPending && <ProductSearchLoading />}
           {productsError && <ProductSearchError />}
-          {products?.data.length === 0 && <ProductSearchEmpty />}
+          {products?.data.length === 0 && (
+            <ProductSearchEmpty query={debouncedSearch} />
+          )}
 
           {products && products.data.length > 0 && (
             <ul className="flex flex-col gap-2">

@@ -17,7 +17,7 @@ export async function MoreProducts() {
       <MaxWidthWrapper className="space-y-12">
         <SectionHeader
           id="more-products-heading"
-          title="More from the store"
+          title="New on the shelf"
           action={
             <Button
               variant="outline"

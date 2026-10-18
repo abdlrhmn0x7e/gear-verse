@@ -5,11 +5,16 @@ import {
 } from "~/lib/schemas/entities/reviews";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
+import { invalidateCache } from "~/server/actions/cache";
 
 export const _reviews = {
   queries: {
     findAll: async (productId: number) => {
       return data.public.reviews.queries.findAll(productId);
+    },
+
+    findFeatured: async (limit: number) => {
+      return data.public.reviews.queries.findFeatured(limit);
     },
   },
 
@@ -33,6 +38,7 @@ export const _reviews = {
         });
       }
 
+      await invalidateCache("reviews");
       return createdReview;
     },
 
@@ -53,6 +59,7 @@ export const _reviews = {
         });
       }
 
+      await invalidateCache("reviews");
       return updatedReview;
     },
 
@@ -73,6 +80,7 @@ export const _reviews = {
         });
       }
 
+      await invalidateCache("reviews");
       return updatedReview;
     },
   },

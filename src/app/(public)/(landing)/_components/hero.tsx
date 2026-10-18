@@ -19,18 +19,25 @@ export async function Hero() {
     <section className="pt-28 pb-12 md:pt-32 md:pb-16">
       <MaxWidthWrapper className="space-y-10 md:space-y-12">
         <div className="space-y-6">
-          <h1 className="text-display-sm sm:text-[3.5rem] lg:text-display max-w-5xl text-balance">
-            The world&apos;s best gear, finally in Egypt.
+          <h1 className="text-display-sm lg:text-display max-w-5xl text-balance sm:text-[3.5rem]">
+            Gear worth the money, in stock in Egypt.
           </h1>
 
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
             <p className="text-muted-foreground text-body-lg max-w-xl text-pretty md:text-xl/relaxed">
-              Rare gear from international brands, cleared through customs,
-              insured and delivered to your door in 1–2 days.
+              A short list of keyboards, mice and IEMs we&apos;d buy ourselves,
+              delivered in 1–2 days. Not on the shelf?{" "}
+              <Link
+                href="/#request"
+                className="text-foreground underline decoration-from-font underline-offset-4"
+              >
+                We&apos;ll get it for you
+              </Link>
+              .
             </p>
             <Button size="xl" asChild className="shrink-0">
               <Link href="/products">
-                Shop the store
+                Shop the shelf
                 <ArrowRightIcon data-icon="inline-end" />
               </Link>
             </Button>
