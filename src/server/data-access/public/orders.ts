@@ -13,6 +13,11 @@ import {
   media,
 } from "~/server/db/schema";
 import type { Pagination } from "../common/types";
+import {
+  getCurrentUnitPrices,
+  orderLineUnitPrice,
+  withUnitPrices,
+} from "../common/unit-prices";
 
 type NewOrder = typeof orders.$inferInsert;
 type NewOrderItem = typeof orderItems.$inferInsert;
@@ -34,7 +39,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
-          totalPrice: sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`,
+          totalPrice: sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`,
           createdAt: orders.createdAt,
         })
         .from(orders)
@@ -98,10 +103,7 @@ export const _orders = {
           ),
           values: variantValues.values,
 
-          price:
-            sql`coalesce(${productVariants.overridePrice}, ${products.price})`.as(
-              "price",
-            ),
+          price: sql`${orderLineUnitPrice}`.as("price"),
           thumbnailUrl:
             sql`coalesce(${variantThumbnail.url}, ${productThumbnail.url})`.as(
               "thumbnailUrl",
@@ -223,10 +225,16 @@ export const _orders = {
           throw new Error("Failed to create order");
         }
 
-        // create order items
+        // create order items at the current price
+        const prices = await getCurrentUnitPrices(tx, items);
         const newOrderItems = await tx
           .insert(orderItems)
-          .values(items.map((item) => ({ ...item, orderId: order.id })))
+          .values(
+            withUnitPrices(items, prices).map((item) => ({
+              ...item,
+              orderId: order.id,
+            })),
+          )
           .returning({ id: orderItems.id });
         if (!newOrderItems) {
           throw new Error("Failed to create order items");

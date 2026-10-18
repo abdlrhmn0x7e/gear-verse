@@ -15,6 +15,12 @@ import {
 } from "~/server/db/schema";
 import type { Pagination } from "../common/types";
 import { getStockDiff } from "../common/stock-diff";
+import {
+  getCurrentUnitPrices,
+  orderLineUnitPrice,
+  toPreviousUnitPrices,
+  withUnitPrices,
+} from "../common/unit-prices";
 
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
@@ -51,7 +57,7 @@ export const _orders = {
           .select({
             orderId: orders.id,
             totalValue:
-              sql<number>`SUM(${orderItems.quantity} * coalesce(${productVariants.overridePrice}, ${products.price}))`.as(
+              sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.as(
                 "totalValue",
               ),
           })
@@ -199,7 +205,7 @@ export const _orders = {
                 'stock', ${orderItemsVariants.stock},
                 'title', ${orderItemsVariants.title},
                 'summary', ${orderItemsVariants.summary},
-                'price', ${orderItemsVariants.price},
+                'price', coalesce(${orderItems.unitPrice}, ${orderItemsVariants.price}),
                 'thumbnailUrl', ${orderItemsVariants.thumbnailUrl},
                 'values', ${orderItemsVariants.values}
               )
@@ -266,9 +272,13 @@ export const _orders = {
         }
 
         if (itemsInput.length > 0) {
-          await tx
-            .insert(orderItems)
-            .values(itemsInput.map((item) => ({ ...item, orderId: order.id })));
+          const prices = await getCurrentUnitPrices(tx, itemsInput);
+          await tx.insert(orderItems).values(
+            withUnitPrices(itemsInput, prices).map((item) => ({
+              ...item,
+              orderId: order.id,
+            })),
+          );
         }
 
         // update the product variants stock
@@ -400,12 +410,21 @@ export const _orders = {
               quantity: orderItems.quantity,
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
+              unitPrice: orderItems.unitPrice,
             });
 
-          // create the new items
+          // create the new items. lines already on the order keep the price
+          // they were ordered at, added lines get the current price
+          const prices = await getCurrentUnitPrices(tx, itemsInput);
           const created = await tx
             .insert(orderItems)
-            .values(itemsInput.map((item) => ({ ...item, orderId: id })))
+            .values(
+              withUnitPrices(
+                itemsInput,
+                prices,
+                toPreviousUnitPrices(deleted),
+              ).map((item) => ({ ...item, orderId: id })),
+            )
             .returning({
               quantity: orderItems.quantity,
               productId: orderItems.productId,
