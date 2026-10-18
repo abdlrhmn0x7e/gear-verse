@@ -159,6 +159,36 @@ export const _inventoryItems = {
       });
     },
 
+    /**
+     * A product without variants keeps its stock on a product level row
+     * (no variant id). Creates that row if it's missing, e.g. after every
+     * variant of the product was removed.
+     */
+    ensureProductItem(productId: number) {
+      return db.transaction(async (tx) => {
+        const [existing] = await tx
+          .select({ id: inventoryItems.id })
+          .from(inventoryItems)
+          .where(
+            and(
+              eq(inventoryItems.productId, productId),
+              isNull(inventoryItems.productVariantId),
+            ),
+          )
+          .limit(1);
+
+        if (existing) {
+          return existing;
+        }
+
+        return tx
+          .insert(inventoryItems)
+          .values({ productId, quantity: 0 })
+          .returning({ id: inventoryItems.id })
+          .then(([res]) => res);
+      });
+    },
+
     delete(productId: number, variantId?: number) {
       if (!variantId) {
         return db

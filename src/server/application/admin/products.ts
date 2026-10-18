@@ -285,10 +285,13 @@ export const _products = {
 
       /**
        * if a variant got added to a non variance product
-       * delete the existing product item
+       * delete the existing product item, and if every variant got removed
+       * the product needs its own stock row back
        */
-      if (variants) {
+      if (variants && variants.length > 0) {
         await data.admin.inventoryItems.mutations.delete(productId);
+      } else if (variants) {
+        await data.admin.inventoryItems.mutations.ensureProductItem(productId);
       }
     },
 
