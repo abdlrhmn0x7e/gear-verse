@@ -32,6 +32,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor
@@ -56,6 +57,7 @@ export function useVerseEditor({
             `Uploading ${files.map((file) => file.name).join(", ")}...`,
           );
           uploadFiles(files, {
+            onError: () => toast.dismiss(uploadingFilesToast),
             onSuccess: (data) => {
               toast.dismiss(uploadingFilesToast);
               currentEditor

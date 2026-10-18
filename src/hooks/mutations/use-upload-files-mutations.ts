@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import cuid from "cuid";
+import { toast } from "sonner";
 import { type RouterInput, type RouterOutput, useTRPC } from "~/trpc/client";
 
 /**
@@ -33,7 +34,7 @@ async function uploadFiles(
   }));
   const presignedUrls = await getPresignedUrls(input);
 
-  await Promise.all(
+  const uploads = await Promise.all(
     presignedUrls.map((presignedUrl) => {
       const fileObject = fileObjects.find(
         (fileObject) => fileObject.fileId === presignedUrl.fileId,
@@ -51,6 +52,16 @@ async function uploadFiles(
       });
     }),
   );
+
+  // record nothing unless every file reached the bucket, so no media points at a missing file
+  const failed = uploads.filter((upload) => !upload.ok).length;
+  if (failed > 0) {
+    throw new Error(
+      failed === uploads.length
+        ? "Couldn't upload the files. Try again."
+        : `Couldn't upload ${failed} of ${uploads.length} files. Try again.`,
+    );
+  }
 
   const media = await createMedia(
     presignedUrls.map((presignedUrl) => ({
@@ -93,6 +104,9 @@ export function useUploadFilesMutation() {
       void queryClient.invalidateQueries(
         trpc.admin.media.queries.getPage.pathFilter(),
       );
+    },
+    onError: (error) => {
+      toast.error(error.message || "Couldn't upload the files. Try again.");
     },
   });
 }
