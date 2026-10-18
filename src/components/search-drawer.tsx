@@ -18,6 +18,7 @@ import {
   InputGroupInput,
 } from "~/components/ui/input-group";
 import { Separator } from "~/components/ui/separator";
+import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useTRPC } from "~/trpc/client";
 import {
@@ -31,6 +32,7 @@ export function SearchDrawer() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
+  useCloseOnBack(open, () => setOpen(false));
   const inputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
   const {

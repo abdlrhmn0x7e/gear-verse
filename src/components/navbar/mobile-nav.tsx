@@ -3,6 +3,7 @@
 import { IconBrandWhatsapp, IconFolder } from "@tabler/icons-react";
 import { LogOutIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
+import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useDialog } from "~/hooks/use-dialog";
 import { authClient } from "~/lib/auth-client";
 import { iconsMap } from "~/lib/icons-map";
@@ -45,6 +46,7 @@ export function MobileNav({
   categories: { name: string; slug: string; icon: CategoryIconEnum }[];
 }) {
   const drawer = useDialog();
+  useCloseOnBack(drawer.props.open, drawer.dismiss);
 
   return (
     <Drawer direction="bottom" {...drawer.props}>
