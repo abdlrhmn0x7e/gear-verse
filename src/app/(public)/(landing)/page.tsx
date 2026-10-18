@@ -4,7 +4,7 @@ import { ClosingCTA } from "./_components/closing-cta";
 import { FAQ } from "./_components/faq";
 import { Hero } from "./_components/hero";
 import { HowItWorks } from "./_components/how-it-works";
-import { LatestProducts } from "./_components/latest-products";
+import { MoreProducts } from "./_components/more-products";
 import {
   Testimonials,
   type TestimonialItem,
@@ -68,7 +68,7 @@ export default function Home() {
     <>
       <Hero />
       <TrustStrip />
-      <LatestProducts />
+      <MoreProducts />
       <CategoryBento />
       <HowItWorks />
       <Brands />

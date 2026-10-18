@@ -1,12 +1,13 @@
 import { cacheTag } from "next/cache";
 import { app } from "~/server/application";
 
+/** Newest in-stock products: three for the hero row, then one desktop row of four after it. */
 export async function getLatestProducts() {
   "use cache";
 
   cacheTag("recent-products");
 
-  const page = await app.public.products.queries.getPage({ pageSize: 8 });
+  const page = await app.public.products.queries.getPage({ pageSize: 7 });
   return page.data;
 }
 
