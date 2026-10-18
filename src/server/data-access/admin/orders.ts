@@ -14,6 +14,7 @@ import {
   users,
 } from "~/server/db/schema";
 import type { Pagination } from "../common/types";
+import { getStockDiff } from "../common/stock-diff";
 
 type InsertOrder = typeof orders.$inferInsert;
 type InsertOrderItem = typeof orderItems.$inferInsert;
@@ -407,51 +408,21 @@ export const _orders = {
               productVariantId: orderItems.productVariantId,
             });
 
-          // create a map for the diff between quantities and update the stock
-          const diffMap = new Map<string, number>();
-          deleted.forEach((item) =>
-            diffMap.set(
-              `item-${item.productId}-${item.productVariantId}`,
-              item.quantity,
-            ),
-          );
-          created.forEach((item) => {
-            const old = diffMap.get(
-              `item-${item.productId}-${item.productVariantId}`,
-            );
-            if (old) {
-              diffMap.set(
-                `item-${item.productId}-${item.productVariantId}`,
-                old - item.quantity,
+          // positive quantities go back to stock, negative ones are taken out
+          for (const line of getStockDiff(deleted, created)) {
+            const preds = [eq(inventoryItems.productId, line.productId)];
+            if (line.productVariantId) {
+              preds.push(
+                eq(inventoryItems.productVariantId, line.productVariantId),
               );
-              return;
-            }
-
-            diffMap.set(
-              `item-${item.productId}-${item.productVariantId}`,
-              item.quantity,
-            );
-          });
-
-          for (const [key, quantity] of Array.from(diffMap.entries())) {
-            const productId = Number(key.split("-")[1]);
-            const productVariantId = Number(key.split("-")[2]);
-
-            if (isNaN(productId)) {
-              throw new Error("A product id must be a number");
-            }
-
-            const preds = [eq(inventoryItems.productId, productId)];
-            if (isNaN(productVariantId)) {
-              preds.push(isNull(inventoryItems.productVariantId));
             } else {
-              preds.push(eq(inventoryItems.productVariantId, productVariantId));
+              preds.push(isNull(inventoryItems.productVariantId));
             }
 
             await tx
               .update(inventoryItems)
               .set({
-                quantity: sql`${inventoryItems.quantity} + (${quantity})`,
+                quantity: sql`${inventoryItems.quantity} + (${line.quantity})`,
               })
               .where(and(...preds));
           }
