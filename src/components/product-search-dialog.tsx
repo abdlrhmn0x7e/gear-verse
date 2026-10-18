@@ -71,7 +71,7 @@ export function ProductSearchDialog({
         <Dialog.Trigger asChild>
           <button
             type="button"
-            aria-label="Search products"
+            aria-keyshortcuts="Control+K"
             className="group relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             data-state={open ? "open" : "closed"}
           >

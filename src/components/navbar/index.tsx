@@ -73,7 +73,11 @@ export function Navbar() {
                     Search products
                   </ProductSearchPlaceholder>
                 </span>
-                <Kbd className="absolute end-2 top-1/2 z-10 -translate-y-1/2">
+                {/* the button names its shortcut with aria-keyshortcuts, so its name stays "Search products" */}
+                <Kbd
+                  aria-hidden
+                  className="absolute end-2 top-1/2 z-10 -translate-y-1/2"
+                >
                   Ctrl K
                 </Kbd>
               </ProductSearchDialog>
