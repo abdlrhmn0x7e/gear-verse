@@ -808,27 +808,37 @@ export function FilterRuleMenuItems({
        under five icon sets; no size class, because each style already sizes an
        unsized svg in a menu row; `aria-hidden`, the label IS the name. */
     <>
-      <DropdownMenuItem
-        disabled={locked}
-        onClick={() => actions.duplicateNode(ruleId)}
-      >
-        <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} aria-hidden="true" />
-        <span className={FILTER_MENU_LABEL_CLASS}>
-          {actions.labels.duplicate}
-        </span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        disabled={locked}
-        onClick={() => actions.negateRule(ruleId)}
-      >
-        {/* Two arrows swapping: negation flips to the declared inverse. */}
-        <HugeiconsIcon
-          icon={ArrowDataTransferHorizontalIcon}
-          strokeWidth={2}
-          aria-hidden="true"
-        />
-        <span className={FILTER_MENU_LABEL_CLASS}>{actions.labels.negate}</span>
-      </DropdownMenuItem>
+      {actions.ruleMenu === "remove" ? null : (
+        <>
+          <DropdownMenuItem
+            disabled={locked}
+            onClick={() => actions.duplicateNode(ruleId)}
+          >
+            <HugeiconsIcon
+              icon={Copy01Icon}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            <span className={FILTER_MENU_LABEL_CLASS}>
+              {actions.labels.duplicate}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={locked}
+            onClick={() => actions.negateRule(ruleId)}
+          >
+            {/* Two arrows swapping: negation flips to the declared inverse. */}
+            <HugeiconsIcon
+              icon={ArrowDataTransferHorizontalIcon}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            <span className={FILTER_MENU_LABEL_CLASS}>
+              {actions.labels.negate}
+            </span>
+          </DropdownMenuItem>
+        </>
+      )}
       {allowGrouping ? (
         <DropdownMenuItem
           disabled={locked}

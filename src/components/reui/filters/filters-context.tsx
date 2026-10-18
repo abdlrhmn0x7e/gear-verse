@@ -63,6 +63,8 @@ export interface FilterActionsContextValue<V = unknown, O = unknown> {
    *  menu, and a per-chrome prop is set in four places and missed in a fifth. */
   menuClassName: string | undefined;
   fieldPickerClassName: string | undefined;
+  /** What a rule's menu offers; see `FiltersProps.ruleMenu`. */
+  ruleMenu?: "full" | "remove";
 
   /** Turns on the chip kebab's "Convert to advanced filter" row: present means
    *  offered. A callback with no boolean beside it, since only the consumer

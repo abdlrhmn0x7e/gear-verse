@@ -50,6 +50,7 @@ import {
   negateFilterOperator,
   operatorTakesValue,
   resolveFilterOperators,
+  visibleFilterOperators,
   type FilterOperatorLabels,
 } from "~/components/reui/filters/filters-operators";
 import {
@@ -226,6 +227,12 @@ export interface FiltersProps<V = unknown, O = unknown> {
   fieldPickerClassName?: string;
 
   /**
+   * What a rule's menu offers. `"remove"` drops Duplicate and Negate, for
+   * queries that hold one plain condition per field.
+   */
+  ruleMenu?: "full" | "remove";
+
+  /**
    * How a NESTED attribute path is shortened when too deep to read. `"none"` is
    * the default, so an upgrade changes nothing under a consumer; the collapser
    * is the cascader's, and the full path survives as the accessible NAME.
@@ -273,6 +280,7 @@ export function Filters<V = unknown, O = unknown>({
   onConvertToAdvanced,
   menuClassName,
   fieldPickerClassName,
+  ruleMenu = "full",
   pathCollapse = "none",
   maxPathSegments = 3,
   trigger,
@@ -803,19 +811,38 @@ export function Filters<V = unknown, O = unknown>({
       // Asked here too: this branch burns an id and points the focus store at
       // it, and a store naming a chip that never existed eats the tab stop.
       const id = nextId();
+      // A field that offers one condition has nothing to choose there, so the
+      // chip starts on it and opens its value instead.
+      const field = getFilterField(latest.current.index, draft.path);
+      const offered = field
+        ? visibleFilterOperators(resolveOperators(field))
+        : [];
+      const only = offered.length === 1 ? offered[0] : undefined;
       addRule(
         createFilterRule<V>({
           id,
           path: draft.path,
           // Empty on purpose: the chip renders "Select condition" and opens.
-          operator: "",
+          operator: only?.value ?? "",
           value: undefined,
         }),
       );
-      focusStore.set({ id, segment: "operator", autoOpen: true });
+      focusStore.set({
+        id,
+        segment: only && operatorTakesValue(only) ? "value" : "operator",
+        autoOpen: true,
+      });
     }
     dispatchDraftRaw({ type: "close" });
-  }, [draft, addRule, updateRule, nextId, focusStore, locked]);
+  }, [
+    draft,
+    addRule,
+    updateRule,
+    nextId,
+    focusStore,
+    locked,
+    resolveOperators,
+  ]);
 
   /* ---------------------------- dev diagnostics --------------------------- */
 
@@ -855,6 +882,7 @@ export function Filters<V = unknown, O = unknown>({
       variant,
       menuClassName,
       fieldPickerClassName,
+      ruleMenu,
       convertToAdvanced: onConvertToAdvanced,
       pathCollapse,
       maxPathSegments,
@@ -900,6 +928,7 @@ export function Filters<V = unknown, O = unknown>({
       variant,
       menuClassName,
       fieldPickerClassName,
+      ruleMenu,
       onConvertToAdvanced,
       pathCollapse,
       maxPathSegments,
