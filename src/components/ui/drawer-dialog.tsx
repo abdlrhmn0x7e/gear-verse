@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/dialog";
 import {
   Drawer,
+  DrawerBody,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -43,7 +44,7 @@ export function DrawerDialogContent({
   const isMobile = useIsMobile();
   if (isMobile) {
     return (
-      <DrawerContent className={cn("px-4", props.className)} {...props}>
+      <DrawerContent {...props} className={cn("px-4", props.className)}>
         {children}
       </DrawerContent>
     );
@@ -91,7 +92,7 @@ export function DrawerDialogBody({
 }: React.ComponentProps<typeof DialogBody>) {
   const isMobile = useIsMobile();
   if (isMobile) {
-    return <div {...props}>{children}</div>;
+    return <DrawerBody {...props}>{children}</DrawerBody>;
   }
   return <DialogBody {...props}>{children}</DialogBody>;
 }
