@@ -75,6 +75,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // globals.css scrolls smoothly; this lets Next jump instantly on navigation
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn("font-sans", geist.variable)}
     >
