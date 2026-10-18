@@ -75,12 +75,17 @@ function CommandTrigger({
   children,
   size = "default",
   type = "button",
+  // The loading and error placeholders never open, so they report a closed popup.
+  "aria-expanded": ariaExpanded = false,
+  "aria-controls": ariaControls,
   ...props
 }: React.ComponentProps<"button"> & { size?: "sm" | "default" }) {
   return (
     <button
       type={type}
       role="combobox"
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       data-slot="command-trigger"
       data-size={size}
       className={cn(fieldTriggerClassName, "w-full min-w-0", className)}

@@ -16,14 +16,12 @@ import { useTRPC } from "~/trpc/client";
 
 export function PublishProductDialog({
   id,
-  showText = true,
   published,
   onPublishSuccess,
   ...props
 }: {
   id: number;
   published: boolean;
-  showText?: boolean;
   onPublishSuccess?: () => void;
 } & React.ComponentProps<typeof AlertDialog>) {
   const trpc = useTRPC();

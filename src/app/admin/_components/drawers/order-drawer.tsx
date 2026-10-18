@@ -28,7 +28,6 @@ import { DeleteOrderDialog } from "../dialogs/delete-order";
 import { OrderStatus } from "../tables/orders/order-status";
 import {
   Empty,
-  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,

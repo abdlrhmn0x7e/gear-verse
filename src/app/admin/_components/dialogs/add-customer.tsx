@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { Spinner } from "~/components/spinner";
 import { toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import {
@@ -58,8 +59,12 @@ export function AddCustomerDialog() {
         </DialogBody>
 
         <DialogFooter>
-          <Button type="submit" form="customer-form">
-            <PlusIcon data-icon="inline-start" />
+          <Button type="submit" form="customer-form" disabled={isCreatingUser}>
+            {isCreatingUser ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Add Customer
           </Button>
         </DialogFooter>

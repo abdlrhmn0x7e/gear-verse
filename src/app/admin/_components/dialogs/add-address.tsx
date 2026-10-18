@@ -25,7 +25,7 @@ export function AddAddressDialog({ userId }: { userId: number }) {
   const [open, setOpen] = useState(false);
   const { mutate: createAddress, isPending: isCreatingAddress } = useMutation(
     trpc.admin.addresses.mutations.create.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Address created successfully");
         void queryClient.invalidateQueries(
           trpc.admin.addresses.queries.findByUserId.queryFilter({

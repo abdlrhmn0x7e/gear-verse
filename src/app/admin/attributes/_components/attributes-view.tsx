@@ -64,7 +64,7 @@ export function AttributesView() {
     trpc.admin.attributes.mutations.disconnect.mutationOptions(),
   );
 
-  const [nodes, _, onNodesChange] = useNodesState([
+  const [nodes, , onNodesChange] = useNodesState([
     ...attributes.map((attribute, index) => ({
       id: `attribute-${attribute.slug}-${attribute.id}`,
       position: {
