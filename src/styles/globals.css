@@ -20,6 +20,9 @@
   --plum-900: oklch(0.3257 0.1161 325);
   --plum-925: oklch(0.32 0.09 325);
   --plum-950: oklch(0.24 0.08 325);
+  /* the dark logo's lavender: the plum hue at low chroma, for the dark theme's primary and wordmark */
+  --lavender-200: oklch(0.89 0.04 325);
+  --lavender-300: oklch(0.84 0.045 325);
 
   /* the in-between steps (75, 250, 350, 750, 850) and the warmer 800/900 exist for the dark theme */
   --neutral-50: oklch(0.99 0.003 325);
@@ -47,10 +50,10 @@
   /* menus, dialogs and drawers share the input surface, so the search pill opens into the same colour */
   --popover: var(--card);
   --popover-foreground: var(--foreground);
-  /* white on plum-700 measures 8.16:1; hover goes darker so the label only gains contrast */
-  --primary: var(--plum-700);
+  /* the logo colour: white on plum-900 measures 13.13:1 (12.74:1 against the page); hover goes darker, 16.90:1 */
+  --primary: var(--plum-900);
   --primary-foreground: oklch(1 0 0);
-  --primary-hover: var(--plum-800);
+  --primary-hover: var(--plum-950);
   /* navigation and toggle state (active category, pressed filter, chosen variant): neutral, so plum stays the action colour */
   --selected: var(--neutral-950);
   --selected-foreground: var(--neutral-50);
@@ -83,7 +86,8 @@
   --brand-text: var(--plum-700);
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
-  /* selected text takes its own colour too, so it reads on the plum panel as well as the page: 12.27:1 */
+  /* selected text takes its own colour too, so it reads on the plum panel as well as the page: 12.27:1; the highlight
+     stands 9.53:1 off the plum-900 primary button and panel */
   --selection: var(--plum-200);
   --selection-foreground: var(--plum-950);
   /* the wordmark's own purple (#501854); 12.74:1 on the page, 11.84:1 on the footer card */
@@ -142,10 +146,10 @@
   --foreground: var(--neutral-75);
   --card: var(--neutral-850);
   --popover: var(--neutral-850);
-  --primary: var(--plum-600);
-  --primary-foreground: oklch(1 0 0);
-  /* white on plum-600 measures 5.86:1; hover goes darker, since white on plum-500 drops to 4.01:1 */
-  --primary-hover: var(--plum-700);
+  /* the dark logo's lavender with a plum-950 label: 10.17:1 (10.82:1 against the page); hover goes lighter, 11.98:1 */
+  --primary: var(--lavender-300);
+  --primary-foreground: var(--plum-950);
+  --primary-hover: var(--lavender-200);
   --selected: var(--neutral-75);
   --selected-foreground: var(--neutral-900);
   --secondary: var(--neutral-800);
@@ -172,11 +176,12 @@
   --brand-text: var(--plum-250);
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
-  /* plum-50 on plum-700 is 7.56:1; plum-700 rather than 800 so the highlight still shows on the plum-900 panel (1.61:1 vs 1.22:1) */
+  /* plum-50 on plum-700 is 7.56:1; plum-700 rather than 800 so the highlight still shows on the plum-900 panel (1.61:1 vs 1.22:1)
+     and stands 4.91:1 off the lavender primary button */
   --selection: var(--plum-700);
   --selection-foreground: var(--plum-50);
   /* lavender at the brand hue; 10.82:1 on the page, 9.69:1 on the footer card */
-  --brand-logo: oklch(0.84 0.045 325);
+  --brand-logo: var(--lavender-300);
 
   /* photos ship on white, so the well stays light, only dimmer than the light theme's */
   --image-well: var(--neutral-250);
@@ -468,7 +473,7 @@
   );
 }
 
-/* Filled primary action: flat plum in both themes. No inset highlight either: the colour alone carries the emphasis. */
+/* Filled primary action: the flat logo colour in both themes. No inset highlight either: the colour alone carries the emphasis. */
 @utility surface-solid {
   border: 1px solid var(--primary);
   background-color: var(--primary);

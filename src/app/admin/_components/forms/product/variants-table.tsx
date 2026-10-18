@@ -363,7 +363,7 @@ function VariantMediaDialog({ index }: { index: number }) {
   function renderMedia() {
     if (!variant?.thumbnail.id) {
       return (
-        <ImagePlusIcon className="group-hover:text-primary-foreground size-4" />
+        <ImagePlusIcon className="group-hover:text-foreground size-4" />
       );
     }
 

@@ -141,7 +141,7 @@ export function VariantForm({
                               width={256}
                               height={256}
                             />
-                            <p className="dark:text-primary-foreground text-sm font-medium hover:underline">
+                            <p className="text-sm font-medium hover:underline">
                               Change
                             </p>
                           </button>

@@ -205,7 +205,7 @@ function OrderItem({
       <div className="flex flex-col gap-1">
         <Link
           href={`/admin/products?productId=${item.id}`}
-          className="text-primary-foreground font-medium text-pretty hover:underline"
+          className="font-medium text-pretty hover:underline"
         >
           {item.quantity} x {item.title} - {item.title}
         </Link>
