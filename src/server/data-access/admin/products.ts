@@ -636,19 +636,22 @@ export const _products = {
             .where(eq(products.id, productId));
         }
 
-        if (attributeIds && attributeIds.length > 0) {
+        // an empty array means every attribute was removed
+        if (attributeIds) {
           // delete the old attribute values relations
           await tx
             .delete(productAttributeValues)
             .where(eq(productAttributeValues.productId, productId));
 
-          // create the new media relations
-          await tx.insert(productAttributeValues).values(
-            attributeIds.map((attributeValueId) => ({
-              productId,
-              attributeValueId,
-            })),
-          );
+          // create the new attribute values relations
+          if (attributeIds.length > 0) {
+            await tx.insert(productAttributeValues).values(
+              attributeIds.map((attributeValueId) => ({
+                productId,
+                attributeValueId,
+              })),
+            );
+          }
         }
 
         if (inventoryData) {
