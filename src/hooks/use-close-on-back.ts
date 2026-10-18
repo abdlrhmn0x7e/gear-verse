@@ -1,14 +1,18 @@
-import { useEffect, useEffectEvent } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef } from "react";
 
 /**
  * Lets the browser's back gesture close an open drawer instead of leaving the page, the way a native sheet does.
  * Opening pushes a history entry for the same URL; back pops it and closes, and closing any other way pops it too.
+ * Links inside the drawer are detected; call the returned function before navigating from code (router.push), so the
+ * entry is left for the new page to land on rather than popped from under it.
  */
 export function useCloseOnBack(open: boolean, onClose: () => void) {
   const close = useEffectEvent(onClose);
+  const navigating = useRef(false);
 
   useEffect(() => {
     if (!open) return;
+    navigating.current = false;
 
     // Copying the state keeps Next's router tree on the entry, so returning to it is a no-op for the router
     history.pushState(history.state, "", location.href);
@@ -62,10 +66,14 @@ export function useCloseOnBack(open: boolean, onClose: () => void) {
       if (history.replaceState === trackingReplaceState) {
         history.replaceState = replaceState;
       }
-      if (poppedByBack || followedLink) return;
+      if (poppedByBack || followedLink || navigating.current) return;
 
       window.addEventListener("popstate", carryUrlDown, { once: true });
       history.back();
     };
   }, [open]);
+
+  return useCallback(() => {
+    navigating.current = true;
+  }, []);
 }

@@ -73,7 +73,7 @@ export function ProductSearchDialog({
           <button
             type="button"
             aria-keyshortcuts="Control+K"
-            className="group relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="group focus-visible:outline-focus relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
             data-state={open ? "open" : "closed"}
           >
             {children}
@@ -238,11 +238,11 @@ function Content({ close }: { close: () => void }) {
         <SearchIcon className="group-data-[state=closed]:animate-search-icon-out group-data-[state=open]:animate-search-icon-in size-[17px] transition-transform" />
 
         <input
-          type="text"
+          type="search"
           enterKeyHint="search"
           aria-label="Search products"
           placeholder="Search products"
-          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none"
+          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
