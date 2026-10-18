@@ -301,8 +301,8 @@
    variants put white text on the fill in both themes, so each fill is dark enough for
    that: white measures 4.97:1 on success, 5.19:1 on warning, 5.56:1 on info. The
    foregrounds are the text colours: on the light tint and the page 5.9:1 or better, and
-   on the dark outline badge 9.3:1 or better. The dark tinted variants reuse the fill as
-   text, which a fill that carries white text can't make readable (about 3:1). */
+   on the dark outline badge 9.3:1 or better. The dark tinted variants take the
+   foregrounds too: a fill that carries white text measures about 3:1 as text. */
 :root {
   --success: oklch(0.53 0.13 150);
   --success-foreground: oklch(0.44 0.11 150);
