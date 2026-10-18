@@ -871,7 +871,7 @@ export function useCascaderLoader<T = unknown>({
   const searchResults = React.useMemo(() => {
     if (!hasSearch || !trimmed) return null;
     if (!search || search.query !== trimmed) {
-      return NO_RESULTS as CascaderNode<T>[];
+      return NO_RESULTS;
     }
     return search.results;
   }, [hasSearch, trimmed, search]);

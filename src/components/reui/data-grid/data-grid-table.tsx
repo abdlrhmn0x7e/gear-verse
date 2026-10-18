@@ -95,7 +95,7 @@ function getPinningStyles<TData extends object>(
 // built-in toggle.
 function getDataGridTreeIndentStyle<TData extends object>(
   row: Row<DataGridFeatures, TData>,
-  indent: number = 20,
+  indent = 20,
 ): CSSProperties {
   return {
     "--data-grid-tree-padding": `${row.depth * indent}px`,
@@ -221,7 +221,7 @@ function startDataGridColumnResizeOnEnd<TData extends object>(
 ): (() => void) | undefined {
   const column = table.getColumn(header.column.id);
 
-  if (!column || !column.getCanResize()) return;
+  if (!column?.getCanResize()) return;
   const isTouchSession = isDataGridTouchEvent(event);
   if (isTouchSession && event.touches.length > 1) return;
 
@@ -573,15 +573,15 @@ function getDataGridTableRowSections<TData extends object>(
   if (!rowsPinnable) {
     return {
       topRows: [] as Row<DataGridFeatures, TData>[],
-      centerRows: table.getRowModel().rows as Row<DataGridFeatures, TData>[],
+      centerRows: table.getRowModel().rows,
       bottomRows: [] as Row<DataGridFeatures, TData>[],
     };
   }
 
   return {
-    topRows: table.getTopRows() as Row<DataGridFeatures, TData>[],
-    centerRows: table.getCenterRows() as Row<DataGridFeatures, TData>[],
-    bottomRows: table.getBottomRows() as Row<DataGridFeatures, TData>[],
+    topRows: table.getTopRows(),
+    centerRows: table.getCenterRows(),
+    bottomRows: table.getBottomRows(),
   };
 }
 
@@ -1063,17 +1063,17 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
     columnSizing,
     // Visibility/order/pinning change the flat header set, so a column shown
     // after mount must get its size variable even though sizing is untouched.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     table.state.columnVisibility,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     table.state.columnOrder,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     table.state.columnPinning,
     // A def swap can change a column's `size` without touching sizing
     // STATE; without this dep the CSS variables keep the old widths. For a
     // consumer defining columns inline the memo degrades to per-render
     // recompute, which is the safe direction.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     table.options.columns,
   ]);
 

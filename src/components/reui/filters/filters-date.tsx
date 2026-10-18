@@ -119,7 +119,7 @@ export function parseFilterDate(
   if (input === "tomorrow") return { relative: RELATIVE_TOMORROW };
   if (input === "yesterday") return { relative: RELATIVE_YESTERDAY };
 
-  const nextLast = input.match(/^(next|last|this) (day|week|month|year)$/);
+  const nextLast = /^(next|last|this) (day|week|month|year)$/.exec(input);
   if (nextLast) {
     const direction =
       nextLast[1] === "next" ? 1 : nextLast[1] === "last" ? -1 : 0;
@@ -132,8 +132,8 @@ export function parseFilterDate(
   }
 
   // "in 3 days" / "3 days ago" / "in 2 weeks"
-  const counted = input.match(
-    /^(?:in )?(\d+) (day|week|month|year)s?(?: ago)?$/,
+  const counted = /^(?:in )?(\d+) (day|week|month|year)s?(?: ago)?$/.exec(
+    input,
   );
   if (counted) {
     const magnitude = Number.parseInt(counted[1]!, 10);
@@ -147,7 +147,7 @@ export function parseFilterDate(
   }
 
   // "next tuesday" / "last friday" / bare "tuesday"
-  const weekday = input.match(/^(?:(next|last|this) )?([a-z]+)$/);
+  const weekday = /^(?:(next|last|this) )?([a-z]+)$/.exec(input);
   if (weekday) {
     const index = WEEKDAYS.indexOf(weekday[2]!);
     if (index !== -1) {

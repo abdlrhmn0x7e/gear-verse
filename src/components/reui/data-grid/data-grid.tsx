@@ -1207,9 +1207,7 @@ function DataGridProvider<TData extends object>({
     // TData invariant, so a `DataGridContextProps<any>` context cannot accept a
     // `DataGridContextProps<TData>` value structurally. The erasure happens
     // here and is undone by the TData generic on each consumer component.
-    <DataGridContext.Provider
-      value={value as unknown as DataGridContextProps<TData>}
-    >
+    <DataGridContext.Provider value={value}>
       {children}
     </DataGridContext.Provider>
   );

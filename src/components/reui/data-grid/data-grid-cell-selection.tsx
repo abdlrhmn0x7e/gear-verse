@@ -947,7 +947,7 @@ function startDataGridFillSession<TData extends object>(options: {
     viewport.removeAttribute("data-cell-filling");
     if (!commit || !extension || !onCellsChange) return;
     const targets = getExtensionTargets();
-    if (!targets || !targets.rowEntries.length) return;
+    if (!targets?.rowEntries.length) return;
 
     const changes: DataGridCellChange<TData>[] = [];
     const rejected: DataGridCellRejection[] = [];
@@ -1125,8 +1125,8 @@ function DataGridCellSelection<TData extends object>({
     const anchor = anchorRef.current;
     if (!anchor) return;
 
-    const root = (anchor.closest('[data-slot="data-grid"]') ??
-      anchor.parentElement) as HTMLElement | null;
+    const root =
+      anchor.closest('[data-slot="data-grid"]') ?? anchor.parentElement;
     if (!root) return;
 
     // Split header/body grids render two viewports; the body one owns focus.

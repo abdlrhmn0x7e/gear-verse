@@ -180,7 +180,7 @@ function CascaderBreadcrumb({
 
   const trail = segments.map((segment, i) => (
     <React.Fragment
-      key={segment.type === "node" ? segment.node!.value : `gap-${i}`}
+      key={segment.type === "node" ? segment.node.value : `gap-${i}`}
     >
       {i > 0 ? <PathChevron /> : null}
       {segment.type === "ellipsis" ? (

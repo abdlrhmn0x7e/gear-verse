@@ -405,7 +405,7 @@ function FilterValueEditor<V, O>({
     field,
     operator,
     value: draft,
-    onValueChange: (next) => setDraft(next as V),
+    onValueChange: (next) => setDraft(next),
     host: "amend",
     autoFocusProps: {
       ref: noopAutoFocusRef,
@@ -413,7 +413,7 @@ function FilterValueEditor<V, O>({
     },
     commit: (next, commitOptions) => {
       actions.updateRule(rule.id, {
-        value: (next === undefined ? draft : next) as V,
+        value: next === undefined ? draft : next,
       });
       // A multi-select commits per toggle and asks to stay put; others dismiss.
       if (commitOptions?.close === false) return;
@@ -717,7 +717,7 @@ export function FilterMoveToMenuItems({ nodeId }: { nodeId: string }) {
   // this is the tree the user is looking at.
   const query = actions.getQuery();
   const found = findFilterNode(query, nodeId);
-  if (!found || !found.parent) return null;
+  if (!found?.parent) return null;
 
   const destinations: { id: string; label: string; size: number }[] = [];
   if (found.parent.id !== query.id) {

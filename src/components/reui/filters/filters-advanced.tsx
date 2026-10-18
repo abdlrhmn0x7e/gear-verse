@@ -635,7 +635,7 @@ function FilterInlineValueCell<V, O>({
       const text = draft.trim();
       // Empty clears rather than writing 0, which silently matches rows.
       if (text === "") {
-        actions.updateRule(rule.id, { value: undefined as V });
+        actions.updateRule(rule.id, { value: undefined });
         return;
       }
       const parsed = Number(text);

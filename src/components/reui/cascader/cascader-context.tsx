@@ -250,9 +250,7 @@ const CascaderRenderContext = React.createContext<CascaderRenderContextValue>(
 export function useCascaderRender<
   T = unknown,
 >(): CascaderRenderContextValue<T> {
-  return React.useContext(
-    CascaderRenderContext,
-  ) as CascaderRenderContextValue<T>;
+  return React.useContext(CascaderRenderContext);
 }
 
 /* -------------------------------------------------------------------------- */

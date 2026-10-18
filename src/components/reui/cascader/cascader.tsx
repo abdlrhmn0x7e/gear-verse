@@ -217,7 +217,7 @@ function useShallowStable<V>(
     value !== null &&
     typeof stable === "object" &&
     stable !== null;
-  if (comparable && equal(value as V & object, stable as V & object)) {
+  if (comparable && equal(value, stable)) {
     return stable;
   }
   setStable(value);
@@ -2238,9 +2238,7 @@ function Cascader<T>({
     <CascaderActionsContext.Provider
       value={actionsValue as unknown as CascaderActionsContextValue}
     >
-      <CascaderStateContext.Provider
-        value={stateValue as unknown as CascaderStateContextValue}
-      >
+      <CascaderStateContext.Provider value={stateValue}>
         <CascaderHighlightContext.Provider value={highlightStore}>
           <CascaderRenderContext.Provider
             value={renderContext as unknown as CascaderRenderContextValue}

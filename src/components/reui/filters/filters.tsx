@@ -573,7 +573,7 @@ export function Filters<V = unknown, O = unknown>({
   const announceReorder = React.useCallback(
     (next: FilterQuery<V>, id: string, fromParentId: string | null) => {
       const found = findFilterNode(next, id);
-      if (!found || !found.parent) return;
+      if (!found?.parent) return;
       const label = isFilterRule(found.node)
         ? formatFilterPath(
             latest.current.index,
@@ -979,7 +979,7 @@ export function Filters<V = unknown, O = unknown>({
     <FilterActionsContext.Provider
       value={actions as unknown as FilterActionsContextValue}
     >
-      <FilterStateContext.Provider value={state as never}>
+      <FilterStateContext.Provider value={state}>
         <FilterRenderContext.Provider value={renderContext as never}>
           <FilterRowStateProvider value={rowStateStore}>
             <FilterFocusContext.Provider value={focusStore}>
