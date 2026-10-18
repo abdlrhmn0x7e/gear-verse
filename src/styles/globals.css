@@ -427,11 +427,14 @@
   }
 }
 
-/* Product photos ship on white. Multiply melts the white into the light tile; dark mode keeps a light well instead. */
+/* Product photos ship on white. Multiply melts the white into the light tile; dark mode keeps a light well instead.
+   The blend sits on the well's direct child that holds the image, not on the img: a scaled hover wrapper is its own
+   isolated group, so an img blending inside it would multiply against nothing and show its white box. */
 @utility image-well {
   background-color: var(--image-well);
 
-  & img {
+  & > img,
+  & > :has(img) {
     mix-blend-mode: multiply;
   }
 }
