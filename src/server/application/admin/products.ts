@@ -170,7 +170,14 @@ export const _products = {
           );
 
         switch (variantSpace) {
+          /**
+           * The variants stay the same, but their stock, price or thumbnail
+           * might have changed
+           */
           case "NO_SPACE_CHANGE": {
+            await data.admin.productVariants.mutations.updateMany(
+              this.helpers.getVariantEdits(variants),
+            );
             break;
           }
 
@@ -212,6 +219,11 @@ export const _products = {
 
             await data.admin.productVariants.mutations.deleteOrArchiveMany(
               toDelete.map((v) => v.id),
+            );
+
+            // the remaining variants might have been edited too
+            await data.admin.productVariants.mutations.updateMany(
+              this.helpers.getVariantEdits(variants),
             );
 
             break;
@@ -274,12 +286,7 @@ export const _products = {
       // update the variants if there are any changes there only
       if (variants && !options) {
         await data.admin.productVariants.mutations.updateMany(
-          variants.map((v) => ({
-            id: v.id!,
-            stock: v.stock,
-            thumbnailMediaId: v.thumbnail.id,
-            overridePrice: v.overridePrice ?? null,
-          })),
+          this.helpers.getVariantEdits(variants),
         );
       }
 
@@ -309,6 +316,20 @@ export const _products = {
     },
 
     helpers: {
+      /**
+       * The editable fields of the variants that already exist
+       */
+      getVariantEdits(variants: Required<UpdateProductInput>["variants"]) {
+        return variants
+          .filter((v) => v.id)
+          .map((v) => ({
+            id: v.id!,
+            stock: v.stock,
+            thumbnailMediaId: v.thumbnail.id,
+            overridePrice: v.overridePrice ?? null,
+          }));
+      },
+
       getVariantSigs(variants: Required<UpdateProductInput>["variants"]) {
         return new Set(
           variants.map((v) =>
