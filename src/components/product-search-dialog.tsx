@@ -347,7 +347,7 @@ export function ProductSearchItem({
         />
 
         <div className="flex size-full flex-1 flex-col">
-          <p className="text-foreground dark:text-primary-foreground text-sm font-medium">
+          <p className="text-foreground text-sm font-medium">
             {product.title}
           </p>
 

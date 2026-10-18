@@ -146,7 +146,7 @@ export function ProductVariantSelector({
         <div className="flex flex-wrap gap-2">
           {Array.from(values).map((value) => (
             <Button
-              variant={selectedValues.includes(value) ? "default" : "outline"}
+              variant={selectedValues.includes(value) ? "selected" : "outline"}
               aria-pressed={selectedValues.includes(value)}
               onClick={() => handleOptionValueSelect(optionName, value)}
               key={`value-button-${value}`}

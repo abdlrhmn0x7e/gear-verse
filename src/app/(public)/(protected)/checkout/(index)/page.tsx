@@ -71,7 +71,7 @@ function OrderSummary({
                 </p>
               </div>
 
-              <p className="text-primary-foreground text-right text-lg font-medium">
+              <p className="text-right text-lg font-medium">
                 {formatCurrency(item.price * item.quantity)}
               </p>
             </div>
@@ -125,7 +125,7 @@ function OrderSummary({
                 </p>
               </div>
 
-              <p className="text-primary-foreground text-lg font-medium">
+              <p className="text-lg font-medium">
                 {formatCurrency(item.price * item.quantity)}
               </p>
             </div>

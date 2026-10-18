@@ -101,7 +101,7 @@ export default async function SuccessPage({
                       Sub Total
                     </p>
 
-                    <p className="text-primary-foreground text-lg font-medium">
+                    <p className="text-lg font-medium">
                       {formatCurrency(item.price * item.quantity)}
                     </p>
                   </div>

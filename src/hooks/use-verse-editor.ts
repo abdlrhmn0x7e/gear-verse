@@ -51,7 +51,7 @@ export function useVerseEditor({
         defaultProtocol: "https",
         protocols: ["https", "http"],
         HTMLAttributes: {
-          class: "text-primary cursor-pointer",
+          class: "text-brand-text underline underline-offset-4 cursor-pointer",
         },
       }),
 

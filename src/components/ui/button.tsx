@@ -9,6 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "surface-solid",
+        selected: "surface-selected",
         outline: "surface-control text-foreground",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-accent aria-expanded:bg-accent",

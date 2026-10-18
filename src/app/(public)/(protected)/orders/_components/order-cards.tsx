@@ -129,7 +129,7 @@ export function OrderCard({
         </div>
       </CardContent>
       <CardFooter className="justify-end">
-        <Button size="lg">
+        <Button variant="outline" size="lg">
           <EyeIcon />
           View Details
         </Button>

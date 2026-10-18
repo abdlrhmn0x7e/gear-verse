@@ -148,7 +148,7 @@ export function CheckoutForm({
                         form.setValue("addressId", id);
                       }}
                     >
-                      <Button type="button">
+                      <Button type="button" variant="outline">
                         <IconHomePlus />
                         Add Address
                       </Button>

@@ -37,8 +37,13 @@
   --card-foreground: var(--foreground);
   --popover: var(--neutral-50);
   --popover-foreground: var(--foreground);
-  --primary: var(--neutral-950);
-  --primary-foreground: var(--neutral-50);
+  /* white on plum-700 measures 8.16:1; hover goes darker so the label only gains contrast */
+  --primary: var(--plum-700);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: var(--plum-800);
+  /* navigation and toggle state (active category, pressed filter, chosen variant): neutral, so plum stays the action colour */
+  --selected: var(--neutral-950);
+  --selected-foreground: var(--neutral-50);
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--neutral-900);
   --muted: var(--neutral-100);
@@ -108,8 +113,12 @@
   --foreground: var(--neutral-50);
   --card: var(--neutral-900);
   --popover: var(--neutral-900);
-  --primary: var(--neutral-50);
-  --primary-foreground: var(--neutral-950);
+  /* white on plum-600 measures 5.86:1; hover goes darker, since white on plum-500 drops to 4.01:1 */
+  --primary: var(--plum-600);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: var(--plum-700);
+  --selected: var(--neutral-50);
+  --selected-foreground: var(--neutral-950);
   --secondary: var(--neutral-800);
   --secondary-foreground: var(--neutral-50);
   --muted: var(--neutral-900);
@@ -157,6 +166,9 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-selected: var(--selected);
+  --color-selected-foreground: var(--selected-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -402,7 +414,7 @@
   }
 }
 
-/* Filled primary action. The dark primary is near-white, so it swaps the white highlight for a black shadow. */
+/* Filled primary action: plum in both themes, so the white top highlight works in each. */
 @utility surface-solid {
   border: 1px solid var(--primary);
   background-color: var(--primary);
@@ -413,7 +425,35 @@
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:hover {
-      background-color: color-mix(in oklab, var(--primary) 90%, transparent);
+      border-color: var(--primary-hover);
+      background-color: var(--primary-hover);
+    }
+    &:active {
+      border-color: var(--primary-hover);
+      background-color: var(--primary-hover);
+      box-shadow: none;
+    }
+  }
+
+  @variant dark {
+    box-shadow:
+      inset 0 1px rgb(255 255 255 / 0.12),
+      0 1px 2px 0 rgb(0 0 0 / 0.4);
+  }
+}
+
+/* Filled selection state for chips and option pickers. The dark fill is near-white, so it swaps the white highlight for a black shadow. */
+@utility surface-selected {
+  border: 1px solid var(--selected);
+  background-color: var(--selected);
+  color: var(--selected-foreground);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 0.16),
+    0 1px 2px 0 color-mix(in oklab, var(--selected) 24%, transparent);
+
+  &:where(button, a):not(:disabled, [aria-disabled="true"]) {
+    &:hover {
+      background-color: color-mix(in oklab, var(--selected) 90%, transparent);
     }
     &:active {
       box-shadow: none;

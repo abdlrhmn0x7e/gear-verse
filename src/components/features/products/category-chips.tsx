@@ -36,7 +36,7 @@ export async function CategoryChips({
               aria-current={chip.active ? "page" : undefined}
               className={cn(
                 chipClassName,
-                chip.active ? "surface-solid" : "surface-control",
+                chip.active ? "surface-selected" : "surface-control",
               )}
             >
               {chip.label}
