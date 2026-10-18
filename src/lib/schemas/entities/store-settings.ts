@@ -32,11 +32,6 @@ export const defaultStoreSettings: StoreSettings = {
   updatedAt: null,
 };
 
-/** The wa.me chat link for an E.164 number: digits only, no "+". */
-export function toWhatsAppLink(number: string) {
-  return `https://wa.me/${number.replace(/\D/g, "")}`;
-}
-
 const E164 = /^\+[1-9]\d{7,14}$/;
 const EGYPTIAN_MOBILE = /^01\d{9}$/;
 
