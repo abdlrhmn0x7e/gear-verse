@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LockIcon, ZapIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ export function BuyNowButton({
 }) {
   const trpc = useTRPC();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
@@ -37,6 +38,10 @@ export function BuyNowButton({
   const { mutate: addItem, isPending: addingItem } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions({
       onSuccess: () => {
+        // the navbar badge and cart drawer read this query, so they'd otherwise show the cart from before
+        void queryClient.invalidateQueries({
+          queryKey: trpc.public.carts.queries.find.queryKey(),
+        });
         router.push("/checkout");
       },
       onError: () => {
