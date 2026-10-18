@@ -113,7 +113,7 @@ export function ProductForm({
   const {
     fields: mediaFields,
     insert: insertMedia,
-    swap: swapMedia,
+    move: moveMedia,
   } = useFieldArray({
     control: form.control,
     name: "media",
@@ -236,7 +236,7 @@ export function ProductForm({
                     )}
                   />
                 ) : (
-                  <MediaFields media={mediaFields} swap={swapMedia} />
+                  <MediaFields media={mediaFields} move={moveMedia} />
                 )}
               </MediaStoreProvider>
             </CardContent>

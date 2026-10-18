@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext, type UseFieldArraySwap } from "react-hook-form";
+import { useFormContext, type UseFieldArrayMove } from "react-hook-form";
 
 import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
@@ -19,7 +19,7 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
-import { rectSwappingStrategy } from "@dnd-kit/sortable";
+import { rectSortingStrategy } from "@dnd-kit/sortable";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import type { ProductFormValues } from ".";
@@ -31,10 +31,10 @@ import {
 
 export function MediaFields({
   media,
-  swap,
+  move,
 }: {
   media: ProductFormValues["media"];
-  swap: UseFieldArraySwap;
+  move: UseFieldArrayMove;
 }) {
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
 
@@ -78,7 +78,7 @@ export function MediaFields({
 
       if (oldIndex === -1 || newIndex === -1) return;
 
-      swap(oldIndex, newIndex);
+      move(oldIndex, newIndex);
 
       setActiveId(null);
     }
@@ -144,7 +144,7 @@ export function MediaFields({
         >
           <DragableSortableContext
             items={media.map((m) => m.mediaId)}
-            strategy={rectSwappingStrategy}
+            strategy={rectSortingStrategy}
           >
             <div className="relative flex flex-wrap gap-2">
               {media.map((m, index) => (
