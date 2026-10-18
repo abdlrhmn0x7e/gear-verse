@@ -33,6 +33,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { imageDropzoneOptions } from "../inputs/image-dropzone-options";
 import { useDebounce } from "~/hooks/use-debounce";
 import { cn } from "~/lib/utils";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
@@ -159,9 +160,7 @@ function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDropAccepted,
     disabled: isPending,
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".webp"],
-    },
+    ...imageDropzoneOptions,
     ...options,
   });
 

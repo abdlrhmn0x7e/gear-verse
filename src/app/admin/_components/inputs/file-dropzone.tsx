@@ -13,6 +13,7 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
+import { imageDropzoneOptions } from "./image-dropzone-options";
 import type { SelectedMedia } from "../../_stores/media/store";
 import { MediaDialog } from "../dialogs/media";
 import { useMediaStore } from "../../_stores/media/provider";
@@ -65,9 +66,7 @@ export function FileDropzone({
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDropAccepted,
     disabled: isPending,
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg"],
-    },
+    ...imageDropzoneOptions,
     noClick: true,
     ...options,
   });
