@@ -5,7 +5,7 @@ import type {
   CreateOrderItemInput,
 } from "~/lib/schemas/entities/order";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { invalidateCache } from "~/server/actions/cache";
+import { invalidateProducts } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _checkout = {
@@ -81,14 +81,8 @@ export const _checkout = {
         });
       }
 
-      // Invalidate product pages to update stock info
-      const invalidationPromises = [];
-      for (const item of items) {
-        invalidationPromises.push(
-          invalidateCache(`products:${item.productId}`),
-        );
-      }
-      await Promise.all(invalidationPromises);
+      // Invalidate product pages and listings to update stock info
+      await invalidateProducts(items.map((item) => item.productId));
 
       return order;
     },

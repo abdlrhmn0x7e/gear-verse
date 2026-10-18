@@ -138,7 +138,7 @@ export const _inventoryItems = {
   mutations: {
     updateMany(input: UpdateInventoryItem[]) {
       return db.transaction(async (tx) => {
-        const updatedItems: { id: number }[] = [];
+        const updatedItems: { id: number; productId: number }[] = [];
 
         for (const item of input) {
           const { id, ...updateData } = item;
@@ -146,7 +146,10 @@ export const _inventoryItems = {
             .update(inventoryItems)
             .set(updateData)
             .where(eq(inventoryItems.id, id))
-            .returning({ id: inventoryItems.id });
+            .returning({
+              id: inventoryItems.id,
+              productId: inventoryItems.productId,
+            });
 
           if (!updatedItem) {
             throw new Error(`Inventory item with ID ${id} not found.`);

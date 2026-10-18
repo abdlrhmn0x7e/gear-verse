@@ -189,20 +189,22 @@ export const _productVariants = {
       return db.transaction(async (tx) => {
         const { id, stock, values, ...rest } = input;
 
-        await tx
+        const [variant] = await tx
           .update(productVariants)
           .set({
             ...rest,
             overridePrice: rest.overridePrice === 0 ? null : rest.overridePrice,
           })
-          .where(eq(productVariants.id, input.id));
+          .where(eq(productVariants.id, input.id))
+          .returning({ productId: productVariants.productId });
+        const productId = variant?.productId ?? null;
 
         await tx
           .update(inventoryItems)
           .set({ quantity: stock ?? 0 })
           .where(eq(inventoryItems.productVariantId, id));
 
-        if (!values || values.length === 0) return { id };
+        if (!values || values.length === 0) return { id, productId };
 
         // Update option values
         for (const val of values) {
@@ -212,7 +214,7 @@ export const _productVariants = {
             .where(eq(productOptionValues.id, val.id));
         }
 
-        return { id };
+        return { id, productId };
       });
     },
 
