@@ -108,7 +108,9 @@ export function ProductListItem({
   }
 
   return (
-    <div className={cn("flex h-full items-center gap-3", className)}>
+    <div
+      className={cn("flex h-full min-w-0 flex-1 items-center gap-3", className)}
+    >
       <ImageWithFallback
         key={`product-thumbnail-${product.id}`}
         src={product.thumbnail.url}
