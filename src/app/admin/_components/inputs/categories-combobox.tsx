@@ -107,17 +107,17 @@ export function CategoriesCombobox({
     );
 
     return (
-      <div className="flex items-center justify-start">
+      <div className="flex min-w-0 items-center justify-start overflow-hidden">
         {currentCategory?.path.map((p, idx) => {
           const Icon = iconsMap.get(p.icon);
 
           return (
             <div
               key={`${p.name}-${idx}`}
-              className="flex items-center justify-start"
+              className="flex min-w-0 items-center justify-start"
             >
-              {Icon && <Icon className="mr-1 size-4" />}
-              <span>{p.name}</span>
+              {Icon && <Icon className="mr-1 size-4 shrink-0" />}
+              <span className="truncate">{p.name}</span>
               {idx != currentCategory?.path.length - 1 && (
                 <ChevronRightIcon className="opacity-50" />
               )}
@@ -135,7 +135,7 @@ export function CategoriesCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between"
+          className="w-full min-w-0 justify-between"
         >
           {value ? (
             renderValue(value, flattenedCategories)
