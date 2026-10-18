@@ -689,6 +689,11 @@ html {
   @apply motion-safe:scroll-smooth;
 }
 
+/* Lenis eases every frame itself; the browser's own smoothing on top would chase each step */
+html.lenis {
+  scroll-behavior: auto;
+}
+
 html body[data-scroll-locked] {
   overflow: visible !important;
   margin-right: 0 !important;

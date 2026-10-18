@@ -1,6 +1,7 @@
 import { Navbar } from "~/components/navbar/index";
 
 import { Footer } from "~/components/footer";
+import { SmoothScroll } from "~/components/smooth-scroll";
 
 export default function UserLayout({
   children,
@@ -8,7 +9,7 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <SmoothScroll>
       <a
         href="#main"
         className="surface-control sr-only z-[60] rounded-full text-sm font-medium focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:px-4 focus:py-2"
@@ -21,6 +22,6 @@ export default function UserLayout({
         {children}
       </main>
       <Footer />
-    </>
+    </SmoothScroll>
   );
 }
