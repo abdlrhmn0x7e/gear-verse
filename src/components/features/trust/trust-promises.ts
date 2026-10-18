@@ -22,7 +22,7 @@ export const TRUST_PROMISES = [
   },
   {
     icon: BadgeCheckIcon,
-    title: "Money-back guarantee",
-    description: "Not happy? Ask us for a refund",
+    title: "Authentic gear",
+    description: "From trusted brands",
   },
 ] as const satisfies readonly TrustPromise[];

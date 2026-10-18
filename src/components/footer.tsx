@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 const HELP_LINKS = [
   { title: "FAQ", href: "/#faq" },
   { title: "My orders", href: "/orders" },
+  { title: "Returns & refunds", href: "/returns" },
 ];
 
 const linkClassName =

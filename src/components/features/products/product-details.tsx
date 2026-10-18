@@ -1,4 +1,9 @@
-import { AwardIcon, PackageIcon, Undo2Icon } from "lucide-react";
+import {
+  AwardIcon,
+  PackageIcon,
+  Undo2Icon,
+  type LucideIcon,
+} from "lucide-react";
 import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -34,7 +39,13 @@ import { ProductVariantSelector } from "./product-variant-selector";
 import { PurchasePanel } from "./purchase-panel";
 
 /** Condensed from the FAQ answers, so the product page repeats policies the store already states. */
-const POLICY_ROWS = [
+const POLICY_ROWS: {
+  value: string;
+  icon: LucideIcon;
+  title: string;
+  body: string;
+  link?: { href: string; label: string };
+}[] = [
   {
     value: "delivery",
     icon: PackageIcon,
@@ -51,7 +62,8 @@ const POLICY_ROWS = [
     value: "returns",
     icon: Undo2Icon,
     title: "Returns & refunds",
-    body: "Not happy with your order? Contact our support team to start a return or refund. If something arrives damaged or defective, send us photos and we'll replace it or refund you in full.",
+    body: "We refund a product only if it arrives defective or damaged, or has a problem caused by us. Report it within 24 hours of opening, with photos or videos of the problem. Once our team inspects it and approves the return, we collect the product and process your refund within 7 days.",
+    link: { href: "/returns", label: "Read the full Returns & Refunds Policy" },
   },
 ];
 
@@ -182,6 +194,16 @@ export async function ProductDetails({
                   {/* the answer lines up with the title, past the icon */}
                   <AccordionContent className="pl-8">
                     <p>{row.body}</p>
+                    {row.link && (
+                      <p>
+                        <Link
+                          href={row.link.href}
+                          className="text-foreground underline decoration-from-font underline-offset-4"
+                        >
+                          {row.link.label}
+                        </Link>
+                      </p>
+                    )}
                   </AccordionContent>
                 </AccordionItem>
               ))}

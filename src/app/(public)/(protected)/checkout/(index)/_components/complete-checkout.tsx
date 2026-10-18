@@ -5,6 +5,7 @@ import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
 import { LockIcon, SparklesIcon } from "lucide-react";
 import { Heading } from "~/components/heading";
 import { useTRPC } from "~/trpc/client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
@@ -66,6 +67,17 @@ export function CompleteCheckout({
           <div className="block lg:hidden">{children}</div>
         </div>
 
+        <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
+          By placing your order, you agree to our{" "}
+          <Link
+            href="/returns"
+            className="text-foreground underline decoration-from-font underline-offset-4"
+          >
+            Returns &amp; Refunds Policy
+          </Link>
+          .
+        </p>
+
         <Button
           className="sticky inset-x-0 bottom-24 min-w-48 lg:relative lg:inset-x-auto lg:bottom-auto lg:w-fit lg:justify-start lg:self-end"
           size="lg"
@@ -77,7 +89,7 @@ export function CompleteCheckout({
           ) : (
             <LockIcon data-icon="inline-start" />
           )}
-          Checkout
+          Place order
         </Button>
       </div>
     </div>

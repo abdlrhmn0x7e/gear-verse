@@ -1,3 +1,5 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { SOCIAL_LINKS } from "~/components/navbar/social-links";
 import {
@@ -9,8 +11,17 @@ import {
 
 const DISCORD_URL = SOCIAL_LINKS[0].url;
 
+const POLICY_LINK = (
+  <Link
+    href="/returns"
+    className="text-foreground underline decoration-from-font underline-offset-4"
+  >
+    Returns &amp; Refunds Policy
+  </Link>
+);
+
 export function FAQ() {
-  const faq = [
+  const faq: { question: string; answer: ReactNode }[] = [
     {
       question: "What is Gear Verse?",
       answer:
@@ -28,8 +39,17 @@ export function FAQ() {
     },
     {
       question: "What is your return policy?",
-      answer:
-        "We want you to be completely satisfied with your purchase. If you're not happy with your order, you can initiate a return or refund request. Please contact our support team for assistance with returns.",
+      answer: (
+        <>
+          We accept a return and refund only when a product arrives defective or
+          damaged, or has a problem caused by us. Report the issue within 24
+          hours of opening the product and send photos or videos of it. Once our
+          team inspects the product and approves the return, we&apos;ll collect
+          it and process your refund within 7 days. We can&apos;t take back a
+          product that was opened and has no defect. Read the full {POLICY_LINK}
+          .
+        </>
+      ),
     },
     {
       question: "How can I track my order?",
@@ -48,8 +68,15 @@ export function FAQ() {
     },
     {
       question: "What if I receive a damaged or defective product?",
-      answer:
-        "If you receive a damaged or defective product, please contact our customer support immediately with photos of the issue. We'll arrange for a replacement or full refund as quickly as possible.",
+      answer: (
+        <>
+          Report it to us within 24 hours of opening the product, with photos or
+          videos showing the problem. Our team will inspect the product and
+          verify the issue; once we approve it, we&apos;ll arrange to collect
+          the product and process your refund within 7 days of approval. See our{" "}
+          {POLICY_LINK} for the details.
+        </>
+      ),
     },
   ];
   return (

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./typeset.css";
 @plugin "@tailwindcss/typography";
 @config "../../tailwind.config.js";
 
@@ -543,6 +544,21 @@ html body[data-scroll-locked] {
     #000 calc(100% - var(--shadow-height)),
     transparent 100%
   );
+}
+
+/* typeset tuned to the site: headings at the site's 500 weight and tracking, and link focus on the high-contrast --focus
+   colour rather than --ring (2.5:1 on the light page) */
+@layer components {
+  .typeset {
+    --typeset-leading: 1.7;
+  }
+  .typeset :where(h1, h2, h3, h4) {
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .typeset a:focus-visible {
+    outline-color: var(--focus);
+  }
 }
 
 input:-webkit-autofill,
