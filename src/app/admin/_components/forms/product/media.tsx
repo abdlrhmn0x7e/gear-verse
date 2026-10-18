@@ -39,9 +39,7 @@ export function MediaFields({
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [checkedMedia, setCheckedMedia] = useState<ProductFormValues["media"]>(
-    [],
-  );
+  const [checkedIds, setCheckedIds] = useState<ReadonlySet<number>>(new Set());
 
   const { getValues, setValue } = useFormContext<ProductFormValues>();
 
@@ -52,6 +50,10 @@ export function MediaFields({
   function commitMedia(next: ProductFormValues["media"]) {
     setValue("media", next, { shouldDirty: true });
     setSelectedMedia(next);
+    // media only come and go through here, so their ticks go with them
+    setCheckedIds(
+      (ids) => new Set(next.map((m) => m.mediaId).filter((id) => ids.has(id))),
+    );
   }
 
   function handlePicked(picked: SelectedMedia[]) {
@@ -84,36 +86,33 @@ export function MediaFields({
     }
   }
 
-  function handleCheckboxChange(media: ProductFormValues["media"][number]) {
+  function handleCheckboxChange(mediaId: number) {
     return (checked: boolean) =>
-      setCheckedMedia((prev) =>
-        checked
-          ? [...prev, media]
-          : prev.filter((m) => m.mediaId !== media.mediaId),
-      );
+      setCheckedIds((ids) => {
+        const next = new Set(ids);
+        if (checked) next.add(mediaId);
+        else next.delete(mediaId);
+        return next;
+      });
   }
 
   return (
     <div className="space-y-2">
-      {checkedMedia.length > 0 ? (
+      {checkedIds.size > 0 ? (
         <div className="flex h-9 items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Checkbox
               id="select-all"
-              checked={checkedMedia.length === media.length}
-              indeterminate={
-                checkedMedia.length > 0 && checkedMedia.length < media.length
+              checked={checkedIds.size === media.length}
+              indeterminate={checkedIds.size < media.length}
+              onCheckedChange={(checked) =>
+                setCheckedIds(
+                  new Set(checked ? media.map((m) => m.mediaId) : []),
+                )
               }
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  setCheckedMedia(getValues("media"));
-                } else {
-                  setCheckedMedia([]);
-                }
-              }}
             />
 
-            <Label htmlFor="select-all">{checkedMedia.length} selected</Label>
+            <Label htmlFor="select-all">{checkedIds.size} selected</Label>
           </div>
 
           <Button
@@ -122,11 +121,8 @@ export function MediaFields({
             type="button"
             onClick={() => {
               commitMedia(
-                getValues("media").filter(
-                  (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
-                ),
+                getValues("media").filter((m) => !checkedIds.has(m.mediaId)),
               );
-              setCheckedMedia([]);
             }}
           >
             <Trash2Icon data-icon="inline-start" />
@@ -160,10 +156,8 @@ export function MediaFields({
 
                     <Checkbox
                       className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-checked:opacity-100"
-                      checked={checkedMedia.some(
-                        (m2) => m2.mediaId === m.mediaId,
-                      )}
-                      onCheckedChange={handleCheckboxChange(m)}
+                      checked={checkedIds.has(m.mediaId)}
+                      onCheckedChange={handleCheckboxChange(m.mediaId)}
                       onPointerDown={(e) => e.stopPropagation()}
                     />
                   </SortableItem>
