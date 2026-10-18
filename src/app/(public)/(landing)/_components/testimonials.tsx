@@ -25,11 +25,11 @@ export function Testimonials({
           description="Real customers, in their own words."
         />
 
-        <ul className="columns-1 gap-4 md:columns-2 md:gap-6 lg:columns-3">
+        <ul className="grid gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
           {testimonials.map((testimonial) => (
             <li
               key={testimonial.name}
-              className="bg-card mb-4 flex break-inside-avoid flex-col gap-5 rounded-3xl p-6 md:mb-6"
+              className="bg-card flex flex-col gap-5 rounded-3xl p-6"
             >
               <div
                 className="flex gap-0.5"
@@ -57,7 +57,7 @@ export function Testimonials({
               >
                 {testimonial.content}
               </blockquote>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground mt-auto text-sm">
                 {testimonial.name}
               </p>
             </li>
