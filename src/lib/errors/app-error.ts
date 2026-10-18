@@ -6,14 +6,28 @@ export type ErrorKind =
   | "CONFLICT";
 
 export class AppError extends Error {
+  public kind: ErrorKind;
+  public meta?: Record<string, unknown>;
+
+  /**
+   * Callers pass the underlying error either as the fourth argument or as
+   * `meta.cause`; both end up on the native `Error.cause`, which the tRPC
+   * error map forwards.
+   */
   constructor(
     message: string,
-    public kind: ErrorKind,
-    public meta?: Record<string, unknown>,
-    public cause?: unknown,
+    kind: ErrorKind,
+    meta?: Record<string, unknown>,
+    cause?: unknown,
   ) {
-    super(message);
+    const resolvedCause = cause ?? meta?.cause;
+    super(
+      message,
+      resolvedCause === undefined ? undefined : { cause: resolvedCause },
+    );
     this.name = "AppError";
+    this.kind = kind;
+    this.meta = meta;
   }
 }
 
