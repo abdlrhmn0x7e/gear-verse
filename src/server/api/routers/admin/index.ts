@@ -12,6 +12,7 @@ import { addressesRouter } from "./addresses";
 import { attributesRouter } from "./attributes";
 import { attributeValuesRouter } from "./attribute-values";
 import { reviewsRouter } from "./reviews";
+import { dashboardRouter } from "./dashboard";
 
 export const adminRouter = createTRPCRouter({
   products: productsRouter,
@@ -27,4 +28,5 @@ export const adminRouter = createTRPCRouter({
   attributes: attributesRouter,
   attributeValues: attributeValuesRouter,
   reviews: reviewsRouter,
+  dashboard: dashboardRouter,
 });

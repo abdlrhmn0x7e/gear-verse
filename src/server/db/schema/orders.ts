@@ -78,6 +78,7 @@ export const orderItems = pgTable(
       mode: "number",
     }).references(() => productVariants.id),
     quantity: integer("quantity").notNull(),
+    unitPrice: integer("unit_price"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
