@@ -126,7 +126,7 @@ export function MediaFields({
             }}
           >
             <Trash2Icon data-icon="inline-start" />
-            Delete Selected
+            Delete selected
           </Button>
         </div>
       ) : (
