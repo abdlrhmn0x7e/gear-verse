@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
-import { Card, CardContent } from "~/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -28,6 +27,8 @@ import { AddValueDialog } from "../dialogs/add-value-dialog";
 import { DeleteAttributeAlertDialog } from "../dialogs/delete-attribute-dialog";
 import { EditAttributeDialog } from "../dialogs/edit-attribute-dialog";
 import type { AttributeType } from "~/lib/schemas/entities/attribute";
+import { cn } from "~/lib/utils";
+import { nodeHandle, nodeSurface } from "./styles";
 
 type Attribute =
   RouterOutput["admin"]["attributes"]["queries"]["getAll"][number];
@@ -37,7 +38,12 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Card className="group ring-primary relative min-w-24 py-1 text-center transition-shadow hover:ring-1">
+        <div
+          className={cn(
+            nodeSurface,
+            "group hover:ring-primary/40 dark:hover:ring-primary/40 relative flex min-w-24 cursor-pointer items-center gap-2 px-3 py-2 text-sm font-medium transition-shadow",
+          )}
+        >
           <Badge
             onClick={(e) => e.stopPropagation()}
             className="absolute -top-7 left-1/2 max-h-6 -translate-x-1/2 px-1 text-xs font-medium opacity-0 transition-opacity group-hover:opacity-100"
@@ -49,13 +55,15 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
               slug={props.data.slug}
             />
           </Badge>
-          <CardContent className="flex items-center gap-1">
-            <IconKeyframe className="size-4" />
-            {props.data.name}
-            <AttributeTypeBadge type={props.data.type} />
-          </CardContent>
-          <Handle type="source" position={Position.Right} />
-        </Card>
+          <IconKeyframe className="text-muted-foreground size-4 shrink-0" />
+          {props.data.name}
+          <AttributeTypeBadge type={props.data.type} />
+          <Handle
+            type="source"
+            position={Position.Right}
+            className={nodeHandle}
+          />
+        </div>
       </PopoverTrigger>
 
       <PopoverContent className="min-w-96 space-y-4" align="start">
