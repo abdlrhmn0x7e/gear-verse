@@ -63,7 +63,7 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
           variant="ghost"
           size="icon-xs"
           className="focus-visible:ring-0"
-          aria-label="Edit attribute"
+          aria-label={`Edit ${attribute.name}`}
         >
           <PencilIcon />
         </Button>
