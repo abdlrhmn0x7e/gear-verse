@@ -37,7 +37,8 @@ export function RevenueChart() {
           {data.unit === "hour" ? "Revenue by hour" : "Revenue by day"},{" "}
           {formatMoney(data.total)} in total
         </figcaption>
-        <div className="relative h-44">
+        {/* grows with the row, so a taller neighbour stretches the bars rather than leaving a gap under the axis */}
+        <div className="relative min-h-44 flex-1">
           {/* the busiest bucket's amount on a hairline across the top */}
           <div className="border-border absolute inset-x-0 top-0 border-t border-dashed" />
           <span className="text-muted-foreground bg-card absolute top-0 right-0 -translate-y-1/2 pl-1.5 text-[0.6875rem] tabular-nums">
@@ -48,8 +49,8 @@ export function RevenueChart() {
             buckets={data.buckets}
             className={
               data.buckets.length > 7
-                ? "h-full gap-1 pt-3"
-                : "h-full gap-3 pt-3"
+                ? "absolute inset-0 gap-1 pt-3"
+                : "absolute inset-0 gap-3 pt-3"
             }
           />
           {max === 0 && (
