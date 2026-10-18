@@ -168,7 +168,7 @@ export function ProductForm({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-3"
       >
-        <div className="space-y-8 lg:col-span-2">
+        <div className="min-w-0 space-y-8 lg:col-span-2">
           <Card>
             <CardContent className="space-y-6">
               <FormField
@@ -316,7 +316,7 @@ export function ProductForm({
           </Card>
         </div>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card className="gap-3">
             <CardHeader>
               <CardTitle>Status</CardTitle>
