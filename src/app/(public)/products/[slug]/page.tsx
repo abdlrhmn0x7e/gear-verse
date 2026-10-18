@@ -4,9 +4,16 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
+import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { isAppError } from "~/lib/errors/app-error";
+import { JsonLd } from "~/lib/seo/json-ld";
 import { pageMetadata } from "~/lib/seo/metadata";
 import { productMetaDescription } from "~/lib/seo/product";
+import {
+  breadcrumbJsonLd,
+  categoryTrail,
+  productJsonLd,
+} from "~/lib/seo/structured-data";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 
@@ -90,12 +97,27 @@ export default async function ProductPage({
   const { slug } = await params;
 
   // checked before anything streams, so the response is a real 404
-  if (slug === "__placeholder__" || !(await findProductMetadata(slug))) {
+  const product =
+    slug === "__placeholder__" ? null : await findProductMetadata(slug);
+  if (!product) {
     notFound();
   }
 
+  const categoryPath = findCategoryPath(
+    await getCategoryTree(),
+    (node) => node.id === product.categoryId,
+  );
+
   return (
     <div className="pt-24 pb-12 md:pt-28">
+      {/* here and not in ProductDetails, which the admin preview renders too */}
+      <JsonLd data={productJsonLd({ product, categoryPath })} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          ...categoryTrail(categoryPath),
+          { name: product.title, path: `/products/${product.slug}` },
+        ])}
+      />
       <ProductDetails
         slug={slug}
         Reviews={({ productId }) => (

@@ -10,6 +10,8 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { jetBrainsMono } from "~/fonts";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
+import { JsonLd } from "~/lib/seo/json-ld";
+import { siteJsonLd } from "~/lib/seo/structured-data";
 
 import * as Sentry from "@sentry/nextjs";
 import { Geist } from "next/font/google";
@@ -87,6 +89,7 @@ export default function RootLayout({
           "flex min-h-screen flex-col font-sans antialiased",
         )}
       >
+        <JsonLd data={siteJsonLd()} />
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"

@@ -8,6 +8,8 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { pageMetadata } from "~/lib/seo/metadata";
 import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
+import { JsonLd } from "~/lib/seo/json-ld";
+import { breadcrumbJsonLd, categoryTrail } from "~/lib/seo/structured-data";
 import { app } from "~/server/application";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
@@ -82,6 +84,7 @@ export default async function CategoryPage({
 
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
+      <JsonLd data={breadcrumbJsonLd(categoryTrail(path))} />
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
           {category.name}
