@@ -34,6 +34,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { toast } from "~/components/ui/toast";
+import { EditOrderDrawer } from "../../orders/_components/edit-order-drawer";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -43,17 +44,19 @@ export function OrderDrawer() {
     if (open) {
       return;
     }
-    void setParams((prev) => ({ ...prev, orderId: null }));
+    void setParams((prev) => ({ ...prev, orderId: null, editId: null }));
   }
 
+  // an edit always opens over the order's details, so an edit link on its own opens them too
   return (
     <Drawer
-      open={!!params.orderId}
+      open={!!(params.orderId ?? params.editId)}
       onOpenChange={handleOpenChange}
       swipeDirection={isMobile ? "down" : "right"}
     >
       <DrawerContent className="data-[swipe-direction=right]:sm:max-w-xl">
         <OrderDrawerContent />
+        <EditOrderDrawer />
       </DrawerContent>
     </Drawer>
   );
@@ -62,8 +65,9 @@ export function OrderDrawer() {
 function OrderDrawerContent() {
   const trpc = useTRPC();
   const [params, setParams] = useOrderSearchParams();
+  const orderId = params.orderId ?? params.editId;
 
-  const paramsProductIdRef = useRef<number>(params.orderId);
+  const paramsProductIdRef = useRef<number | null>(orderId);
   const { data, isPending } = useQuery(
     trpc.admin.orders.queries.findDetailsById.queryOptions(
       {
@@ -114,7 +118,7 @@ function OrderDrawerContent() {
   }
 
   function handleDeleteSuccess() {
-    void setParams({ orderId: null });
+    void setParams({ orderId: null, editId: null });
   }
 
   return (
@@ -127,7 +131,7 @@ function OrderDrawerContent() {
               variant="outline"
               size="icon"
               aria-label="Edit order"
-              onClick={() => setParams({ orderId: null, editId: data?.id })}
+              onClick={() => setParams({ editId: data?.id })}
             >
               <PencilIcon />
             </Button>
@@ -136,7 +140,7 @@ function OrderDrawerContent() {
               variant="destructive-outline"
               showText={false}
               size="icon"
-              id={params.orderId!}
+              id={orderId!}
               onDeleteSuccess={handleDeleteSuccess}
             />
           </div>

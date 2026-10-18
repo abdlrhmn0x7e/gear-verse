@@ -6,7 +6,6 @@ import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { OrdersFilters } from "../_components/tables/orders/filters";
 import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
 import { CreateOrderDrawer } from "./_components/create-order-drawer";
-import { EditOrderDrawer } from "./_components/edit-order-drawer";
 import { requireAdmin } from "~/server/auth";
 import type { SearchParams } from "nuqs/server";
 import { PageLayout } from "../_components/page-layout";
@@ -49,7 +48,6 @@ export default async function AdminOrdersPage({
       </HydrateClient>
 
       <OrderDrawer />
-      <EditOrderDrawer />
     </PageLayout>
   );
 }

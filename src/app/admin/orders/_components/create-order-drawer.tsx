@@ -9,7 +9,6 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -66,13 +65,10 @@ export function CreateOrderDrawer() {
       </DrawerTrigger>
       <DrawerContent className="data-[swipe-direction=right]:sm:max-w-2xl">
         <DrawerHeader>
-          <DrawerTitle>Create New Order</DrawerTitle>
-          <DrawerDescription>
-            Fill in the details below to create a new order.
-          </DrawerDescription>
+          <DrawerTitle className="text-lg">New order</DrawerTitle>
         </DrawerHeader>
 
-        <DrawerBody>
+        <DrawerBody className="pt-2">
           <OrderForm onSubmit={onSubmit} />
         </DrawerBody>
         <DrawerFooter>
@@ -82,7 +78,7 @@ export function CreateOrderDrawer() {
             ) : (
               <PlusIcon data-icon="inline-start" />
             )}
-            Create Order
+            Create order
           </Button>
         </DrawerFooter>
       </DrawerContent>
