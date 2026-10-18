@@ -201,7 +201,7 @@ export function CartDrawer({
         )}
 
         {items.length > 0 && (
-          <DrawerFooter className="gap-4 border-t px-2 pt-5 pb-2">
+          <DrawerFooter className="mx-2 gap-4 border-t px-0 pt-5 pb-2">
             <div className="flex items-baseline justify-between">
               <span className="text-muted-foreground text-sm">Subtotal</span>
               <span className="text-lg font-medium tabular-nums">
