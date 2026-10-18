@@ -55,16 +55,19 @@ export function Navbar() {
             </NavigationMenu.Item>
           </NavigationMenu.List>
 
-          <div className="ml-auto flex items-center gap-1">
-            <div className="mr-1 hidden lg:block">
+          {/* icon buttons are 40px boxes around a 16px glyph, so they sit flush and the outlined shapes (search pill, sign-in pill or
+              avatar) take a 12px margin: every visible gap comes out at 24px. Cart stays last, beside where its drawer slides in;
+              the -me-3 puts the last glyph on the content edge, as the logo is on the other side. */}
+          <div className="ms-auto -me-3 flex items-center">
+            <div className="me-3 hidden lg:block">
               <ProductSearchDialog withOverlay={false}>
-                <span className="relative z-10 flex h-9 w-60 items-center gap-2 pr-14 pl-4">
+                <span className="relative z-10 flex h-9 w-60 items-center gap-2 ps-4 pe-14">
                   <ProductSearchIcon className="text-muted-foreground size-4" />
                   <ProductSearchPlaceholder className="text-sm">
                     Search products
                   </ProductSearchPlaceholder>
                 </span>
-                <Kbd className="absolute top-1/2 right-2 z-10 -translate-y-1/2">
+                <Kbd className="absolute end-2 top-1/2 z-10 -translate-y-1/2">
                   Ctrl K
                 </Kbd>
               </ProductSearchDialog>
@@ -81,11 +84,11 @@ export function Navbar() {
             {/* phones switch themes from the menu drawer, keeping the bar to search, cart and menu */}
             <ThemeToggle className="hidden md:inline-flex" />
 
+            <ProfileDropdown className="mx-3 hidden md:inline-flex" />
+
             <Suspense>
               <CartDrawer />
             </Suspense>
-
-            <ProfileDropdown className="ml-1 hidden md:inline-flex" />
 
             <Suspense>
               <MobileNav />
