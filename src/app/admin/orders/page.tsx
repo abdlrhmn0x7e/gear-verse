@@ -3,6 +3,7 @@ import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
+import { OrdersFilters } from "../_components/tables/orders/filters";
 import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
 import { CreateOrderDrawer } from "./_components/create-order-drawer";
 import { EditOrderDrawer } from "./_components/edit-order-drawer";
@@ -39,6 +40,7 @@ export default async function AdminOrdersPage({
       description="View all orders placed in your store."
       contentWidth="full"
       actions={<CreateOrderDrawer />}
+      toolbar={<OrdersFilters />}
     >
       <HydrateClient>
         <Suspense fallback={<OrdersTableSkeleton />}>

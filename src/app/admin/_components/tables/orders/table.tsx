@@ -17,7 +17,6 @@ import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 // Table logic & components
 import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
-import { OrdersFilters } from "./filters";
 import { ListGrid, useListTable } from "../list-grid";
 
 export function OrdersTable() {
@@ -70,29 +69,25 @@ export function OrdersTable() {
   );
 
   return (
-    <div className="space-y-4">
-      <OrdersFilters />
-
-      <ListGrid
-        table={table}
-        isFetching={isFetching}
-        onRowClick={(order) => setParams({ ...params, orderId: order.id })}
-        hasNextPage={hasNextPage}
-        loadMoreRef={ref}
-        empty={
-          filtered
-            ? {
-                title: "No orders match these filters",
-                description:
-                  "Try a different phone number, status or payment method.",
-              }
-            : {
-                title: "No Orders Found.",
-                description:
-                  "What a shame get your ass to work and generate some orders.",
-              }
-        }
-      />
-    </div>
+    <ListGrid
+      table={table}
+      isFetching={isFetching}
+      onRowClick={(order) => setParams({ ...params, orderId: order.id })}
+      hasNextPage={hasNextPage}
+      loadMoreRef={ref}
+      empty={
+        filtered
+          ? {
+              title: "No orders match these filters",
+              description:
+                "Try a different phone number, status or payment method.",
+            }
+          : {
+              title: "No Orders Found.",
+              description:
+                "What a shame get your ass to work and generate some orders.",
+            }
+      }
+    />
   );
 }

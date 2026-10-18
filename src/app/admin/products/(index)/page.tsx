@@ -1,6 +1,7 @@
 import { ProductDrawer } from "@admin/_components/drawers/product-drawer";
 import { ProductsTableSkeleton } from "@admin/_components/tables/products/skeleton";
 import { ProductsTable } from "@admin/_components/tables/products/table";
+import { ProductsFilters } from "@admin/_components/tables/products/filters";
 import { loadProductSearchParams } from "@admin/_hooks/use-product-search-params";
 
 import { PageLayout } from "@admin/_components/page-layout";
@@ -52,6 +53,7 @@ export default async function AdminProductsPage({
           </Link>
         </Button>
       }
+      toolbar={<ProductsFilters />}
     >
       <HydrateClient>
         <Suspense fallback={<ProductsTableSkeleton />}>

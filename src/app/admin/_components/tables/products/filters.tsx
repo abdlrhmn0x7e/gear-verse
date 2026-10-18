@@ -17,7 +17,6 @@ import {
 } from "~/components/reui/filters/filters";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
-import { cn } from "~/lib/utils";
 import { useTRPC } from "~/trpc/client";
 
 // The server keeps a product when its brand (or category) is any of the
@@ -38,9 +37,9 @@ function ids(filters: CommittedFilter[], field: string) {
 
 /**
  * Title search plus brand and category chips, all held in the products
- * search params.
+ * search params. Rendered straight into the page's toolbar row.
  */
-export function ProductsFilters({ className }: { className?: string }) {
+export function ProductsFilters() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useProductSearchParams();
@@ -159,15 +158,11 @@ export function ProductsFilters({ className }: { className?: string }) {
   }
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center",
-        className,
-      )}
-    >
+    <>
       <SearchInput
-        className="w-full sm:max-w-xs"
+        className="w-full sm:w-72"
         placeholder="Search by title"
+        aria-label="Search products"
         value={filters.title ?? ""}
         onChange={handleSearchChange}
       />
@@ -177,9 +172,10 @@ export function ProductsFilters({ className }: { className?: string }) {
         onQueryChange={chips.onQueryChange}
         ruleMenu="remove"
         showClear
-        // A chip reads as one phrase, so it wraps as a whole, never inside.
-        className="[&_[data-slot=filter-chip]]:whitespace-nowrap"
+        // Takes the rest of the row so Clear sits on its far edge. A chip
+        // reads as one phrase, so it wraps as a whole, never inside.
+        className="min-w-0 flex-1 [&_[data-slot=filter-chip]]:whitespace-nowrap"
       />
-    </div>
+    </>
   );
 }

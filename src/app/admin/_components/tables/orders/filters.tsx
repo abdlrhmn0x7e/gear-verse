@@ -12,7 +12,6 @@ import {
   type CommittedFilter,
 } from "~/app/admin/_hooks/use-filter-query";
 import { Filters, type FilterField } from "~/components/reui/filters/filters";
-import { cn } from "~/lib/utils";
 import { SearchInput } from "../../inputs/search-input";
 import { orderStatuses, orderStatusMap } from "./order-status";
 
@@ -61,9 +60,9 @@ function pick<T extends string>(
 
 /**
  * Phone number search plus status and payment method chips, all held in the
- * orders search params.
+ * orders search params. Rendered straight into the page's toolbar row.
  */
-export function OrdersFilters({ className }: { className?: string }) {
+export function OrdersFilters() {
   const [filters, setFilters] = useOrderSearchParams();
 
   const committed: CommittedFilter[] = [];
@@ -93,15 +92,11 @@ export function OrdersFilters({ className }: { className?: string }) {
   });
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center",
-        className,
-      )}
-    >
+    <>
       <SearchInput
-        className="w-full sm:max-w-xs"
+        className="w-full sm:w-72"
         placeholder="Search by phone number"
+        aria-label="Search orders by phone number"
         value={filters.search ?? ""}
         onChange={(event) =>
           void setFilters({ search: event.target.value || null })
@@ -113,9 +108,10 @@ export function OrdersFilters({ className }: { className?: string }) {
         onQueryChange={chips.onQueryChange}
         ruleMenu="remove"
         showClear
-        // A chip reads as one phrase, so it wraps as a whole, never inside.
-        className="[&_[data-slot=filter-chip]]:whitespace-nowrap"
+        // Takes the rest of the row so Clear sits on its far edge. A chip
+        // reads as one phrase, so it wraps as a whole, never inside.
+        className="min-w-0 flex-1 [&_[data-slot=filter-chip]]:whitespace-nowrap"
       />
-    </div>
+    </>
   );
 }

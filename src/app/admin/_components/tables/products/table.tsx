@@ -22,7 +22,6 @@ import { useProductSearchParams } from "../../../_hooks/use-product-search-param
 
 // Table logic & components
 import { productColumns } from "./columns";
-import { ProductsFilters } from "./filters";
 import { ProductsTableSkeleton } from "./skeleton";
 import { ListGrid, useListTable } from "../list-grid";
 import { useTRPC } from "~/trpc/client";
@@ -111,22 +110,20 @@ export function ProductsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-        <ProductsFilters className="flex-1" />
-
-        {selectedProductIds.length > 0 && (
+      {selectedProductIds.length > 0 && (
+        <div className="flex justify-end">
           <BulkDeleteProductsDialog
             ids={selectedProductIds}
             onDeleteSuccess={handleBulkDeleteSuccess}
             Trigger={
-              <Button variant="destructive" className="w-full gap-2 lg:w-auto">
+              <Button variant="destructive" className="w-full gap-2 sm:w-auto">
                 <TrashIcon className="size-4" />
                 Delete selected ({selectedProductIds.length})
               </Button>
             }
           />
-        )}
-      </div>
+        </div>
+      )}
 
       <ListGrid
         table={table}
