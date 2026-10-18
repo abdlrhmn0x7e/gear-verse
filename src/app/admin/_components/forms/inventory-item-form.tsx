@@ -11,17 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateManyInventoryItemsInputSchema } from "~/lib/schemas/entities/inventory-item";
 import type z from "zod";
 import type { RouterOutput } from "~/trpc/client";
-import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-import { CheckIcon, Undo2Icon } from "lucide-react";
-import { Spinner } from "~/components/spinner";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
+import { SaveBar } from "../save-bar";
+
+const FORM_ID = "inventory-form";
 
 const inventoryItemFormSchema = updateManyInventoryItemsInputSchema;
 export type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
@@ -56,8 +49,6 @@ export function InventoryItemForm({
   isSubmitting?: boolean;
   children: ReactNode;
 }) {
-  const [itemRef, setItemRef] = useState<HTMLDivElement | null>(null);
-
   const form = useForm<InventoryItemFormValues>({
     resolver: zodResolver(inventoryItemFormSchema),
     defaultValues: toFormValues(values),
@@ -123,79 +114,40 @@ export function InventoryItemForm({
     })();
   }
 
-  useLayoutEffect(() => {
-    if (!itemRef) return;
-
-    const timeout = setTimeout(() => {
-      itemRef.style.visibility = "visible";
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [itemRef]);
-
   return (
     <FormProvider {...form}>
       <form
+        id={FORM_ID}
         onSubmit={(event) => {
           event.preventDefault();
+          // Enter in a quantity field submits too; one save at a time.
+          if (isSubmitting || form.formState.isSubmitting) return;
           handleSave();
         }}
       >
         {children}
+
+        <InventorySaveBar
+          control={form.control}
+          saving={isSubmitting}
+          onDiscard={handleDiscard}
+        />
       </form>
-
-      <Item
-        variant="outline"
-        style={{ visibility: "hidden" }}
-        className="surface-floating bg-popover text-popover-foreground data-[state=visible]:animate-item-in data-[state=hidden]:animate-item-out starting-opacity-0-fix fixed inset-x-2 bottom-4 z-20 w-auto shadow-lg md:inset-x-auto md:right-12 md:bottom-12 md:max-w-lg"
-        data-state={form.formState.isDirty ? "visible" : "hidden"}
-        ref={setItemRef}
-      >
-        <ItemContent>
-          <ItemTitle>Unsaved Changes</ItemTitle>
-          <ChangedCount control={form.control} />
-        </ItemContent>
-
-        <ItemActions>
-          <Button
-            type="button"
-            variant="destructive-outline"
-            size="sm"
-            onClick={handleDiscard}
-            disabled={isSubmitting}
-          >
-            <Undo2Icon data-icon="inline-start" />
-            Discard
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleSave}
-            disabled={
-              isSubmitting ||
-              form.formState.isSubmitting ||
-              !form.formState.isDirty
-            }
-          >
-            {isSubmitting ? (
-              <Spinner size="small" data-icon="inline-start" />
-            ) : (
-              <CheckIcon data-icon="inline-start" />
-            )}
-            Save
-          </Button>
-        </ItemActions>
-      </Item>
     </FormProvider>
   );
 }
 
-function ChangedCount({
+/** The shared save bar, counting the rows with unsaved stock. */
+function InventorySaveBar({
   control,
+  saving,
+  onDiscard,
 }: {
   control: Control<InventoryItemFormValues>;
+  saving: boolean;
+  onDiscard: () => void;
 }) {
-  const { defaultValues } = useFormState({ control });
+  const { defaultValues, isDirty, isSubmitting } = useFormState({ control });
   const rows = useWatch({ control, name: "inventory" });
   const count = rows.filter(
     (row, index) =>
@@ -203,11 +155,18 @@ function ChangedCount({
   ).length;
 
   return (
-    <ItemDescription>
-      {count === 1
-        ? "1 item has unsaved stock changes."
-        : `${count} items have unsaved stock changes.`}{" "}
-      Save or discard them.
-    </ItemDescription>
+    <SaveBar
+      form={FORM_ID}
+      visible={isDirty || saving || isSubmitting}
+      saving={saving || isSubmitting}
+      label={
+        count === 1
+          ? "1 unsaved stock change"
+          : count > 1
+            ? `${count} unsaved stock changes`
+            : "Unsaved changes"
+      }
+      onDiscard={onDiscard}
+    />
   );
 }

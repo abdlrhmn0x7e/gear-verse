@@ -34,6 +34,7 @@ export function SaveBar({
     <AnimatePresence>
       {visible && (
         <motion.div
+          data-slot="save-bar"
           className="sticky bottom-4 z-20 flex justify-center"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

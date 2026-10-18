@@ -1,24 +1,16 @@
 "use client";
 
 import {
+  type Control,
   Controller,
   FormProvider,
   useFieldArray,
   useForm,
+  useFormState,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
-import { useLayoutEffect, useState } from "react";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-import { SaveIcon, Undo2Icon } from "lucide-react";
-import { Spinner } from "~/components/spinner";
+import { SaveBar } from "../save-bar";
 import { updateProductVariantInputSchema } from "~/lib/schemas/entities/product-variants";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Field, FieldError, FieldLabel } from "~/components/ui/field";
@@ -29,6 +21,7 @@ import { InventoryTableInput } from "../inputs/inventory-table-input";
 import { MediaDialog } from "../dialogs/media";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 
+const FORM_ID = "variant-form";
 const variantFormSchema = updateProductVariantInputSchema;
 export type VariantFormValues = z.infer<typeof variantFormSchema>;
 
@@ -44,8 +37,6 @@ export function VariantForm({
   isSubmitting?: boolean;
   defaultValues?: Partial<VariantFormValues>;
 }) {
-  const [itemRef, setItemRef] = useState<HTMLDivElement | null>(null);
-
   const form = useForm<VariantFormValues>({
     resolver: zodResolver(variantFormSchema),
     defaultValues: defaultValues ?? {
@@ -68,16 +59,6 @@ export function VariantForm({
     })();
   }
 
-  useLayoutEffect(() => {
-    if (!itemRef) return;
-
-    const timeout = setTimeout(() => {
-      itemRef.style.visibility = "visible";
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [itemRef]);
-
   const { fields: optionFields } = useFieldArray({
     name: "options",
     control: form.control,
@@ -87,8 +68,11 @@ export function VariantForm({
     <>
       <FormProvider {...form}>
         <form
+          id={FORM_ID}
           onSubmit={(event) => {
             event.preventDefault();
+            // Enter in a field submits too; one save at a time.
+            if (isSubmitting || form.formState.isSubmitting) return;
             handleSave();
           }}
           className={cn("space-y-4", className)}
@@ -223,51 +207,36 @@ export function VariantForm({
               />
             </CardContent>
           </Card>
+
+          <VariantSaveBar
+            control={form.control}
+            saving={isSubmitting}
+            onDiscard={handleDiscard}
+          />
         </form>
       </FormProvider>
-
-      <Item
-        variant="outline"
-        style={{ visibility: "hidden" }}
-        className="data-[state=visible]:animate-item-in data-[state=hidden]:animate-item-out starting-opacity-0-fix fixed inset-x-2 bottom-4 md:inset-x-auto md:right-12 md:bottom-12"
-        data-state={form.formState.isDirty ? "visible" : "hidden"}
-        ref={setItemRef}
-      >
-        <ItemContent>
-          <ItemTitle>Unsaved Changes</ItemTitle>
-          <ItemDescription>
-            You have unsaved changes. Please save or discard your changes.
-          </ItemDescription>
-        </ItemContent>
-
-        <ItemActions>
-          <Button
-            variant="destructive-outline"
-            size="sm"
-            onClick={handleDiscard}
-            disabled={isSubmitting}
-          >
-            <Undo2Icon data-icon="inline-start" />
-            Discard
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={
-              isSubmitting ||
-              form.formState.isSubmitting ||
-              !form.formState.isDirty
-            }
-          >
-            {isSubmitting ? (
-              <Spinner size="small" data-icon="inline-start" />
-            ) : (
-              <SaveIcon data-icon="inline-start" />
-            )}
-            Save
-          </Button>
-        </ItemActions>
-      </Item>
     </>
+  );
+}
+
+function VariantSaveBar({
+  control,
+  saving,
+  onDiscard,
+}: {
+  control: Control<VariantFormValues>;
+  saving: boolean;
+  onDiscard: () => void;
+}) {
+  const { isDirty, isSubmitting } = useFormState({ control });
+
+  return (
+    <SaveBar
+      form={FORM_ID}
+      visible={isDirty || saving || isSubmitting}
+      saving={saving || isSubmitting}
+      saveLabel="Save variant"
+      onDiscard={onDiscard}
+    />
   );
 }
