@@ -42,7 +42,7 @@ export const addressEntitySchema = z.object({
     .string()
     .min(1, "Building name or number is required"),
   city: z.string().min(1, "City is required"),
-  governorate: addressGovernoratesEnum,
+  governorate: z.enum(addressGovernoratesEnum.options, "Select a governorate"),
 
   createdAt: z.coerce.date<Date>("Created at must be a date"),
   updatedAt: z.coerce.date<Date>("Updated at must be a date"),
