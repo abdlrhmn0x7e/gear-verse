@@ -49,25 +49,27 @@ export function ProductSummaryActions({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="More actions">
-            <EllipsisIcon />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="icon" aria-label="More actions" />
+          }
+        >
+          <EllipsisIcon />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" side="top">
-          <DropdownMenuItem onSelect={handleCopyLink}>
+          <DropdownMenuItem onClick={handleCopyLink}>
             <CopyIcon />
             Copy product link
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={publishDialog.trigger}>
+          <DropdownMenuItem onClick={publishDialog.trigger}>
             {published ? <PowerOffIcon /> : <RadioTowerIcon />}
             {published ? "Unpublish product" : "Publish product"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
-            onSelect={deleteDialog.trigger}
+            onClick={deleteDialog.trigger}
           >
             <Trash2Icon />
             Delete product

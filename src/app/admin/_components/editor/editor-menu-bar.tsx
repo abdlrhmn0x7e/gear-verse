@@ -60,14 +60,14 @@ function MaybeTooltip({
   disableTooltips,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: React.ReactElement;
   disableTooltips?: boolean;
 }) {
-  if (disableTooltips) return <>{children}</>;
+  if (disableTooltips) return children;
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipTrigger render={children} />
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   );
@@ -157,15 +157,17 @@ export function EditorMenuBar({
       {/* Heading */}
       <DropdownMenu>
         <MaybeTooltip label="Headings" disableTooltips={disableTooltips}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label="Headings"
-              variant="ghost"
-              size="icon"
-              type="button"
-            >
-              <HeadingIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                aria-label="Headings"
+                variant="ghost"
+                size="icon"
+                type="button"
+              />
+            }
+          >
+            <HeadingIcon />
           </DropdownMenuTrigger>
         </MaybeTooltip>
         <DropdownMenuContent align="start">
@@ -202,15 +204,17 @@ export function EditorMenuBar({
       {/* List */}
       <DropdownMenu>
         <MaybeTooltip label="Lists" disableTooltips={disableTooltips}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label="Lists"
-              variant="ghost"
-              size="icon"
-              type="button"
-            >
-              <ListIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                aria-label="Lists"
+                variant="ghost"
+                size="icon"
+                type="button"
+              />
+            }
+          >
+            <ListIcon />
           </DropdownMenuTrigger>
         </MaybeTooltip>
         <DropdownMenuContent align="start">
@@ -307,15 +311,17 @@ export function EditorMenuBar({
       {/* Text alignment */}
       <DropdownMenu>
         <MaybeTooltip label="Alignment" disableTooltips={disableTooltips}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label="Alignment"
-              variant="ghost"
-              size="icon"
-              type="button"
-            >
-              <AlignJustifyIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                aria-label="Alignment"
+                variant="ghost"
+                size="icon"
+                type="button"
+              />
+            }
+          >
+            <AlignJustifyIcon />
           </DropdownMenuTrigger>
         </MaybeTooltip>
         <DropdownMenuContent align="start">
@@ -410,35 +416,13 @@ function ImageDrawerDialog({
   }
 
   return (
-    <MediaDialog onChange={handleAddImage}>
-      {disableTooltips ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          type="button"
-          aria-label="Add image"
-        >
-          <ImagePlusIcon />
-        </Button>
-      ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DrawerDialogTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  aria-label="Add image"
-                />
-              }
-            >
-              <ImagePlusIcon />
-            </DrawerDialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent>Add image</TooltipContent>
-        </Tooltip>
-      )}
+    <MediaDialog
+      onChange={handleAddImage}
+      tooltip={disableTooltips ? undefined : "Add image"}
+    >
+      <Button variant="ghost" size="icon" type="button" aria-label="Add image">
+        <ImagePlusIcon />
+      </Button>
     </MediaDialog>
   );
 }
@@ -486,19 +470,21 @@ function LinkDrawerDialog({
         </DrawerDialogTrigger>
       ) : (
         <Tooltip>
-          <TooltipTrigger asChild>
-            <DrawerDialogTrigger
-              render={
-                <Button
-                  variant={isLink ? "default" : "ghost"}
-                  size="icon"
-                  type="button"
-                  aria-label="Link"
-                />
-              }
-            >
-              <LinkIcon />
-            </DrawerDialogTrigger>
+          <TooltipTrigger
+            render={
+              <DrawerDialogTrigger
+                render={
+                  <Button
+                    variant={isLink ? "default" : "ghost"}
+                    size="icon"
+                    type="button"
+                    aria-label="Link"
+                  />
+                }
+              />
+            }
+          >
+            <LinkIcon />
           </TooltipTrigger>
           <TooltipContent>Link</TooltipContent>
         </Tooltip>

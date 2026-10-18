@@ -100,7 +100,11 @@ export function AddressForm({
             <FormItem>
               <FormLabel>Governorate</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  items={governorates}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a governorate" />
                   </SelectTrigger>

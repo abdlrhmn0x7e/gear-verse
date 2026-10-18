@@ -30,6 +30,18 @@ const categoryFormSchema = categoryEntitySchema.omit({
   updated_at: true,
   slug: true,
 });
+
+/* the trigger shows the chosen icon (its name is hidden there), so the select gets them as its items */
+const iconItems = Array.from(iconsMap.entries()).map(([key, Icon]) => ({
+  value: key,
+  label: (
+    <div className="flex items-center gap-2">
+      <Icon />
+      <span className="truncate">{key.toLowerCase()}</span>
+    </div>
+  ),
+}));
+
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export function CategoryForm({
@@ -70,6 +82,7 @@ export function CategoryForm({
             render={({ field }) => (
               <FormItem>
                 <Select
+                  items={iconItems}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
@@ -84,14 +97,9 @@ export function CategoryForm({
 
                   <SelectContent className="max-h-[200px] overflow-y-auto">
                     <SelectGroup>
-                      {Array.from(iconsMap.entries()).map(([key, Icon]) => (
-                        <SelectItem key={key} value={key}>
-                          <div className="flex items-center gap-2">
-                            <Icon />
-                            <span className="truncate">
-                              {key.toLowerCase()}
-                            </span>
-                          </div>
+                      {iconItems.map((icon) => (
+                        <SelectItem key={icon.value} value={icon.value}>
+                          {icon.label}
                         </SelectItem>
                       ))}
                     </SelectGroup>

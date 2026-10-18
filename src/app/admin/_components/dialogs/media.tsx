@@ -32,6 +32,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { imageDropzoneOptions } from "../inputs/image-dropzone-options";
 import { useDebounce } from "~/hooks/use-debounce";
@@ -43,12 +48,15 @@ import type { FileDropZoneProps } from "../inputs/file-dropzone";
 import { MediaFilters, type MediaView } from "../tables/media/filters";
 import { MediaTable } from "../tables/media/table";
 
+/** `children` is the trigger; a `tooltip` labels it, sharing the one button with the dialog's trigger */
 export function MediaDialog({
   children,
   onChange,
+  tooltip,
 }: {
   children: React.ReactElement;
   onChange?: (media: SelectedMedia[]) => void;
+  tooltip?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -59,7 +67,18 @@ export function MediaDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="relative z-10" render={children} />
+      {tooltip ? (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DialogTrigger className="relative z-10" render={children} />
+            }
+          />
+          <TooltipContent>{tooltip}</TooltipContent>
+        </Tooltip>
+      ) : (
+        <DialogTrigger className="relative z-10" render={children} />
+      )}
       <DialogContent className="sm:max-w-screen-sm md:max-w-3xl lg:max-w-5xl xl:max-w-7xl">
         <DialogHeader>
           <DialogTitle>Select Media</DialogTitle>

@@ -31,7 +31,7 @@ function DataGridColumnVisibility<TData extends object>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuTrigger render={trigger} />
       <DropdownMenuContent align="end" className="min-w-[150px]">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-medium">
@@ -52,7 +52,6 @@ function DataGridColumnVisibility<TData extends object>({
                       : undefined
                   }
                   checked={column.getIsVisible()}
-                  onSelect={(event) => event.preventDefault()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
                 >
                   {getColumnHeaderLabel(column)}

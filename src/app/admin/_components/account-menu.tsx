@@ -73,32 +73,34 @@ export function AccountMenu() {
   return (
     <SidebarMenuItem>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <SidebarMenuButton size="lg" aria-label={`Account: ${user.name}`}>
-            <Avatar className="size-8 rounded-lg after:rounded-lg">
-              <AvatarImage
-                src={user.image ?? undefined}
-                alt=""
-                className="rounded-lg"
-              />
-              <AvatarFallback className="rounded-lg">
-                {user.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="flex min-w-0 flex-1 flex-col leading-tight">
-              <span className="text-sidebar-foreground truncate font-medium">
-                {user.name}
-              </span>
-              <span className="text-muted-foreground truncate text-xs">
-                {user.email}
-              </span>
-            </span>
-            <HugeiconsIcon
-              icon={UnfoldMoreIcon}
-              strokeWidth={1.5}
-              className="text-muted-foreground ml-auto size-4"
+        <DropdownMenuTrigger
+          render={
+            <SidebarMenuButton size="lg" aria-label={`Account: ${user.name}`} />
+          }
+        >
+          <Avatar className="size-8 rounded-lg after:rounded-lg">
+            <AvatarImage
+              src={user.image ?? undefined}
+              alt=""
+              className="rounded-lg"
             />
-          </SidebarMenuButton>
+            <AvatarFallback className="rounded-lg">
+              {user.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="flex min-w-0 flex-1 flex-col leading-tight">
+            <span className="text-sidebar-foreground truncate font-medium">
+              {user.name}
+            </span>
+            <span className="text-muted-foreground truncate text-xs">
+              {user.email}
+            </span>
+          </span>
+          <HugeiconsIcon
+            icon={UnfoldMoreIcon}
+            strokeWidth={1.5}
+            className="text-muted-foreground ml-auto size-4"
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" className="min-w-56">
           <DropdownMenuSub>
@@ -112,6 +114,7 @@ export function AccountMenu() {
                   <DropdownMenuRadioItem
                     key={option.value}
                     value={option.value}
+                    closeOnClick
                   >
                     <HugeiconsIcon icon={option.icon} strokeWidth={2} />
                     {option.label}
@@ -122,16 +125,13 @@ export function AccountMenu() {
           </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link href="/" onClick={() => setOpenMobile(false)}>
-                <HugeiconsIcon icon={Store01Icon} strokeWidth={2} />
-                Back to store
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuItem
-              disabled={isSigningOut}
-              onSelect={() => signOut()}
+              render={<Link href="/" onClick={() => setOpenMobile(false)} />}
             >
+              <HugeiconsIcon icon={Store01Icon} strokeWidth={2} />
+              Back to store
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isSigningOut} onClick={() => signOut()}>
               <HugeiconsIcon icon={Logout03Icon} strokeWidth={2} />
               Sign out
             </DropdownMenuItem>

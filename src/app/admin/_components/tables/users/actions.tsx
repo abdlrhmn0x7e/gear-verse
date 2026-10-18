@@ -53,19 +53,17 @@ export function UsersTableActions({ user }: { user: UserRow }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm">
-            <span className="sr-only">Actions for {user.name}</span>
-            <MoreHorizontal />
-          </Button>
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+          <span className="sr-only">Actions for {user.name}</span>
+          <MoreHorizontal />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel className="truncate">
-            {user.name}
-          </DropdownMenuLabel>
           <DropdownMenuGroup>
+            <DropdownMenuLabel className="truncate">
+              {user.name}
+            </DropdownMenuLabel>
             <DropdownMenuItem
-              onSelect={() => void setParams({ ordersOf: user.id })}
+              onClick={() => void setParams({ ordersOf: user.id })}
             >
               <ReceiptTextIcon />
               View orders
@@ -73,7 +71,7 @@ export function UsersTableActions({ user }: { user: UserRow }) {
             {/* The server refuses these on your own account too. */}
             <DropdownMenuItem
               disabled={user.isSelf}
-              onSelect={() => setDialog("role")}
+              onClick={() => setDialog("role")}
             >
               {isAdmin ? <ShieldMinusIcon /> : <ShieldCheckIcon />}
               {isAdmin ? "Make customer" : "Make admin"}
@@ -83,7 +81,7 @@ export function UsersTableActions({ user }: { user: UserRow }) {
           {user.banned ? (
             <DropdownMenuItem
               disabled={isUnbanning}
-              onSelect={() => unban({ userId: user.id })}
+              onClick={() => unban({ userId: user.id })}
             >
               <UndoIcon />
               Unban
@@ -92,7 +90,7 @@ export function UsersTableActions({ user }: { user: UserRow }) {
             <DropdownMenuItem
               variant="destructive"
               disabled={user.isSelf}
-              onSelect={() => setDialog("ban")}
+              onClick={() => setDialog("ban")}
             >
               <BanIcon />
               Ban…

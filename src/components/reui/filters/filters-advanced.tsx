@@ -469,22 +469,24 @@ function RowIssueHint({
 }) {
   if (!message) return null;
   return (
-    <TooltipProvider delayDuration={200}>
+    <TooltipProvider delay={200}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-            data-slot="filter-row-issue"
-            /* Focusable so a keyboard user can summon it, but OUT of the
+        <TooltipTrigger
+          render={
+            <span
+              data-slot="filter-row-issue"
+              /* Focusable so a keyboard user can summon it, but OUT of the
                tab order: the sentence is already on the invalid cell. */
-            tabIndex={-1}
-            aria-hidden="true"
-            className={cn(
-              "text-destructive flex shrink-0 items-center justify-center [&_svg]:size-3.5",
-              className,
-            )}
-          >
-            <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
-          </span>
+              tabIndex={-1}
+              aria-hidden="true"
+              className={cn(
+                "text-destructive flex shrink-0 items-center justify-center [&_svg]:size-3.5",
+                className,
+              )}
+            />
+          }
+        >
+          <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
         </TooltipTrigger>
         <TooltipContent side="top">{message}</TooltipContent>
       </Tooltip>
@@ -1051,20 +1053,20 @@ function FilterAdvancedRowImpl<V, O>({
           }}
         >
           <DropdownMenuTrigger
-            asChild
             disabled={actions.disabled}
             {...filterReadOnlyProps(actions)}
+            render={
+              <Button
+                variant="ghost"
+                size={sizes.icon}
+                aria-label={actions.labels.chipMenu(field.label)}
+                className={ACTION_CONTROL_CLASS}
+                {...cellProps("menu", active)}
+                onFocus={onCellFocus("menu")}
+              />
+            }
           >
-            <Button
-              variant="ghost"
-              size={sizes.icon}
-              aria-label={actions.labels.chipMenu(field.label)}
-              className={ACTION_CONTROL_CLASS}
-              {...cellProps("menu", active)}
-              onFocus={onCellFocus("menu")}
-            >
-              <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
-            </Button>
+            <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
@@ -1364,20 +1366,20 @@ function FilterGroupMenu<V>({
       }}
     >
       <DropdownMenuTrigger
-        asChild
         disabled={actions.disabled}
         {...filterReadOnlyProps(actions)}
+        render={
+          <Button
+            variant="ghost"
+            size={sizes.icon}
+            aria-label={actions.labels.groupMenu}
+            className={ACTION_CONTROL_CLASS}
+            {...cellProps("menu", active)}
+            onFocus={onFocus("menu")}
+          />
+        }
       >
-        <Button
-          variant="ghost"
-          size={sizes.icon}
-          aria-label={actions.labels.groupMenu}
-          className={ACTION_CONTROL_CLASS}
-          {...cellProps("menu", active)}
-          onFocus={onFocus("menu")}
-        >
-          <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
-        </Button>
+        <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

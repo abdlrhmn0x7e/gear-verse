@@ -196,7 +196,11 @@ export function AddressForm({
             <FormItem>
               <FormLabel>Governorate</FormLabel>
               {/* starts empty: a preset governorate is easy to miss, and it decides the shipping fee */}
-              <Select onValueChange={field.onChange} value={field.value ?? ""}>
+              <Select
+                items={governorates}
+                onValueChange={field.onChange}
+                value={field.value ?? null}
+              >
                 <FormControl>
                   <SelectTrigger
                     className="w-full pointer-coarse:data-[size=default]:h-11"

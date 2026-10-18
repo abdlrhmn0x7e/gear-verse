@@ -185,7 +185,7 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
   );
 
   const headerButtonClassName = cn(
-    "text-secondary-foreground/80 hover:bg-secondary data-[state=open]:bg-secondary hover:text-foreground data-[state=open]:text-foreground px-2 font-normal h-6 rounded-full",
+    "text-secondary-foreground/80 hover:bg-secondary data-popup-open:bg-secondary hover:text-foreground data-popup-open:text-foreground px-2 font-normal h-6 rounded-full",
     className,
   );
 
@@ -421,7 +421,6 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
                 <DropdownMenuCheckboxItem
                   key={col.id}
                   checked={col.getIsVisible()}
-                  onSelect={(event) => event.preventDefault()}
                   onCheckedChange={(value) => col.toggleVisibility(!!value)}
                   className={
                     getColumnHeaderLabel(col) === col.id
@@ -463,16 +462,19 @@ function DataGridColumnHeaderInner<TData extends object, TValue>({
     return (
       <div className="-ms-2 flex h-full items-center justify-between gap-1.5">
         <DropdownMenu>
-          <DropdownMenuTrigger ref={menuTriggerRef} asChild>
-            <Button
-              variant="ghost"
-              className={headerButtonClassName}
-              disabled={isLoading}
-            >
-              {icon && icon}
-              {resolvedTitle}
-              {sortIcon}
-            </Button>
+          <DropdownMenuTrigger
+            ref={menuTriggerRef}
+            render={
+              <Button
+                variant="ghost"
+                className={headerButtonClassName}
+                disabled={isLoading}
+              />
+            }
+          >
+            {icon && icon}
+            {resolvedTitle}
+            {sortIcon}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="start">
             {menuItems}

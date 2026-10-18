@@ -278,29 +278,31 @@ function SidebarTrigger({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          data-sidebar="trigger"
-          data-slot="sidebar-trigger"
-          variant="ghost"
-          size="icon-sm"
-          className={cn(
-            className,
-            "cursor-w-resize",
-            !open && "cursor-e-resize",
-          )}
-          onClick={(event) => {
-            onClick?.(event);
-            toggleSidebar();
-          }}
-          {...props}
-        >
-          <HugeiconsIcon
-            icon={open ? LayoutAlignLeftIcon : LayoutAlignRightIcon}
-            strokeWidth={2}
+      <TooltipTrigger
+        render={
+          <Button
+            data-sidebar="trigger"
+            data-slot="sidebar-trigger"
+            variant="ghost"
+            size="icon-sm"
+            className={cn(
+              className,
+              "cursor-w-resize",
+              !open && "cursor-e-resize",
+            )}
+            onClick={(event) => {
+              onClick?.(event);
+              toggleSidebar();
+            }}
+            {...props}
           />
-          <span className="sr-only">Toggle Sidebar</span>
-        </Button>
+        }
+      >
+        <HugeiconsIcon
+          icon={open ? LayoutAlignLeftIcon : LayoutAlignRightIcon}
+          strokeWidth={2}
+        />
+        <span className="sr-only">Toggle Sidebar</span>
       </TooltipTrigger>
       <TooltipContent>{open ? "Close sidebar" : "Open sidebar"}</TooltipContent>
     </Tooltip>
@@ -329,48 +331,50 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delay={0}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            data-sidebar="rail"
-            data-slot="sidebar-rail"
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            tabIndex={-1}
-            onClick={toggleSidebar}
-            onPointerEnter={() => setHovered(true)}
-            onPointerLeave={() => setHovered(false)}
-            className={cn(
-              "group/rail absolute top-1/2 left-0 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
-              className,
-            )}
-            {...props}
-          >
-            <svg
-              aria-hidden="true"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
+        <TooltipTrigger
+          render={
+            <button
+              data-sidebar="rail"
+              data-slot="sidebar-rail"
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              tabIndex={-1}
+              onClick={toggleSidebar}
+              onPointerEnter={() => setHovered(true)}
+              onPointerLeave={() => setHovered(false)}
               className={cn(
-                "text-border transition-colors duration-150",
-                hovered && "text-foreground/60",
+                "group/rail absolute top-1/2 left-0 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
+                className,
               )}
-            >
-              <LazyMotion features={domAnimation} strict>
-                {/* Starts at its target, so no frame renders before `d` has a value. */}
-                <m.path
-                  initial={false}
-                  animate={{ d: `M8 2 L${tip} 8 L8 14` }}
-                  transition={reduceMotion ? { duration: 0 } : RAIL_SPRING}
-                  stroke="currentColor"
-                  strokeWidth={3}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </LazyMotion>
-            </svg>
-          </button>
+              {...props}
+            />
+          }
+        >
+          <svg
+            aria-hidden="true"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className={cn(
+              "text-border transition-colors duration-150",
+              hovered && "text-foreground/60",
+            )}
+          >
+            <LazyMotion features={domAnimation} strict>
+              {/* Starts at its target, so no frame renders before `d` has a value. */}
+              <m.path
+                initial={false}
+                animate={{ d: `M8 2 L${tip} 8 L8 14` }}
+                transition={reduceMotion ? { duration: 0 } : RAIL_SPRING}
+                stroke="currentColor"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </LazyMotion>
+          </svg>
         </TooltipTrigger>
         <TooltipContent
           side="right"
@@ -560,7 +564,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm text-sidebar-foreground/75 ring-sidebar-ring outline-hidden transition-[width,height,padding,color,background-color] duration-150 group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm text-sidebar-foreground/75 ring-sidebar-ring outline-hidden transition-[width,height,padding,color,background-color] duration-150 group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {
@@ -619,14 +623,9 @@ function SidebarMenuButton({
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent
-        side="right"
-        align="center"
-        hidden={state !== "collapsed" || isMobile}
-        {...tooltip}
-      />
+    <Tooltip disabled={state !== "collapsed" || isMobile}>
+      <TooltipTrigger render={button} />
+      <TooltipContent side="right" align="center" {...tooltip} />
     </Tooltip>
   );
 }

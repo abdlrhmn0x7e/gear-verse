@@ -78,7 +78,7 @@ export function Bars({
 
         return (
           <Tooltip key={bucket.key}>
-            <TooltipTrigger asChild>{bar}</TooltipTrigger>
+            <TooltipTrigger render={bar} />
             <TooltipContent side="top" sideOffset={6}>
               <span className="text-background/70">
                 {bucketLabel(bucket.key)}

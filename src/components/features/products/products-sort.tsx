@@ -9,6 +9,13 @@ import {
 } from "~/components/ui/select";
 import { useAllProductSearchParams } from "./hooks";
 
+const sortOptions = [
+  { value: "default", label: "Sort: Newest" },
+  { value: "oldest", label: "Sort: Oldest" },
+  { value: "price-asc", label: "Sort: Price, low to high" },
+  { value: "price-desc", label: "Sort: Price, high to low" },
+];
+
 export function ProductsSort() {
   const [filters, setFilters] = useAllProductSearchParams();
 
@@ -32,6 +39,7 @@ export function ProductsSort() {
 
   return (
     <Select
+      items={sortOptions}
       defaultValue="default"
       // "newest" is also the default order, so both share one option
       value={
@@ -39,17 +47,20 @@ export function ProductsSort() {
           ? "default"
           : filters.sortBy
       }
-      onValueChange={handleSortChange}
+      onValueChange={(value) => {
+        if (value) handleSortChange(value);
+      }}
     >
       <SelectTrigger aria-label="Sort products" className="min-w-44">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
 
-      <SelectContent position="popper" align="end">
-        <SelectItem value="default">Sort: Newest</SelectItem>
-        <SelectItem value="oldest">Sort: Oldest</SelectItem>
-        <SelectItem value="price-asc">Sort: Price, low to high</SelectItem>
-        <SelectItem value="price-desc">Sort: Price, high to low</SelectItem>
+      <SelectContent alignItemWithTrigger={false} align="end">
+        {sortOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

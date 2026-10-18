@@ -40,14 +40,16 @@ export function MediaFilters({
       />
       <Select
         value={view}
-        onValueChange={(value) => onViewChange(value as MediaView)}
+        onValueChange={(value) => {
+          if (value) onViewChange(value);
+        }}
       >
         <SelectTrigger className="ms-auto shrink-0" aria-label="Change view">
           {view === "grid" ? <GridIcon /> : <ListIcon />}
         </SelectTrigger>
-        {/* Popper, not the preset's item-aligned: the trigger holds only an
-            icon, so there is no selected value to line the list up over. */}
-        <SelectContent position="popper" align="end">
+        {/* Under the trigger, not the preset's item-aligned: the trigger holds
+            only an icon, so there is no selected value to line the list up over. */}
+        <SelectContent alignItemWithTrigger={false} align="end">
           <SelectItem value="list">
             <ListIcon />
             List view

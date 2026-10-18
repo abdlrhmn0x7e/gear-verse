@@ -43,6 +43,17 @@ const attributeTypes = [
   },
 ];
 
+/* the trigger shows the chosen type's icon and name, so the select gets them as its items */
+const attributeTypeItems = attributeTypes.map((type) => ({
+  value: type.value,
+  label: (
+    <div className="flex items-center gap-2">
+      <type.icon />
+      <span className="capitalize">{type.name}</span>
+    </div>
+  ),
+}));
+
 export function AttributeForm({
   onSubmit,
   defaultValues,
@@ -100,6 +111,7 @@ export function AttributeForm({
                 )}
               </FieldContent>
               <Select
+                items={attributeTypeItems}
                 name={field.name}
                 value={field.value}
                 onValueChange={field.onChange}
@@ -111,13 +123,10 @@ export function AttributeForm({
                 >
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
-                <SelectContent position="item-aligned">
-                  {attributeTypes.map((type) => (
+                <SelectContent>
+                  {attributeTypeItems.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
-                      <div className="flex items-center gap-2">
-                        <type.icon />
-                        <span className="capitalize">{type.name}</span>
-                      </div>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

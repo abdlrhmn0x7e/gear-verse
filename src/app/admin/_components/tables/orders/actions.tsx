@@ -9,7 +9,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -45,20 +44,22 @@ export function OrdersTableActions({ id }: { id: number }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label="Open menu">
-          <MoreHorizontal />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon-sm" aria-label="Open menu" />
+        }
+      >
+        <MoreHorizontal />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        <DropdownMenuLabel>Order Actions</DropdownMenuLabel>
-
         <DropdownMenuGroup className="w-3xs space-y-1">
-          <DropdownMenuItem asChild>
-            <Link href={`/admin/orders?orderId=${id}&editId=${id}`}>
-              <PencilIcon className="text-muted-foreground" />
-              Edit
-            </Link>
+          <DropdownMenuLabel>Order Actions</DropdownMenuLabel>
+
+          <DropdownMenuItem
+            render={<Link href={`/admin/orders?orderId=${id}&editId=${id}`} />}
+          >
+            <PencilIcon className="text-muted-foreground" />
+            Edit
           </DropdownMenuItem>
 
           <DropdownMenuSub>
@@ -67,40 +68,38 @@ export function OrdersTableActions({ id }: { id: number }) {
               Change Status
             </DropdownMenuSubTrigger>
 
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className="w-3xs">
-                <DropdownMenuItem
-                  onClick={() => changeStatus("PENDING")}
-                  disabled={isUpdatingOrder}
-                >
-                  <OrderStatus variant="plain" status="PENDING" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => changeStatus("SHIPPED")}
-                  disabled={isUpdatingOrder}
-                >
-                  <OrderStatus variant="plain" status="SHIPPED" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => changeStatus("DELIVERED")}
-                  disabled={isUpdatingOrder}
-                >
-                  <OrderStatus variant="plain" status="DELIVERED" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => changeStatus("REFUNDED")}
-                  disabled={isUpdatingOrder}
-                >
-                  <OrderStatus variant="plain" status="REFUNDED" />
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => changeStatus("CANCELLED")}
-                  disabled={isUpdatingOrder}
-                >
-                  <OrderStatus variant="plain" status="CANCELLED" />
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
+            <DropdownMenuSubContent className="w-3xs">
+              <DropdownMenuItem
+                onClick={() => changeStatus("PENDING")}
+                disabled={isUpdatingOrder}
+              >
+                <OrderStatus variant="plain" status="PENDING" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => changeStatus("SHIPPED")}
+                disabled={isUpdatingOrder}
+              >
+                <OrderStatus variant="plain" status="SHIPPED" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => changeStatus("DELIVERED")}
+                disabled={isUpdatingOrder}
+              >
+                <OrderStatus variant="plain" status="DELIVERED" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => changeStatus("REFUNDED")}
+                disabled={isUpdatingOrder}
+              >
+                <OrderStatus variant="plain" status="REFUNDED" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => changeStatus("CANCELLED")}
+                disabled={isUpdatingOrder}
+              >
+                <OrderStatus variant="plain" status="CANCELLED" />
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
           </DropdownMenuSub>
 
           <DeleteOrderDialog id={id} className="w-full justify-start" />

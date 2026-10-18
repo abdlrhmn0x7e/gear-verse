@@ -188,10 +188,9 @@ function DataGridPagination(props: DataGridPaginationProps): JSX.Element {
               {mergedProps.rowsPerPageLabel}
             </div>
             <Select
-              value={`${pageSize}`}
+              value={pageSize}
               onValueChange={(value) => {
-                const newPageSize = Number(value);
-                table.setPageSize(newPageSize);
+                if (value !== null) table.setPageSize(value);
               }}
             >
               {/* w-fit with a min, never a fixed width: a fixed w-16 clipped
@@ -205,13 +204,9 @@ function DataGridPagination(props: DataGridPaginationProps): JSX.Element {
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent
-                position="popper"
-                align="start"
-                className="min-w-(--radix-select-trigger-width)"
-              >
+              <SelectContent alignItemWithTrigger={false} align="start">
                 {mergedProps.sizes?.map((size: number) => (
-                  <SelectItem key={size} value={`${size}`}>
+                  <SelectItem key={size} value={size}>
                     {size}
                   </SelectItem>
                 ))}

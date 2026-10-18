@@ -49,24 +49,24 @@ export function ProductsTableActions({
   return (
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label="Open menu">
-            <MoreHorizontal />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="ghost" size="icon-sm" aria-label="Open menu" />
+          }
+        >
+          <MoreHorizontal />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
           <DropdownMenuGroup className="max-w-3xs space-y-1">
+            <DropdownMenuLabel>Product Actions</DropdownMenuLabel>
             <DropdownMenuItem
               className="w-full justify-start"
               onClick={(e) => e.stopPropagation()}
-              asChild
+              render={<Link href={`/admin/products/${id}`} />}
             >
-              <Link href={`/admin/products/${id}`}>
-                <PencilIcon className="text-muted-foreground" />
-                Edit
-              </Link>
+              <PencilIcon className="text-muted-foreground" />
+              Edit
             </DropdownMenuItem>
 
             <DropdownMenuItem

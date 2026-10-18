@@ -63,15 +63,17 @@ function KpiCard({
           {label}
         </h2>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="text-muted-foreground"
-              aria-label={`How "${label}" is counted`}
-            >
-              <InfoIcon />
-            </Button>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-muted-foreground"
+                aria-label={`How "${label}" is counted`}
+              />
+            }
+          >
+            <InfoIcon />
           </TooltipTrigger>
           <TooltipContent
             side="bottom"

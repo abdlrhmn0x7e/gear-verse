@@ -171,18 +171,20 @@ function FilterPathEllipsis({ full }: { full: string }) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-            aria-hidden="true"
-            data-slot="filter-path-ellipsis"
-            /* A path SEGMENT with no air of its own: the chevron's margin
+        <TooltipTrigger
+          render={
+            <span
+              aria-hidden="true"
+              data-slot="filter-path-ellipsis"
+              /* A path SEGMENT with no air of its own: the chevron's margin
                is all that parts a name from the next, and this used to STACK
                an `mx` on it. Plain inline, no `vertical-align`: `middle` sat
                the dots 1.7px low and inline-block grew the run to 21.17px. */
-            className="text-muted-foreground shrink-0 self-center"
-          >
-            ...
-          </span>
+              className="text-muted-foreground shrink-0 self-center"
+            />
+          }
+        >
+          ...
         </TooltipTrigger>
         <TooltipContent>{full}</TooltipContent>
       </Tooltip>
@@ -1082,22 +1084,22 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
         }}
       >
         <DropdownMenuTrigger
-          asChild
           disabled={actions.disabled}
           {...filterReadOnlyProps(actions)}
-        >
-          <Button
-            variant="outline"
-            size={sizes.icon}
-            /* The same surface the three text segments force. Styles whose
+          render={
+            <Button
+              variant="outline"
+              size={sizes.icon}
+              /* The same surface the three text segments force. Styles whose
                outline button is transparent in dark (sera, luma, rhea) left
                the kebab as a notch in an otherwise filled pill. */
-            className="bg-background dark:bg-input/30"
-            aria-label={actions.labels.chipMenu(field.label)}
-            onPointerDown={() => focusSegment("menu")}
-          >
-            <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
-          </Button>
+              className="bg-background dark:bg-input/30"
+              aria-label={actions.labels.chipMenu(field.label)}
+              onPointerDown={() => focusSegment("menu")}
+            />
+          }
+        >
+          <HugeiconsIcon icon={MoreVerticalIcon} strokeWidth={2} />
         </DropdownMenuTrigger>
         {/* The SAME sizing the builder's menus use, from one constant: a menu
             that cuts "Convert to group" in one chrome is one defect twice. */}

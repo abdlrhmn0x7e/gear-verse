@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
-import { NavigationMenu } from "radix-ui";
+import { NavigationMenu } from "@base-ui/react/navigation-menu";
 import { cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { Logo } from "~/components/logo";
@@ -24,12 +24,12 @@ import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
 
 export function Navbar() {
   return (
-    <NavigationMenu.Root delayDuration={100} className="contents">
+    <NavigationMenu.Root delay={100} className="group/nav contents">
       {/* the blur and tint live on a layer that runs 4rem past the bar and eases out (a smoothstep) from just under the links to its
           end, so the bar has no bottom edge and no band where it meets a dark panel; the links' row stays fully tinted, keeping
-          muted links at 5.02:1 over the plum panel. An open menu turns the same layer into the opaque popover surface, and the
-          fade starts in the menu's bottom padding */}
-      <header className="group/header before:bg-background/96 supports-backdrop-filter:before:bg-background/94 has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
+          muted links at 5.02:1 over the plum panel. An open menu (the nav root's data-open) or the open search turns the same
+          layer into the opaque popover surface, and the fade starts in the menu's bottom padding */}
+      <header className="group/header before:bg-background/96 supports-backdrop-filter:before:bg-background/94 group-data-[open]/nav:before:bg-popover has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
@@ -47,7 +47,7 @@ export function Navbar() {
               <NavTextTrigger>
                 Categories
                 <ChevronDownIcon
-                  className="size-3.5 transition-[rotate] duration-200 ease-out group-data-[state=open]:rotate-180"
+                  className="size-3.5 transition-[rotate] duration-200 ease-out group-data-popup-open:rotate-180"
                   aria-hidden
                 />
               </NavTextTrigger>
@@ -115,7 +115,7 @@ export function Navbar() {
             bar's colour and paints nothing: the colour is clipped to its empty content box. */}
         <span
           aria-hidden
-          className="bg-background group-has-data-[state=open]/header:bg-popover pointer-events-none absolute inset-x-0 top-0 h-0 bg-clip-content pb-3"
+          className="bg-background group-data-[open]/nav:bg-popover group-has-data-[state=open]/header:bg-popover pointer-events-none absolute inset-x-0 top-0 h-0 bg-clip-content pb-3"
         />
       </header>
     </NavigationMenu.Root>

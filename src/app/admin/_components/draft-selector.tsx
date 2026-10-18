@@ -13,6 +13,7 @@ import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -78,95 +79,99 @@ export function DraftSelector({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" suppressHydrationWarning>
-          <FileTextIcon data-icon="inline-start" />
-          Drafts
-          <ChevronDownIcon data-icon="inline-end" />
-        </Button>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="sm" suppressHydrationWarning />}
+      >
+        <FileTextIcon data-icon="inline-start" />
+        Drafts
+        <ChevronDownIcon data-icon="inline-end" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel>Your Drafts</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Your Drafts</DropdownMenuLabel>
+          <DropdownMenuSeparator />
 
-        {drafts.length === 0 ? (
-          <div className="text-muted-foreground px-2 py-4 text-center text-sm">
-            No drafts yet. Start typing to auto-save.
-          </div>
-        ) : (
-          <div className="max-h-64 space-y-1 overflow-y-auto">
-            {drafts.map((draft) => (
-              <div
-                key={draft.id}
-                className={cn(
-                  "hover:bg-accent group flex items-center gap-2 rounded-sm px-2 py-1.5",
-                  activeDraft?.id === draft.id && "bg-accent",
-                )}
-              >
-                {editingId === draft.id ? (
-                  <div className="flex flex-1 items-center gap-1">
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, draft.id)}
-                      onBlur={() => handleFinishRename(draft.id)}
-                      className="h-7 text-sm"
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Save draft name"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFinishRename(draft.id);
-                      }}
-                    >
-                      <CheckIcon className="size-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => onSelectDraft(draft.id)}
-                      className="flex flex-1 cursor-pointer flex-col items-start"
-                    >
-                      <span className="text-sm font-medium">{draft.name}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {formatTimeAgo(draft.updatedAt)}
-                        {draft.data.title &&
-                          ` · ${draft.data.title.slice(0, 20)}${draft.data.title.length > 20 ? "..." : ""}`}
-                      </span>
-                    </button>
-                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {drafts.length === 0 ? (
+            <div className="text-muted-foreground px-2 py-4 text-center text-sm">
+              No drafts yet. Start typing to auto-save.
+            </div>
+          ) : (
+            <div className="max-h-64 space-y-1 overflow-y-auto">
+              {drafts.map((draft) => (
+                <div
+                  key={draft.id}
+                  className={cn(
+                    "hover:bg-accent group flex items-center gap-2 rounded-sm px-2 py-1.5",
+                    activeDraft?.id === draft.id && "bg-accent",
+                  )}
+                >
+                  {editingId === draft.id ? (
+                    <div className="flex flex-1 items-center gap-1">
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, draft.id)}
+                        onBlur={() => handleFinishRename(draft.id)}
+                        className="h-7 text-sm"
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        aria-label={`Rename ${draft.name}`}
-                        onClick={(e) => handleStartRename(e, draft)}
-                      >
-                        <PencilIcon className="size-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={`Delete ${draft.name}`}
+                        aria-label="Save draft name"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteDraft(draft.id);
+                          handleFinishRename(draft.id);
                         }}
                       >
-                        <Trash2Icon className="size-3" />
+                        <CheckIcon className="size-3" />
                       </Button>
                     </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => onSelectDraft(draft.id)}
+                        className="flex flex-1 cursor-pointer flex-col items-start"
+                      >
+                        <span className="text-sm font-medium">
+                          {draft.name}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {formatTimeAgo(draft.updatedAt)}
+                          {draft.data.title &&
+                            ` · ${draft.data.title.slice(0, 20)}${draft.data.title.length > 20 ? "..." : ""}`}
+                        </span>
+                      </button>
+                      <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Rename ${draft.name}`}
+                          onClick={(e) => handleStartRename(e, draft)}
+                        >
+                          <PencilIcon className="size-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Delete ${draft.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteDraft(draft.id);
+                          }}
+                        >
+                          <Trash2Icon className="size-3" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onCreateDraft}>

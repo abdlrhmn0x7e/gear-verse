@@ -1,12 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { cn } from "~/lib/utils";
-import { NavigationMenu } from "radix-ui";
+import { NavigationMenu } from "@base-ui/react/navigation-menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navTextClassName =
-  "text-muted-foreground hover:text-foreground active:text-foreground aria-[current=page]:text-foreground data-[state=open]:text-foreground inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "text-muted-foreground hover:text-foreground active:text-foreground aria-[current=page]:text-foreground data-popup-open:text-foreground inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 function NavTextLink({
   href,
@@ -18,36 +19,40 @@ function NavTextLink({
   const pathname = usePathname();
 
   return (
-    <NavigationMenu.Link asChild active={pathname === href}>
-      <Link
-        href={href}
-        aria-current={pathname === href ? "page" : undefined}
-        className={navTextClassName}
-      >
-        {children}
-      </Link>
+    <NavigationMenu.Link
+      active={pathname === href}
+      aria-current={pathname === href ? "page" : undefined}
+      className={navTextClassName}
+      render={<Link href={href} />}
+    >
+      {children}
     </NavigationMenu.Link>
   );
 }
 
 function NavTextTrigger({ children }: { children: React.ReactNode }) {
   return (
-    <NavigationMenu.Trigger className={cn(navTextClassName, "group")}>
+    <NavigationMenu.Trigger
+      data-slot="nav-trigger"
+      className={cn(navTextClassName, "group")}
+    >
       {children}
     </NavigationMenu.Trigger>
   );
 }
 
-function NavLink(props: React.ComponentProps<typeof Link>) {
+// Base UI keeps the menu open on a link press by default; a client-side navigation wouldn't otherwise close it.
+function NavLink({ children, ...props }: React.ComponentProps<typeof Link>) {
   return (
-    <NavigationMenu.Link asChild>
-      <Link {...props} />
+    <NavigationMenu.Link closeOnClick render={<Link {...props} />}>
+      {children}
     </NavigationMenu.Link>
   );
 }
 
 // An open menu turns the bar into the popover surface, so its content is a floating layer: outlined tiles in it take
-// the floating hairline.
+// the floating hairline. Switching between menus fades the outgoing content out and the incoming one in; the first
+// open shows at once, as the bar's own tint carries it.
 function NavContent({
   className,
   ...props
@@ -55,7 +60,7 @@ function NavContent({
   return (
     <NavigationMenu.Content
       className={cn(
-        "surface-floating data-[motion^=from-]:animate-in data-[motion^=from-]:fade-in-0 data-[motion^=to-]:animate-out data-[motion^=to-]:fade-out-0 px-6 pt-2 pb-8 lg:px-8",
+        "surface-floating px-6 pt-2 pb-8 data-activation-direction:transition-opacity data-activation-direction:duration-150 data-activation-direction:data-ending-style:opacity-0 data-activation-direction:data-starting-style:opacity-0 lg:px-8",
         className,
       )}
       {...props}
@@ -63,18 +68,32 @@ function NavContent({
   );
 }
 
+// The open menu sits in the bar's flow and grows it, so the bar's own tint and fade cover it. Base UI only closes a
+// top-level menu (on hover-out, Escape, an outside press, a second click) through its positioner, so the menu keeps
+// one, portalled into the header and pinned back into the flow over the inline position it computes.
 function NavViewport({
   className,
   ...props
-}: React.ComponentProps<typeof NavigationMenu.NavigationMenuViewport>) {
+}: React.ComponentProps<typeof NavigationMenu.Viewport>) {
+  const slotRef = React.useRef<HTMLDivElement>(null);
+
   return (
-    <NavigationMenu.NavigationMenuViewport
-      className={cn(
-        "mx-auto h-(--radix-navigation-menu-viewport-height) w-full max-w-7xl overflow-hidden transition-[height] duration-200 ease-out",
-        className,
-      )}
-      {...props}
-    />
+    <>
+      <div ref={slotRef} />
+      <NavigationMenu.Portal container={slotRef}>
+        <NavigationMenu.Positioner className="!static w-full ![transform:none]">
+          <NavigationMenu.Popup className="outline-none">
+            <NavigationMenu.Viewport
+              className={cn(
+                "relative mx-auto w-full max-w-7xl overflow-hidden",
+                className,
+              )}
+              {...props}
+            />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </>
   );
 }
 

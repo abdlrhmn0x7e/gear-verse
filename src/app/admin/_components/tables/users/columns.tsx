@@ -134,11 +134,11 @@ export const usersColumns: ListColumn<UserRow>[] = [
         : "Permanent";
       return (
         <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-flex items-center gap-2">
-              <Badge variant="error">Banned</Badge>
-              <span className="text-muted-foreground text-xs">{until}</span>
-            </span>
+          <TooltipTrigger
+            render={<span className="inline-flex items-center gap-2" />}
+          >
+            <Badge variant="error">Banned</Badge>
+            <span className="text-muted-foreground text-xs">{until}</span>
           </TooltipTrigger>
           <TooltipContent className="max-w-64 text-pretty">
             {banReason ?? "No reason given"}

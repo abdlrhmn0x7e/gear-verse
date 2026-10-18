@@ -10,6 +10,7 @@ import { useTRPC } from "~/trpc/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -53,7 +54,7 @@ export function CategoryTreeActions({
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Category actions"
-        className="text-muted-foreground hover:text-foreground order-last flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none data-[state=open]:opacity-100"
+        className="text-muted-foreground hover:text-foreground order-last flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none data-popup-open:opacity-100"
       >
         <EllipsisVerticalIcon className="size-4" />
       </DropdownMenuTrigger>
@@ -65,25 +66,27 @@ export function CategoryTreeActions({
         sideOffset={20}
         alignOffset={-8}
       >
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setShowAddForm(true)}>
-          <PlusIcon />
-          Add a Sub-Category
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setShowAddForm(true)}>
+            <PlusIcon />
+            Add a Sub-Category
+          </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => setShowEditForm(true)}>
-          <PencilIcon />
-          Edit Category
-        </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowEditForm(true)}>
+            <PencilIcon />
+            Edit Category
+          </DropdownMenuItem>
 
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => deleteCategory({ id: categoryId })}
-        >
-          {isDeletingCategory ? <Spinner /> : <TrashIcon />}
-          Remove Category
-        </DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => deleteCategory({ id: categoryId })}
+          >
+            {isDeletingCategory ? <Spinner /> : <TrashIcon />}
+            Remove Category
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
