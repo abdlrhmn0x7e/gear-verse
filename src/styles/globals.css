@@ -282,6 +282,36 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Status colours for the vendored ReUI badge (src/components/reui/badge.tsx). Its solid
+   variants put white text on the fill in both themes, so each fill is dark enough for
+   that: white measures 4.97:1 on success, 5.19:1 on warning, 5.56:1 on info. The
+   foregrounds are the text colours: on the light tint and the page 5.9:1 or better, and
+   on the dark outline badge 9.3:1 or better. The dark tinted variants reuse the fill as
+   text, which a fill that carries white text can't make readable (about 3:1). */
+:root {
+  --success: oklch(0.53 0.13 150);
+  --success-foreground: oklch(0.44 0.11 150);
+  --warning: oklch(0.54 0.115 70);
+  --warning-foreground: oklch(0.47 0.1 70);
+  --info: oklch(0.52 0.15 255);
+  --info-foreground: oklch(0.46 0.14 255);
+}
+
+.dark {
+  --success-foreground: oklch(0.82 0.13 150);
+  --warning-foreground: oklch(0.85 0.13 80);
+  --info-foreground: oklch(0.82 0.09 255);
+}
+
+@theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
 @theme {
   --text-display: 4.5rem;
   --text-display--line-height: 1.05;
