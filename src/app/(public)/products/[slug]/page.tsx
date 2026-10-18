@@ -41,6 +41,10 @@ async function findProductMetadata(slug: string) {
   return metadata;
 }
 
+// a blocking route, as on the category page: without it, the re-render after a
+// product or category edit fails the App Shell check on the navbar's usePathname
+export const instant = false;
+
 export async function generateStaticParams() {
   const slugs = await app.public.products.queries.findAllSlugs();
   if (slugs.length === 0) {

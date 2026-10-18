@@ -16,6 +16,20 @@ export async function invalidateCache(key: string) {
 }
 
 /**
+ * Invalidates everything that shows the category tree: the menus and chips,
+ * each category's sub-categories and filters, the home page covers, the
+ * category and product breadcrumbs, and the sitemap. They all read the whole
+ * tree, so moving a category refreshes its old and new parents alike.
+ */
+export async function invalidateCategories() {
+  await Promise.all([
+    invalidateCache("categories-menu"),
+    invalidateCache("category-filters"),
+    invalidateCache("sitemap"),
+  ]);
+}
+
+/**
  * Invalidates the product pages and the cached product listings, which only
  * show products that are in stock. Call it after the write is done.
  *
