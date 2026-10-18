@@ -404,12 +404,19 @@
 @layer base {
   * {
     @apply border-border outline-focus;
+    /* thin, quiet scrollbars everywhere: a classic track reads as a stray strip against the rounded cards and drawers */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 30%, transparent) transparent;
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans overscroll-y-none;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
   ::selection {
     background-color: var(--selection);
@@ -513,19 +520,6 @@
   }
 }
 
-@layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-}
-
 html {
   @apply motion-safe:scroll-smooth;
 }
@@ -539,58 +533,16 @@ html body[data-scroll-locked] {
   scroll-margin-top: 100px;
 }
 
-@supports not selector(::-webkit-scrollbar) {
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent !important;
-  }
-}
-
 .scroll-shadow:not([data-shadow="false"]) {
   --shadow-height: 10px;
-  --scrollbar-width: 0px;
 
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent,
-      #000 var(--shadow-height),
-      #000 calc(100% - var(--shadow-height)),
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      #fff var(--scrollbar-width),
-      transparent var(--scrollbar-width)
-    );
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent,
-      #000 var(--shadow-height),
-      #000 calc(100% - var(--shadow-height)),
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      #fff var(--scrollbar-width),
-      transparent var(--scrollbar-width)
-    );
-}
-
-::-webkit-scrollbar {
-  width: 0.3rem;
-  height: 0.3rem;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--border);
-  border-radius: 0.7rem;
-}
-
-::-webkit-scrollbar-track {
-  background-color: transparent;
-  border-radius: 0.7rem;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--shadow-height),
+    #000 calc(100% - var(--shadow-height)),
+    transparent 100%
+  );
 }
 
 input:-webkit-autofill,

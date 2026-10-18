@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
+  DrawerBody,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -56,7 +57,7 @@ export function SearchDrawer() {
         <DrawerHeader>
           <DrawerTitle>Search Products</DrawerTitle>
         </DrawerHeader>
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 px-4 pb-4">
           <InputGroup>
             <InputGroupInput
               aria-label="Search products"
@@ -70,7 +71,10 @@ export function SearchDrawer() {
           </InputGroup>
 
           <Separator />
+        </div>
 
+        {/* the field stays put while the results scroll under it */}
+        <DrawerBody>
           {productsPending && <ProductSearchLoading />}
           {productsError && <ProductSearchError />}
           {products?.data.length === 0 && <ProductSearchEmpty />}
@@ -88,7 +92,7 @@ export function SearchDrawer() {
               ))}
             </ul>
           )}
-        </div>
+        </DrawerBody>
       </DrawerContent>
     </Drawer>
   );

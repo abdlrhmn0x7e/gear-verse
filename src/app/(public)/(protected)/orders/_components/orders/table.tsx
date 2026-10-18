@@ -49,7 +49,7 @@ export function OrdersTable() {
 
   return (
     <div className="bg-background overflow-hidden rounded-lg border">
-      <Table containerClassName="h-fit max-h-[75svh] overflow-y-auto">
+      <Table containerClassName="scroll-fade h-fit max-h-[75svh] overflow-y-auto">
         <OrdersTableHeader />
 
         <TableBody>

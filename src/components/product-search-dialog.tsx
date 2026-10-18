@@ -255,7 +255,7 @@ function Content({ close }: { close: () => void }) {
       {data?.data.length === 0 && <ProductSearchEmpty />}
 
       {data && data.data.length > 0 && (
-        <ul className="flex flex-col gap-1">
+        <ul className="scroll-fade flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
           {data.data.map((product, index) => (
             <ProductSearchItem
               key={`${product.id}-${product.title}-${index}`}
