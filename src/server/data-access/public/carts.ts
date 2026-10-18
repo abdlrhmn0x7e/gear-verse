@@ -1,3 +1,4 @@
+import { AppError } from "~/lib/errors/app-error";
 import { db } from "~/server/db";
 import {
   cartItems,
@@ -224,8 +225,12 @@ export const _carts = {
           )
           .limit(1);
 
+        // bad requests reach the customer as is, so these say what went wrong
         if (!purchasable) {
-          throw new Error("Product is not available");
+          throw new AppError(
+            "This product is no longer available",
+            "BAD_REQUEST",
+          );
         }
 
         let stock: number;
@@ -258,8 +263,8 @@ export const _carts = {
           stock = product?.stock ?? 0;
         }
 
-        if (stock === 0) {
-          throw new Error("Product out of stock");
+        if (stock <= 0) {
+          throw new AppError("This product is out of stock", "BAD_REQUEST");
         }
 
         const target = item.productVariantId
@@ -281,8 +286,12 @@ export const _carts = {
           })
           .returning({ id: cartItems.id, quantity: cartItems.quantity });
 
+        // throwing rolls the quantity bump back
         if (stock < (updated?.quantity ?? 1)) {
-          throw new Error("Product out of stock");
+          throw new AppError(
+            `Only ${stock} left in stock, and your cart already has them all`,
+            "BAD_REQUEST",
+          );
         }
 
         return updated;

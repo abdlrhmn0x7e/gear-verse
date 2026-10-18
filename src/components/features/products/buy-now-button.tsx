@@ -9,6 +9,7 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { useTRPC } from "~/trpc/client";
 import { findCartLine } from "./hooks/use-selected-stock";
 
@@ -44,8 +45,10 @@ export function BuyNowButton({
         });
         router.push("/checkout");
       },
-      onError: () => {
-        toast.error("Couldn't start checkout. Try again.");
+      onError: (error) => {
+        toast.error(
+          getCustomerErrorMessage(error, "Couldn't start checkout. Try again."),
+        );
       },
     }),
   );

@@ -7,9 +7,11 @@ import { Button } from "./ui/button";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { JSX } from "react/jsx-dev-runtime";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { getStockIssue } from "~/lib/utils/cart-stock";
+import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { TRUST_PROMISES } from "./features/trust/trust-promises";
 import { CartStockNotice } from "./cart-stock-notice";
@@ -51,11 +53,19 @@ export function CartDrawer({
     });
     router.refresh();
   };
+  const onError = (error: Parameters<typeof getCustomerErrorMessage>[0]) => {
+    toast.error(
+      getCustomerErrorMessage(error, "Couldn't update your cart. Try again."),
+    );
+  };
   const { mutate: removeItem, isPending: removingItem } = useMutation(
-    trpc.public.carts.mutations.removeItem.mutationOptions({ onSuccess }),
+    trpc.public.carts.mutations.removeItem.mutationOptions({
+      onSuccess,
+      onError,
+    }),
   );
   const { mutate: addItem, isPending: addingItem } = useMutation(
-    trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess }),
+    trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess, onError }),
   );
 
   // without a session there is no cart; the button stays so the way to the cart never disappears
