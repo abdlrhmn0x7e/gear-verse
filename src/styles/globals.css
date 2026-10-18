@@ -678,6 +678,11 @@
   & > :has(img) {
     mix-blend-mode: multiply;
   }
+
+  /* a photo shot on off-white keeps a visible box after the blend, so it gets corners that scale with its size */
+  & img {
+    border-radius: 6%;
+  }
 }
 
 html {
