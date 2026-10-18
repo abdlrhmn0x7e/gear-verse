@@ -32,6 +32,15 @@ type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
 
 export const _orders = {
   queries: {
+    findOwnership: async (id: number) => {
+      return db
+        .select({ userId: orders.userId, addressId: orders.addressId })
+        .from(orders)
+        .where(eq(orders.id, id))
+        .limit(1)
+        .then(([res]) => res);
+    },
+
     getPage: async ({
       pageSize,
       cursor,

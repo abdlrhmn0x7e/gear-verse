@@ -9,6 +9,22 @@ import type {
 import { tryCatch } from "~/lib/utils/try-catch";
 import { invalidateProducts } from "~/server/actions/cache";
 
+/** An order may only ship to one of its own customer's addresses. */
+async function assertAddressBelongsToUser(addressId: number, userId: number) {
+  const ownerId = await data.admin.addresses.queries.findOwnerId(addressId);
+
+  if (ownerId === undefined) {
+    throw new AppError("That address doesn't exist", "BAD_REQUEST");
+  }
+
+  if (ownerId !== userId) {
+    throw new AppError(
+      "That address belongs to a different customer. Pick one of this customer's addresses.",
+      "BAD_REQUEST",
+    );
+  }
+}
+
 export const _orders = {
   queries: {
     getPage: (input: OrdersGetPageInput) => {
@@ -43,6 +59,8 @@ export const _orders = {
   mutations: {
     create: async (input: CreateFullOrderInput) => {
       const { items, ...order } = input;
+      await assertAddressBelongsToUser(order.addressId, order.userId);
+
       const { data: newOrder, error } = await tryCatch(
         data.admin.orders.mutations.create(order, items),
       );
@@ -58,6 +76,21 @@ export const _orders = {
 
     update: async (input: UpdateFullOrderInput & { id: number }) => {
       const { id, items, ...order } = input;
+
+      // the form only sends dirty fields, so check the address against the
+      // order's current customer unless the customer is changing too
+      if (order.userId !== undefined || order.addressId !== undefined) {
+        const current = await data.admin.orders.queries.findOwnership(id);
+        if (!current) {
+          throw new AppError("Order not found", "NOT_FOUND");
+        }
+
+        await assertAddressBelongsToUser(
+          order.addressId ?? current.addressId,
+          order.userId ?? current.userId,
+        );
+      }
+
       const { data: updatedOrder, error } = await tryCatch(
         data.admin.orders.mutations.update(id, order, items),
       );
