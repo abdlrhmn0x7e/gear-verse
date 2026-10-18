@@ -5,43 +5,33 @@ import { getCategoryIdsBySlug } from "../common/category-ids";
 
 export const _brands = {
   queries: {
+    /** Brands with a live product, optionally only in a category or any of its subcategories. */
     findAll: async (filters?: Partial<{ categorySlug: string }>) => {
+      const where = [
+        eq(products.published, true),
+        eq(products.archived, false),
+      ];
+
       if (filters?.categorySlug) {
-        // brands with a live product in the category or any of its subcategories
         const categoryIds = await getCategoryIdsBySlug(filters.categorySlug);
         if (categoryIds.length === 0) {
           return [];
         }
-
-        return db
-          .selectDistinct({
-            id: brands.id,
-            name: brands.name,
-            slug: brands.slug,
-            logo: media.url,
-          })
-          .from(brands)
-          .innerJoin(products, eq(brands.id, products.brandId))
-          .leftJoin(media, eq(brands.logoMediaId, media.id))
-          .where(
-            and(
-              inArray(products.categoryId, categoryIds),
-              eq(products.published, true),
-              eq(products.archived, false),
-            ),
-          )
-          .orderBy(asc(brands.name));
+        where.push(inArray(products.categoryId, categoryIds));
       }
 
       return db
-        .select({
+        .selectDistinct({
           id: brands.id,
           name: brands.name,
           slug: brands.slug,
           logo: media.url,
         })
         .from(brands)
-        .leftJoin(media, eq(brands.logoMediaId, media.id));
+        .innerJoin(products, eq(brands.id, products.brandId))
+        .leftJoin(media, eq(brands.logoMediaId, media.id))
+        .where(and(...where))
+        .orderBy(asc(brands.name));
     },
   },
   mutations: {},

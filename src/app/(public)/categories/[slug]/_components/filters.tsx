@@ -24,7 +24,8 @@ export async function Filters({ slug }: { slug: string }) {
     }),
   ]);
 
-  cacheTag("category-filters", slug);
+  // the brands only list ones with a live product, which product edits change
+  cacheTag("category-filters", slug, "recent-products");
 
   return (
     <div className="flex flex-col gap-10">

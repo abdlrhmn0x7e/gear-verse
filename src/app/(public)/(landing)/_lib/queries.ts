@@ -32,10 +32,11 @@ export async function getCategoryCovers() {
   return covers.filter((cover) => cover !== null);
 }
 
+/** Brands with a live product, so product edits refresh it too. */
 export async function getBrands() {
   "use cache";
 
-  cacheTag("brands");
+  cacheTag("brands", "recent-products");
 
   return app.public.brands.queries.findAll();
 }
