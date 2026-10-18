@@ -114,7 +114,7 @@ function socialUrlSchema({
       if (!hosts.some((base) => host === base || host.endsWith(`.${base}`))) {
         ctx.addIssue({
           code: "custom",
-          message: `That isn't a ${label} link (${hosts.join(" or ")})`,
+          message: `Link to ${hosts.join(" or ")} for ${label}`,
         });
         return z.NEVER;
       }

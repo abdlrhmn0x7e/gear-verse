@@ -163,7 +163,8 @@ export function StoreSettingsForm({ settings }: { settings: Settings }) {
                 control={form.control}
                 name={social.name}
                 render={({ field }) => (
-                  <FormItem>
+                  // An error under one field must not stretch its row neighbour.
+                  <FormItem className="self-start">
                     <FormLabel>{socialHosts[social.name].label}</FormLabel>
                     <InputGroup>
                       <InputGroupAddon>
