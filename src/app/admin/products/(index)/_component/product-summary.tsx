@@ -38,6 +38,7 @@ import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { isAppError } from "~/lib/errors/app-error";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { api } from "~/trpc/server";
@@ -55,10 +56,13 @@ function stockLevel(quantity: number, lowStockThreshold: number): StockLevel {
 
 export async function ProductSummary({ slug }: { slug: string }) {
   const { data: product, error } = await tryCatch(
-    app.public.products.queries.findBySlug(slug),
+    app.admin.products.queries.findSummaryBySlug(slug),
   );
   if (error) {
-    return <ProductNotFound />;
+    if (isAppError(error) && error.kind === "NOT_FOUND") {
+      return <ProductNotFound />;
+    }
+    throw error;
   }
 
   const [stats, reviews, categoryTree, { lowStockThreshold }] =
@@ -93,7 +97,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
     : [
         {
           key: 0,
-          label: "All stock",
+          label: "Units in stock",
           thumbnailUrl: null,
           price: null,
           quantity: product.stock ?? 0,
@@ -151,25 +155,31 @@ export async function ProductSummary({ slug }: { slug: string }) {
             {product.title}
           </DrawerTitle>
 
-          <DrawerDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            {product.brand.name && (
-              <span className="text-foreground flex items-center gap-1.5">
-                <ImageWithFallback
-                  src={product.brand.logoUrl}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="size-5 rounded-full border-none bg-white [&_img]:object-contain"
-                />
-                {product.brand.name}
-              </span>
-            )}
-            {product.brand.name && categoryPath.length > 0 && (
-              <span aria-hidden>·</span>
-            )}
-            {categoryPath.length > 0 && (
-              <span>{categoryPath.map((node) => node.name).join(" › ")}</span>
-            )}
+          {/* a div, since the brand logo renders block elements a <p> can't hold */}
+          <DrawerDescription
+            className="flex flex-wrap items-center gap-x-2 gap-y-1"
+            asChild
+          >
+            <div>
+              {product.brand.name && (
+                <span className="text-foreground flex items-center gap-1.5">
+                  <ImageWithFallback
+                    src={product.brand.logoUrl}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="size-5 rounded-full border-none bg-white [&_img]:object-contain"
+                  />
+                  {product.brand.name}
+                </span>
+              )}
+              {product.brand.name && categoryPath.length > 0 && (
+                <span aria-hidden>·</span>
+              )}
+              {categoryPath.length > 0 && (
+                <span>{categoryPath.map((node) => node.name).join(" › ")}</span>
+              )}
+            </div>
           </DrawerDescription>
         </div>
 
@@ -254,7 +264,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
           caption={
             hasVariants
               ? `${totalStock.toLocaleString()} units across ${stockRows.length} variants`
-              : `${totalStock.toLocaleString()} units`
+              : undefined
           }
           action={
             <Button variant="ghost" size="sm" className="-me-3" asChild>

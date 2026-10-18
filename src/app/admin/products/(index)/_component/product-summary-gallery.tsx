@@ -16,7 +16,8 @@ export function ProductSummaryGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="image-well relative aspect-[4/3] overflow-hidden rounded-3xl">
+      {/* the well matches the drawer gray, so a hairline gives the photo its edge */}
+      <div className="image-well outline-image-outline relative aspect-[4/3] overflow-hidden rounded-3xl outline-1 -outline-offset-1">
         <ImageWithFallback
           key={active}
           src={active}
@@ -45,11 +46,11 @@ export function ProductSummaryGallery({
                 aria-current={index === activeIndex}
                 onClick={() => setActiveIndex(index)}
                 className={cn(
-                  "image-well block size-16 overflow-hidden rounded-2xl outline-2 outline-offset-2 transition-[outline-color] duration-150",
+                  "image-well block size-16 overflow-hidden rounded-2xl transition-[outline-color] duration-150",
                   index === activeIndex
-                    ? "outline-foreground"
-                    : "hover:outline-border outline-transparent",
-                  "focus-visible:outline-focus",
+                    ? "outline-foreground outline-2 outline-offset-2"
+                    : "outline-image-outline hover:outline-foreground/40 outline-1 -outline-offset-1",
+                  "focus-visible:outline-focus focus-visible:outline-2 focus-visible:outline-offset-2",
                 )}
               >
                 <ImageWithFallback
