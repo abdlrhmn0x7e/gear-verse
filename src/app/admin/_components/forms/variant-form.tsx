@@ -102,7 +102,7 @@ export function VariantForm({
                       aria-invalid={fieldState.invalid}
                       placeholder="Override Price"
                       value={field.value ?? ""}
-                      onChange={field.onChange}
+                      onValueChange={field.onChange}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

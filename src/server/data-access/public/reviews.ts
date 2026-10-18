@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import { orderItems, orders } from "~/server/db/schema";
-import { productVariants, reviews, users } from "~/server/db/schema";
+import { reviews, users } from "~/server/db/schema";
 
 type NewReview = typeof reviews.$inferInsert;
 type UpdateReview = Partial<NewReview>;
@@ -12,19 +12,13 @@ export const _reviews = {
       const isVerifiedPurchaserSubQuery = db
         .select({
           userId: orders.userId,
+          // order items always carry the product id, with or without a variant
           verifiedPurchaser: sql<boolean>`
-            bool_or(product_variants.id IS NOT NULL)
+            coalesce(bool_or(${orderItems.productId} = ${productId}), false)
           `.as("verified_purchaser"),
         })
         .from(orders)
         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-        .leftJoin(
-          productVariants,
-          and(
-            eq(orderItems.productVariantId, productVariants.id),
-            eq(productVariants.productId, productId),
-          ),
-        )
         .where(eq(orders.userId, reviews.userId))
         .groupBy(orders.userId)
         .as("is_verified_purchaser");

@@ -138,7 +138,7 @@ export const _inventoryItems = {
   mutations: {
     updateMany(input: UpdateInventoryItem[]) {
       return db.transaction(async (tx) => {
-        const updatedItems: { id: number }[] = [];
+        const updatedItems: { id: number; productId: number }[] = [];
 
         for (const item of input) {
           const { id, ...updateData } = item;
@@ -146,7 +146,10 @@ export const _inventoryItems = {
             .update(inventoryItems)
             .set(updateData)
             .where(eq(inventoryItems.id, id))
-            .returning({ id: inventoryItems.id });
+            .returning({
+              id: inventoryItems.id,
+              productId: inventoryItems.productId,
+            });
 
           if (!updatedItem) {
             throw new Error(`Inventory item with ID ${id} not found.`);
@@ -156,6 +159,36 @@ export const _inventoryItems = {
         }
 
         return updatedItems;
+      });
+    },
+
+    /**
+     * A product without variants keeps its stock on a product level row
+     * (no variant id). Creates that row if it's missing, e.g. after every
+     * variant of the product was removed.
+     */
+    ensureProductItem(productId: number) {
+      return db.transaction(async (tx) => {
+        const [existing] = await tx
+          .select({ id: inventoryItems.id })
+          .from(inventoryItems)
+          .where(
+            and(
+              eq(inventoryItems.productId, productId),
+              isNull(inventoryItems.productVariantId),
+            ),
+          )
+          .limit(1);
+
+        if (existing) {
+          return existing;
+        }
+
+        return tx
+          .insert(inventoryItems)
+          .values({ productId, quantity: 0 })
+          .returning({ id: inventoryItems.id })
+          .then(([res]) => res);
       });
     },
 

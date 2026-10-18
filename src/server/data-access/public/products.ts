@@ -1,16 +1,4 @@
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  gte,
-  ilike,
-  inArray,
-  isNull,
-  lte,
-  sql,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, isNull, lte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -24,6 +12,10 @@ import {
 } from "~/server/db/schema";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
 import type { Pagination } from "../common/types";
+import {
+  getProductsOrdering,
+  type ProductsSortBy,
+} from "../common/products-ordering";
 
 export const _products = {
   queries: {
@@ -42,11 +34,13 @@ export const _products = {
           max: number;
         };
       },
-      "price-asc" | "price-desc" | "newest" | "oldest"
+      ProductsSortBy
     >) => {
+      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const whereClause = [
-        gt(products.id, cursor ?? 0),
+        cursorWhere,
         eq(products.published, true),
+        eq(products.archived, false),
       ];
       if (filters?.title) {
         whereClause.push(ilike(products.title, `%${filters.title}%`));
@@ -74,23 +68,6 @@ export const _products = {
       }
       if (filters?.price?.max) {
         whereClause.push(lte(products.price, filters.price.max));
-      }
-
-      // Default order by is newest (desc)
-      let orderBy = desc(products.id);
-      switch (sortBy) {
-        case "price-asc":
-          orderBy = asc(products.price);
-          break;
-        case "price-desc":
-          orderBy = desc(products.price);
-          break;
-        case "newest":
-          orderBy = desc(products.id);
-          break;
-        case "oldest":
-          orderBy = asc(products.id);
-          break;
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -139,7 +116,7 @@ export const _products = {
           ),
         )
         .limit(pageSize + 1)
-        .orderBy(orderBy);
+        .orderBy(...orderBy);
     },
 
     findBySlug: async (slug: string) => {
@@ -201,7 +178,13 @@ export const _products = {
         .leftJoin(inventoryItems, eq(inventoryItems.productId, products.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
 
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
@@ -221,7 +204,13 @@ export const _products = {
         .from(products)
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(seo, eq(seo.urlHandler, products.slug))
-        .where(eq(products.slug, slug))
+        .where(
+          and(
+            eq(products.slug, slug),
+            eq(products.published, true),
+            eq(products.archived, false),
+          ),
+        )
         .limit(1)
         .then(([product]) => product);
     },
@@ -232,7 +221,7 @@ export const _products = {
           slug: products.slug,
         })
         .from(products)
-        .where(eq(products.published, true));
+        .where(and(eq(products.published, true), eq(products.archived, false)));
     },
 
     helpers: {

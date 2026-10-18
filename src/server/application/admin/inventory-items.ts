@@ -4,6 +4,7 @@ import { paginate } from "../helpers/pagination";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
 import type { UpdateManyInventoryItemsInput } from "~/lib/schemas/entities/inventory-item";
+import { invalidateProducts } from "~/server/actions/cache";
 
 export const _inventoryItems = {
   queries: {
@@ -37,6 +38,8 @@ export const _inventoryItems = {
           error,
         );
       }
+
+      await invalidateProducts(updatedItems.map((item) => item.productId));
 
       return updatedItems;
     },

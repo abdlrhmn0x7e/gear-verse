@@ -4,10 +4,10 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { admin, anonymous } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { addresses, carts, orders, users } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { data } from "./data-access";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { invalidateCache } from "./actions/cache";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -44,6 +44,20 @@ export const auth = betterAuth({
     modelName: "verifications",
   },
 
+  databaseHooks: {
+    user: {
+      create: {
+        // the landing page lists the latest customers, so a real sign up
+        // (not an anonymous visitor) has to show up there
+        after: async (user) => {
+          if (user.isAnonymous !== true) {
+            await invalidateCache("customer-summary");
+          }
+        },
+      },
+    },
+  },
+
   advanced: {
     database: {
       generateId: false,
@@ -67,28 +81,12 @@ export const auth = betterAuth({
         const parsedAnonymousUserId = Number(anonymousUser.user.id);
         const parsedNewUserId = Number(newUser.user.id);
 
-        // move ownerships
-        await db.transaction(async (tx) => {
-          // delete existing cart for the new user
-          await tx.delete(carts).where(eq(carts.userId, parsedNewUserId));
-
-          // move ownerships
-          await tx
-            .update(carts)
-            .set({ userId: parsedNewUserId })
-            .where(eq(carts.userId, parsedAnonymousUserId));
-          await tx
-            .update(addresses)
-            .set({ userId: parsedNewUserId })
-            .where(eq(addresses.userId, parsedAnonymousUserId));
-          await tx
-            .update(orders)
-            .set({ userId: parsedNewUserId })
-            .where(eq(orders.userId, parsedAnonymousUserId));
-
-          // delete the anonymous user
-          await tx.delete(users).where(eq(users.id, parsedAnonymousUserId));
-        });
+        // merge the guest cart, reviews, addresses and orders into the
+        // account, then delete the anonymous user
+        await data.public.users.mutations.mergeAnonymous(
+          parsedAnonymousUserId,
+          parsedNewUserId,
+        );
       },
 
       disableDeleteAnonymousUser: true,

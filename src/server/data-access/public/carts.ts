@@ -86,6 +86,12 @@ export const _carts = {
             sql`coalesce(${variantsInventory.quantity}, ${productsInventory.quantity})`.as(
               "stock",
             ),
+
+          available: sql<boolean>`(
+            ${products.published}
+            AND NOT ${products.archived}
+            AND (${cartItems.productVariantId} IS NULL OR NOT ${productVariants.archived})
+          )`.as("available"),
         })
         .from(cartItems)
         .leftJoin(products, eq(cartItems.productId, products.id))
@@ -135,6 +141,7 @@ export const _carts = {
 
         quantity: number;
         stock: number;
+        available: boolean;
 
         price: number;
         thumbnailUrl: string;
@@ -153,6 +160,7 @@ export const _carts = {
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'stock', ${items.stock},
+                'available', ${items.available},
                 'title', ${items.title},
                 'price', ${items.price},
                 'thumbnailUrl', ${items.thumbnailUrl},
@@ -193,6 +201,33 @@ export const _carts = {
 
     addItem: async (item: NewCartItem) => {
       return db.transaction(async (tx) => {
+        // only published, non-archived products (and live variants) can be bought
+        const [purchasable] = await tx
+          .select({ id: products.id })
+          .from(products)
+          .leftJoin(
+            productVariants,
+            and(
+              eq(productVariants.productId, products.id),
+              eq(productVariants.id, item.productVariantId ?? 0),
+            ),
+          )
+          .where(
+            and(
+              eq(products.id, item.productId),
+              eq(products.published, true),
+              eq(products.archived, false),
+              item.productVariantId
+                ? eq(productVariants.archived, false)
+                : undefined,
+            ),
+          )
+          .limit(1);
+
+        if (!purchasable) {
+          throw new Error("Product is not available");
+        }
+
         let stock: number;
 
         if (item.productVariantId) {

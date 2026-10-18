@@ -1,3 +1,10 @@
+const hasDirtyField = (dirty: unknown): boolean => {
+  if (dirty === true) return true;
+  if (typeof dirty !== "object" || dirty === null) return false;
+
+  return Object.values(dirty).some(hasDirtyField);
+};
+
 export const getDirtyFields = <
   TData extends
     | Partial<Record<keyof TDirtyItems, unknown>>
@@ -8,32 +15,38 @@ export const getDirtyFields = <
   dirtyItems: TDirtyItems,
 ): Partial<TData> => {
   return Object.entries(dirtyItems).reduce((dirtyData, [key, value]) => {
-    // react hook form considers removed array fields as dirty
-    // so we need to check if the form value is not undefined
     const formValue = formValues?.[key];
 
-    if (value === false) return dirtyData;
+    if (value === false || value === undefined) return dirtyData;
     if (value === true) return { ...dirtyData, [key]: formValue };
-    if (!formValue) return formValues; // if the form value is not found, return the dirty data
 
-    const child = getDirtyFields(
-      formValues[key] as TData,
-      dirtyItems[key] as TDirtyItems,
-    );
+    // arrays are always sent whole. react hook form keeps dirty entries for
+    // removed items, so a dirty array longer than the form value lost items,
+    // and removing every item has to be sent as an empty array
+    if (Array.isArray(formValue)) {
+      const removedItems =
+        Array.isArray(value) && value.length > formValue.length;
 
-    if (typeof child === "object" && Object.keys(child).length === 0) {
+      if (removedItems || hasDirtyField(value)) {
+        return { ...dirtyData, [key]: formValue };
+      }
+
       return dirtyData;
     }
 
-    // if the form value is an array, return the whole array
-    if (Array.isArray(formValue)) {
-      return {
-        ...dirtyData,
-        [key]: formValue,
-      };
+    // the form value was cleared, there is nothing left to diff against
+    if (typeof formValue !== "object" || formValue === null) {
+      return hasDirtyField(value)
+        ? { ...dirtyData, [key]: formValue }
+        : dirtyData;
     }
 
-    if (Array.isArray(child) && child.length === 0) {
+    const child = getDirtyFields(
+      formValue as TData,
+      value as Partial<Record<string, unknown>>,
+    );
+
+    if (Object.keys(child).length === 0) {
       return dirtyData;
     }
 

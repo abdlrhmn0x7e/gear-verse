@@ -15,7 +15,6 @@ import { authClient } from "~/lib/auth-client";
 import { Button } from "./ui/button";
 import { GoogleLogo } from "./google-logo";
 import { Logo } from "./logo";
-import { invalidateCache } from "~/server/actions/cache";
 
 export function LoginDrawerDialog({
   children,
@@ -31,7 +30,6 @@ export function LoginDrawerDialog({
         provider: "google",
         callbackURL: "/",
       });
-      void invalidateCache("customer-summary");
     },
     onSuccess: () => {
       onOpenChange?.(false);
