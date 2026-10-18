@@ -67,12 +67,15 @@ function UserOrdersDrawerContent() {
     <>
       <DrawerHeader>
         <DrawerTitle>Orders</DrawerTitle>
-        <DrawerDescription className="truncate">
-          {isPending ? (
-            <Skeleton className="h-4 w-48" />
-          ) : (
-            `${data?.user.name ?? "This user"}'s most recent orders`
-          )}
+        {/* a div, since the loading skeleton is one and can't sit in a paragraph */}
+        <DrawerDescription className="truncate" asChild>
+          <div>
+            {isPending ? (
+              <Skeleton className="h-4 w-48" />
+            ) : (
+              `${data?.user.name ?? "This user"}'s most recent orders`
+            )}
+          </div>
         </DrawerDescription>
       </DrawerHeader>
 
