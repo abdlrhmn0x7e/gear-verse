@@ -9,6 +9,7 @@ import { _inventory } from "./inventory";
 import { _users } from "./users";
 import { _settings } from "./settings";
 import { _sitemap } from "./sitemap";
+import { _nominatim } from "./nominatim";
 
 export const _public = {
   products: _products,
@@ -22,4 +23,5 @@ export const _public = {
   users: _users,
   settings: _settings,
   sitemap: _sitemap,
+  nominatim: _nominatim,
 };

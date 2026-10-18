@@ -1,5 +1,7 @@
 import {
   bigint,
+  check,
+  doublePrecision,
   index,
   pgEnum,
   pgTable,
@@ -7,7 +9,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { orders } from "./orders";
 
 export const addressGovernoratesEnum = pgEnum("address_governorates", [
@@ -56,6 +58,8 @@ export const addresses = pgTable(
     buildingNameOrNumber: text("building_name_or_number").notNull(),
     city: text("city").notNull(),
     governorate: addressGovernoratesEnum("governorate").notNull(),
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -63,7 +67,13 @@ export const addresses = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [index("idx_addresses_user_id").on(table.userId)],
+  (table) => [
+    index("idx_addresses_user_id").on(table.userId),
+    check(
+      "addresses_coordinates_check",
+      sql`(${table.latitude} IS NULL AND ${table.longitude} IS NULL) OR (${table.latitude} BETWEEN -90 AND 90 AND ${table.longitude} BETWEEN -180 AND 180)`,
+    ),
+  ],
 );
 
 export const addressRelations = relations(addresses, ({ one, many }) => ({

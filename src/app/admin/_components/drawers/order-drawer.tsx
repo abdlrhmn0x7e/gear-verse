@@ -1,9 +1,10 @@
 "use client";
 
+import { IconCheck, IconCopy, IconExternalLink } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { PackageOpenIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { PaymentMethod } from "~/components/payment-method";
@@ -19,6 +20,7 @@ import {
 } from "~/components/ui/drawer";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { googleMapsUrl } from "~/lib/google-maps";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
@@ -31,6 +33,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { toast } from "~/components/ui/toast";
 
 export function OrderDrawer() {
   const isMobile = useIsMobile();
@@ -76,7 +79,7 @@ function OrderDrawerContent() {
   );
 
   const details = useMemo(() => {
-    return [
+    const rows: { label: string; value: React.ReactNode }[] = [
       { label: "Order ID", value: data?.id },
       {
         label: "Payment Method",
@@ -97,6 +100,14 @@ function OrderDrawerContent() {
           data?.address?.governorate.toLowerCase(),
       },
     ];
+    const mapsUrl = googleMapsUrl(data?.address);
+    if (mapsUrl) {
+      rows.push({
+        label: "Location",
+        value: <PinnedLocation url={mapsUrl} />,
+      });
+    }
+    return rows;
   }, [data]);
 
   if (isPending) {
@@ -220,6 +231,41 @@ function OrderItem({
           {formatCurrency(item.quantity * item.price)}
         </p>
       </div>
+    </div>
+  );
+}
+
+function PinnedLocation({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Location link copied");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy the link. Open it in Google Maps instead.");
+    }
+  }
+
+  // DetailRow capitalizes its values; these are sentences
+  return (
+    <div className="-ml-2.5 flex flex-wrap gap-1 normal-case">
+      <Button variant="ghost" size="sm" asChild>
+        <a href={url} target="_blank" rel="noreferrer">
+          <IconExternalLink data-icon="inline-start" />
+          Open in Google Maps
+        </a>
+      </Button>
+      <Button variant="ghost" size="sm" onClick={handleCopy}>
+        {copied ? (
+          <IconCheck data-icon="inline-start" />
+        ) : (
+          <IconCopy data-icon="inline-start" />
+        )}
+        Copy location link
+      </Button>
     </div>
   );
 }

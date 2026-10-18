@@ -12,13 +12,15 @@ import {
 import {
   AddressForm,
   type AddressFormValues,
-} from "../../../../../../components/forms/address-form";
+} from "~/components/forms/address-form";
 import { Button } from "~/components/ui/button";
 import { IconHomePlus } from "@tabler/icons-react";
 import { useTRPC } from "~/trpc/client";
 import { useState, type PropsWithChildren } from "react";
 import { Spinner } from "~/components/spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "~/components/ui/toast";
+import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 
 export function AddAddressDrawerDialog({
   children,
@@ -39,6 +41,15 @@ export function AddAddressDrawerDialog({
         );
         onSuccess?.(data.id);
         setOpen(false);
+        toast.success("Address added");
+      },
+      onError: (error) => {
+        toast.error(
+          getCustomerErrorMessage(
+            error,
+            "We couldn't save this address. Please try again.",
+          ),
+        );
       },
     }),
   );
