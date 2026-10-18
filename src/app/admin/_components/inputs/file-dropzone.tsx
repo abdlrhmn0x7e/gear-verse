@@ -1,9 +1,10 @@
 "use client";
 
 import {
-  CloudUploadIcon,
+  ImagesIcon,
   MousePointerClickIcon,
   UploadCloudIcon,
+  UploadIcon,
   XIcon,
 } from "lucide-react";
 import { useCallback } from "react";
@@ -125,14 +126,15 @@ export function FileDropzone({
               </p>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Button type="button" size="sm" onClick={open}>
-                <CloudUploadIcon />
+                <UploadIcon data-icon="inline-start" />
                 Click to select files
               </Button>
 
               <MediaDialog onChange={onChange}>
-                <Button type="button" variant="link" size="sm">
+                <Button type="button" variant="outline" size="sm">
+                  <ImagesIcon data-icon="inline-start" />
                   Select existing
                 </Button>
               </MediaDialog>
@@ -153,6 +155,8 @@ export function FileDropzone({
                 height={128}
               />
               <button
+                type="button"
+                aria-label="Remove image"
                 className="bg-muted absolute -top-1 -right-1 flex size-5 cursor-pointer items-center justify-center rounded-full border [&>svg]:size-3"
                 onClick={() => handleDelete(media.mediaId)}
               >

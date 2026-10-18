@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconDeviceGamepad, IconPackageOff } from "@tabler/icons-react";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import { Button } from "~/components/ui/button";
@@ -229,7 +229,7 @@ export function OrderForm({
               type="button"
               onClick={handleAddItem}
             >
-              <PlusIcon />
+              <PlusIcon data-icon="inline-start" />
               Add Item
             </Button>
           </div>
@@ -292,9 +292,10 @@ export function OrderForm({
                       <Button
                         variant="destructive-outline"
                         size="icon"
+                        aria-label="Remove item"
                         onClick={() => removeItem(index)}
                       >
-                        <TrashIcon />
+                        <Trash2Icon />
                       </Button>
                     </TableCell>
                   </TableRow>

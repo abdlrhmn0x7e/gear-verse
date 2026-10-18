@@ -51,6 +51,8 @@ export const mediaColumns: ListColumn<Media>[] = [
               mediaPreviewUrl === row.original.url && "opacity-100",
             )}
             size="icon"
+            aria-label={`Preview ${row.original.name}`}
+            aria-pressed={mediaPreviewUrl === row.original.url}
             onClick={(e) => {
               e.stopPropagation();
               if (mediaPreviewUrl === row.original.url) {

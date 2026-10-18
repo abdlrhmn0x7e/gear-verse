@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -47,7 +47,7 @@ export function AddCustomerDialog() {
           variant="ghost"
           className="w-full rounded-t-none rounded-b-md"
         >
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Customer
         </Button>
       </DialogTrigger>
@@ -65,6 +65,7 @@ export function AddCustomerDialog() {
 
         <DialogFooter>
           <Button type="submit" form="customer-form">
+            <PlusIcon data-icon="inline-start" />
             Add Customer
           </Button>
         </DialogFooter>

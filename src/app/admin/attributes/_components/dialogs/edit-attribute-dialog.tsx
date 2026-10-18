@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SaveIcon } from "lucide-react";
+import { PencilIcon, SaveIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,7 +19,6 @@ import {
   AttributeForm,
   type AttributeFormValues,
 } from "../../../_components/forms/attribute-form";
-import { IconEdit } from "@tabler/icons-react";
 import { useReactFlow } from "@xyflow/react";
 import { Spinner } from "~/components/spinner";
 import { useDialog } from "~/hooks/use-dialog";
@@ -60,8 +59,13 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
   return (
     <Dialog {...dialog.props}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon-xs" className="focus-visible:ring-0">
-          <IconEdit />
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="focus-visible:ring-0"
+          aria-label="Edit attribute"
+        >
+          <PencilIcon />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -75,14 +79,21 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="destructive-outline">Cancel</Button>
+            <Button variant="outline">
+              <XIcon data-icon="inline-start" />
+              Cancel
+            </Button>
           </DialogClose>
           <Button
             type="submit"
             form="attribute-form"
             disabled={updatingAttribute}
           >
-            {updatingAttribute ? <Spinner /> : <SaveIcon />}
+            {updatingAttribute ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
             Save
           </Button>
         </DialogFooter>

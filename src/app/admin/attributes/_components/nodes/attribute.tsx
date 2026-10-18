@@ -15,7 +15,8 @@ import {
 } from "~/components/ui/popover";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 
-import { IconFrameOff, IconKeyframe, IconTrash } from "@tabler/icons-react";
+import { IconFrameOff, IconKeyframe } from "@tabler/icons-react";
+import { Trash2Icon } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 import { DeleteDialog } from "~/components/delete-dialog";
 import { Heading } from "~/components/heading";
@@ -154,8 +155,9 @@ function AttributeValues({
                 variant="destructive-ghost"
                 size="icon"
                 disabled={deletingAttributeValue}
+                aria-label={`Delete ${value.value}`}
               >
-                <IconTrash />
+                <Trash2Icon />
               </Button>
             }
           />

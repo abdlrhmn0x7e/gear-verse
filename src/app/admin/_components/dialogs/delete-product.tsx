@@ -1,5 +1,6 @@
 "use client";
 
+import { Trash2Icon, XIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -58,9 +59,17 @@ export function DeleteProductDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction disabled={isPending} onClick={handleDelete}>
-            Continue
+          <AlertDialogCancel>
+            <XIcon data-icon="inline-start" />
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={isPending}
+            onClick={handleDelete}
+          >
+            <Trash2Icon data-icon="inline-start" />
+            Delete product
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

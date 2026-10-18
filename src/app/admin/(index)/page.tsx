@@ -4,7 +4,7 @@ import {
   IconShoppingBagSearch,
 } from "@tabler/icons-react";
 import {
-  EyeIcon,
+  ArrowRightIcon,
   PlusIcon,
   ShoppingBagIcon,
   ShoppingCartIcon,
@@ -124,8 +124,8 @@ export default async function AdminPage() {
             </div>
             <Button variant="outline" type="button" asChild>
               <Link href="/admin/orders">
-                <EyeIcon />
-                View All Orders
+                View all orders
+                <ArrowRightIcon data-icon="inline-end" />
               </Link>
             </Button>
           </div>

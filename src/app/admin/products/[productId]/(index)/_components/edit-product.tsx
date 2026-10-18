@@ -130,7 +130,7 @@ export function EditProduct({
                 form="product-form"
                 disabled={isUpdatingProduct}
               >
-                <SaveIcon size={16} />
+                <SaveIcon data-icon="inline-start" />
                 Save Product
               </Button>
             </div>

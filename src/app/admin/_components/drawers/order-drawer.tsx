@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { EditIcon, PackageOpenIcon } from "lucide-react";
+import { PackageOpenIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { Heading } from "~/components/heading";
@@ -116,9 +116,10 @@ function OrderDrawerContent() {
             <Button
               variant="outline"
               size="icon"
+              aria-label="Edit order"
               onClick={() => setParams({ orderId: null, editId: data?.id })}
             >
-              <EditIcon className="size-4" />
+              <PencilIcon />
             </Button>
 
             <DeleteOrderDialog

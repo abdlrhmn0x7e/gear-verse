@@ -1,6 +1,5 @@
 "use client";
 
-import { IconShoppingCartPlus } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -65,8 +64,8 @@ export function CreateOrderDrawer() {
       onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>
-        <Button size="lg">
-          <PlusIcon />
+        <Button>
+          <PlusIcon data-icon="inline-start" />
           Create Order
         </Button>
       </DrawerTrigger>
@@ -83,7 +82,11 @@ export function CreateOrderDrawer() {
         </DrawerBody>
         <DrawerFooter>
           <Button type="submit" form="order-form" disabled={isCreatingOrder}>
-            {isCreatingOrder ? <Spinner /> : <IconShoppingCartPlus />}
+            {isCreatingOrder ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Create Order
           </Button>
         </DrawerFooter>

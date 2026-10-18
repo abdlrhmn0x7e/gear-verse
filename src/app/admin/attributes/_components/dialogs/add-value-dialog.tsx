@@ -10,7 +10,7 @@ import {
   DialogBody,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import {
   AttributeValueForm,
   type AttributeValueFormValues,
@@ -46,7 +46,7 @@ export function AddValueDialog({ attributeId }: { attributeId: number }) {
     <Dialog {...dialog.props}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <PlusCircleIcon />
+          <PlusIcon data-icon="inline-start" />
           Add Value
         </Button>
       </DialogTrigger>
@@ -60,14 +60,21 @@ export function AddValueDialog({ attributeId }: { attributeId: number }) {
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="destructive-outline">Cancel</Button>
+            <Button variant="outline">
+              <XIcon data-icon="inline-start" />
+              Cancel
+            </Button>
           </DialogClose>
           <Button
             type="submit"
             form="attribute-value-form"
             disabled={creatingAttributeValue}
           >
-            {creatingAttributeValue ? <Spinner /> : <PlusCircleIcon />}
+            {creatingAttributeValue ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <PlusIcon data-icon="inline-start" />
+            )}
             Add
           </Button>
         </DialogFooter>

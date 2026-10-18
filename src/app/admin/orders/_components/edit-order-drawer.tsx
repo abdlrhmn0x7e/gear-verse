@@ -1,6 +1,6 @@
 "use client";
 
-import { IconShoppingCartPlus } from "@tabler/icons-react";
+import { SaveIcon } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Spinner } from "~/components/spinner";
@@ -126,8 +126,12 @@ export function EditOrderDrawer() {
         </DrawerBody>
         <DrawerFooter>
           <Button type="submit" form="order-form" disabled={isUpdatingOrder}>
-            {isUpdatingOrder ? <Spinner /> : <IconShoppingCartPlus />}
-            Edit Order
+            {isUpdatingOrder ? (
+              <Spinner size="small" data-icon="inline-start" />
+            ) : (
+              <SaveIcon data-icon="inline-start" />
+            )}
+            Save Order
           </Button>
         </DrawerFooter>
       </DrawerContent>
