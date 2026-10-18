@@ -334,7 +334,8 @@ export const _orders = {
               productVariantId: orderItems.productVariantId,
               quantity: orderItems.quantity,
             })
-            .from(orderItems);
+            .from(orderItems)
+            .where(eq(orderItems.orderId, id));
           for (const item of oldItems) {
             const preds = [eq(inventoryItems.productId, item.productId)];
             if (item.productVariantId) {
@@ -363,7 +364,8 @@ export const _orders = {
               productVariantId: orderItems.productVariantId,
               quantity: orderItems.quantity,
             })
-            .from(orderItems);
+            .from(orderItems)
+            .where(eq(orderItems.orderId, id));
 
           for (const item of oldItems) {
             const preds = [eq(inventoryItems.productId, item.productId)];
