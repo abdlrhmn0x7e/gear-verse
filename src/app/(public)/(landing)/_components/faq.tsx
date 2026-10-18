@@ -49,7 +49,7 @@ export async function FAQ() {
     {
       question: "How do I pay?",
       answer:
-        "Cash on delivery is available. After you place your order, our team contacts you to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet.",
+        "Cash on delivery is available. After you place your order, our team contacts you on WhatsApp or by phone to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet.",
     },
     {
       question: "What is your return policy?",
@@ -103,19 +103,32 @@ export async function FAQ() {
           >
             Questions, answered
           </h2>
-          {discordUrl && (
+          {/* WhatsApp is the main channel; Discord stands in only until a number is set */}
+          {whatsappNumber ? (
             <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
-              Anything else? Ask us on{" "}
-              <a
-                href={discordUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground underline decoration-from-font underline-offset-4"
-              >
-                Discord
-              </a>
+              Anything else? Ask us on WhatsApp at{" "}
+              <WhatsAppNumberLink
+                number={whatsappNumber}
+                message="Hi Gear Verse, I have a question."
+                className={`${inlineLinkClassName} tabular-nums`}
+              />
               .
             </p>
+          ) : (
+            discordUrl && (
+              <p className="text-muted-foreground text-body-lg max-w-sm text-pretty">
+                Anything else? Ask us on{" "}
+                <a
+                  href={discordUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={inlineLinkClassName}
+                >
+                  Discord
+                </a>
+                .
+              </p>
+            )
           )}
         </div>
 
