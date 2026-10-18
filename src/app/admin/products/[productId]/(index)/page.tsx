@@ -1,11 +1,11 @@
-import { PackageIcon, TriangleAlertIcon } from "lucide-react";
+import { TriangleAlertIcon } from "lucide-react";
 import { notFound } from "next/navigation";
-import Header from "~/components/header";
 import { EditProduct } from "./_components/edit-product";
 import { api } from "~/trpc/server";
 import { requireAdmin } from "~/server/auth";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
+import { PageLayout } from "../../../_components/page-layout";
 
 export default async function EditProductPage({
   params,
@@ -35,7 +35,11 @@ export default async function EditProductPage({
   }
 
   return (
-    <section className="mx-auto max-w-7xl space-y-6">
+    <PageLayout
+      title={`Edit ${product.title}`}
+      description="Let's get this product looking good alright?"
+      parent={{ title: "Products", href: "/admin/products" }}
+    >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
@@ -45,13 +49,7 @@ export default async function EditProductPage({
         </div>
       </div>
 
-      <Header
-        title={`Edit ${product.title}`}
-        description="Let's get this product looking good alright?"
-        Icon={PackageIcon}
-      />
-
       <EditProduct product={product} />
-    </section>
+    </PageLayout>
   );
 }

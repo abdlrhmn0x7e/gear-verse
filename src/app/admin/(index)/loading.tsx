@@ -1,5 +1,3 @@
-import { HomeIcon } from "lucide-react";
-import { HeaderSkeleton } from "../../../components/header";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Heading } from "~/components/heading";
 import { Card, CardContent } from "~/components/ui/card";
@@ -19,12 +17,15 @@ import {
   TableHeader,
   TableHead,
 } from "~/components/ui/table";
+import { PageLayout } from "../_components/page-layout";
 
 export default function Loading() {
   return (
-    <section className="space-y-6">
-      <HeaderSkeleton Icon={HomeIcon} />
-
+    <PageLayout
+      title="Dashboard"
+      description={<Skeleton className="h-4 w-72" />}
+      contentWidth="full"
+    >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <SummaryCardSkeleton />
         <SummaryCardSkeleton />
@@ -91,7 +92,7 @@ export default function Loading() {
           </Table>
         </FramePanel>
       </Frame>
-    </section>
+    </PageLayout>
   );
 }
 

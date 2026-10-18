@@ -3,10 +3,11 @@ import { ProductsTableSkeleton } from "@admin/_components/tables/products/skelet
 import { ProductsTable } from "@admin/_components/tables/products/table";
 import { loadProductSearchParams } from "@admin/_hooks/use-product-search-params";
 
+import { PageLayout } from "@admin/_components/page-layout";
+
 import { ProductDetails } from "~/components/features/products/product-details";
-import Header from "~/components/header";
 import { Button } from "~/components/ui/button";
-import { Package, PackagePlusIcon } from "lucide-react";
+import { PackagePlusIcon } from "lucide-react";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -39,22 +40,19 @@ export default async function AdminProductsPage({
   );
 
   return (
-    <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <Header
-          title="Products Overview"
-          description="Manage your products and their information"
-          Icon={Package}
-        />
-
-        <Button size="lg" asChild>
+    <PageLayout
+      title="Products Overview"
+      description="Manage your products and their information"
+      contentWidth="full"
+      actions={
+        <Button asChild>
           <Link href="/admin/products/new">
             <PackagePlusIcon />
             Add Product
           </Link>
         </Button>
-      </div>
-
+      }
+    >
       <HydrateClient>
         <Suspense fallback={<ProductsTableSkeleton />}>
           <ProductsTable />
@@ -71,6 +69,6 @@ export default async function AdminProductsPage({
           />
         )}
       </ProductDrawer>
-    </section>
+    </PageLayout>
   );
 }

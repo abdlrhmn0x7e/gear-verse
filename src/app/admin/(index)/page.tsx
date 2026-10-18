@@ -5,7 +5,6 @@ import {
 } from "@tabler/icons-react";
 import {
   EyeIcon,
-  HomeIcon,
   PlusIcon,
   ShoppingBagIcon,
   ShoppingCartIcon,
@@ -36,11 +35,11 @@ import { formatDate } from "~/lib/utils/format-date";
 import { auth, requireAdmin } from "~/server/auth";
 import type { RouterOutput } from "~/trpc/client";
 import { api } from "~/trpc/server";
-import Header from "../../../components/header";
 import { QuickAction } from "../_components/quick-action";
 import SummaryCard from "../_components/summary-card";
 import { OrdersTableHeader } from "../_components/tables/orders/header";
 import { OrderStatus } from "../_components/tables/orders/order-status";
+import { PageLayout } from "../_components/page-layout";
 
 export default async function AdminPage() {
   await requireAdmin();
@@ -54,13 +53,11 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <section className="space-y-6">
-      <Header
-        title={`Good Morning, ${session?.user.name}`}
-        description="What would you like to do today?"
-        Icon={HomeIcon}
-      />
-
+    <PageLayout
+      title="Dashboard"
+      description={`Good morning, ${session?.user.name}. What would you like to do today?`}
+      contentWidth="full"
+    >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <SummaryCard
           title="Pending Orders"
@@ -137,7 +134,7 @@ export default async function AdminPage() {
           <LastOrdersTable orders={lastOrders.data} />
         </FramePanel>
       </Frame>
-    </section>
+    </PageLayout>
   );
 }
 
