@@ -26,8 +26,7 @@ import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
 import { PayOnDelivery } from "../payment/pay-on-delivery";
-import { TrustPromiseItem } from "../trust/trust-promise-item";
-import { TRUST_PROMISES } from "../trust/trust-promises";
+import { TrustPromisesPanel } from "../trust/trust-promises-panel";
 import { ProductCard, type ProductCardItem } from "./product-card";
 import { ProductGallery } from "./product-gallery";
 import { ProductRow, ProductRowItem, StoreTile } from "./product-row";
@@ -165,17 +164,7 @@ export async function ProductDetails({
               showActions={!hideActions}
             />
 
-            <div className="flex flex-col gap-5">
-              <ul
-                aria-label="Our promises"
-                className="bg-card flex flex-col gap-4 rounded-3xl p-4"
-              >
-                {TRUST_PROMISES.map((promise) => (
-                  <TrustPromiseItem key={promise.title} promise={promise} />
-                ))}
-              </ul>
-              <PayOnDelivery className="px-1" />
-            </div>
+            <PayOnDelivery className="px-1" />
 
             <Accordion type="single" collapsible className="border-t">
               {POLICY_ROWS.map((row) => (
@@ -199,6 +188,8 @@ export async function ProductDetails({
             </Accordion>
           </div>
         </div>
+
+        <TrustPromisesPanel />
 
         <section
           aria-labelledby="details-heading"
