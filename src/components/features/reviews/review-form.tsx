@@ -155,7 +155,7 @@ function RatingInput({
               className={cn(
                 "size-5 transition-colors duration-100 select-none",
                 shown >= star
-                  ? "fill-foreground text-foreground"
+                  ? "fill-rating text-rating-edge"
                   : "text-muted-foreground",
               )}
             />

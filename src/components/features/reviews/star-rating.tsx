@@ -22,7 +22,7 @@ export function StarRating({
           className={cn(
             size === "sm" ? "size-3.5" : "size-4",
             star <= rating
-              ? "fill-foreground text-foreground"
+              ? "fill-rating text-rating-edge"
               : "text-muted-foreground",
           )}
         />

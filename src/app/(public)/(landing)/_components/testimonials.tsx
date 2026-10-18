@@ -39,7 +39,7 @@ export function Testimonials({
                       className={cn(
                         "size-4",
                         index < testimonial.rating
-                          ? "fill-foreground text-foreground"
+                          ? "fill-rating text-rating-edge"
                           : "text-muted-foreground",
                       )}
                       strokeWidth={1.5}

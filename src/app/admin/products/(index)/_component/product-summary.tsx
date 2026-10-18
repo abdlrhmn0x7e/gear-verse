@@ -246,7 +246,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
                     {averageRating.toFixed(1)}
                     <StarIcon
                       aria-hidden
-                      className="fill-foreground size-4"
+                      className="fill-rating text-rating-edge size-4"
                       strokeWidth={1.5}
                     />
                     <span className="text-muted-foreground text-sm font-normal">
