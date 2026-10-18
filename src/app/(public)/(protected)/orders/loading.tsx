@@ -1,20 +1,12 @@
-import { PackageOpenIcon } from "lucide-react";
-import Header from "~/components/header";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { OrderCardsSkeleton } from "./_components/order-cards";
+import { OrdersHeading } from "./_components/orders-heading";
 
 export default function OrdersLoading() {
   return (
-    <section className="min-h-screen pt-28 pb-24 md:pt-36">
-      <MaxWidthWrapper className="max-w-7xl space-y-6">
-        <Header
-          title="Orders"
-          description="View your orders, review the details, and track the status."
-          headingLevel={3}
-          headingAs={1}
-          Icon={PackageOpenIcon}
-        />
-
+    <section className="min-h-dvh pt-28 pb-24 md:pt-36">
+      <MaxWidthWrapper className="max-w-3xl space-y-8">
+        <OrdersHeading whatsappNumber={null} />
         <OrderCardsSkeleton />
       </MaxWidthWrapper>
     </section>

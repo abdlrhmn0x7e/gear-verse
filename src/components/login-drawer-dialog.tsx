@@ -20,15 +20,18 @@ export function LoginDrawerDialog({
   children,
   open,
   onOpenChange,
+  callbackURL = "/",
 }: React.PropsWithChildren<{
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** where Google sends the visitor back to once they're signed in */
+  callbackURL?: string;
 }>) {
   const { mutate: signInWithGoogle, isPending: isSigningIn } = useMutation({
     mutationFn: async () => {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL,
       });
     },
     onSuccess: () => {
