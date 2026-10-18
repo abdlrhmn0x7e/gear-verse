@@ -16,7 +16,8 @@ export default function UserLayout({
         Skip to content
       </a>
       <Navbar />
-      <main id="main" className="flex-1">
+      {/* the fixed header grows by the top inset, so the page moves down with it */}
+      <main id="main" className="flex-1 pt-[env(safe-area-inset-top)]">
         {children}
       </main>
       <Footer />

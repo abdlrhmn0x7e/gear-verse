@@ -63,7 +63,11 @@ export const metadata: Metadata = {
 };
 
 // No themeColor: it follows the site's theme rather than the phone's, so ThemeColorScript and ThemeColorSync own it
-export const viewport: Viewport = {};
+export const viewport: Viewport = {
+  // the page runs under the notch and the home indicator; body keeps flow content inside the side and bottom insets,
+  // and fixed bars pad themselves
+  viewportFit: "cover",
+};
 
 export default function RootLayout({
   children,
@@ -87,7 +91,7 @@ export default function RootLayout({
       <body
         className={cn(
           jetBrainsMono.variable,
-          "flex min-h-screen flex-col font-sans antialiased",
+          "flex min-h-screen flex-col pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans antialiased",
         )}
       >
         <Suspense fallback={null}>
