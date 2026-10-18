@@ -119,6 +119,7 @@ export const _products = {
           title: true,
           slug: true,
           published: true,
+          trendingAt: true,
           price: true,
         },
 
@@ -337,6 +338,7 @@ export const _products = {
           summary: products.summary,
           slug: products.slug,
           published: products.published,
+          trendingAt: products.trendingAt,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           profit: products.profit,

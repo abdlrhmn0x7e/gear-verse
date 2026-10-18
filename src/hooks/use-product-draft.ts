@@ -42,6 +42,7 @@ const EMPTY_FORM_VALUES: ProductFormValues = {
   summary: "",
   description: {},
   published: false,
+  trending: false,
   price: 0,
   categoryId: 0,
   brandId: 0,

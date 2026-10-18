@@ -16,6 +16,7 @@ export const productEntitySchema = z.object({
   summary: z.string("Summary is required").min(1, "Summary is too short"),
   description: z.custom<JSONContent>(),
   published: z.boolean("Published is required"),
+  trending: z.boolean("Trending is required"),
 
   categoryId: z
     .number("Category Id Must be a Number")
