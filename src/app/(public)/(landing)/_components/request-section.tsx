@@ -123,7 +123,7 @@ export async function RequestSection() {
                       message.phoneHidden && "max-sm:hidden",
                       "max-w-[85%] rounded-2xl px-4 py-2.5 text-pretty transition-[opacity,translate,scale] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:translate-y-2 motion-safe:scale-[0.97] motion-safe:opacity-0 motion-safe:group-data-shown/chat:translate-y-0 motion-safe:group-data-shown/chat:scale-100 motion-safe:group-data-shown/chat:opacity-100",
                       message.from === "you"
-                        ? "bg-selected text-selected-foreground origin-bottom-right self-end rounded-br-md"
+                        ? "bg-primary text-primary-foreground origin-bottom-right self-end rounded-br-md"
                         : "bg-card origin-bottom-left self-start rounded-bl-md",
                     )}
                   >
