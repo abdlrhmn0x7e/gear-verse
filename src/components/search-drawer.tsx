@@ -37,12 +37,16 @@ export function SearchDrawer() {
     isPending: productsPending,
     isError: productsError,
   } = useQuery(
-    trpc.public.products.queries.getPage.queryOptions({
-      pageSize: 4,
-      filters: {
-        title: debouncedSearch,
+    trpc.public.products.queries.getPage.queryOptions(
+      {
+        pageSize: 4,
+        filters: {
+          title: debouncedSearch,
+        },
       },
-    }),
+      // the drawer is mounted on every page, so search only once it opens
+      { enabled: open },
+    ),
   );
 
   return (
