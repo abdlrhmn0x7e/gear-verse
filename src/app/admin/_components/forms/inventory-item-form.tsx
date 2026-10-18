@@ -118,6 +118,7 @@ export function InventoryItemForm({
     <FormProvider {...form}>
       <form
         id={FORM_ID}
+        className="flex flex-1 flex-col"
         onSubmit={(event) => {
           event.preventDefault();
           // Enter in a quantity field submits too; one save at a time.

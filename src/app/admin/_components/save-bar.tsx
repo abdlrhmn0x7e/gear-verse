@@ -35,7 +35,9 @@ export function SaveBar({
       {visible && (
         <motion.div
           data-slot="save-bar"
-          className="sticky bottom-4 z-20 flex justify-center"
+          // In a flex column taller than its content (a short list), mt-auto
+          // keeps the bar at the bottom of the page instead of under the last row.
+          className="sticky bottom-4 z-20 mt-auto flex justify-center"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
