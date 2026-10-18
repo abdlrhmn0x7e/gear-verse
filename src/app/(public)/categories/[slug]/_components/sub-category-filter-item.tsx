@@ -14,11 +14,13 @@ type SubCategory = Pick<
  */
 export function SubCategoryFilterItem({ category }: { category: SubCategory }) {
   return (
-    <Button variant="outline" asChild>
-      <Link href={`/categories/${category.slug}`}>
-        {category.name}
-        <ArrowUpRightIcon data-icon="inline-end" aria-hidden />
-      </Link>
+    <Button
+      variant="outline"
+      nativeButton={false}
+      render={<Link href={`/categories/${category.slug}`} />}
+    >
+      {category.name}
+      <ArrowUpRightIcon data-icon="inline-end" aria-hidden />
     </Button>
   );
 }

@@ -43,19 +43,22 @@ export function ProductsEmptyState({
             Clear filters
           </Button>
         ) : (
-          <Button asChild>
-            {/* a route that opens WhatsApp with the request typed, so a plain link and a new tab */}
-            <a href="/request" target="_blank" rel="noopener">
-              <MessageSquarePlusIcon data-icon="inline-start" />
-              Request an item
-            </a>
+          // a route that opens WhatsApp with the request typed, so a plain link and a new tab
+          <Button
+            nativeButton={false}
+            render={<a href="/request" target="_blank" rel="noopener" />}
+          >
+            <MessageSquarePlusIcon data-icon="inline-start" />
+            Request an item
           </Button>
         )}
-        <Button variant="outline" asChild>
-          <Link href="/products">
-            Browse all products
-            <ArrowRightIcon data-icon="inline-end" />
-          </Link>
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/products" />}
+        >
+          Browse all products
+          <ArrowRightIcon data-icon="inline-end" />
         </Button>
       </div>
     </div>

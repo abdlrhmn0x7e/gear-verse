@@ -104,12 +104,11 @@ function KpiCard({
         variant="ghost"
         size="xs"
         className="mt-auto -ml-2 self-start"
-        asChild
+        nativeButton={false}
+        render={<Link href={link.href} />}
       >
-        <Link href={link.href}>
-          {link.label}
-          <ArrowRightIcon data-icon="inline-end" />
-        </Link>
+        {link.label}
+        <ArrowRightIcon data-icon="inline-end" />
       </Button>
     </section>
   );

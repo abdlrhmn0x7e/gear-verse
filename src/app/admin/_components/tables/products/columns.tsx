@@ -33,13 +33,18 @@ export const productColumns: ListColumn<ProductRow>[] = [
       return (
         // A real link, so the product can open in a new tab; the row itself
         // opens the product drawer.
-        <Button variant="link" className="h-auto p-0" asChild>
-          <Link
-            href={`/admin/products/${row.original.id}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            # {row.original.id}
-          </Link>
+        <Button
+          variant="link"
+          className="h-auto p-0"
+          nativeButton={false}
+          render={
+            <Link
+              href={`/admin/products/${row.original.id}`}
+              onClick={(event) => event.stopPropagation()}
+            />
+          }
+        >
+          # {row.original.id}
         </Button>
       );
     },

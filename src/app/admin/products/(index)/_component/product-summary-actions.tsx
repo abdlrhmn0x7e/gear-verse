@@ -79,20 +79,25 @@ export function ProductSummaryActions({
 
       {/* drafts 404 on the store, so there is nothing to view yet */}
       {published && (
-        <Button variant="outline" className="ms-auto max-sm:flex-1" asChild>
-          <Link href={storePath} target="_blank" rel="noopener">
-            View on store
-            <ArrowUpRightIcon data-icon="inline-end" />
-          </Link>
+        <Button
+          variant="outline"
+          className="ms-auto max-sm:flex-1"
+          nativeButton={false}
+          render={<Link href={storePath} target="_blank" rel="noopener" />}
+        >
+          View on store
+          <ArrowUpRightIcon data-icon="inline-end" />
         </Button>
       )}
 
       {/* on a phone the three don't fit one row, so Edit wraps to a full-width row of its own */}
-      <Button className={cn("max-sm:flex-1", !published && "ms-auto")} asChild>
-        <Link href={`/admin/products/${id}`}>
-          <PencilIcon data-icon="inline-start" />
-          Edit product
-        </Link>
+      <Button
+        className={cn("max-sm:flex-1", !published && "ms-auto")}
+        nativeButton={false}
+        render={<Link href={`/admin/products/${id}`} />}
+      >
+        <PencilIcon data-icon="inline-start" />
+        Edit product
       </Button>
 
       <PublishProductDialog

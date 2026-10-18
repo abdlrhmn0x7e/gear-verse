@@ -2689,11 +2689,8 @@ function DataGridTableRowSelect<TData extends object>({
       {() => (
         <>
           <Checkbox
-            checked={
-              row.getIsSomeSelected() && !row.getIsSelected()
-                ? "indeterminate"
-                : row.getIsSelected()
-            }
+            checked={row.getIsSelected()}
+            indeterminate={row.getIsSomeSelected() && !row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(event) => {
               // Selection must not bubble into the row's onRowClick handler.
@@ -2722,9 +2719,8 @@ function DataGridTableRowSelectAll() {
 
         return (
           <Checkbox
-            checked={
-              isSomeSelected && !isAllSelected ? "indeterminate" : isAllSelected
-            }
+            checked={isAllSelected}
+            indeterminate={isSomeSelected && !isAllSelected}
             disabled={isLoading || recordCount === 0}
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)

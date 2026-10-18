@@ -106,12 +106,14 @@ export function PriceFilter({ range }: { range: PriceRange | null }) {
         min={lo}
         max={hi}
         step={PRICE_STEP}
-        minStepsBetweenThumbs={1}
+        minStepsBetweenValues={1}
         value={[min, max]}
         aria-label="Price range"
-        onValueChange={([nextMin = lo, nextMax = hi]) =>
-          setPrice(nextMin, nextMax)
-        }
+        onValueChange={(value) => {
+          const [nextMin = lo, nextMax = hi] =
+            typeof value === "number" ? [value] : value;
+          setPrice(nextMin, nextMax);
+        }}
       />
 
       <div className="flex items-center gap-3">

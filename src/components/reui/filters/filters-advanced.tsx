@@ -132,8 +132,8 @@ function nearestColumn(
 }
 
 /** Marks a focusable cell control, read by the keyboard walker. Not
- * `data-slot`: a cell control is handed to a Radix trigger through `asChild`,
- * which merges its own, so a slot here would be two owners on one attribute. */
+ * `data-slot`: a cell control is handed to a trigger through `render`, which
+ * merges its own, so a slot here would be two owners on one attribute. */
 const CELL_ATTRIBUTE = "data-filter-cell";
 
 /** Marks a cell the user TYPES into: the builder claims the arrows, Home, End
@@ -249,15 +249,10 @@ const ACTION_BAND_CLASS = cn(
   "text-muted-foreground flex shrink-0 items-center gap-0.5 pe-1",
 );
 
-/** What the grip and the kebab wear while open. TWO ATTRIBUTES, because Radix
- * sets `data-state="open"` and Base UI `data-popup-open`, so one selector alone
- * would be dead in one twin, silently, in a byte-locked file. */
+/** What the grip and the kebab wear while open. */
 const ACTION_CONTROL_CLASS = cn(
   "hover:inset-ring hover:inset-ring-border",
-  // Base UI.
   "data-popup-open:inset-ring data-popup-open:inset-ring-border",
-  // Radix.
-  "data-[state=open]:inset-ring data-[state=open]:inset-ring-border",
 );
 
 /** The gap between sibling rows, one third of one measurement:

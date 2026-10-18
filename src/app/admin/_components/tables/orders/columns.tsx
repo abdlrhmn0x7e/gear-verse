@@ -23,13 +23,18 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
       return (
         // A real link, so the order can open in a new tab; the row itself
         // opens the order drawer.
-        <Button variant="link" className="h-auto p-0" asChild>
-          <Link
-            href={`/admin/orders/${row.original.id}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            # {row.original.id}
-          </Link>
+        <Button
+          variant="link"
+          className="h-auto p-0"
+          nativeButton={false}
+          render={
+            <Link
+              href={`/admin/orders/${row.original.id}`}
+              onClick={(event) => event.stopPropagation()}
+            />
+          }
+        >
+          # {row.original.id}
         </Button>
       );
     },

@@ -15,11 +15,14 @@ export async function AdminNav() {
   }
 
   return (
-    <Button variant="ghost" size="icon-lg" asChild>
-      <Link href="/admin">
-        <ShieldUserIcon />
-        <span className="sr-only">Admin</span>
-      </Link>
+    <Button
+      variant="ghost"
+      size="icon-lg"
+      nativeButton={false}
+      render={<Link href="/admin" />}
+    >
+      <ShieldUserIcon />
+      <span className="sr-only">Admin</span>
     </Button>
   );
 }

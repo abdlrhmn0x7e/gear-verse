@@ -113,16 +113,16 @@ export function AdminSidebar() {
               size="lg"
               tooltip="Gear Verse admin"
               className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 justify-center px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
-              asChild
+              render={
+                <Link
+                  href="/admin"
+                  aria-label="Gear Verse admin home"
+                  onClick={closeMobile}
+                />
+              }
             >
-              <Link
-                href="/admin"
-                aria-label="Gear Verse admin home"
-                onClick={closeMobile}
-              >
-                <LogoMark className="hidden h-6 group-data-[collapsible=icon]:block" />
-                <Logo className="h-10 w-auto group-data-[collapsible=icon]:hidden" />
-              </Link>
+              <LogoMark className="hidden h-6 group-data-[collapsible=icon]:block" />
+              <Logo className="h-10 w-auto group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -144,12 +144,10 @@ export function AdminSidebar() {
                     <SidebarMenuButton
                       isActive={item.href === activeHref}
                       tooltip={item.title}
-                      asChild
+                      render={<Link href={item.href} onClick={closeMobile} />}
                     >
-                      <Link href={item.href} onClick={closeMobile}>
-                        <HugeiconsIcon icon={item.icon} strokeWidth={1.5} />
-                        <span>{item.title}</span>
-                      </Link>
+                      <HugeiconsIcon icon={item.icon} strokeWidth={1.5} />
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

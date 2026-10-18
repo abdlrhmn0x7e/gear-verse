@@ -53,25 +53,33 @@ export function OrderDetails({
         <OrderNextSteps order={order} />
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {whatsappNumber && (
-            <Button variant="outline" size="lg" asChild>
-              <a
-                href={whatsAppLink(
-                  whatsappNumber,
-                  `Hi Gear Verse, I have a question about my order #${order.id}.`,
-                )}
-                target="_blank"
-                rel="noopener"
-              >
-                <IconBrandWhatsapp data-icon="inline-start" />
-                Contact us on WhatsApp
-              </a>
+            <Button
+              variant="outline"
+              size="lg"
+              nativeButton={false}
+              render={
+                <a
+                  href={whatsAppLink(
+                    whatsappNumber,
+                    `Hi Gear Verse, I have a question about my order #${order.id}.`,
+                  )}
+                  target="_blank"
+                  rel="noopener"
+                />
+              }
+            >
+              <IconBrandWhatsapp data-icon="inline-start" />
+              Contact us on WhatsApp
             </Button>
           )}
-          <Button variant="ghost" size="lg" asChild>
-            <Link href="/returns">
-              Returns policy
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="lg"
+            nativeButton={false}
+            render={<Link href="/returns" />}
+          >
+            Returns policy
+            <ArrowRightIcon data-icon="inline-end" />
           </Button>
         </div>
       </OrderSection>

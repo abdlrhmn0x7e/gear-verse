@@ -21,13 +21,12 @@ export async function MoreProducts() {
           action={
             <Button
               variant="outline"
-              asChild
               className="self-start md:self-auto"
+              nativeButton={false}
+              render={<Link href="/products" />}
             >
-              <Link href="/products">
-                Shop all
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
+              Shop all
+              <ArrowRightIcon data-icon="inline-end" />
             </Button>
           }
         />

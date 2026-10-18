@@ -112,13 +112,12 @@ export function BanUserDialog({
                     <FormLabel>Length</FormLabel>
                     <FormControl>
                       <ToggleGroup
-                        type="single"
                         variant="outline"
                         spacing={0}
                         className="w-full"
-                        value={field.value}
+                        value={[field.value]}
                         // Clicking the chosen option again would clear it.
-                        onValueChange={(value) =>
+                        onValueChange={([value]) =>
                           value && field.onChange(value)
                         }
                       >
@@ -126,7 +125,7 @@ export function BanUserDialog({
                           <ToggleGroupItem
                             key={duration.value}
                             value={duration.value}
-                            className="data-[state=on]:bg-selected data-[state=on]:text-selected-foreground data-[state=on]:border-selected data-[state=on]:hover:bg-selected flex-1"
+                            className="data-pressed:bg-selected data-pressed:text-selected-foreground data-pressed:border-selected data-pressed:hover:bg-selected flex-1"
                           >
                             {duration.label}
                           </ToggleGroupItem>

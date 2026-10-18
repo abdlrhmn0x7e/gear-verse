@@ -145,7 +145,7 @@ export async function FAQ() {
           )}
         </div>
 
-        <Accordion type="single" collapsible defaultValue="item-1">
+        <Accordion defaultValue={["item-1"]}>
           {faq.map((item, index) => (
             <AccordionItem key={item.question} value={`item-${index + 1}`}>
               <AccordionTrigger>{item.question}</AccordionTrigger>

@@ -43,12 +43,11 @@ export function Panel({
             variant="ghost"
             size="xs"
             className="-mr-1.5 shrink-0"
-            asChild
+            nativeButton={false}
+            render={<Link href={link.href} />}
           >
-            <Link href={link.href}>
-              {link.label}
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
+            {link.label}
+            <ArrowRightIcon data-icon="inline-end" />
           </Button>
         )}
       </header>

@@ -55,11 +55,14 @@ export function BuyNowButton({
 
   if (findCartLine(cart, productId, selectedVariant?.id)) {
     return (
-      <Button size={size} className={cn("w-full", className)} asChild>
-        <Link href="/checkout">
-          <LockIcon data-icon="inline-start" />
-          Check out
-        </Link>
+      <Button
+        size={size}
+        className={cn("w-full", className)}
+        nativeButton={false}
+        render={<Link href="/checkout" />}
+      >
+        <LockIcon data-icon="inline-start" />
+        Check out
       </Button>
     );
   }

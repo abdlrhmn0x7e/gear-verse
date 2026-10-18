@@ -14,11 +14,14 @@ export function NotFoundContent() {
       <p className="text-muted-foreground text-body-lg max-w-md text-pretty">
         The page you&apos;re looking for doesn&apos;t exist or has moved.
       </p>
-      <Button size="lg" asChild className="mt-2">
-        <Link href="/products">
-          Browse the store
-          <ArrowRightIcon data-icon="inline-end" />
-        </Link>
+      <Button
+        size="lg"
+        className="mt-2"
+        nativeButton={false}
+        render={<Link href="/products" />}
+      >
+        Browse the store
+        <ArrowRightIcon data-icon="inline-end" />
       </Button>
     </div>
   );

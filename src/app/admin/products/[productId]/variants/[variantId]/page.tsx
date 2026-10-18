@@ -98,20 +98,21 @@ export default async function AdminVariantPage({
                   variant="link"
                   className="w-full justify-start"
                   disabled={variant.id === parsedVariantId}
-                  asChild
-                >
-                  <Link
-                    href={`/admin/products/${parsedProductId}/variants/${variant.id}`}
-                  >
-                    <ImageWithFallback
-                      src={variant.thumbnailUrl ?? ""}
-                      alt={"Variant Thumbnail"}
-                      width={64}
-                      height={64}
-                      className="size-8"
+                  nativeButton={false}
+                  render={
+                    <Link
+                      href={`/admin/products/${parsedProductId}/variants/${variant.id}`}
                     />
-                    <p className="text-sm">{optionValues}</p>
-                  </Link>
+                  }
+                >
+                  <ImageWithFallback
+                    src={variant.thumbnailUrl ?? ""}
+                    alt={"Variant Thumbnail"}
+                    width={64}
+                    height={64}
+                    className="size-8"
+                  />
+                  <p className="text-sm">{optionValues}</p>
                 </Button>
               );
             })}

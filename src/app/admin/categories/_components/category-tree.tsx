@@ -195,7 +195,7 @@ function CategoryTreeItem({
           {hasChildren ? (
             <CollapsibleTrigger
               aria-label={`Show sub-categories of ${category.name}`}
-              className="text-muted-foreground hover:text-foreground flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md focus-visible:outline-none [&[data-state=open]>svg]:rotate-90"
+              className="text-muted-foreground hover:text-foreground flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md focus-visible:outline-none data-panel-open:[&>svg]:rotate-90"
             >
               <ChevronRight className="size-4 transition-transform" />
             </CollapsibleTrigger>

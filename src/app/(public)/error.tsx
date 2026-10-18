@@ -31,11 +31,14 @@ export default function PublicError({
           <RotateCwIcon data-icon="inline-start" />
           Try again
         </Button>
-        <Button size="lg" variant="outline" asChild>
-          <Link href="/products">
-            Browse the store
-            <ArrowRightIcon data-icon="inline-end" />
-          </Link>
+        <Button
+          size="lg"
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/products" />}
+        >
+          Browse the store
+          <ArrowRightIcon data-icon="inline-end" />
         </Button>
       </div>
     </div>

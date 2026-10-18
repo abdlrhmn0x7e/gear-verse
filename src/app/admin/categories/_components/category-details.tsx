@@ -181,14 +181,18 @@ export function CategoryDetails({
             {children.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {children.map((child) => (
-                  <Badge key={child.id} variant="outline" asChild>
-                    <button
-                      type="button"
-                      className="cursor-pointer"
-                      onClick={() => setSelectedCategoryId(child.id)}
-                    >
-                      {child.name}
-                    </button>
+                  <Badge
+                    key={child.id}
+                    variant="outline"
+                    render={
+                      <button
+                        type="button"
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategoryId(child.id)}
+                      />
+                    }
+                  >
+                    {child.name}
                   </Badge>
                 ))}
               </div>
@@ -282,11 +286,14 @@ function CategoryAttributes({
               : "Shared by this category and everything under it."}
           </p>
         </div>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/admin/attributes">
-            Manage attributes
-            <ArrowRightIcon data-icon="inline-end" />
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/admin/attributes" />}
+        >
+          Manage attributes
+          <ArrowRightIcon data-icon="inline-end" />
         </Button>
       </div>
 

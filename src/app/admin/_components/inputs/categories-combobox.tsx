@@ -107,9 +107,7 @@ export function CategoriesCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={<CommandTrigger aria-expanded={open} />}
-      >
+      <PopoverTrigger render={<CommandTrigger aria-expanded={open} />}>
         {value ? (
           renderValue(value, flattenedCategories)
         ) : (
@@ -200,7 +198,7 @@ const CategoryComboboxItem = ({
     );
   }
   return (
-    <Collapsible className="group/collapsible [&[data-state=open]>div>button>svg:first-child]:rotate-90">
+    <Collapsible className="group/collapsible data-open:[&>div>button>svg:first-child]:rotate-90">
       <CommandItem
         value={`${category.id}-${category.name}`}
         data-checked={category.id === selectedValue}

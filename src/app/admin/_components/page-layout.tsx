@@ -119,8 +119,8 @@ export function PageLayout({
             {parent && (
               <>
                 <BreadcrumbItem className="shrink-0">
-                  <BreadcrumbLink asChild>
-                    <Link href={parent.href}>{parent.title}</Link>
+                  <BreadcrumbLink render={<Link href={parent.href} />}>
+                    {parent.title}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

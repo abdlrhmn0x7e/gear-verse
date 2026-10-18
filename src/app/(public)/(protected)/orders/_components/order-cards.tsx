@@ -88,11 +88,13 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
         </p>
       </div>
       <div className="flex flex-col items-center gap-3">
-        <Button size="lg" asChild>
-          <Link href="/products">
-            Browse the store
-            <ArrowRightIcon data-icon="inline-end" />
-          </Link>
+        <Button
+          size="lg"
+          nativeButton={false}
+          render={<Link href="/products" />}
+        >
+          Browse the store
+          <ArrowRightIcon data-icon="inline-end" />
         </Button>
         {isGuest && (
           <LoginDrawerDialog callbackURL="/orders">

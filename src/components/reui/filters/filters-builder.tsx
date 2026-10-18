@@ -301,17 +301,10 @@ export function FiltersBuilder<V, O>({
         finalFocus={finalFocus}
         className={cn(
           FILTER_FIELD_PICKER_CLASS,
-          /* See `instantExit`. Both PROPERTIES (an `exit` animation AND a
-             transition each paint over the successor) and both twins (Base UI
-             `data-ending-style`, Radix `data-[state=closed]`); only one can
-             match in a given build. The string stays identical on both sides
-             because listing only the Base UI half left the radix twin fading
-             a 224px card over its successor. */
+          /* See `instantExit`. Both PROPERTIES: an `exit` animation AND a
+             transition each paint over the successor. */
           instantExit &&
-            cn(
-              "data-ending-style:animate-none data-ending-style:transition-none",
-              "data-[state=closed]:animate-none data-[state=closed]:transition-none",
-            ),
+            "data-ending-style:animate-none data-ending-style:transition-none",
           actions.fieldPickerClassName,
           className,
         )}

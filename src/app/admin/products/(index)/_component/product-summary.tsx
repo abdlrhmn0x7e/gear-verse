@@ -267,13 +267,19 @@ export async function ProductSummary({ slug }: { slug: string }) {
               : undefined
           }
           action={
-            <Button variant="ghost" size="sm" className="-me-3" asChild>
-              <Link
-                href={`/admin/inventory?inventorySearch=${encodeURIComponent(product.title)}`}
-              >
-                Manage inventory
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-me-3"
+              nativeButton={false}
+              render={
+                <Link
+                  href={`/admin/inventory?inventorySearch=${encodeURIComponent(product.title)}`}
+                />
+              }
+            >
+              Manage inventory
+              <ArrowRightIcon data-icon="inline-end" />
             </Button>
           }
         >
@@ -319,7 +325,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
           </ul>
         </Section>
 
-        <Accordion type="single" collapsible className="-my-5">
+        <Accordion className="-my-5">
           <AccordionItem value="description" className="border-b-0">
             <AccordionTrigger>Description</AccordionTrigger>
             <AccordionContent className="text-foreground">

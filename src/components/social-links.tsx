@@ -58,15 +58,20 @@ export function SocialLinks({
     <ul className={cn("flex flex-wrap gap-2", className)}>
       {filled.map((link) => (
         <li key={link.url}>
-          <Button variant="outline" size="icon-lg" asChild>
-            <a
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Gear Verse on ${link.label}`}
-            >
-              <link.icon stroke={1.75} aria-hidden />
-            </a>
+          <Button
+            variant="outline"
+            size="icon-lg"
+            nativeButton={false}
+            render={
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Gear Verse on ${link.label}`}
+              />
+            }
+          >
+            <link.icon stroke={1.75} aria-hidden />
           </Button>
         </li>
       ))}

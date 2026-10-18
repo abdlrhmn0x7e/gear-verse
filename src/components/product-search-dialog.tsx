@@ -324,15 +324,20 @@ export function ProductSearchEmpty({ query }: { query: string }) {
       </EmptyHeader>
       <EmptyTitle>Not on the shelf</EmptyTitle>
       <EmptyDescription>We can still get it for you.</EmptyDescription>
-      <Button variant="outline" asChild className="mt-6 max-w-full">
-        <a
-          href={`/request?item=${encodeURIComponent(item)}`}
-          target="_blank"
-          rel="noopener"
-        >
-          <IconBrandWhatsapp data-icon="inline-start" stroke={1.75} />
-          <span className="truncate">Request &ldquo;{item}&rdquo;</span>
-        </a>
+      <Button
+        variant="outline"
+        className="mt-6 max-w-full"
+        nativeButton={false}
+        render={
+          <a
+            href={`/request?item=${encodeURIComponent(item)}`}
+            target="_blank"
+            rel="noopener"
+          />
+        }
+      >
+        <IconBrandWhatsapp data-icon="inline-start" stroke={1.75} />
+        <span className="truncate">Request &ldquo;{item}&rdquo;</span>
       </Button>
     </Empty>
   );

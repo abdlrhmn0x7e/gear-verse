@@ -28,18 +28,23 @@ export function DashboardActions() {
   return (
     <>
       <RangeSwitch />
-      <Button variant="outline" className="max-sm:size-9 max-sm:p-0" asChild>
-        {/* the orders page opens its create-order drawer for ?create=true */}
-        <Link href="/admin/orders?create=true">
-          <PlusIcon data-icon="inline-start" />
-          <span className="max-sm:sr-only">Create order</span>
-        </Link>
+      {/* the orders page opens its create-order drawer for ?create=true */}
+      <Button
+        variant="outline"
+        className="max-sm:size-9 max-sm:p-0"
+        nativeButton={false}
+        render={<Link href="/admin/orders?create=true" />}
+      >
+        <PlusIcon data-icon="inline-start" />
+        <span className="max-sm:sr-only">Create order</span>
       </Button>
-      <Button className="max-sm:size-9 max-sm:p-0" asChild>
-        <Link href="/admin/products/new">
-          <PlusIcon data-icon="inline-start" />
-          <span className="max-sm:sr-only">Add product</span>
-        </Link>
+      <Button
+        className="max-sm:size-9 max-sm:p-0"
+        nativeButton={false}
+        render={<Link href="/admin/products/new" />}
+      >
+        <PlusIcon data-icon="inline-start" />
+        <span className="max-sm:sr-only">Add product</span>
       </Button>
     </>
   );

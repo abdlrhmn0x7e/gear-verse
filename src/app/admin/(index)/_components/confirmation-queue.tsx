@@ -154,19 +154,27 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
 
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           {order.phoneNumber && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={telLink(order.phoneNumber)}>
-                <PhoneIcon data-icon="inline-start" />
-                Call
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={<a href={telLink(order.phoneNumber)} />}
+            >
+              <PhoneIcon data-icon="inline-start" />
+              Call
             </Button>
           )}
           {whatsApp && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={whatsApp} target="_blank" rel="noopener noreferrer">
-                <IconBrandWhatsapp data-icon="inline-start" />
-                WhatsApp
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={
+                <a href={whatsApp} target="_blank" rel="noopener noreferrer" />
+              }
+            >
+              <IconBrandWhatsapp data-icon="inline-start" />
+              WhatsApp
             </Button>
           )}
           <MarkShippedButton order={order} />

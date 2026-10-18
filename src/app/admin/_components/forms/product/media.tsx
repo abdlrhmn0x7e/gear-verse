@@ -100,12 +100,9 @@ export function MediaFields({
           <div className="flex items-center gap-2">
             <Checkbox
               id="select-all"
-              checked={
-                checkedMedia.length === media.length
-                  ? true
-                  : checkedMedia.length === 0
-                    ? false
-                    : "indeterminate"
+              checked={checkedMedia.length === media.length}
+              indeterminate={
+                checkedMedia.length > 0 && checkedMedia.length < media.length
               }
               onCheckedChange={(checked) => {
                 if (checked) {
@@ -162,7 +159,7 @@ export function MediaFields({
                     />
 
                     <Checkbox
-                      className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-[state=checked]:opacity-100"
+                      className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-checked:opacity-100"
                       checked={checkedMedia.some(
                         (m2) => m2.mediaId === m.mediaId,
                       )}

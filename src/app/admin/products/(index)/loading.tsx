@@ -15,11 +15,12 @@ export default function AdminProductsLoading() {
       description="Manage your products and their information"
       contentWidth="full"
       actions={
-        <Button asChild>
-          <Link href="/admin/products/new">
-            <PlusIcon data-icon="inline-start" />
-            Add Product
-          </Link>
+        <Button
+          nativeButton={false}
+          render={<Link href="/admin/products/new" />}
+        >
+          <PlusIcon data-icon="inline-start" />
+          Add Product
         </Button>
       }
       toolbar={

@@ -1028,7 +1028,9 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
         field={field}
         trigger={
           <ButtonGroupText
-            asChild
+            /* ONE element that is both the group text and the trigger: an
+               extra wrapper here is the direct child the group would fuse. */
+            render={<button type="button" />}
             className={cn(
               "hover:bg-accent bg-background dark:bg-input/30 cursor-default",
               /* The operator is connective tissue between the field and the
@@ -1038,9 +1040,7 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
             )}
             onPointerDown={() => focusSegment("operator")}
           >
-            {/* ONE element that is both the group text and the trigger: an
-                extra wrapper here is the direct child the group would fuse. */}
-            <button type="button">{operatorLabel}</button>
+            {operatorLabel}
           </ButtonGroupText>
         }
       />
@@ -1054,7 +1054,8 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
           operator={operator}
           trigger={
             <ButtonGroupText
-              asChild
+              /* One element, for the reason on the operator segment. */
+              render={<button type="button" />}
               /* Named explicitly rather than by its contents: avatars or a
                  "+2" badge, and "plus two" says nothing about two people. It
                  grows to the whole list when the editor cannot be opened,
@@ -1069,8 +1070,7 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
               )}
               onPointerDown={() => focusSegment("value")}
             >
-              {/* One element, for the reason on the operator segment. */}
-              <button type="button">{valueLabel}</button>
+              {valueLabel}
             </ButtonGroupText>
           }
         />

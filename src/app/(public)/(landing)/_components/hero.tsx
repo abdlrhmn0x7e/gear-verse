@@ -35,11 +35,14 @@ export async function Hero() {
               </Link>
               .
             </p>
-            <Button size="xl" asChild className="shrink-0">
-              <Link href="/products">
-                Shop the shelf
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
+            <Button
+              size="xl"
+              className="shrink-0"
+              nativeButton={false}
+              render={<Link href="/products" />}
+            >
+              Shop the shelf
+              <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
         </div>

@@ -281,12 +281,11 @@ export function LocationField({
               variant="ghost"
               size="sm"
               className="-ml-2.5"
-              asChild
+              nativeButton={false}
+              render={<a href={mapsUrl} target="_blank" rel="noreferrer" />}
             >
-              <a href={mapsUrl} target="_blank" rel="noreferrer">
-                <IconExternalLink data-icon="inline-start" />
-                Open in Google Maps
-              </a>
+              <IconExternalLink data-icon="inline-start" />
+              Open in Google Maps
             </Button>
           </div>
           <Button

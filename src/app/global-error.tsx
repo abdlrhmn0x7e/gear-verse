@@ -25,11 +25,9 @@ export default function GlobalError({
             An unexpected error has occurred. Our team has been notified.
           </p>
 
-          <Button size="lg" asChild>
-            <Link href="/">
-              <HomeIcon />
-              Go back home kiddo
-            </Link>
+          <Button size="lg" nativeButton={false} render={<Link href="/" />}>
+            <HomeIcon />
+            Go back home kiddo
           </Button>
         </div>
       </body>

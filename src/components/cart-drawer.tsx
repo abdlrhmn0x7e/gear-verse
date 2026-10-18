@@ -232,11 +232,13 @@ export function CartDrawer({
                 Hand-imported gear, delivered in Egypt in 1–2 business days.
               </p>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/products" onClick={() => setOpen(false)}>
-                Browse the store
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/products" onClick={() => setOpen(false)} />}
+            >
+              Browse the store
+              <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
         )}
@@ -261,11 +263,16 @@ export function CartDrawer({
                 </Button>
               </>
             ) : (
-              <Button size="xl" className="w-full" asChild>
-                <Link href="/checkout" onClick={() => setOpen(false)}>
-                  <LockIcon data-icon="inline-start" />
-                  Check out
-                </Link>
+              <Button
+                size="xl"
+                className="w-full"
+                nativeButton={false}
+                render={
+                  <Link href="/checkout" onClick={() => setOpen(false)} />
+                }
+              >
+                <LockIcon data-icon="inline-start" />
+                Check out
               </Button>
             )}
 

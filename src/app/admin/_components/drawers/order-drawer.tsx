@@ -255,11 +255,14 @@ function PinnedLocation({ url }: { url: string }) {
   // DetailRow capitalizes its values; these are sentences
   return (
     <div className="-ml-2.5 flex flex-wrap gap-1 normal-case">
-      <Button variant="ghost" size="sm" asChild>
-        <a href={url} target="_blank" rel="noreferrer">
-          <IconExternalLink data-icon="inline-start" />
-          Open in Google Maps
-        </a>
+      <Button
+        variant="ghost"
+        size="sm"
+        nativeButton={false}
+        render={<a href={url} target="_blank" rel="noreferrer" />}
+      >
+        <IconExternalLink data-icon="inline-start" />
+        Open in Google Maps
       </Button>
       <Button variant="ghost" size="sm" onClick={handleCopy}>
         {copied ? (

@@ -136,13 +136,15 @@ export async function ProductDetails({
 
   return (
     <VariantSelectionStoreProvider>
-      <MaxWidthWrapper className={cn("@container flex flex-col gap-8", className)}>
+      <MaxWidthWrapper
+        className={cn("@container flex flex-col gap-8", className)}
+      >
         {!hideActions && (
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/products">Store</Link>
+                <BreadcrumbLink render={<Link href="/products" />}>
+                  Store
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {/* the whole path, root first, not just the leaf category */}
@@ -150,8 +152,10 @@ export async function ProductDetails({
                 <Fragment key={node.id}>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href={`/categories/${node.slug}`}>{node.name}</Link>
+                    <BreadcrumbLink
+                      render={<Link href={`/categories/${node.slug}`} />}
+                    >
+                      {node.name}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                 </Fragment>
@@ -187,7 +191,7 @@ export async function ProductDetails({
                   {product.brand.name}
                 </div>
               )}
-              <h1 className="text-headline-sm md:text-[2.5rem] md:leading-[1.1] text-balance">
+              <h1 className="text-headline-sm text-balance md:text-[2.5rem] md:leading-[1.1]">
                 {product.title}
               </h1>
               {product.summary && (
@@ -224,7 +228,7 @@ export async function ProductDetails({
 
             <PayOnDelivery className="px-1" />
 
-            <Accordion type="single" collapsible className="border-t">
+            <Accordion className="border-t">
               {policyRows(whatsappNumber).map((row) => (
                 <AccordionItem key={row.value} value={row.value}>
                   <AccordionTrigger>

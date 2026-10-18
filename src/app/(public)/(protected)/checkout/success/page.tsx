@@ -61,17 +61,22 @@ export default async function SuccessPage({
         />
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button size="xl" asChild>
-            <Link href={`/orders?orderId=${order.id}`}>
-              Track your order
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
+          <Button
+            size="xl"
+            nativeButton={false}
+            render={<Link href={`/orders?orderId=${order.id}`} />}
+          >
+            Track your order
+            <ArrowRightIcon data-icon="inline-end" />
           </Button>
-          <Button size="xl" variant="ghost" asChild>
-            <Link href="/products">
-              Continue shopping
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
+          <Button
+            size="xl"
+            variant="ghost"
+            nativeButton={false}
+            render={<Link href="/products" />}
+          >
+            Continue shopping
+            <ArrowRightIcon data-icon="inline-end" />
           </Button>
         </div>
 
