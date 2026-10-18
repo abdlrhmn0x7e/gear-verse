@@ -14,11 +14,11 @@ export function useCloseOnBack(open: boolean, onClose: () => void) {
     if (!open) return;
     navigating.current = false;
 
-    // Copying the state keeps Next's router tree on the entry, so returning to it is a no-op for the router
+    // Copying the state keeps Next's router tree on the entry
     history.pushState(history.state, "", location.href);
 
-    // Filters write the URL in place (replaceState) while the drawer is open, so the entry under it still has the old
-    // query; it is carried down when the drawer's entry is popped, or back would undo the filters
+    // Filters write the URL in place (replaceState) while the drawer is open, so the entry under it keeps the old
+    // query and back would undo them; the latest URL is carried down when the drawer's entry is popped
     let latestHref = location.href;
     // kept unbound so the cleanup can put back exactly what Next and nuqs installed
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -28,20 +28,27 @@ export function useCloseOnBack(open: boolean, onClose: () => void) {
       ...args
     ) {
       replaceState.apply(this, args);
-      latestHref = location.href;
+      // Next's own writes carry its state; they follow the router, and on a pop Chromium runs Next's listener first
+      if (!(args[0] as { __NA?: boolean } | null)?.__NA) {
+        latestHref = location.href;
+      }
     };
     history.replaceState = trackingReplaceState;
 
-    function carryUrlDown() {
+    // The popped entry is the same page, so the router has nothing to restore; where this capture listener runs first
+    // (WebKit) Next's is kept out. Either way the latest URL then goes through replaceState without Next's state, as
+    // nuqs writes it, so the router and the filters take it over the entry's old query
+    function absorbPop(event: PopStateEvent) {
+      event.stopImmediatePropagation();
       if (location.href !== latestHref) {
-        history.replaceState(history.state, "", latestHref);
+        history.replaceState(null, "", latestHref);
       }
     }
 
     let poppedByBack = false;
-    function onPopState() {
+    function onPopState(event: PopStateEvent) {
       poppedByBack = true;
-      carryUrlDown();
+      absorbPop(event);
       close();
     }
 
@@ -57,18 +64,21 @@ export function useCloseOnBack(open: boolean, onClose: () => void) {
       }
     }
 
-    window.addEventListener("popstate", onPopState);
+    window.addEventListener("popstate", onPopState, { capture: true });
     document.addEventListener("click", onClick, true);
 
     return () => {
-      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("popstate", onPopState, { capture: true });
       document.removeEventListener("click", onClick, true);
       if (history.replaceState === trackingReplaceState) {
         history.replaceState = replaceState;
       }
       if (poppedByBack || followedLink || navigating.current) return;
 
-      window.addEventListener("popstate", carryUrlDown, { once: true });
+      window.addEventListener("popstate", absorbPop, {
+        capture: true,
+        once: true,
+      });
       history.back();
     };
   }, [open]);
