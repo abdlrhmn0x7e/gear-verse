@@ -107,6 +107,9 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+  /* the dashboard's revenue bars: plum-700 measures 7.36:1 on the card; hovered, plum-900 11.84:1 */
+  --chart-bar: var(--plum-700);
+  --chart-bar-hover: var(--plum-900);
 
   /* the admin frame takes the card surface and the content card sits on it at page white; item text is the foreground
      at 75% (10.24:1 on the frame), group labels at 70% (8.67:1), the account email muted-foreground (5.22:1) */
@@ -189,6 +192,10 @@
   /* lavender at the brand hue; 10.82:1 on the page, 9.69:1 on the footer card */
   --brand-logo: var(--lavender-300);
 
+  /* plum-400 measures 6.29:1 on the card; hovered, plum-300 9.17:1 */
+  --chart-bar: var(--plum-400);
+  --chart-bar-hover: var(--plum-300);
+
   /* photos ship on white, so the well stays light, only dimmer than the light theme's */
   --image-well: var(--neutral-250);
   --image-outline: oklch(1 0 0 / 0.1);
@@ -256,6 +263,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-bar: var(--chart-bar);
+  --color-chart-bar-hover: var(--chart-bar-hover);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
