@@ -124,7 +124,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "surface-control absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
+                "surface-control surface-floating absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -336,15 +336,17 @@ export function ProductSearchItem({
     <li {...props} className="relative">
       <Link
         href={`/products/${product.slug}`}
-        className="relative z-10 flex items-center gap-2 rounded-md p-1"
+        className="relative z-10 flex items-center gap-3 rounded-xl p-1"
       >
-        <ImageWithFallback
-          src={product.thumbnailUrl}
-          alt={product.title}
-          className="size-16 shrink-0 rounded-sm"
-          width={128}
-          height={128}
-        />
+        <div className="image-well outline-image-outline size-16 shrink-0 overflow-hidden rounded-lg outline-1 -outline-offset-1">
+          <ImageWithFallback
+            src={product.thumbnailUrl}
+            alt={product.title}
+            className="size-full rounded-none border-none bg-transparent object-contain"
+            width={128}
+            height={128}
+          />
+        </div>
 
         <div className="flex size-full flex-1 flex-col">
           <p className="text-foreground text-sm font-medium">
@@ -364,7 +366,7 @@ export function ProductSearchItem({
           transition={{
             duration: 0.1,
           }}
-          className="bg-accent/50 absolute inset-0 rounded-md"
+          className="bg-accent absolute inset-0 rounded-xl"
         />
       ) : null}
     </li>

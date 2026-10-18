@@ -30,7 +30,8 @@
   --neutral-300: oklch(0.87 0.009 325);
   --neutral-350: oklch(0.74 0.015 325);
   --neutral-400: oklch(0.71 0.013 325);
-  --neutral-500: oklch(0.53 0.015 325);
+  /* 0.51 so muted text keeps 4.63:1 on a highlighted (accent) row as well as 5.62:1 on the page */
+  --neutral-500: oklch(0.51 0.015 325);
   --neutral-600: oklch(0.45 0.015 325);
   --neutral-700: oklch(0.37 0.014 325);
   --neutral-750: oklch(0.34 0.02 325);
@@ -43,7 +44,8 @@
   --foreground: var(--neutral-950);
   --card: var(--neutral-100);
   --card-foreground: var(--foreground);
-  --popover: var(--neutral-50);
+  /* menus, dialogs and drawers share the input surface, so the search pill opens into the same colour */
+  --popover: var(--card);
   --popover-foreground: var(--foreground);
   /* white on plum-700 measures 8.16:1; hover goes darker so the label only gains contrast */
   --primary: var(--plum-700);
@@ -56,6 +58,7 @@
   --secondary-foreground: var(--neutral-900);
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-500);
+  /* hovered and highlighted rows: one step darker than the popover/card surface (1.13:1) */
   --accent: var(--neutral-200);
   --accent-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
@@ -65,9 +68,9 @@
   --input: var(--neutral-200);
   --input-background: var(--card);
   --ring: var(--neutral-400);
-  /* a card placed on a popover or drawer; in dark the popover is the card colour, so the tile steps up */
-  --tile: var(--neutral-100);
-  --tile-hover: var(--neutral-200);
+  /* a card placed on a popover or drawer, which are the card colour, so the tile steps down (up in dark) */
+  --tile: var(--neutral-200);
+  --tile-hover: var(--neutral-250);
   /* an icon tile lifted off a card panel */
   --raised: var(--neutral-50);
   /* grey tiles holding payment and brand wordmarks; the wordmark is text, so it keeps 4.5:1 on the tile */
@@ -400,14 +403,14 @@
 }
 
 /* Outlined controls and floating surfaces: a hairline border on a flat fill. Shadows only mark elevation, so controls
-   have none; floating layers (menus, popovers, dialogs) set --surface-shadow instead of shadow-*, since two utilities
-   writing box-shadow have no guaranteed order.
+   have none; floating layers (menus, popovers, dialogs) add surface-floating for the popover fill and set --surface-shadow
+   instead of shadow-*, since two utilities writing box-shadow have no guaranteed order.
    Interactive states only apply to buttons and links, so popovers and dialogs stay static.
    Text fields add surface-field, which swaps the fill through --surface-fill for the same reason. */
 @utility surface-control {
   position: relative;
   border: 1px solid var(--input);
-  background-color: var(--surface-fill, var(--popover));
+  background-color: var(--surface-fill, var(--background));
   background-clip: padding-box;
   box-shadow: var(--surface-shadow, none);
 
@@ -416,7 +419,7 @@
     &[aria-expanded="true"] {
       background-color: var(
         --surface-fill-hover,
-        color-mix(in oklab, var(--accent) 50%, var(--popover))
+        color-mix(in oklab, var(--accent) 50%, var(--background))
       );
     }
   }
@@ -437,6 +440,11 @@
       }
     }
   }
+}
+
+/* Menus, popovers and dialogs take the popover fill, which is the input surface in both themes. */
+@utility surface-floating {
+  --surface-fill: var(--popover);
 }
 
 /* Text fields, search and select triggers sit on the card surface; the border from surface-control
