@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 export type TrustPromise = {
   icon: LucideIcon;
   title: string;
+  /** one short line, so the promise reads at a glance next to its icon */
   description: string;
 };
 
@@ -12,17 +13,16 @@ export const TRUST_PROMISES = [
   {
     icon: TruckIcon,
     title: "1–2 day delivery",
-    description: "Most areas in Egypt get their order in 1–2 business days.",
+    description: "To most areas in Egypt",
   },
   {
     icon: ShieldCheckIcon,
     title: "Customs cleared & insured",
-    description:
-      "We handle the invoices, declarations and customs. No surprise fees.",
+    description: "No surprise fees at your door",
   },
   {
     icon: BadgeCheckIcon,
     title: "Money-back guarantee",
-    description: "Not 100% satisfied? Ask us for a return or a refund.",
+    description: "Not happy? Ask us for a refund",
   },
 ] as const satisfies readonly TrustPromise[];

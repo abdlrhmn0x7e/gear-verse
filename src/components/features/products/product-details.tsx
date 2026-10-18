@@ -1,3 +1,4 @@
+import { AwardIcon, PackageIcon, Undo2Icon } from "lucide-react";
 import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,6 +25,7 @@ import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 import { VariantSelectionStoreProvider } from "~/stores/variant-selection/provider";
+import { TrustPromiseItem } from "../trust/trust-promise-item";
 import { TRUST_PROMISES } from "../trust/trust-promises";
 import {
   ProductCard,
@@ -38,16 +40,19 @@ import { PurchasePanel } from "./purchase-panel";
 const POLICY_ROWS = [
   {
     value: "delivery",
+    icon: PackageIcon,
     title: "Delivery",
     body: "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
   },
   {
     value: "authenticity",
+    icon: AwardIcon,
     title: "Authenticity & warranty",
     body: "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
   },
   {
     value: "returns",
+    icon: Undo2Icon,
     title: "Returns & refunds",
     body: "Not happy with your order? Contact our support team to start a return or refund. If something arrives damaged or defective, send us photos and we'll replace it or refund you in full.",
   },
@@ -161,29 +166,30 @@ export async function ProductDetails({
               showActions={!hideActions}
             />
 
-            <ul className="flex flex-col gap-3 text-sm">
+            <ul
+              aria-label="Our promises"
+              className="bg-card flex flex-col gap-4 rounded-3xl p-4"
+            >
               {TRUST_PROMISES.map((promise) => (
-                <li key={promise.title} className="flex items-start gap-3">
-                  <promise.icon
-                    className="mt-0.5 size-4 shrink-0"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  />
-                  <span>
-                    <span className="font-medium">{promise.title}.</span>{" "}
-                    <span className="text-muted-foreground">
-                      {promise.description}
-                    </span>
-                  </span>
-                </li>
+                <TrustPromiseItem key={promise.title} promise={promise} />
               ))}
             </ul>
 
             <Accordion type="single" collapsible className="border-t">
               {POLICY_ROWS.map((row) => (
                 <AccordionItem key={row.value} value={row.value}>
-                  <AccordionTrigger>{row.title}</AccordionTrigger>
-                  <AccordionContent>
+                  <AccordionTrigger>
+                    <span className="flex items-center gap-3">
+                      <row.icon
+                        className="text-muted-foreground size-5 shrink-0"
+                        strokeWidth={1.5}
+                        aria-hidden
+                      />
+                      {row.title}
+                    </span>
+                  </AccordionTrigger>
+                  {/* the answer lines up with the title, past the icon */}
+                  <AccordionContent className="pl-8">
                     <p>{row.body}</p>
                   </AccordionContent>
                 </AccordionItem>
