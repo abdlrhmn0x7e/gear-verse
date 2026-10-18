@@ -65,7 +65,8 @@
   /* hovered and highlighted rows: one step darker than the popover/card surface (1.13:1) */
   --accent: var(--neutral-200);
   --accent-foreground: var(--foreground);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* dark enough to stay text on the card and drawer surface (4.78:1) as well as a fill under a white label (5.29:1) */
+  --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: var(--neutral-200);
   /* --input is the field BORDER (shadcn's meaning); the field fill is --input-background, the card surface */

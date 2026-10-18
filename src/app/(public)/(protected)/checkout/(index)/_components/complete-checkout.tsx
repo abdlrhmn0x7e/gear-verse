@@ -15,10 +15,13 @@ import { toast } from "sonner";
 export function CompleteCheckout({
   children,
   hasCartItems,
+  hasStockIssues,
   className,
 }: {
   children: React.ReactNode;
   hasCartItems: boolean;
+  /** a line asks for more than is left; the order would be rejected, so it can't be placed until the line is fixed */
+  hasStockIssues: boolean;
   className?: string;
 }) {
   const trpc = useTRPC();
@@ -67,6 +70,13 @@ export function CompleteCheckout({
           <div className="block lg:hidden">{children}</div>
         </div>
 
+        {hasStockIssues && (
+          <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-right">
+            Some items are out of stock or short. Update them in your order
+            summary to place your order.
+          </p>
+        )}
+
         <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
           By placing your order, you agree to our{" "}
           <Link
@@ -82,7 +92,7 @@ export function CompleteCheckout({
           className="sticky inset-x-0 bottom-24 min-w-48 lg:relative lg:inset-x-auto lg:bottom-auto lg:w-fit lg:justify-start lg:self-end"
           size="lg"
           form="checkout-form"
-          disabled={!hasCartItems || checkoutPending}
+          disabled={!hasCartItems || hasStockIssues || checkoutPending}
         >
           {checkoutPending ? (
             <Spinner data-icon="inline-start" />

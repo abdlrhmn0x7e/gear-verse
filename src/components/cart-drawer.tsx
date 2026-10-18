@@ -9,8 +9,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { JSX } from "react/jsx-dev-runtime";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { getStockIssue } from "~/lib/utils/cart-stock";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { TRUST_PROMISES } from "./features/trust/trust-promises";
+import { CartStockNotice } from "./cart-stock-notice";
 import { ImageWithFallback } from "./image-with-fallback";
 import { QuantityStepper } from "./quantity-stepper";
 import {
@@ -64,6 +66,8 @@ export function CartDrawer({
     0,
   );
   const pending = removingItem || addingItem;
+  // checkout would fail on these lines, so the way there stays shut until each one is fixed
+  const hasStockIssues = items.some((item) => getStockIssue(item));
 
   return (
     <Drawer
@@ -146,6 +150,7 @@ export function CartDrawer({
                           {item.values.join(", ")}
                         </p>
                       )}
+                      <CartStockNotice item={item} className="mt-1" />
                     </div>
 
                     <div className="flex items-center justify-between gap-4">
@@ -209,14 +214,26 @@ export function CartDrawer({
               </span>
             </div>
 
-            <DrawerClose asChild>
-              <Button size="xl" className="w-full" asChild>
-                <Link href="/checkout">
+            {hasStockIssues ? (
+              <>
+                <p className="text-muted-foreground text-sm text-pretty">
+                  Update the items marked above to check out.
+                </p>
+                <Button size="xl" className="w-full" disabled>
                   <LockIcon data-icon="inline-start" />
                   Check out
-                </Link>
-              </Button>
-            </DrawerClose>
+                </Button>
+              </>
+            ) : (
+              <DrawerClose asChild>
+                <Button size="xl" className="w-full" asChild>
+                  <Link href="/checkout">
+                    <LockIcon data-icon="inline-start" />
+                    Check out
+                  </Link>
+                </Button>
+              </DrawerClose>
+            )}
 
             <ul className="text-muted-foreground flex flex-col gap-2 text-sm">
               {TRUST_PROMISES.map((promise) => (

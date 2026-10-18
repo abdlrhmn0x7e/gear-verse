@@ -9,6 +9,8 @@ import { CompleteCheckout } from "./_components/complete-checkout";
 import type { RouterOutput } from "~/trpc/client";
 import { Heading } from "~/components/heading";
 import { requireAuth } from "~/server/auth";
+import { CartStockNotice } from "~/components/cart-stock-notice";
+import { getStockIssue } from "~/lib/utils/cart-stock";
 
 export default async function CheckoutPage() {
   await requireAuth();
@@ -24,6 +26,7 @@ export default async function CheckoutPage() {
           <CompleteCheckout
             className="xl:col-span-2"
             hasCartItems={cart.items.length > 0}
+            hasStockIssues={cart.items.some((item) => getStockIssue(item))}
           >
             <OrderSummary cart={cart} cols={cols} isMobile />
           </CompleteCheckout>
@@ -76,6 +79,7 @@ function OrderSummary({
                 <p className="text-muted-foreground text-sm">
                   {item.values && `- ${item.values.join(", ")}`}
                 </p>
+                <CartStockNotice item={item} className="mt-1" />
               </div>
 
               <p className="text-right text-lg font-medium">
@@ -133,6 +137,7 @@ function OrderSummary({
                 <p className="text-muted-foreground text-sm">
                   {item.values && `- ${item.values.join(", ")}`}
                 </p>
+                <CartStockNotice item={item} className="mt-1" />
               </div>
 
               <p className="text-lg font-medium">
