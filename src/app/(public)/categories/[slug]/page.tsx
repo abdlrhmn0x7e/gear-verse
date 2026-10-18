@@ -54,7 +54,7 @@ export async function generateMetadata({
     title,
     ...pageMetadata({
       title,
-      description: `Shop hand-imported ${category.name} from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
+      description: `${category.name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
       path: `/categories/${slug}`,
     }),
     // nothing to buy yet, so keep it out of the index until it has stock
@@ -90,8 +90,9 @@ export default async function CategoryPage({
           {category.name}
         </h1>
         <p className="text-muted-foreground text-body-lg text-pretty">
-          Hand-imported {category.name} from international brands, customs
-          cleared and delivered to your door.
+          {/* the name is a heading already, and singular names ("Mouse") don't fit inside a sentence */}
+          Hand-imported from international brands, customs cleared and delivered
+          to your door.
         </p>
       </header>
 
