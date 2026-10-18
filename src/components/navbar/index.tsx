@@ -31,7 +31,7 @@ export function Navbar() {
             href="/"
             className="shrink-0 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
           >
-            <Logo className="h-11" />
+            <Logo className="h-10 translate-y-0.5" />
           </Link>
 
           <NavigationMenu.List className="hidden items-center md:flex">
