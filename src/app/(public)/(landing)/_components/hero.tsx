@@ -39,11 +39,12 @@ export async function Hero() {
 
         {products.length > 0 && (
           <ProductRow className="md:grid-cols-3">
-            {products.map((product) => (
+            {products.map((product, index) => (
               <ProductRowItem key={product.id}>
                 <ProductCard
                   product={product}
                   sizes="(min-width: 768px) 33vw, 80vw"
+                  eager={index === 0}
                 />
               </ProductRowItem>
             ))}

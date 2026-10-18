@@ -1,10 +1,12 @@
-"use client";
-
 import type { JSONContent } from "@tiptap/react";
 import { renderToReactElement } from "@tiptap/static-renderer";
-import { useVerseEditor } from "~/hooks/use-verse-editor";
+import { contentExtensions } from "~/lib/editor/content-extensions";
 import { cn } from "~/lib/utils";
 
+/**
+ * Renders a stored description on the server with the editor's own
+ * extensions, so the storefront ships none of the editor's JavaScript.
+ */
 export function ProductDescription({
   className,
   description,
@@ -12,8 +14,6 @@ export function ProductDescription({
   className?: string;
   description: JSONContent;
 }) {
-  const { extensions } = useVerseEditor();
-
   if (Object.keys(description).length === 0) {
     return (
       <p className="text-muted-foreground">
@@ -29,7 +29,10 @@ export function ProductDescription({
         className,
       )}
     >
-      {renderToReactElement({ content: description, extensions })}
+      {renderToReactElement({
+        content: description,
+        extensions: contentExtensions,
+      })}
     </div>
   );
 }
