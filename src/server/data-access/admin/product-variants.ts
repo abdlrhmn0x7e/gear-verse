@@ -171,7 +171,9 @@ export const _productVariants = {
             .update(productVariants)
             .set({
               ...rest,
-              overridePrice: rest.overridePrice ?? null,
+              // a cleared override comes in as 0, which means "use the product price"
+              overridePrice:
+                rest.overridePrice === 0 ? null : (rest.overridePrice ?? null),
             })
             .where(eq(productVariants.id, variant.id));
 
