@@ -7,7 +7,7 @@ import {
 import { cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, type JSX } from "react";
+import { Fragment, Suspense, type JSX } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductDescription } from "~/components/product-description";
@@ -109,18 +109,17 @@ export async function ProductDetails({
                   <Link href="/products">Store</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {category && (
-                <>
+              {/* the whole path, root first, not just the leaf category */}
+              {categoryPath.map((node) => (
+                <Fragment key={node.id}>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href={`/categories/${category.slug}`}>
-                        {category.name}
-                      </Link>
+                      <Link href={`/categories/${node.slug}`}>{node.name}</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
-                </>
-              )}
+                </Fragment>
+              ))}
               <BreadcrumbSeparator />
               <BreadcrumbItem className="min-w-0">
                 <BreadcrumbPage className="truncate">

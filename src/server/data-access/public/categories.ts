@@ -116,13 +116,13 @@ export const _categories = {
       return JSON.parse(result ?? "[]") as CategoryTree[]; // this is validated on the router level
     },
 
+    /** Every category, sub-categories included: each has its own page. */
     async findAllSlugs() {
       return db
         .select({
           slug: categories.slug,
         })
-        .from(categories)
-        .where(isNull(categories.parent_id));
+        .from(categories);
     },
 
     /**
