@@ -5,11 +5,13 @@ import { withTx } from "../common/transaction";
 import {
   inventoryItems,
   media,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   products,
   productVariants,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
 
 type NewInventoryItem = typeof inventoryItems.$inferInsert;
@@ -26,9 +28,7 @@ export const _inventoryItems = {
         db
           .select({
             id: productVariants.id,
-            values: sql<string[]>`
-						jsonb_agg(${productOptionValues.value})
-					`.as("values"),
+            values: orderedOptionValues.as("values"),
           })
           .from(productVariants)
           .leftJoin(
@@ -44,6 +44,10 @@ export const _inventoryItems = {
               productOptionValuesVariants.productOptionValueId,
               productOptionValues.id,
             ),
+          )
+          .leftJoin(
+            productOptions,
+            eq(productOptionValues.productOptionId, productOptions.id),
           )
           .groupBy(productVariants.id),
       );

@@ -6,6 +6,7 @@ import {
   inventoryItems,
   orderItems,
   orders,
+  productOptions,
   productOptionValues,
   productOptionValuesVariants,
   products,
@@ -13,6 +14,7 @@ import {
   reviews,
   users,
 } from "~/server/db/schema";
+import { orderedOptionValues } from "../common/cte";
 
 type Period = { start: Date; end: Date };
 type ComparedPeriod = Period & { previousStart: Date; previousEnd: Date };
@@ -194,9 +196,7 @@ export const _dashboard = {
       const variantValues = db
         .select({
           productVariantId: productOptionValuesVariants.productVariantId,
-          values: sql<string[]>`jsonb_agg(${productOptionValues.value})`.as(
-            "values",
-          ),
+          values: orderedOptionValues.as("values"),
         })
         .from(productOptionValuesVariants)
         .innerJoin(
@@ -205,6 +205,10 @@ export const _dashboard = {
             productOptionValuesVariants.productOptionValueId,
             productOptionValues.id,
           ),
+        )
+        .innerJoin(
+          productOptions,
+          eq(productOptionValues.productOptionId, productOptions.id),
         )
         .groupBy(productOptionValuesVariants.productVariantId)
         .as("variant_values");
