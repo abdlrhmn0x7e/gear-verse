@@ -9,6 +9,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type JSX } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductDescription } from "~/components/product-description";
 import {
@@ -25,7 +26,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
+import { env } from "~/env";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
+import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
@@ -97,6 +100,7 @@ export async function ProductDetails({
     (node) => node.id === product.categoryId,
   );
   const category = categoryPath.at(-1);
+  const { whatsappNumber } = await getStoreSettings();
 
   return (
     <VariantSelectionStoreProvider>
@@ -175,6 +179,17 @@ export async function ProductDetails({
               strikeThroughPrice={product.strikeThroughPrice}
               showActions={!hideActions}
             />
+
+            {!hideActions && whatsappNumber && (
+              <p className="text-muted-foreground -mt-4 px-1 text-sm text-pretty">
+                Questions? WhatsApp{" "}
+                <WhatsAppNumberLink
+                  number={whatsappNumber}
+                  message={`Hi Gear Verse, I have a question about ${product.title}: ${new URL(`/products/${slug}`, env.NEXT_PUBLIC_APP_URL).href}`}
+                  className="text-foreground font-medium tabular-nums underline decoration-from-font underline-offset-4"
+                />
+              </p>
+            )}
 
             <PayOnDelivery className="px-1" />
 
