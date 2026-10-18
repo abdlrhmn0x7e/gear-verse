@@ -38,7 +38,8 @@ export function VariantForm({
   defaultValues,
   isSubmitting = false,
 }: {
-  onSubmit: (data: VariantFormValues) => void;
+  /** The form counts as saved once this resolves; a rejection keeps the edits. */
+  onSubmit: (data: VariantFormValues) => void | Promise<unknown>;
   className?: string;
   isSubmitting?: boolean;
   defaultValues?: Partial<VariantFormValues>;
@@ -57,9 +58,13 @@ export function VariantForm({
   }
 
   function handleSave() {
-    void form.handleSubmit((data) => {
-      onSubmit(data);
-      form.reset(data);
+    void form.handleSubmit(async (data) => {
+      try {
+        await onSubmit(data);
+        form.reset(data);
+      } catch {
+        // the caller reports the failure; the unsaved changes stay up
+      }
     })();
   }
 
@@ -82,7 +87,10 @@ export function VariantForm({
     <>
       <FormProvider {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSave();
+          }}
           className={cn("space-y-4", className)}
         >
           <Card>

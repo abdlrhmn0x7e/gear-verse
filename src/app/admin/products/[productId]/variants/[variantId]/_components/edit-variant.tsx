@@ -16,23 +16,33 @@ export function EditVariant({
 }) {
   const router = useRouter();
   const trpc = useTRPC();
-  const { mutate: updateVariant } = useMutation(
-    trpc.admin.productVariants.mutations.update.mutationOptions({
-      onSuccess: () => {
-        toast.dismiss();
-        router.push("/admin/inventory");
-      },
-    }),
+  const { mutateAsync: updateVariant, isPending } = useMutation(
+    trpc.admin.productVariants.mutations.update.mutationOptions(),
   );
 
-  function onSubmit(data: VariantFormValues) {
-    toast.loading("Updating variant...");
-    updateVariant(data);
+  async function onSubmit(data: VariantFormValues) {
+    const toastId = toast.loading("Updating variant...");
+
+    try {
+      await updateVariant(data);
+      toast.success("Variant updated", { id: toastId });
+      router.push("/admin/inventory");
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Couldn't update the variant. Try again.",
+        { id: toastId },
+      );
+      // the form keeps the edits so they can be saved again
+      throw error;
+    }
   }
 
   return (
     <VariantForm
       onSubmit={onSubmit}
+      isSubmitting={isPending}
       className="col-span-2"
       defaultValues={{
         id: variant.id,
