@@ -15,6 +15,7 @@ import {
 } from "../../db/schema";
 import { fullVariantValuesCTE } from "../common/cte";
 import type { Pagination } from "../common/types";
+import { withTx } from "../common/transaction";
 import { type NewOption } from "./options";
 import { _productVariants } from "./product-variants";
 
@@ -418,8 +419,8 @@ export const _products = {
         .then((rows) => rows[0]);
     },
 
-    getVariants: async (id: number) => {
-      const variants = await db.query.productVariants.findMany({
+    getVariants: async (id: number, tx?: Tx) => {
+      const variants = await (tx ?? db).query.productVariants.findMany({
         where: eq(productVariants.productId, id),
         columns: {
           id: true,
@@ -592,8 +593,8 @@ export const _products = {
       });
     },
 
-    async update(productId: number, updatedData: UpdateProduct) {
-      return db.transaction(async (tx) => {
+    async update(productId: number, updatedData: UpdateProduct, tx?: Tx) {
+      return withTx(tx, async (tx) => {
         const {
           media: mediaData,
           seo: seoData,
@@ -636,19 +637,22 @@ export const _products = {
             .where(eq(products.id, productId));
         }
 
-        if (attributeIds && attributeIds.length > 0) {
+        // an empty array means every attribute was removed
+        if (attributeIds) {
           // delete the old attribute values relations
           await tx
             .delete(productAttributeValues)
             .where(eq(productAttributeValues.productId, productId));
 
-          // create the new media relations
-          await tx.insert(productAttributeValues).values(
-            attributeIds.map((attributeValueId) => ({
-              productId,
-              attributeValueId,
-            })),
-          );
+          // create the new attribute values relations
+          if (attributeIds.length > 0) {
+            await tx.insert(productAttributeValues).values(
+              attributeIds.map((attributeValueId) => ({
+                productId,
+                attributeValueId,
+              })),
+            );
+          }
         }
 
         if (inventoryData) {

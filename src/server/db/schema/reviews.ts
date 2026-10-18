@@ -1,11 +1,13 @@
 import {
   bigint,
+  check,
   integer,
   pgTable,
   text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { products } from "./products";
 import { users } from "./users";
 
@@ -37,5 +39,6 @@ export const reviews = pgTable(
       table.productId,
       table.userId,
     ),
+    check("reviews_rating_range", sql`${table.rating} BETWEEN 1 AND 5`),
   ],
 );

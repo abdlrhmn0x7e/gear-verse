@@ -1,6 +1,7 @@
 import { and, desc, eq, ilike, isNull, lt, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { db } from "~/server/db";
+import { db, type Tx } from "~/server/db";
+import { withTx } from "../common/transaction";
 import {
   inventoryItems,
   media,
@@ -167,8 +168,8 @@ export const _inventoryItems = {
      * (no variant id). Creates that row if it's missing, e.g. after every
      * variant of the product was removed.
      */
-    ensureProductItem(productId: number) {
-      return db.transaction(async (tx) => {
+    ensureProductItem(productId: number, tx?: Tx) {
+      return withTx(tx, async (tx) => {
         const [existing] = await tx
           .select({ id: inventoryItems.id })
           .from(inventoryItems)
@@ -192,9 +193,9 @@ export const _inventoryItems = {
       });
     },
 
-    delete(productId: number, variantId?: number) {
+    delete(productId: number, variantId?: number, tx?: Tx) {
       if (!variantId) {
-        return db
+        return (tx ?? db)
           .delete(inventoryItems)
           .where(
             and(
@@ -204,7 +205,7 @@ export const _inventoryItems = {
           );
       }
 
-      return db
+      return (tx ?? db)
         .delete(inventoryItems)
         .where(
           and(

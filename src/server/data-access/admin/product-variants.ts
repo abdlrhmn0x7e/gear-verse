@@ -9,6 +9,7 @@ import {
   productVariants,
 } from "~/server/db/schema";
 import { db, type Tx } from "~/server/db";
+import { withTx } from "../common/transaction";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { fullVariantValuesCTE } from "../common/cte";
 
@@ -116,8 +117,9 @@ export const _productVariants = {
       toInsert: NewProductVariant[],
       toUpdate: (NewProductVariant & { id: number })[],
       valuesIdToDbId: Map<number, number>,
+      tx?: Tx,
     ) {
-      return db.transaction(async (tx) =>
+      return withTx(tx, async (tx) =>
         this.helpers.upsertManyTx(
           tx,
           productId,
@@ -128,26 +130,29 @@ export const _productVariants = {
       );
     },
 
-    deleteOrArchiveMany(variantIds: number[]) {
-      return db.transaction(async (tx) =>
+    deleteOrArchiveMany(variantIds: number[], tx?: Tx) {
+      return withTx(tx, async (tx) =>
         this.helpers.deleteOrArchiveManyTx(tx, variantIds),
       );
     },
 
-    recreate({
-      productId,
-      variantsIds,
-      toInsert,
-      toUpdate,
-      valuesIdToDbId,
-    }: {
-      productId: number;
-      variantsIds: number[];
-      toInsert: NewProductVariant[];
-      toUpdate: (NewProductVariant & { id: number })[];
-      valuesIdToDbId: Map<number, number>;
-    }) {
-      return db.transaction(async (tx) => {
+    recreate(
+      {
+        productId,
+        variantsIds,
+        toInsert,
+        toUpdate,
+        valuesIdToDbId,
+      }: {
+        productId: number;
+        variantsIds: number[];
+        toInsert: NewProductVariant[];
+        toUpdate: (NewProductVariant & { id: number })[];
+        valuesIdToDbId: Map<number, number>;
+      },
+      tx?: Tx,
+    ) {
+      return withTx(tx, async (tx) => {
         // 1) Create the new variants, options, option values, and pivots
         await this.helpers.upsertManyTx(
           tx,
@@ -162,8 +167,8 @@ export const _productVariants = {
       });
     },
 
-    updateMany(variants: UpdateProductVariant[]) {
-      return db.transaction(async (tx) => {
+    updateMany(variants: UpdateProductVariant[], tx?: Tx) {
+      return withTx(tx, async (tx) => {
         for (const variant of variants) {
           const { id, stock, ...rest } = variant;
 

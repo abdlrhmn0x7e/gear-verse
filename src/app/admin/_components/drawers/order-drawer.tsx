@@ -205,11 +205,16 @@ function OrderItem({
       />
       <div className="flex flex-col gap-1">
         <Link
-          href={`/admin/products?productId=${item.id}`}
+          href={`/admin/products?id=${item.productId}`}
           className="font-medium text-pretty hover:underline"
         >
-          {item.quantity} x {item.title} - {item.title}
+          {item.quantity} x {item.title}
         </Link>
+        {item.values && item.values.length > 0 && (
+          <p className="text-muted-foreground text-sm">
+            {item.values.join(", ")}
+          </p>
+        )}
 
         <p className="text-muted-foreground ml-auto">
           {formatCurrency(item.quantity * item.price)}

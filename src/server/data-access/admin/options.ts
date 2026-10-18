@@ -1,4 +1,5 @@
-import { db } from "~/server/db";
+import type { Tx } from "~/server/db";
+import { withTx } from "../common/transaction";
 import { productOptions, productOptionValues } from "~/server/db/schema";
 
 export type NewOption = typeof productOptions.$inferInsert & {
@@ -7,10 +8,10 @@ export type NewOption = typeof productOptions.$inferInsert & {
 
 export const _options = {
   mutations: {
-    upsertMany: async (data: NewOption[]) => {
+    upsertMany: async (data: NewOption[], tx?: Tx) => {
       const valuesIdToDbId = new Map<number, number>();
 
-      return db.transaction(async (tx) => {
+      return withTx(tx, async (tx) => {
         const newOptions = [];
 
         for (const item of data) {

@@ -8,6 +8,7 @@ import { QuantityStepper } from "~/components/quantity-stepper";
 import { Button } from "~/components/ui/button";
 import { DrawerTrigger } from "~/components/ui/drawer";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { useTRPC } from "~/trpc/client";
 import { CartDrawer } from "../../cart-drawer";
 import { findCartLine } from "./hooks/use-selected-stock";
@@ -33,8 +34,10 @@ export function AddToCartButton({
       queryKey: trpc.public.carts.queries.find.queryKey(),
     });
   };
-  const onError = () => {
-    toast.error("Couldn't update your cart. Try again.");
+  const onError = (error: Parameters<typeof getCustomerErrorMessage>[0]) => {
+    toast.error(
+      getCustomerErrorMessage(error, "Couldn't update your cart. Try again."),
+    );
   };
   const { mutate: addToCart, isPending: addingToCart } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess, onError }),

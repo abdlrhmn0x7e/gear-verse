@@ -1,5 +1,6 @@
 import {
   bigint,
+  check,
   index,
   integer,
   pgEnum,
@@ -9,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { addresses } from "./addresses";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { products, productVariants } from "./products";
 
 export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", [
@@ -92,6 +93,7 @@ export const orderItems = pgTable(
       table.productVariantId,
     ),
     index("order_items_product_variant_id_idx").on(table.productVariantId),
+    check("order_items_unit_price_non_negative", sql`${table.unitPrice} >= 0`),
   ],
 );
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
