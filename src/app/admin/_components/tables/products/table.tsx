@@ -103,9 +103,11 @@ export function ProductsTable() {
     return <ProductsTableSkeleton />;
   }
 
-  const filtered = Boolean(
-    params.title || params.brands?.length || params.categories?.length,
-  );
+  const filtered = [
+    params.title,
+    params.brands?.length,
+    params.categories?.length,
+  ].some(Boolean);
 
   return (
     <div className="space-y-4">

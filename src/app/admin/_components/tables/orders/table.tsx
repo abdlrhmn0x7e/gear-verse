@@ -65,8 +65,8 @@ export function OrdersTable() {
     }
   }, [inView, fetchNextPage]);
 
-  const filtered = Boolean(
-    params.search || params.status || params.paymentMethod,
+  const filtered = [params.search, params.status, params.paymentMethod].some(
+    Boolean,
   );
 
   return (
