@@ -84,7 +84,7 @@ export const userCheckoutRouter = createTRPCRouter({
           ctx.app.public.carts.queries.getItemsStock(
             cart.items.map((item) => ({
               productId: item.productId,
-              productVariantId: item.id,
+              productVariantId: item.productVariantId,
             })),
           ),
         );
@@ -92,21 +92,23 @@ export const userCheckoutRouter = createTRPCRouter({
           throw errorMap(getItemsStockError);
         }
 
-        const quantityMap = new Map<string, number>();
-        for (const item of cart.items) {
-          quantityMap.set(
+        const cartItemsMap = new Map(
+          cart.items.map((item) => [
             `${item.productId}-${item.productVariantId}`,
-            item.quantity,
-          );
-        }
+            item,
+          ]),
+        );
         for (const item of itemsStock) {
-          const quantity = quantityMap.get(
+          const cartItem = cartItemsMap.get(
             `${item.productId}-${item.productVariantId}`,
           );
-          if (quantity && quantity > item.stock) {
+          if (cartItem && cartItem.quantity > item.stock) {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: `Insufficient stock for product ${item.productId} - ${item.productVariantId}`,
+              message:
+                item.stock > 0
+                  ? `Insufficient stock for ${cartItem.title}: only ${item.stock} left`
+                  : `Insufficient stock for ${cartItem.title}: it is out of stock`,
             });
           }
         }

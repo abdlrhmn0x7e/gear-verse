@@ -29,9 +29,12 @@ export function CompleteCheckout({
         router.push(`/checkout/success?orderId=${order.id}`);
       },
 
-      onError: () => {
+      onError: (error) => {
+        // bad requests carry a message meant for the customer (e.g. stock)
         toast.error(
-          "Something went wrong please make sure the items in your cart are still available in the store",
+          error.data?.code === "BAD_REQUEST" && !error.data.zodError
+            ? error.message
+            : "Something went wrong please make sure the items in your cart are still available in the store",
         );
       },
     }),
