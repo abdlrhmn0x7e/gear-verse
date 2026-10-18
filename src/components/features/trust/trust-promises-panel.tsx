@@ -1,10 +1,16 @@
 import { cn } from "~/lib/utils";
 import { TrustPromiseItem } from "./trust-promise-item";
-import { TRUST_PROMISES } from "./trust-promises";
+import { TRUST_PROMISES, type TrustPromise } from "./trust-promises";
 
 /** The three promises in one grey panel, on the home and product pages. From lg they share a row:
  * justify-between makes both inner gaps equal and leaves the panel's own padding as the gap at each end. */
-export function TrustPromisesPanel({ className }: { className?: string }) {
+export function TrustPromisesPanel({
+  promises = TRUST_PROMISES,
+  className,
+}: {
+  promises?: readonly TrustPromise[];
+  className?: string;
+}) {
   return (
     <ul
       aria-label="Our promises"
@@ -13,7 +19,7 @@ export function TrustPromisesPanel({ className }: { className?: string }) {
         className,
       )}
     >
-      {TRUST_PROMISES.map((promise) => (
+      {promises.map((promise) => (
         <TrustPromiseItem key={promise.title} promise={promise} />
       ))}
     </ul>
