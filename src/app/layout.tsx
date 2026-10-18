@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
-import { Toaster } from "~/components/ui/sonner";
+import { Toaster } from "~/components/ui/toast";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { jetBrainsMono } from "~/fonts";
@@ -105,7 +105,7 @@ export default function RootLayout({
           >
             <TRPCReactProvider>
               <TooltipProvider>{children}</TooltipProvider>
-              <Toaster richColors />
+              <Toaster />
             </TRPCReactProvider>
           </ThemeProvider>
         </NuqsAdapter>

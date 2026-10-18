@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 
 export function CompleteCheckout({
   children,

@@ -4,7 +4,7 @@ import { IconBrandWhatsapp } from "@tabler/icons-react";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CircleCheckIcon, ClockIcon, PhoneIcon, TruckIcon } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Badge } from "~/components/reui/badge";
 import {
   AlertDialog,

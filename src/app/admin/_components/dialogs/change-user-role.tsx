@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShieldCheckIcon, ShieldMinusIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import {
   AlertDialog,

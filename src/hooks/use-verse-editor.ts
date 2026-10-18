@@ -2,7 +2,7 @@ import { UndoRedo } from "@tiptap/extensions";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { type JSONContent, useEditor } from "@tiptap/react";
 import { useMemo } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { contentExtensions } from "~/lib/editor/content-extensions";
 import { useUploadFilesMutation } from "./mutations/use-upload-files-mutations";
 

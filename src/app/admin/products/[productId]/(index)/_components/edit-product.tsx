@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useFormState, type UseFormReturn } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import {
   ProductForm,
   type ProductFormValues,

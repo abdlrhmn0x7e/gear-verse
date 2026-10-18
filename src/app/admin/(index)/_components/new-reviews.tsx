@@ -6,7 +6,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { MessageSquareIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { DeleteDialog } from "~/components/delete-dialog";
 import { StarRating } from "~/components/features/reviews/star-rating";
 import { Button } from "~/components/ui/button";

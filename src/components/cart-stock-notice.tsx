@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MinusIcon, Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { cn } from "~/lib/utils";
 import { getStockIssue } from "~/lib/utils/cart-stock";
 import { useTRPC } from "~/trpc/client";

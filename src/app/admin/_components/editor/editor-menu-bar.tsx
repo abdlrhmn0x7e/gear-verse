@@ -40,7 +40,7 @@ import {
   DrawerDialogTitle,
   DrawerDialogTrigger,
 } from "~/components/ui/drawer-dialog";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";

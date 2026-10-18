@@ -15,7 +15,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useInView } from "react-intersection-observer";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import Header from "~/components/header";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";

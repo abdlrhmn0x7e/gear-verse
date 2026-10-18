@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import type { ForwardedRef } from "react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { LoadMore } from "~/components/load-more";
 import {
   AlertDialog,

@@ -1,7 +1,7 @@
 import { PlusIcon, TargetIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { BrandForm, type BrandFormValues } from "../forms/brand-form";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";

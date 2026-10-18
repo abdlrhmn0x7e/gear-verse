@@ -10,7 +10,7 @@ import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
 import { useEffect, useId } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 
 export function EditCategory({
   id,

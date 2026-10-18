@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import cuid from "cuid";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { type RouterInput, type RouterOutput, useTRPC } from "~/trpc/client";
 
 /**

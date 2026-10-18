@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import {
   InventoryItemForm,
   type InventoryItemFormValues,

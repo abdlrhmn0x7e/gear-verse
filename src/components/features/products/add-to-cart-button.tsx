@@ -4,7 +4,7 @@ import { IconShoppingBagPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { QuantityStepper } from "~/components/quantity-stepper";
 import { Button } from "~/components/ui/button";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";

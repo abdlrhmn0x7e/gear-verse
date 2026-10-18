@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import {

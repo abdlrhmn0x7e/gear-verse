@@ -14,7 +14,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ArrowUpRightIcon, DatabaseIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 
 import { SaveBar } from "../../_components/save-bar";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";

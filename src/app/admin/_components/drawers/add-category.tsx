@@ -3,7 +3,7 @@
 import { PlusIcon, TagIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { CategoryForm, type CategoryFormValues } from "../forms/category-form";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "~/components/spinner";

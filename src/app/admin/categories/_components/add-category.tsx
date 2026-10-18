@@ -10,7 +10,7 @@ import {
   type CategoryFormValues,
 } from "~/app/admin/_components/forms/category-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 
 export function AddCategory({
   parentCategoryId,

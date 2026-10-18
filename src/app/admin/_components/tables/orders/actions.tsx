@@ -18,7 +18,7 @@ import {
 import { DeleteOrderDialog } from "../../dialogs/delete-order";
 import { useTRPC } from "~/trpc/client";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useRefreshOrderViews } from "../../../_hooks/use-refresh-order-views";
 import type { OrderStatus as OrderStatusType } from "~/lib/schemas/entities";
 import { OrderStatus } from "./order-status";

@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useTRPC } from "~/trpc/client";
 import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 

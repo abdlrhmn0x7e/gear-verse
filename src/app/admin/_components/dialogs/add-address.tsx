@@ -15,7 +15,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useState } from "react";
 import { Spinner } from "~/components/spinner";
 
