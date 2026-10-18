@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PencilLineIcon, SendIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import {

@@ -12,7 +12,7 @@ import {
   type OnEdgesDelete,
 } from "@xyflow/react";
 import { type CSSProperties, useCallback } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useTRPC } from "~/trpc/client";
 
 import "@xyflow/react/dist/style.css";

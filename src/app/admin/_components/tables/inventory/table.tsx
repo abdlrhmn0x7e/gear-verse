@@ -33,8 +33,6 @@ export function InventoryTable({
       isFetching={isFetching}
       hasNextPage={hasNextPage}
       loadMoreRef={loadMoreRef}
-      // Room under the last row for the floating unsaved-changes bar.
-      className="pb-24"
       empty={
         searched
           ? {

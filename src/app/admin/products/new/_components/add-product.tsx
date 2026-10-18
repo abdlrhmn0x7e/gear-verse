@@ -5,7 +5,7 @@ import { PackageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { DraftSelector } from "~/app/admin/_components/draft-selector";
 import { DraftStatus } from "~/app/admin/_components/draft-status";
 import {

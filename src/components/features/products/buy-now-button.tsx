@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LockIcon, ZapIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";

@@ -3,7 +3,7 @@ import {
   type DropzoneOptions,
   type FileRejection,
 } from "react-dropzone";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { MAX_UPLOAD_SIZE_BYTES } from "~/lib/schemas/contracts/admin/s3";
 
 const REJECTION_REASONS: Partial<Record<string, string>> = {

@@ -10,7 +10,7 @@ import {
   UndoIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useUserSearchParams } from "~/app/admin/_hooks/use-user-search-params";
 import { Button } from "~/components/ui/button";
 import {

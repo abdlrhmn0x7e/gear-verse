@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Spinner } from "~/components/spinner";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function CategoryTreeActions({

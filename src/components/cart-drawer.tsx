@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import type { JSX } from "react/jsx-dev-runtime";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { getStockIssue } from "~/lib/utils/cart-stock";

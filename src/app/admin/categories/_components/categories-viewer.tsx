@@ -8,7 +8,7 @@ import {
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import {
   DragableContext,

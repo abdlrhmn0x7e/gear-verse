@@ -15,7 +15,7 @@ import {
 import { ReviewForm, type ReviewFormValues } from "./review-form";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

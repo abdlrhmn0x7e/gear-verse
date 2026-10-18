@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, SaveIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,

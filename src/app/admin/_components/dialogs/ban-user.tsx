@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BanIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import {

@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/toast";
 import {
   VariantForm,
   type VariantFormValues,
