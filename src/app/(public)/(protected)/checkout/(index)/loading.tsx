@@ -9,7 +9,7 @@ import { CheckoutFormSkeleton } from "./_components/checkout-form";
 export default function CheckoutLoading() {
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 pt-28 pb-24 md:pt-36 xl:grid-cols-3 xl:pb-32">
         {/* Left Side - Form and Mobile Order Summary */}
         <div className="space-y-4 xl:col-span-2">
           <h1 className="text-headline-sm md:text-display-sm text-balance">

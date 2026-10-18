@@ -22,7 +22,7 @@ export default async function CheckoutPage() {
 
   return (
     <section>
-      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 py-24 xl:grid-cols-3 xl:py-32">
+      <MaxWidthWrapper className="grid min-h-screen grid-cols-1 gap-6 pt-28 pb-24 md:pt-36 xl:grid-cols-3 xl:pb-32">
         <HydrateClient>
           <CompleteCheckout
             className="xl:col-span-2"
