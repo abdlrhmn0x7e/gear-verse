@@ -69,6 +69,20 @@ export function CompleteCheckout({
           <div className="block lg:hidden">{children}</div>
         </div>
 
+        {/* the button below stays disabled without items, so say why and point back to the store */}
+        {!hasCartItems && (
+          <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
+            Your cart is empty.{" "}
+            <Link
+              href="/products"
+              className="text-foreground underline decoration-from-font underline-offset-4"
+            >
+              Browse the store
+            </Link>{" "}
+            to add something.
+          </p>
+        )}
+
         {hasStockIssues && (
           <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-right">
             Some items are out of stock or short. Update them in your order

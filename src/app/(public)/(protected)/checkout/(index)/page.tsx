@@ -55,10 +55,15 @@ function OrderSummary({
     0,
   );
 
+  const empty = cart.items.length === 0 && (
+    <p className="text-muted-foreground">Your cart is empty.</p>
+  );
+
   if (isMobile) {
     return (
       <div className="space-y-3">
         <Heading level={4}>Order Summary</Heading>
+        {empty}
 
         {cart.items.map((item, index) => (
           <div className="flex gap-3" key={`item-${item.id}-${index}`}>
@@ -103,8 +108,9 @@ function OrderSummary({
       </CardHeader>
 
       <CardContent className="space-y-8">
+        {empty}
         <div
-          className="grid gap-2"
+          className="grid gap-2 empty:hidden"
           style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
         >
           {cart.items.map((item, index) => (
@@ -125,7 +131,7 @@ function OrderSummary({
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 empty:hidden">
           {cart.items.map((item, index) => (
             <div
               key={`item-${item.id}-${index}`}
