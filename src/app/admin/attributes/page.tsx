@@ -1,6 +1,5 @@
 import { requireAdmin } from "~/server/auth";
 import { AttributesView } from "./_components/attributes-view";
-import { Card, CardContent } from "~/components/ui/card";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Suspense } from "react";
@@ -23,17 +22,16 @@ export default async function AdminAttributesPage() {
       contentWidth="fill"
       contentClassName="md:px-9 md:pt-8 md:pb-6"
     >
-      <Card className="min-h-0 flex-1 p-2">
-        <CardContent className="relative h-full p-0">
-          <ReactFlowProvider>
-            <HydrateClient>
-              <Suspense fallback={<AttributeViewSkeleton />}>
-                <AttributesView />
-              </Suspense>
-            </HydrateClient>
-          </ReactFlowProvider>
-        </CardContent>
-      </Card>
+      {/* The canvas sits on the page so its nodes can take the card surface. */}
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl border p-2">
+        <ReactFlowProvider>
+          <HydrateClient>
+            <Suspense fallback={<AttributeViewSkeleton />}>
+              <AttributesView />
+            </Suspense>
+          </HydrateClient>
+        </ReactFlowProvider>
+      </div>
     </PageLayout>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { PlusIcon, XIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { useTRPC } from "~/trpc/client";
@@ -21,6 +21,7 @@ export function AddCategory({
   onSuccess: () => void;
   cancel: () => void;
 }) {
+  const formId = useId();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: createCategory, isPending: isCreatingCategory } = useMutation(
@@ -65,6 +66,7 @@ export function AddCategory({
         defaultValues={{ parent_id: parentCategoryId }}
         onSubmit={onSubmit}
         showParentCombobox={false}
+        formId={formId}
       />
 
       <div className="flex items-center justify-between">
@@ -73,11 +75,7 @@ export function AddCategory({
           Cancel
         </Button>
 
-        <Button
-          type="submit"
-          form="category-form"
-          disabled={isCreatingCategory}
-        >
+        <Button type="submit" form={formId} disabled={isCreatingCategory}>
           {isCreatingCategory ? (
             <Spinner size="small" data-icon="inline-start" />
           ) : (

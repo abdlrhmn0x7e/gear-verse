@@ -9,7 +9,7 @@ import {
   useNodesState,
   type OnConnect,
 } from "@xyflow/react";
-import { useCallback } from "react";
+import { type CSSProperties, useCallback } from "react";
 import { useTRPC } from "~/trpc/client";
 
 import "@xyflow/react/dist/style.css";
@@ -29,6 +29,15 @@ const nodeTypes = {
 const edgeTypes = {
   "custom-edge": CustomEdge,
 };
+
+// React Flow's own colours, swapped for the theme's so the canvas follows it.
+const canvasTheme = {
+  "--xy-edge-stroke":
+    "color-mix(in oklab, var(--muted-foreground) 55%, transparent)",
+  "--xy-edge-stroke-selected": "var(--primary)",
+  "--xy-connectionline-stroke": "var(--primary)",
+  "--xy-background-pattern-color": "var(--border)",
+} as CSSProperties;
 
 export function AttributesView() {
   const trpc = useTRPC();
@@ -112,10 +121,11 @@ export function AttributesView() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         proOptions={{ hideAttribution: true }}
+        style={canvasTheme}
         maxZoom={1.5}
         fitView
       >
-        <Background />
+        <Background gap={20} size={1.5} />
 
         <AddAttributeDialog
           className="bg-background absolute top-0 right-0 z-10"

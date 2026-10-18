@@ -69,6 +69,9 @@
   --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(1 0 0);
   --border: var(--neutral-200);
+  /* the edge and inner dividers of floating layers: a see-through dark hairline, which reads darker than the gray
+     popover fill where a solid --border would read paler */
+  --floating-border: oklch(0 0 0 / 8%);
   /* --input is the field BORDER (shadcn's meaning); the field fill is --input-background, the card surface */
   --input: var(--neutral-200);
   --input-background: var(--card);
@@ -163,6 +166,7 @@
   /* white on this red measures 2.89:1, so destructive fills take dark text */
   --destructive-foreground: var(--neutral-950);
   --border: var(--neutral-750);
+  --floating-border: oklch(1 0 0 / 8%);
   --input: var(--neutral-750);
   --ring: var(--neutral-500);
   --focus: var(--neutral-75);
@@ -461,9 +465,21 @@
    instead of shadow-*, since two utilities writing box-shadow have no guaranteed order.
    Interactive states only apply to buttons and links, so popovers and dialogs stay static.
    Text fields add surface-field, which swaps the fill through --surface-fill for the same reason. */
+/* Set on a floating layer for its own edge and elevation only; a field or button inside it keeps the control
+   border and stays flat. */
+@property --surface-border {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --surface-shadow {
+  syntax: "*";
+  inherits: false;
+}
+
 @utility surface-control {
   position: relative;
-  border: 1px solid var(--input);
+  border: 1px solid var(--surface-border, var(--input));
   background-color: var(--surface-fill, var(--background));
   background-clip: padding-box;
   box-shadow: var(--surface-shadow, none);
@@ -496,9 +512,14 @@
   }
 }
 
-/* Menus, popovers and dialogs take the popover fill, which is the input surface in both themes. */
+/* Menus, popovers and dialogs take the popover fill, which is the input surface in both themes, edged with the
+   floating hairline. --border is swapped inside the layer too, so its dividers (under a search field, between
+   sections) are the same hairline rather than a solid line paler than the fill. Layers drawn with a ring instead of
+   surface-control add this for the dividers and set ring-(--floating-border) for the edge. */
 @utility surface-floating {
   --surface-fill: var(--popover);
+  --surface-border: var(--floating-border);
+  --border: var(--floating-border);
 }
 
 /* Text fields, search and select triggers sit on the card surface; the border from surface-control

@@ -93,12 +93,13 @@ export function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             {/* A 48px row, the height of the card's top bar, so the logo sits on
-                that bar's centre line. Folded, the 32px icon button keeps the
-                same line with 8px above and below. */}
+                that bar's centre line, centred across the rail like the folded
+                mark. Folded, the 32px icon button keeps the same line with 8px
+                above and below. */}
             <SidebarMenuButton
               size="lg"
               tooltip="Gear Verse admin"
-              className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
+              className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 justify-center px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
               asChild
             >
               <Link

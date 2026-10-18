@@ -1,11 +1,10 @@
 "use client";
 
-import { useInventoryTableColumns } from "./columns";
+import { inventoryColumns } from "./columns";
 import { ListGrid, useListTable } from "../list-grid";
 
 export function InventoryTableSkeleton() {
-  const columns = useInventoryTableColumns();
-  const table = useListTable({ data: [], columns });
+  const table = useListTable({ data: [], columns: inventoryColumns });
 
   return <ListGrid table={table} isLoading empty={{ title: "" }} />;
 }

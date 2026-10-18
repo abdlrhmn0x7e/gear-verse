@@ -8,7 +8,7 @@ import {
 import { SaveIcon, XIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import { Spinner } from "~/components/spinner";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function EditCategory({
@@ -22,6 +22,7 @@ export function EditCategory({
   onSuccess: () => void;
   cancel: () => void;
 }) {
+  const formId = useId();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: updateCategory, isPending: isUpdatingCategory } = useMutation(
@@ -62,6 +63,7 @@ export function EditCategory({
         defaultValues={defaultValues}
         onSubmit={onSubmit}
         showParentCombobox={false}
+        formId={formId}
       />
 
       <div className="flex items-center justify-between">
@@ -70,11 +72,7 @@ export function EditCategory({
           Cancel
         </Button>
 
-        <Button
-          type="submit"
-          form="category-form"
-          disabled={isUpdatingCategory}
-        >
+        <Button type="submit" form={formId} disabled={isUpdatingCategory}>
           {isUpdatingCategory ? (
             <Spinner size="small" data-icon="inline-start" />
           ) : (

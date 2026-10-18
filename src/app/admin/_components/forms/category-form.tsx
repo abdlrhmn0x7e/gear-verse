@@ -35,10 +35,13 @@ export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 export function CategoryForm({
   defaultValues,
   showParentCombobox = true,
+  formId = "category-form",
   onSubmit,
 }: {
   defaultValues: Partial<CategoryFormValues>;
   showParentCombobox?: boolean;
+  /** For the submit button's `form`; give each form open at once its own. */
+  formId?: string;
   onSubmit: (data: CategoryFormValues) => void;
 }) {
   const form = useForm<CategoryFormValues>({
@@ -58,7 +61,7 @@ export function CategoryForm({
           void form.handleSubmit(onSubmit)(e);
         }}
         className="space-y-4"
-        id="category-form"
+        id={formId}
       >
         <div className="flex gap-2">
           <FormField

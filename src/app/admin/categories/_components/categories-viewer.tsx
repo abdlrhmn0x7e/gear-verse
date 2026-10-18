@@ -5,38 +5,31 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
-import {
-  ChevronRight,
-  FolderIcon,
-  FolderOpenIcon,
-  PlusIcon,
-} from "lucide-react";
+import { FolderIcon, PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { Heading } from "~/components/heading";
-import { LoadMore } from "~/components/load-more";
 import { Button } from "~/components/ui/button";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
 import {
   DragableContext,
   DragableOverlay,
   Droppable,
 } from "~/app/admin/_components/dragable-context";
+import { SearchInput } from "~/app/admin/_components/inputs/search-input";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
 import {
+  CategoryIcon,
   CategoryTree,
   CategoryTreeEmptyState,
   CategoryTreeSkeleton,
+  countCategories,
+  filterCategories,
+  findCategory,
+  findParentCategory,
 } from "./category-tree";
-import { CategoryProductList, ProductListItem } from "./products-grid";
-import { iconsMap } from "~/lib/icons-map";
+import { CategoryDetails } from "./category-details";
+import { ProductListItem } from "./products-grid";
 import { cn } from "~/lib/utils";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { useTRPC } from "~/trpc/client";
 import {
   useInfiniteQuery,
@@ -44,26 +37,68 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { Skeleton } from "~/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 
+/**
+ * The category tree on a fixed rail beside the selected category's details.
+ * Dragging a category onto another nests it there (or onto "Move to the root"
+ * to lift it out); dragging a product onto a category moves the product.
+ */
 export function CategoriesViewer() {
   const trpc = useTRPC();
   const { data: categories, isPending: isPendingCategories } = useQuery(
     trpc.admin.categories.queries.findAll.queryOptions(),
   );
-  const selectedCategory = useCategoryStore((state) => state.selectedCategory);
-  const parentCategory = useCategoryStore((state) => state.parentCategory);
+  const selectedCategoryId = useCategoryStore(
+    (state) => state.selectedCategoryId,
+  );
+  const setSelectedCategoryId = useCategoryStore(
+    (state) => state.setSelectedCategoryId,
+  );
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [search, setSearch] = useState("");
 
+  // Read from the latest tree, so an edit or a move shows straight away.
+  const selectedCategory =
+    categories && selectedCategoryId !== null
+      ? findCategory(categories, selectedCategoryId)
+      : undefined;
+  const parentCategory =
+    categories && selectedCategory
+      ? findParentCategory(categories, selectedCategory.id)
+      : undefined;
+
+  // Open on the first category rather than an empty pane.
+  const firstCategoryId = categories?.[0]?.id;
+  useEffect(() => {
+    if (!selectedCategory && firstCategoryId !== undefined) {
+      setSelectedCategoryId(firstCategoryId);
+    }
+  }, [selectedCategory, firstCategoryId, setSelectedCategoryId]);
+
+  const visibleCategories = useMemo(
+    () => filterCategories(categories ?? [], search),
+    [categories, search],
+  );
+
+  const selectedId = selectedCategory?.id;
   const queryParams = useMemo(() => {
     return {
       filters: {
-        categories: selectedCategory?.id ? [selectedCategory.id] : undefined,
+        categories: selectedId ? [selectedId] : undefined,
       },
       pageSize: 10,
     };
-  }, [selectedCategory]);
+  }, [selectedId]);
   const {
     data,
     isPending: isLoadingProducts,
@@ -72,6 +107,7 @@ export function CategoriesViewer() {
   } = useInfiniteQuery(
     trpc.admin.products.queries.getPage.infiniteQueryOptions(queryParams, {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: selectedId !== undefined,
     }),
   );
 
@@ -103,22 +139,7 @@ export function CategoriesViewer() {
     const cid = Number(raw);
     if (isNaN(cid)) return undefined;
 
-    // recursively find the category by id
-    const findById = (
-      nodes: NonNullable<typeof categories>,
-      id: number,
-    ): (typeof nodes)[number] | undefined => {
-      for (const node of nodes) {
-        if (node.id === id) return node;
-
-        const inChild = node.children ? findById(node.children, id) : undefined;
-
-        if (inChild) return inChild;
-      }
-      return undefined;
-    };
-
-    return categories ? findById(categories, cid) : undefined;
+    return categories ? findCategory(categories, cid) : undefined;
   }, [categories, activeId]);
 
   const queryClient = useQueryClient();
@@ -209,112 +230,114 @@ export function CategoriesViewer() {
 
   return (
     <DragableContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <Card className="size-full gap-1 p-2">
-        <CardContent className="size-full p-0">
-          <ResizablePanelGroup
-            orientation="horizontal"
-            className="h-full overflow-hidden rounded-lg"
-          >
-            {/* Category Tree */}
-            <ResizablePanel
-              className="relative flex h-full flex-col gap-2 px-3 py-1"
-              defaultSize="25%"
-              minSize="15%"
+      <div className="grid items-start gap-6 md:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+        {/* The rail stays put while the details scroll, and scrolls on its own
+            once the tree outgrows the page. */}
+        <aside
+          aria-label="Categories"
+          className="bg-card flex flex-col gap-3 rounded-3xl p-3 md:sticky md:top-(--page-sticky-top) md:max-h-(--page-sticky-height)"
+        >
+          <div className="flex items-center justify-between gap-2 pl-2">
+            <h2 className="text-sm font-medium">
+              Categories
+              <span className="text-muted-foreground ml-1.5 font-normal tabular-nums">
+                {categories ? countCategories(categories) : null}
+              </span>
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Add category"
+              onClick={() => setShowAddCategory(true)}
             >
-              <div className="h-fit space-y-1">
-                <div className="flex items-center justify-between gap-2">
-                  <Heading level={5} className="font-medium">
-                    Categories (
-                    {categories?.reduce(
-                      (acc, curr) => acc + (curr.children?.length ?? 0),
-                      categories?.length ?? 0,
-                    )}
-                    )
-                  </Heading>
+              <PlusIcon />
+            </Button>
+          </div>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Add category"
-                    onClick={() => setShowAddCategory(true)}
-                  >
-                    <PlusIcon />
-                  </Button>
-                </div>
+          <SearchInput
+            placeholder="Search categories"
+            aria-label="Search categories"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
 
-                {isPendingCategories ? (
-                  <CategoryTreeSkeleton />
-                ) : categories?.length === 0 ? (
-                  !showAddCategory && <CategoryTreeEmptyState />
-                ) : (
-                  categories?.map((category) => (
-                    <CategoryTree
-                      key={category.id}
-                      categories={category}
-                      isDragging={!!activeId}
-                    />
-                  ))
-                )}
+          {showAddCategory && (
+            <div className="bg-background rounded-2xl p-2">
+              <AddCategory
+                parentCategoryId={null}
+                onSuccess={() => setShowAddCategory(false)}
+                cancel={() => setShowAddCategory(false)}
+              />
+            </div>
+          )}
 
-                {showAddCategory && (
-                  <div className="mt-2 ml-2">
-                    <AddCategory
-                      parentCategoryId={null}
-                      onSuccess={() => setShowAddCategory(false)}
-                      cancel={() => setShowAddCategory(false)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <Droppable
-                id="category:0"
-                className="flex flex-1 items-center justify-center rounded-lg opacity-0 transition-opacity"
-                classNameWhenOver="bg-accent/40 border-2 border-dashed opacity-100"
+          <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-px overflow-y-auto px-1">
+            {isPendingCategories ? (
+              <CategoryTreeSkeleton />
+            ) : visibleCategories.length === 0 ? (
+              !showAddCategory && (
+                <CategoryTreeEmptyState searched={!!search.trim()} />
+              )
+            ) : (
+              // Searching unfolds every branch so the matches show.
+              <div
+                key={search.trim() ? "search" : "browse"}
+                className="flex flex-col gap-px"
               >
-                <p>Move to the root</p>
-              </Droppable>
-            </ResizablePanel>
+                {visibleCategories.map((category) => (
+                  <CategoryTree
+                    key={category.id}
+                    categories={category}
+                    defaultOpen={!!search.trim()}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-            <ResizableHandle withHandle className="bg-transparent" />
+          <Droppable
+            id="category:0"
+            className={cn(
+              "text-muted-foreground flex h-12 shrink-0 items-center justify-center rounded-2xl border border-dashed text-sm transition-opacity",
+              activeId?.toString().startsWith("category:")
+                ? "opacity-100"
+                : "pointer-events-none hidden",
+            )}
+            classNameWhenOver="bg-accent text-foreground border-primary/40"
+          >
+            Move to the root
+          </Droppable>
+        </aside>
 
-            <ResizablePanel defaultSize="75%" className="size-full">
-              <Card className="bg-background size-full gap-1 p-2">
-                <CardHeader className="p-0">
-                  <div className="bg-background flex w-full items-center justify-between gap-2 border-b p-4">
-                    <Heading level={4} className="flex items-center gap-2">
-                      <FolderOpenIcon />
-                      {parentCategory?.name && (
-                        <>
-                          {parentCategory.name}
-                          <ChevronRight />
-                        </>
-                      )}
-                      {selectedCategory?.name ?? "No Category Selected"}{" "}
-                    </Heading>
-
-                    <p className="text-muted-foreground text-sm font-medium">
-                      {products?.length ?? 0} Products
-                    </p>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-0">
-                  <div className="h-full overflow-y-auto p-4">
-                    <CategoryProductList
-                      activeId={activeId}
-                      products={products}
-                      isLoadingProducts={isLoadingProducts}
-                    />
-
-                    <LoadMore hasNextPage={hasNextPage} ref={ref} />
-                  </div>
-                </CardContent>
-              </Card>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </CardContent>
-      </Card>
+        <div className="min-w-0">
+          {isPendingCategories ? (
+            <CategoryDetailsSkeleton />
+          ) : selectedCategory ? (
+            <CategoryDetails
+              key={selectedCategory.id}
+              category={selectedCategory}
+              parent={parentCategory}
+              products={products}
+              isLoadingProducts={isLoadingProducts}
+              hasNextPage={hasNextPage}
+              loadMoreRef={ref}
+              activeId={activeId}
+            />
+          ) : (
+            <Empty className="bg-card rounded-3xl py-16">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <FolderIcon />
+                </EmptyMedia>
+                <EmptyTitle>No category selected</EmptyTitle>
+                <EmptyDescription>
+                  Pick a category from the list, or add your first one.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </div>
+      </div>
 
       <DragableOverlay
         className={cn(
@@ -332,12 +355,11 @@ export function CategoriesViewer() {
 
         {typeof activeId === "string" && activeId.startsWith("category:") && (
           <div className="flex w-32 items-center gap-3">
-            {(() => {
-              const Icon = activeCategory
-                ? (iconsMap.get(activeCategory.icon) ?? FolderIcon)
-                : FolderIcon;
-              return <Icon />;
-            })()}
+            {activeCategory ? (
+              <CategoryIcon icon={activeCategory.icon} />
+            ) : (
+              <FolderIcon />
+            )}
             <span className="font-medium">
               {activeCategory?.name ?? "Category"}
             </span>
@@ -345,5 +367,21 @@ export function CategoriesViewer() {
         )}
       </DragableOverlay>
     </DragableContext>
+  );
+}
+
+function CategoryDetailsSkeleton() {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-12 rounded-2xl" />
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+      </div>
+      <Skeleton className="h-28 w-full rounded-2xl" />
+      <Skeleton className="h-40 w-full rounded-2xl" />
+    </div>
   );
 }
