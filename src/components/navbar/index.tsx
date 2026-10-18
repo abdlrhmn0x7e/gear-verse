@@ -21,7 +21,9 @@ import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
 export function Navbar() {
   return (
     <NavigationMenu.Root delayDuration={100} className="contents">
-      <header className="bg-background/80 supports-backdrop-filter:bg-background/70 fixed inset-x-0 top-0 z-50 backdrop-blur-xl backdrop-saturate-150 transition-[background-color] duration-200 has-data-[state=open]:bg-background">
+      {/* the blur and tint live on a layer that runs 2rem past the bar and fades over its last 3rem, so the bar has no bottom edge;
+          an open menu turns the same layer opaque, and the fade lands in the menu's bottom padding */}
+      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-8 before:-z-10 before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200 before:[mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)] has-data-[state=open]:before:bg-background">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
