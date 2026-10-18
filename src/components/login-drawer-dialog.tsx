@@ -21,9 +21,12 @@ export function LoginDrawerDialog({
   children,
   open,
   onOpenChange,
+  callbackURL = "/",
 }: React.PropsWithChildren<{
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** where Google sends the visitor back to once they're signed in */
+  callbackURL?: string;
 }>) {
   return (
     <DrawerDialog open={open} onOpenChange={onOpenChange}>
@@ -43,6 +46,7 @@ export function LoginDrawerDialog({
           <GoogleSignInButton
             size="lg"
             className="w-full"
+            callbackURL={callbackURL}
             onSuccess={() => onOpenChange?.(false)}
           />
           <p className="text-muted-foreground text-center text-sm">
@@ -57,17 +61,20 @@ export function LoginDrawerDialog({
 export function GoogleSignInButton({
   size,
   className,
+  callbackURL = "/",
   onSuccess,
 }: {
   size: "lg" | "xl";
   className?: string;
+  /** where Google sends the visitor back to once they're signed in */
+  callbackURL?: string;
   onSuccess?: () => void;
 }) {
   const { mutate: signInWithGoogle, isPending: isSigningIn } = useMutation({
     mutationFn: async () => {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL,
       });
     },
     onSuccess,

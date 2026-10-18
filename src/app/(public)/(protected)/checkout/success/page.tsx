@@ -1,32 +1,23 @@
-import { ArrowRightIcon, BadgeCheckIcon } from "lucide-react";
-import { notFound } from "next/navigation";
-import { Heading } from "~/components/heading";
-import { MaxWidthWrapper } from "~/components/max-width-wrapper";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { api } from "~/trpc/server";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { Separator } from "~/components/ui/separator";
-import { PaymentMethod } from "../../_components/payment-method";
-import { Button } from "~/components/ui/button";
+import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import Link from "next/link";
-import { ImageWithFallback } from "~/components/image-with-fallback";
+import { notFound } from "next/navigation";
+import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { Button } from "~/components/ui/button";
 import { getStoreSettings } from "~/lib/store-settings";
-import { requireAuth } from "~/server/auth";
-import { OrderContactNote } from "../../_components/order-contact-note";
-import { OrderTotals } from "../../_components/order-totals";
+import { getSession } from "~/server/auth";
+import { api } from "~/trpc/server";
+import { OrderDetails } from "../../_components/order-details";
+import { SaveOrdersPrompt } from "../../_components/save-orders-prompt";
 
 export default async function SuccessPage({
   searchParams,
 }: {
   searchParams: Promise<{ orderId: string }>;
 }) {
-  await requireAuth();
+  const session = await getSession();
+  if (!session) {
+    return notFound();
+  }
   const { orderId } = await searchParams;
   const parsedOrderId = Number(orderId);
   if (isNaN(parsedOrderId)) {
@@ -41,103 +32,55 @@ export default async function SuccessPage({
     return notFound();
   }
 
-  const subtotal = order.items.reduce(
-    (acc, item) => acc + item.quantity * item.price,
-    0,
-  );
-
   return (
     <section>
-      <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32">
-        <div className="flex flex-col items-center gap-4">
-          <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
-          <div className="space-y-2 text-center">
-            <Heading level={1}>Order placed</Heading>
-            <p className="text-muted-foreground text-pretty">
-              Thank you for your order!
+      <MaxWidthWrapper className="min-h-dvh max-w-2xl pt-28 pb-24 md:pt-36">
+        <header className="flex flex-col items-center gap-5 text-center">
+          <span className="bg-brand-subtle text-brand-text flex size-14 items-center justify-center rounded-full">
+            <CheckIcon className="size-7" strokeWidth={2.5} aria-hidden />
+          </span>
+          <div className="space-y-2">
+            <h1 className="text-headline-sm md:text-display-sm text-balance">
+              Order placed
+            </h1>
+            <p className="text-muted-foreground mx-auto max-w-md text-pretty">
+              Thank you! Your order number is{" "}
+              <span className="text-foreground font-medium tabular-nums">
+                #{order.id}
+              </span>
+              . We&apos;ll WhatsApp you to confirm it and the shipping fee.
             </p>
-            <OrderContactNote
-              orderId={order.id}
-              whatsappNumber={whatsappNumber}
-              pending
-              className="text-base"
-            />
           </div>
+        </header>
+
+        <OrderDetails
+          order={order}
+          whatsappNumber={whatsappNumber}
+          headingLevel={2}
+          className="mt-10"
+        />
+
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button size="xl" asChild>
+            <Link href={`/orders?orderId=${order.id}`}>
+              Track your order
+              <ArrowRightIcon data-icon="inline-end" />
+            </Link>
+          </Button>
+          <Button size="xl" variant="ghost" asChild>
+            <Link href="/products">
+              Continue shopping
+              <ArrowRightIcon data-icon="inline-end" />
+            </Link>
+          </Button>
         </div>
 
-        {/* Order Summary */}
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Order summary</CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-muted-foreground font-medium">Order ID</p>
-                <p className="text-lg font-medium">{parsedOrderId}</p>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-muted-foreground font-medium">
-                  Payment method
-                </p>
-
-                <PaymentMethod paymentMethod={order.paymentMethod} />
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              {order.items.map((item, index) => (
-                <div
-                  key={`item-${item.id}-${index}`}
-                  className="w-full space-y-2"
-                >
-                  <div className="flex gap-3">
-                    <ImageWithFallback
-                      src={item.thumbnailUrl}
-                      alt={item.title}
-                      className="size-12 shrink-0 rounded-md"
-                      width={128}
-                      height={128}
-                    />
-                    <div>
-                      <p className="text-lg font-medium">
-                        {item.quantity} x {item.title}
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        {item.values && `${item.values.join(", ")}`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-end justify-between">
-                    <p className="text-muted-foreground text-sm font-medium">
-                      Item total
-                    </p>
-
-                    <p className="text-lg font-medium">
-                      {formatCurrency(item.price * item.quantity)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Separator />
-
-            <OrderTotals subtotal={subtotal} />
-          </CardContent>
-
-          <CardFooter>
-            <Button className="w-full" variant="link" asChild>
-              <Link href="/orders">
-                Track your orders
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        {session.user.isAnonymous === true && (
+          <SaveOrdersPrompt
+            callbackURL={`/checkout/success?orderId=${order.id}`}
+            className="mt-10"
+          />
+        )}
       </MaxWidthWrapper>
     </section>
   );

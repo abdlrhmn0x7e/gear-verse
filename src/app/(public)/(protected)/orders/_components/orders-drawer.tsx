@@ -1,23 +1,22 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Drawer,
+  DrawerBody,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
-import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
+import { Skeleton } from "~/components/ui/skeleton";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { PaymentMethod } from "../../_components/payment-method";
-import { Separator } from "~/components/ui/separator";
-import { ImageWithFallback } from "~/components/image-with-fallback";
-import Header from "~/components/header";
-import { PackageOpenIcon } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { OrderContactNote } from "../../_components/order-contact-note";
+import { formatDate } from "~/lib/utils/format-date";
+import { useTRPC } from "~/trpc/client";
+import { OrderDetails } from "../../_components/order-details";
+import { OrderStatusLabel } from "../../_components/order-status";
+import { useOrderDrawer } from "../_hooks/use-orders-search-params";
 
 export function OrdersDrawer({
   whatsappNumber,
@@ -26,115 +25,80 @@ export function OrdersDrawer({
   whatsappNumber: string | null;
 }) {
   const trpc = useTRPC();
-  const [params, setParams] = useOrdersSearchParams();
-  const { data: order, isPending: orderPending } = useQuery(
+  const drawer = useOrderDrawer();
+  // the drawer keeps showing the last order while it slides out after the param clears
+  const [shownId, setShownId] = useState(drawer.orderId);
+  if (drawer.orderId && drawer.orderId !== shownId) {
+    setShownId(drawer.orderId);
+  }
+  const {
+    data: order,
+    isPending,
+    isError,
+  } = useQuery(
     trpc.public.orders.queries.findById.queryOptions(
       {
-        id: params.orderId ?? 0,
+        id: shownId ?? 0,
       },
       {
-        enabled: !!params.orderId,
+        enabled: !!shownId,
+        // a missing order (an old or shared link) won't turn up on a retry
+        retry: (failureCount, error) =>
+          error.data?.code !== "NOT_FOUND" && failureCount < 3,
       },
     ),
   );
   const isMobile = useIsMobile();
 
-  function handleClose() {
-    void setParams({ orderId: null });
+  function handleOpenChange(open: boolean) {
+    if (!open) drawer.close();
   }
 
   return (
     <Drawer
-      open={!!params.orderId}
-      onOpenChange={handleClose}
+      open={!!drawer.orderId}
+      onOpenChange={handleOpenChange}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-xl">
-        <DrawerHeader>
-          <DrawerTitle>
-            <Header
-              title="Order details"
-              description=""
-              Icon={PackageOpenIcon}
-            />
-          </DrawerTitle>
-          <DrawerDescription></DrawerDescription>
+      <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[vaul-drawer-direction=right]:sm:max-w-xl">
+        <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-left group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
+          <DrawerTitle className="text-title">Order #{shownId}</DrawerTitle>
+          <DrawerDescription asChild>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {order ? (
+                <>
+                  <span>Placed {formatDate(order.createdAt)}</span>
+                  <OrderStatusLabel
+                    status={order.status}
+                    className="text-foreground"
+                  />
+                </>
+              ) : isError ? (
+                "We couldn't load this order."
+              ) : (
+                <span className="sr-only">Loading the order…</span>
+              )}
+            </div>
+          </DrawerDescription>
         </DrawerHeader>
-        {!orderPending && order && (
-          <OrderDetails order={order} whatsappNumber={whatsappNumber} />
-        )}
+
+        <DrawerBody className="px-1 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          {order ? (
+            <OrderDetails order={order} whatsappNumber={whatsappNumber} />
+          ) : isPending && shownId ? (
+            <div className="flex flex-col gap-3" aria-hidden>
+              <Skeleton className="h-56 rounded-2xl" />
+              <Skeleton className="h-40 rounded-2xl" />
+              <Skeleton className="h-32 rounded-2xl" />
+            </div>
+          ) : isError ? (
+            <p className="text-muted-foreground px-2 text-sm text-pretty">
+              It may belong to another account, or the link is out of date.
+              Close this and pick an order from your list.
+            </p>
+          ) : null}
+        </DrawerBody>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function OrderDetails({
-  order,
-  whatsappNumber,
-}: {
-  order: RouterOutput["public"]["orders"]["queries"]["findById"];
-  whatsappNumber: string | null;
-}) {
-  return (
-    <div className="space-y-6 px-4 pb-12">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Order ID</p>
-          <p className="font-medium">{order.id}</p>
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Payment method</p>
-
-          <PaymentMethod paymentMethod={order.paymentMethod} />
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Total</p>
-          {/* shipping is confirmed by the team per address, so it isn't added here */}
-          <p className="font-medium">
-            {formatCurrency(
-              order.items.reduce(
-                (acc, item) => acc + item.quantity * item.price,
-                0,
-              ),
-            )}
-            <span className="text-muted-foreground text-sm font-normal">
-              {" "}
-              + shipping
-            </span>
-          </p>
-        </div>
-
-        <OrderContactNote
-          orderId={order.id}
-          whatsappNumber={whatsappNumber}
-          pending={order.status === "PENDING"}
-        />
-      </div>
-
-      <Separator />
-
-      <div className="flex flex-col gap-2 divide-y [&>div]:py-4">
-        {order.items.map((item, index) => (
-          <div key={`item-${item.title}-${index}`} className="flex gap-4">
-            <ImageWithFallback
-              src={item.thumbnailUrl}
-              alt={item.title}
-              className="size-24 shrink-0"
-              width={512}
-              height={512}
-            />
-
-            <div>
-              <p className="font-medium">{`${item.quantity}x ${item.title} ${item.values && `- ${item.values.join(", ")}`}`}</p>
-              <p className="text-muted-foreground line-clamp-3 text-sm">
-                {item.summary}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }

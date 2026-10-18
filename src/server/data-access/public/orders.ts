@@ -2,6 +2,7 @@ import { and, desc, eq, isNull, lt, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
+  addresses,
   cartItems,
   orderItems,
   orders,
@@ -36,6 +37,9 @@ export const _orders = {
         whereClause.push(lt(orders.id, cursor));
       }
 
+      const productThumbnail = alias(media, "product_thumbnail");
+      const variantThumbnail = alias(media, "variant_thumbnail");
+
       return db
         .select({
           id: orders.id,
@@ -45,7 +49,24 @@ export const _orders = {
             sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.mapWith(
               Number,
             ),
+          itemCount:
+            sql<number>`coalesce(SUM(${orderItems.quantity}), 0)`.mapWith(
+              Number,
+            ),
+          items: sql<{ title: string; thumbnailUrl: string | null }[]>`
+            coalesce(
+              jsonb_agg(
+                jsonb_build_object(
+                  'title', ${products.title},
+                  'thumbnailUrl', coalesce(${variantThumbnail.url}, ${productThumbnail.url})
+                )
+                order by ${orderItems.id}
+              ) filter (where ${orderItems.id} is not null),
+              '[]'::jsonb
+            )
+          `,
           createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
         })
         .from(orders)
         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -54,6 +75,14 @@ export const _orders = {
           eq(orderItems.productVariantId, productVariants.id),
         )
         .leftJoin(products, eq(orderItems.productId, products.id))
+        .leftJoin(
+          productThumbnail,
+          eq(products.thumbnailMediaId, productThumbnail.id),
+        )
+        .leftJoin(
+          variantThumbnail,
+          eq(productVariants.thumbnailMediaId, variantThumbnail.id),
+        )
         .where(and(...whereClause))
         .limit(pageSize)
         .orderBy(desc(orders.id))
@@ -206,11 +235,22 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
 
           items: itemsJson.json,
+          address: {
+            fullName: addresses.fullName,
+            phoneNumber: addresses.phoneNumber,
+            address: addresses.address,
+            buildingNameOrNumber: addresses.buildingNameOrNumber,
+            city: addresses.city,
+            governorate: addresses.governorate,
+          },
         })
         .from(orders)
         .leftJoin(itemsJson, eq(orders.id, itemsJson.orderId))
+        .leftJoin(addresses, eq(orders.addressId, addresses.id))
         .where(and(eq(orders.id, id), eq(orders.userId, userId)))
         .limit(1)
         .then(([res]) => res);

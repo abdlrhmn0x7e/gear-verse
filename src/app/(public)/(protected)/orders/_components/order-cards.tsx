@@ -1,37 +1,36 @@
 "use client";
 
-import { ArrowRightIcon, EyeIcon } from "lucide-react";
-import { PaymentMethod } from "~/components/payment-method";
-import { Button } from "~/components/ui/button";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import {
-  Card,
-  CardFooter,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+  ArrowRightIcon,
+  ChevronRightIcon,
+  LogInIcon,
+  PackageIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo } from "react";
+import { useInView } from "react-intersection-observer";
+import { LoadMore } from "~/components/load-more";
+import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
+import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { formatDate } from "~/lib/utils/format-date";
-import { type RouterOutput } from "~/trpc/client";
-import { useOrdersSearchParams } from "../_hooks/use-orders-search-params";
-import { LoadMore } from "~/components/load-more";
-import { useInView } from "react-intersection-observer";
-import { useEffect, useMemo } from "react";
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/trpc/client";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { IconShoppingCartX } from "@tabler/icons-react";
-import Link from "next/link";
+  OrderStatusLabel,
+  orderNextStep,
+} from "../../_components/order-status";
+import { OrderThumbnail } from "../../_components/order-details";
+import { SaveOrdersPrompt } from "../../_components/save-orders-prompt";
+import { useOrderDrawer } from "../_hooks/use-orders-search-params";
 
-export function OrderCards() {
+type OrderSummary =
+  RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number];
+
+const MAX_THUMBNAILS = 4;
+
+export function OrderCards({ isGuest }: { isGuest: boolean }) {
   const trpc = useTRPC();
   const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
     trpc.public.orders.queries.getPage.infiniteQueryOptions(
@@ -55,122 +54,159 @@ export function OrderCards() {
   const orders = useMemo(() => data.pages.flatMap((page) => page.data), [data]);
 
   if (orders.length === 0) {
-    return (
-      <Empty className="mt-24">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <IconShoppingCartX />
-          </EmptyMedia>
-          <EmptyTitle>No orders yet</EmptyTitle>
-          <EmptyDescription>
-            Orders you place show up here so you can follow them to your door.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button asChild>
-            <Link href="/products">
-              Browse the store
-              <ArrowRightIcon data-icon="inline-end" />
-            </Link>
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
+    return <OrdersEmpty isGuest={isGuest} />;
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+    <div className="flex flex-col gap-6">
+      {isGuest && <SaveOrdersPrompt callbackURL="/orders" />}
+
+      <ul className="flex flex-col gap-3">
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}
-      </div>
+      </ul>
 
       <LoadMore ref={ref} hasNextPage={hasNextPage} />
     </div>
   );
 }
 
-export function OrderCard({
-  order,
-}: {
-  order: RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number];
-}) {
-  const [, setParams] = useOrdersSearchParams();
-  function handleClick() {
-    void setParams({ orderId: order.id });
-  }
-
+function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
   return (
-    <Card
-      role="button"
-      onClick={handleClick}
-      className="ring-accent cursor-pointer transition-shadow hover:ring-2"
-    >
-      <CardHeader>
-        <div className="flex justify-between gap-3">
-          <CardTitle>Order #{order.id}</CardTitle>
-          <PaymentMethod method={order.paymentMethod} />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Ordered on</p>
-          <p className="text-lg font-medium">{formatDate(order.createdAt)}</p>
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-muted-foreground font-medium">Total</p>
-
-          <p className="text-lg font-medium">
-            {formatCurrency(order.totalPrice)}
-          </p>
-        </div>
-      </CardContent>
-      <CardFooter className="justify-end">
-        <Button variant="outline" size="lg">
-          <EyeIcon />
-          View Details
+    <div className="bg-card flex flex-col items-center gap-5 rounded-3xl px-6 py-16 text-center">
+      <PackageIcon
+        className="text-muted-foreground size-10"
+        strokeWidth={1.5}
+        aria-hidden
+      />
+      <div className="max-w-sm space-y-1">
+        <h2 className="font-medium">No orders yet</h2>
+        <p className="text-muted-foreground text-sm text-pretty">
+          When you place an order, you can follow it here, from our confirmation
+          message to your door.
+        </p>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <Button size="lg" asChild>
+          <Link href="/products">
+            Browse the store
+            <ArrowRightIcon data-icon="inline-end" />
+          </Link>
         </Button>
-      </CardFooter>
-    </Card>
+        {isGuest && (
+          <LoginDrawerDialog callbackURL="/orders">
+            <Button variant="ghost" size="lg">
+              <LogInIcon data-icon="inline-start" />
+              Ordered with Google before? Sign in
+            </Button>
+          </LoginDrawerDialog>
+        )}
+      </div>
+    </div>
   );
 }
 
-export function OrderCardSkeleton() {
+function OrderCard({ order }: { order: OrderSummary }) {
+  const drawer = useOrderDrawer();
+  const thumbnails = order.items.slice(0, MAX_THUMBNAILS);
+  const hidden = order.items.length - thumbnails.length;
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between gap-3">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-6 w-16" />
+    <li className="bg-card hover:bg-accent/60 has-focus-visible:outline-focus has-[button:active]:bg-accent relative rounded-3xl p-5 transition-[background-color,scale] duration-150 ease-out has-focus-visible:outline-2 has-focus-visible:outline-offset-2 motion-safe:has-[button:active]:scale-[0.99]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="font-medium">
+            {/* the button stretches over the card, so the whole card opens the order */}
+            <button
+              type="button"
+              onClick={() => drawer.open(order.id)}
+              className="cursor-pointer text-start outline-none after:absolute after:inset-0 after:rounded-3xl"
+            >
+              Order #{order.id}
+              <span className="sr-only">, view details</span>
+            </button>
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Placed {formatDate(order.createdAt)}
+          </p>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-5 w-32" />
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-5 w-20" />
-        </div>
-      </CardContent>
-      <CardFooter className="justify-end">
-        <Skeleton className="h-10 w-32" />
-      </CardFooter>
-    </Card>
+        <ChevronRightIcon
+          className="text-muted-foreground mt-0.5 size-5 shrink-0"
+          aria-hidden
+        />
+      </div>
+
+      {thumbnails.length > 0 && (
+        <ul className="mt-4 flex gap-2" aria-label="Items">
+          {thumbnails.map((item, index) => (
+            <li key={`${item.title}-${index}`}>
+              <OrderThumbnail
+                src={item.thumbnailUrl}
+                alt={item.title}
+                size={56}
+              />
+            </li>
+          ))}
+          {hidden > 0 && (
+            <li className="bg-input-background text-muted-foreground flex size-14 items-center justify-center rounded-xl text-sm font-medium tabular-nums">
+              +{hidden}
+              <span className="sr-only"> more</span>
+            </li>
+          )}
+        </ul>
+      )}
+
+      <div className="mt-4 space-y-1">
+        <OrderStatusLabel status={order.status} />
+        <p className="text-muted-foreground text-sm text-pretty">
+          {orderNextStep(order.status, order.paymentMethod)}
+        </p>
+      </div>
+
+      <div className="mt-4 flex items-baseline justify-between gap-4 border-t pt-4 text-sm">
+        <p className="text-muted-foreground tabular-nums">
+          {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+        </p>
+        <p className="text-end">
+          <span className="text-base font-medium tabular-nums">
+            {formatCurrency(order.totalPrice)}
+          </span>
+          {order.status !== "CANCELLED" && (
+            <span className="text-muted-foreground"> + shipping</span>
+          )}
+        </p>
+      </div>
+    </li>
+  );
+}
+
+function OrderCardSkeleton() {
+  return (
+    <div className="bg-card rounded-3xl p-5">
+      <Skeleton className="h-5 w-28" />
+      <Skeleton className="mt-2 h-4 w-40" />
+      <div className="mt-4 flex gap-2">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="size-14 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="mt-4 h-4 w-36" />
+      <Skeleton className="mt-2 h-4 w-3/4" />
+      <div className="mt-4 flex justify-between border-t pt-4">
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-5 w-32" />
+      </div>
+    </div>
   );
 }
 
 export function OrderCardsSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <OrderCardSkeleton key={index} />
-        ))}
-      </div>
+    <div className="flex flex-col gap-3" aria-hidden>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <OrderCardSkeleton key={index} />
+      ))}
     </div>
   );
 }
