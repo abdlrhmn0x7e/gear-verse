@@ -5,8 +5,10 @@ import {
   FolderLibraryIcon,
   Home01Icon,
   Layers01Icon,
+  Settings01Icon,
   ShoppingCart01Icon,
   Tag01Icon,
+  UserMultipleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
@@ -63,6 +65,17 @@ const navGroups: NavGroup[] = [
     label: "Sales",
     items: [
       { title: "Orders", href: "/admin/orders", icon: ShoppingCart01Icon },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { title: "Users", href: "/admin/users", icon: UserMultipleIcon },
+      {
+        title: "Store settings",
+        href: "/admin/settings",
+        icon: Settings01Icon,
+      },
     ],
   },
 ];
