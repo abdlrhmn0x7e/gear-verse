@@ -1,190 +1,58 @@
-import {
-  IconArchive,
-  IconShoppingBagPlus,
-  IconShoppingBagSearch,
-} from "@tabler/icons-react";
-import {
-  ArrowRightIcon,
-  PlusIcon,
-  ShoppingBagIcon,
-  ShoppingCartIcon,
-  UsersIcon,
-} from "lucide-react";
 import { headers } from "next/headers";
-import Link from "next/link";
-import { Heading } from "~/components/heading";
-import { PaymentMethod } from "~/components/payment-method";
-import { Button } from "~/components/ui/button";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import {
-  Frame,
-  FrameDescription,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "~/components/ui/frame";
-import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
-import { formatCurrency } from "~/lib/utils/format-currency";
-import { formatDate } from "~/lib/utils/format-date";
+import type { SearchParams } from "nuqs/server";
+import { Suspense } from "react";
 import { auth, requireAdmin } from "~/server/auth";
-import type { RouterOutput } from "~/trpc/client";
-import { api } from "~/trpc/server";
-import { QuickAction } from "../_components/quick-action";
-import SummaryCard from "../_components/summary-card";
-import { OrdersTableHeader } from "../_components/tables/orders/header";
-import { OrderStatus } from "../_components/tables/orders/order-status";
+import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { PageLayout } from "../_components/page-layout";
+import { DashboardActions, DashboardPanels } from "./_components/dashboard";
+import { firstName, greetingFor } from "./_components/format";
+import { loadDashboardSearchParams } from "./_components/use-dashboard-range";
+import {
+  WaitingSummary,
+  WaitingSummarySkeleton,
+} from "./_components/waiting-summary";
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await requireAdmin();
-  const [session, userCount, ordersCount, lastOrders] = await Promise.all([
-    auth.api.getSession({
-      headers: await headers(),
-    }),
-    api.admin.users.queries.getCount(),
-    api.admin.orders.queries.getCount(),
-    api.admin.orders.queries.getPage({ pageSize: 5 }),
+  const [session, { range }] = await Promise.all([
+    auth.api.getSession({ headers: await headers() }),
+    loadDashboardSearchParams(searchParams),
   ]);
 
-  return (
-    <PageLayout
-      title="Dashboard"
-      description={`Good morning, ${session?.user.name}. What would you like to do today?`}
-      contentWidth="full"
-    >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <SummaryCard
-          title="Pending Orders"
-          value={ordersCount.toString()}
-          description="Get your ass to work, they're waiting for you!"
-          Icon={ShoppingBagIcon}
-        />
-
-        <SummaryCard
-          title="Total Customers"
-          value={userCount.toString()}
-          description="Total number of customers in the database"
-          Icon={UsersIcon}
-        />
-      </div>
-
-      <div className="space-y-3">
-        <Heading level={3}>Quick Actions</Heading>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <QuickAction
-            title="New Product"
-            description="Add a new product to your store with details, images, and pricing."
-            href="/admin/products/new"
-            Icon={PlusIcon}
-          />
-
-          <QuickAction
-            title="Show All Pending Orders"
-            description="View and manage all orders that are currently pending fulfillment."
-            href="/admin/orders?status=PENDING"
-            Icon={IconShoppingBagSearch}
-          />
-
-          <QuickAction
-            title="Create an Order"
-            description="Manually create a new order for a customer or process a special transaction."
-            href="/admin/orders?create=true"
-            Icon={IconShoppingBagPlus}
-          />
-
-          <QuickAction
-            title="Manage your Inventory"
-            description="Track stock levels, update quantities, and manage product availability."
-            href="/admin/inventory"
-            Icon={IconArchive}
-          />
-        </div>
-      </div>
-
-      <Frame>
-        <FrameHeader>
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <ShoppingCartIcon className="size-6" />
-                <FrameTitle className="text-lg font-semibold">
-                  Last Orders
-                </FrameTitle>
-              </div>
-
-              <FrameDescription>
-                View the last 5 orders placed in your store.
-              </FrameDescription>
-            </div>
-            <Button variant="outline" type="button" asChild>
-              <Link href="/admin/orders">
-                View all orders
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
-            </Button>
-          </div>
-        </FrameHeader>
-        <FramePanel>
-          <LastOrdersTable orders={lastOrders.data} />
-        </FramePanel>
-      </Frame>
-    </PageLayout>
+  // started together and not awaited: each panel streams in when its query lands
+  void prefetch(trpc.admin.dashboard.queries.revenue.queryOptions({ range }));
+  void prefetch(trpc.admin.dashboard.queries.orders.queryOptions({ range }));
+  void prefetch(trpc.admin.dashboard.queries.pending.queryOptions());
+  void prefetch(trpc.admin.dashboard.queries.lowStock.queryOptions());
+  void prefetch(
+    trpc.admin.dashboard.queries.topProducts.queryOptions({ range }),
   );
-}
+  void prefetch(trpc.admin.dashboard.queries.reviews.queryOptions({ range }));
 
-function LastOrdersTable({
-  orders,
-}: {
-  orders: RouterOutput["admin"]["orders"]["queries"]["getPage"]["data"];
-}) {
-  if (orders.length === 0) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <ShoppingCartIcon />
-          </EmptyMedia>
-          <EmptyTitle>No orders yet</EmptyTitle>
-          <EmptyDescription>
-            When customers place orders, they will appear here.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
-  }
+  const name = session?.user.name ? `, ${firstName(session.user.name)}` : "";
 
   return (
-    <Table>
-      <OrdersTableHeader hideActions />
-
-      <TableBody>
-        {orders.map((order) => (
-          <TableRow key={order.id}>
-            <TableCell>
-              <Button variant="link" asChild>
-                <Link href={`/admin/orders?orderId=${order.id}`}>
-                  # {order.id}
-                </Link>
-              </Button>
-            </TableCell>
-            <TableCell>{order.address}</TableCell>
-            <TableCell>{formatCurrency(order.totalValue)}</TableCell>
-            <TableCell>
-              <OrderStatus status={order.status} />
-            </TableCell>
-            <TableCell>
-              <PaymentMethod method={order.paymentMethod} />
-            </TableCell>
-            <TableCell>{formatDate(order.createdAt)}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <HydrateClient>
+      <PageLayout
+        title="Dashboard"
+        description={
+          <>
+            {greetingFor(new Date())}
+            {name}.{" "}
+            <Suspense fallback={<WaitingSummarySkeleton />}>
+              <WaitingSummary />
+            </Suspense>
+          </>
+        }
+        actions={<DashboardActions />}
+        contentWidth="full"
+      >
+        <DashboardPanels />
+      </PageLayout>
+    </HydrateClient>
   );
 }
