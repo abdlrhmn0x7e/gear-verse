@@ -31,18 +31,17 @@ export function PurchasePanel({
     stock.kind === "unselected" ? "Unavailable" : "Out of stock";
 
   const actionsRef = useRef<HTMLDivElement>(null);
-  const [actionsScrolledPast, setActionsScrolledPast] = useState(false);
+  const [actionsOffScreen, setActionsOffScreen] = useState(false);
 
   useEffect(() => {
     const actions = actionsRef.current;
     if (!actions) return;
 
-    // the bar only appears once the buttons have scrolled up and out, never before the shopper reaches them
+    // on a phone the buttons sit under the gallery, below the first screen, so the bar stands in for them whenever
+    // they are out of view, above or below
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry) return;
-      setActionsScrolledPast(
-        !entry.isIntersecting && entry.boundingClientRect.top < 0,
-      );
+      setActionsOffScreen(!entry.isIntersecting);
     });
     observer.observe(actions);
     return () => observer.disconnect();
@@ -77,11 +76,15 @@ export function PurchasePanel({
 
       {showActions && (
         <div
-          aria-hidden={!actionsScrolledPast}
-          inert={!actionsScrolledPast}
+          // the page reserves room for the bar under the footer (the body's has-[[data-slot=buy-bar]] padding),
+          // and toasts lift over it while data-visible is set
+          data-slot="buy-bar"
+          data-visible={actionsOffScreen || undefined}
+          aria-hidden={!actionsOffScreen}
+          inert={!actionsOffScreen}
           className={cn(
-            "bg-background/90 fixed inset-x-0 bottom-0 z-40 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl transition-[translate,opacity] duration-200 ease-out lg:hidden",
-            actionsScrolledPast
+            "bg-background/90 fixed inset-x-0 bottom-0 z-40 border-t pt-3 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] backdrop-blur-xl transition-[translate,opacity] duration-200 ease-out lg:hidden",
+            actionsOffScreen
               ? "translate-y-0 opacity-100"
               : "pointer-events-none translate-y-full opacity-0 motion-reduce:translate-y-0",
           )}

@@ -91,7 +91,7 @@ export default function RootLayout({
       <body
         className={cn(
           jetBrainsMono.variable,
-          "flex min-h-screen flex-col pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans antialiased",
+          "flex min-h-screen flex-col pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans antialiased max-lg:has-[[data-slot=buy-bar]]:pb-[calc(4.5rem+env(safe-area-inset-bottom))]",
         )}
       >
         <Suspense fallback={null}>

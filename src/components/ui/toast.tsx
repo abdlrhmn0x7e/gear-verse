@@ -35,6 +35,8 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
         "transition-[bottom] duration-200 ease-out [body:has([data-slot=save-bar])_&]:bottom-20 sm:[body:has([data-slot=save-bar])_&]:bottom-28",
         // Likewise the checkout's pinned Place order bar on phones.
         "max-lg:[body:has([data-slot=checkout-bar])_&]:bottom-24",
+        // And the product page's buy bar while it is up.
+        "max-lg:[body:has([data-slot=buy-bar][data-visible])_&]:bottom-[calc(4.5rem+max(0.75rem,env(safe-area-inset-bottom)))]",
         className,
       )}
       {...props}
