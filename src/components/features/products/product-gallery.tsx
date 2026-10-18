@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { cn } from "~/lib/utils";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
@@ -27,26 +27,65 @@ export function ProductGallery({
   const photosKey = photos.join("|");
   const [selection, setSelection] = useState({ key: photosKey, index: 0 });
   const activeIndex = selection.key === photosKey ? selection.index : 0;
-  const active = photos[activeIndex];
+
+  const scrollerRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    scrollerRef.current?.scrollTo({ left: 0 });
+  }, [photosKey]);
+
+  // the photos swipe; the thumbnails follow whichever one the scroller settles on
+  function handleScroll(event: React.UIEvent<HTMLUListElement>) {
+    const { scrollLeft, clientWidth } = event.currentTarget;
+    if (!clientWidth) return;
+    const index = Math.round(scrollLeft / clientWidth);
+    if (index !== activeIndex && index >= 0 && index < photos.length) {
+      setSelection({ key: photosKey, index });
+    }
+  }
+
+  function showPhoto(index: number) {
+    setSelection({ key: photosKey, index });
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    scroller.scrollTo({
+      left: index * scroller.clientWidth,
+      behavior: reduceMotion ? "instant" : "smooth",
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="image-well relative aspect-square overflow-hidden rounded-[2rem]">
-        <ImageWithFallback
-          key={active}
-          src={active}
-          alt={
-            photos.length > 1
-              ? `${title}, photo ${activeIndex + 1} of ${photos.length}`
-              : title
-          }
-          width={1200}
-          height={1200}
-          sizes="(min-width: 1024px) 55vw, 100vw"
-          preload
-          className="size-full rounded-none border-none bg-transparent p-[8%] [&_img]:object-contain"
-        />
-      </div>
+      <ul
+        ref={scrollerRef}
+        onScroll={handleScroll}
+        aria-label={photos.length > 1 ? `${title} photos` : undefined}
+        className="no-scrollbar flex aspect-square snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-[2rem]"
+      >
+        {photos.map((photo, index) => (
+          <li
+            key={`${photo}-${index}`}
+            className="image-well relative size-full shrink-0 snap-center snap-always"
+          >
+            <ImageWithFallback
+              src={photo}
+              alt={
+                photos.length > 1
+                  ? `${title}, photo ${index + 1} of ${photos.length}`
+                  : title
+              }
+              width={1200}
+              height={1200}
+              sizes="(min-width: 1024px) 55vw, 100vw"
+              preload={index === 0}
+              className="size-full rounded-none border-none bg-transparent p-[8%] [&_img]:object-contain"
+            />
+          </li>
+        ))}
+      </ul>
 
       {photos.length > 1 && (
         <ul
@@ -59,12 +98,12 @@ export function ProductGallery({
                 type="button"
                 aria-label={`Show photo ${index + 1} of ${photos.length}`}
                 aria-current={index === activeIndex}
-                onClick={() => setSelection({ key: photosKey, index })}
+                onClick={() => showPhoto(index)}
                 className={cn(
                   "image-well block size-20 overflow-hidden rounded-2xl outline-offset-2 transition-[outline-color] duration-150 md:size-24",
                   index === activeIndex
-                    ? "outline-2 outline-foreground"
-                    : "outline-2 outline-transparent hover:outline-border",
+                    ? "outline-foreground outline-2"
+                    : "hover:outline-border outline-2 outline-transparent",
                   "focus-visible:outline-focus",
                 )}
               >
