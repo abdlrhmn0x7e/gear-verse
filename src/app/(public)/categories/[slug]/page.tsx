@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -5,6 +6,8 @@ import { CategoryChips } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Skeleton } from "~/components/ui/skeleton";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
+import { findLiveCategories } from "~/lib/seo/live-categories";
+import { pageMetadata } from "~/lib/seo/metadata";
 import { app } from "~/server/application";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
@@ -17,6 +20,44 @@ export async function generateStaticParams() {
   }
 
   return slugs;
+}
+
+async function findCategoryBySlug(slug: string) {
+  const path = findCategoryPath(
+    await getCategoryTree(),
+    (node) => node.slug === slug,
+  );
+  return { path, category: path.at(-1) };
+}
+
+// filtered and sorted URLs get noindex from the proxy and canonicalise here
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const [{ category }, liveCategories] = await Promise.all([
+    findCategoryBySlug(slug),
+    findLiveCategories(),
+  ]);
+  if (!category) {
+    notFound();
+  }
+
+  const title = `${category.name}: Imported, Delivered in Egypt`;
+  const isEmpty = !liveCategories.some((live) => live.slug === slug);
+
+  return {
+    title,
+    ...pageMetadata({
+      title,
+      description: `Shop hand-imported ${category.name} from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
+      path: `/categories/${slug}`,
+    }),
+    // nothing to buy yet, so keep it out of the index until it has stock
+    ...(isEmpty && { robots: { index: false, follow: true } }),
+  };
 }
 
 export default async function CategoryPage({
@@ -34,11 +75,7 @@ export default async function CategoryPage({
   // the cached lookup runs before any Suspense boundary (there is no
   // loading.tsx on purpose), so an unknown category is a real 404 instead of a
   // streamed 200 with noindex
-  const path = findCategoryPath(
-    await getCategoryTree(),
-    (node) => node.slug === slug,
-  );
-  const category = path.at(-1);
+  const { path, category } = await findCategoryBySlug(slug);
   if (!category) {
     notFound();
   }

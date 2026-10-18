@@ -28,6 +28,7 @@ import {
 import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { variantsCTE } from "../common/cte";
+import { inStockSql } from "../common/in-stock";
 import {
   getProductsOrdering,
   type ProductsSortBy,
@@ -122,6 +123,38 @@ export const _categories = {
         })
         .from(categories)
         .where(isNull(categories.parent_id));
+    },
+
+    /**
+     * Categories, at any depth, whose page lists at least one product: one
+     * that is published, not archived and in stock, in the category or any
+     * of its sub-categories.
+     */
+    async findWithLiveProducts() {
+      // raw rows keep timestamps as strings
+      return db.execute<{ id: number; slug: string; updatedAt: string }>(sql`
+        WITH RECURSIVE subtree AS (
+          SELECT id AS root_id, id FROM ${categories}
+
+          UNION ALL
+
+          SELECT subtree.root_id, child.id
+          FROM ${categories} AS child
+          INNER JOIN subtree ON child.parent_id = subtree.id
+        )
+        SELECT c.id, c.slug, c.updated_at AS "updatedAt"
+        FROM ${categories} AS c
+        WHERE EXISTS (
+          SELECT 1
+          FROM subtree
+          INNER JOIN ${products} ON ${products.categoryId} = subtree.id
+          WHERE subtree.root_id = c.id
+            AND ${products.published} = true
+            AND ${products.archived} = false
+            AND ${inStockSql(products.id)}
+        )
+        ORDER BY c.id
+      `);
     },
 
     /**

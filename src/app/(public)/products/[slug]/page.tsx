@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
 import { Reviews } from "~/components/features/reviews";
 import { isAppError } from "~/lib/errors/app-error";
+import { pageMetadata } from "~/lib/seo/metadata";
+import { productMetaDescription } from "~/lib/seo/product";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
 
@@ -57,20 +59,26 @@ export async function generateMetadata({
     notFound();
   }
 
-  return {
-    title: `Gear Verse | ${metadata.seo?.pageTitle ?? metadata.title}`,
-    description: metadata.seo?.metaDescription ?? metadata.summary,
-    openGraph: {
-      title: metadata.seo?.pageTitle ?? metadata.title,
-      description: metadata.seo?.metaDescription ?? metadata.summary,
-      images: [metadata.thumbnailUrl],
-    },
+  const title = metadata.seo?.pageTitle ?? `${metadata.title}: Price in Egypt`;
+  const description =
+    metadata.seo?.metaDescription ??
+    productMetaDescription({
+      title: metadata.title,
+      brand: metadata.brand?.name ?? null,
+      price: metadata.price,
+      summary: metadata.summary,
+    });
 
-    twitter: {
-      title: metadata.seo?.pageTitle ?? metadata.title,
-      description: metadata.seo?.metaDescription ?? metadata.summary,
-      images: [metadata.thumbnailUrl],
-    },
+  return {
+    title,
+    ...pageMetadata({
+      title,
+      description,
+      path: `/products/${metadata.slug}`,
+      images: [...new Set([metadata.thumbnailUrl, ...metadata.media])].filter(
+        Boolean,
+      ),
+    }),
   };
 }
 

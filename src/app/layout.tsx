@@ -1,6 +1,6 @@
 import "~/styles/globals.css";
 
-import { type Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
@@ -18,16 +18,24 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
-  title: "Gear Verse",
-  description:
-    "Hard-to-find gaming peripherals and accessories from international brands — hand-imported, customs cleared, and delivered to your door.",
-  openGraph: {
-    images: [
-      {
-        url: "/images/gear-light.png",
-      },
-    ],
+  title: {
+    default: "Gear Verse: Imported Gaming Gear in Egypt",
+    template: "%s | Gear Verse",
   },
+  description:
+    "Hard-to-find gaming peripherals from international brands, hand-imported, customs cleared and delivered to your door anywhere in Egypt. Prices in EGP, cash on delivery.",
+  applicationName: "Gear Verse",
+  // the image comes from app/opengraph-image.png
+  openGraph: {
+    type: "website",
+    siteName: "Gear Verse",
+    locale: "en_EG",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  // Next drops app/icon.png and app/apple-icon.png once `icons` is set, so
+  // they are listed here next to the light and dark favicons
   icons: {
     icon: [
       {
@@ -40,11 +48,21 @@ export const metadata: Metadata = {
         media: "(prefers-color-scheme: light)",
         url: "/favicon-light.ico",
       },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
     ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
   other: {
     ...Sentry.getTraceData(),
   },
+};
+
+// --background in globals.css (neutral-50 and neutral-900) as hex
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fdfbfd" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b151b" },
+  ],
 };
 
 export default function RootLayout({

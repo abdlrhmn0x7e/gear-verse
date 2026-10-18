@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { CategoryChips } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { pageMetadata } from "~/lib/seo/metadata";
 import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
+
+const TITLE = "Shop Imported Gaming Gear in Egypt";
+
+// filtered and sorted URLs get noindex from the proxy and canonicalise here
+export const metadata: Metadata = {
+  title: TITLE,
+  ...pageMetadata({
+    title: TITLE,
+    description:
+      "Hand-imported keyboards, mice, IEMs and webcams from AKKO, SIMGOT and more. Prices in EGP, cash on delivery across Egypt.",
+    path: "/products",
+  }),
+};
 
 export default function ProductsPage({
   searchParams,
