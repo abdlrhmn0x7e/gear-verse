@@ -4,10 +4,8 @@ import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import {
   CloudUploadIcon,
   EyeIcon,
-  GridIcon,
   ImageIcon,
   ImageOffIcon,
-  ListIcon,
   MousePointerClickIcon,
   UploadCloudIcon,
   XIcon,
@@ -33,12 +31,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "~/components/ui/select";
 import { useUploadFilesMutation } from "~/hooks/mutations/use-upload-files-mutations";
 import { useDebounce } from "~/hooks/use-debounce";
 import { cn } from "~/lib/utils";
@@ -46,7 +38,7 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useMediaStore } from "../../_stores/media/provider";
 import type { SelectedMedia } from "../../_stores/media/store";
 import type { FileDropZoneProps } from "../inputs/file-dropzone";
-import { SearchInput } from "../inputs/search-input";
+import { MediaFilters, type MediaView } from "../tables/media/filters";
 import { MediaTable } from "../tables/media/table";
 
 export function MediaDialog({
@@ -58,7 +50,7 @@ export function MediaDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [viewKind, setViewKind] = useState<"list" | "grid">("list");
+  const [viewKind, setViewKind] = useState<MediaView>("list");
 
   const previewUrl = useMediaStore((state) => state.previewUrl);
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
@@ -74,37 +66,6 @@ export function MediaDialog({
         </DialogHeader>
 
         <DialogBody className="space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <SearchInput
-              placeholder="Search media by name"
-              className="max-w-md"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <Select
-              value={viewKind}
-              onValueChange={(value) => setViewKind(value as "list" | "grid")}
-            >
-              <SelectTrigger
-                className="h-9 w-fit shrink-0"
-                aria-label="Change media view"
-              >
-                {viewKind === "grid" ? <GridIcon /> : <ListIcon />}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="list">
-                  <ListIcon />
-                  List view
-                </SelectItem>
-                <SelectItem value="grid">
-                  <GridIcon />
-                  Grid view
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex h-[50svh] w-full gap-6 overflow-hidden xl:h-[60svh]">
             <motion.div
               className="flex min-w-0 flex-1 flex-col gap-4"
@@ -120,6 +81,15 @@ export function MediaDialog({
                   Icon={ImageIcon}
                   headingLevel={5}
                 />
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <MediaFilters
+                    search={search}
+                    onSearchChange={setSearch}
+                    view={viewKind}
+                    onViewChange={setViewKind}
+                  />
+                </div>
 
                 <MediaGallery search={search} viewKind={viewKind} />
               </div>
@@ -256,7 +226,7 @@ function MediaGallery({
   viewKind,
 }: {
   search: string;
-  viewKind: "list" | "grid";
+  viewKind: MediaView;
 }) {
   const debouncedSearch = useDebounce(search, 500);
 
