@@ -29,7 +29,7 @@ export function Navbar() {
           end, so the bar has no bottom edge and no band where it meets a dark panel; the links' row stays fully tinted, keeping
           muted links at 5.02:1 over the plum panel. An open menu turns the same layer into the opaque popover surface, and the
           fade starts in the menu's bottom padding */}
-      <header className="before:bg-background/96 supports-backdrop-filter:before:bg-background/94 has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
+      <header className="group/header before:bg-background/96 supports-backdrop-filter:before:bg-background/94 has-data-[state=open]:before:bg-popover fixed inset-x-0 top-0 z-50 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:-bottom-16 before:-z-10 before:[mask-image:linear-gradient(to_bottom,#000_calc(100%_-_5rem),rgb(0_0_0/.94)_calc(100%_-_4.25rem),rgb(0_0_0/.78)_calc(100%_-_3.5rem),rgb(0_0_0/.57)_calc(100%_-_2.75rem),rgb(0_0_0/.35)_calc(100%_-_2rem),rgb(0_0_0/.16)_calc(100%_-_1.25rem),rgb(0_0_0/.03)_calc(100%_-_0.5rem),transparent)] before:backdrop-blur-xl before:backdrop-saturate-150 before:transition-[background-color] before:duration-200">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 md:px-6 lg:px-8">
           <Link
             href="/"
@@ -107,6 +107,16 @@ export function Navbar() {
         </div>
 
         <NavViewport />
+
+        {/* Safari 26 paints the strip above the page (under the status bar, or the toolbar on a Mac) in the colour of
+            a fixed bar at the top edge. It takes that colour from the background-color of the element at the edge
+            and its ancestors, never from a pseudo-element, so with the tint on ::before it sampled pixels instead and
+            kept the first colour it caught (a photo scrolling under the bar, the other theme). This strip hands it the
+            bar's colour and paints nothing: the colour is clipped to its empty content box. */}
+        <span
+          aria-hidden
+          className="bg-background group-has-data-[state=open]/header:bg-popover pointer-events-none absolute inset-x-0 top-0 h-0 bg-clip-content pb-3"
+        />
       </header>
     </NavigationMenu.Root>
   );
