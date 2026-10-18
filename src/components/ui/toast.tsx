@@ -33,6 +33,8 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
         "pointer-events-none fixed inset-x-4 bottom-4 z-50 mx-auto w-auto max-w-sm outline-none sm:right-6 sm:bottom-6 sm:left-auto sm:mx-0 sm:w-full",
         // An admin save bar pins itself to the bottom of the page; toasts stack above it rather than over its buttons.
         "transition-[bottom] duration-200 ease-out [body:has([data-slot=save-bar])_&]:bottom-20 sm:[body:has([data-slot=save-bar])_&]:bottom-28",
+        // Likewise the checkout's pinned Place order bar on phones.
+        "max-lg:[body:has([data-slot=checkout-bar])_&]:bottom-24",
         className,
       )}
       {...props}

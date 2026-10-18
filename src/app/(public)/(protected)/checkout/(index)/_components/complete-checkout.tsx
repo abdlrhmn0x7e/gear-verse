@@ -3,13 +3,12 @@
 import { Button } from "~/components/ui/button";
 import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
 import { LockIcon } from "lucide-react";
-import { Heading } from "~/components/heading";
 import { useTRPC } from "~/trpc/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
 
 export function CompleteCheckout({
@@ -25,6 +24,11 @@ export function CompleteCheckout({
   className?: string;
 }) {
   const trpc = useTRPC();
+  // the form picks the first saved address, so having one means one is selected
+  const { data: addresses } = useQuery(
+    trpc.public.checkout.queries.getAddresses.queryOptions(),
+  );
+  const needsAddress = addresses?.length === 0;
 
   const router = useRouter();
   const { mutate: checkout, isPending: checkoutPending } = useMutation(
@@ -51,8 +55,8 @@ export function CompleteCheckout({
   return (
     <div className={cn("relative flex flex-col gap-4", className)}>
       <h1 className="text-headline-sm md:text-display-sm text-balance">
-          Checkout
-        </h1>
+        Checkout
+      </h1>
 
       <div className="flex flex-1 flex-col gap-4">
         <div
@@ -61,8 +65,6 @@ export function CompleteCheckout({
             checkoutPending && "pointer-events-none opacity-50",
           )}
         >
-          <Heading level={2}>Your details</Heading>
-
           <CheckoutForm onSubmit={onSubmit} />
 
           {/* Order Summary for Mobile */}
@@ -101,19 +103,30 @@ export function CompleteCheckout({
           .
         </p>
 
-        <Button
-          className="sticky inset-x-0 bottom-24 min-w-48 lg:relative lg:inset-x-auto lg:bottom-auto lg:w-fit lg:justify-start lg:self-end"
-          size="lg"
-          form="checkout-form"
-          disabled={!hasCartItems || hasStockIssues || checkoutPending}
+        {/* pinned to the bottom on phones, but in flow at the end, so it never hides what's after it */}
+        <div
+          data-slot="checkout-bar"
+          className="bg-background/90 sticky bottom-0 z-30 -mx-6 border-t px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:static lg:mx-0 lg:self-end lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none"
         >
-          {checkoutPending ? (
-            <Spinner data-icon="inline-start" />
-          ) : (
-            <LockIcon data-icon="inline-start" />
-          )}
-          Place order
-        </Button>
+          <Button
+            className="w-full min-w-48 lg:w-fit"
+            size="xl"
+            form="checkout-form"
+            disabled={
+              !addresses?.length ||
+              !hasCartItems ||
+              hasStockIssues ||
+              checkoutPending
+            }
+          >
+            {checkoutPending ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <LockIcon data-icon="inline-start" />
+            )}
+            {needsAddress ? "Add an address to continue" : "Place order"}
+          </Button>
+        </div>
       </div>
     </div>
   );
