@@ -6,7 +6,6 @@ import {
   or,
   count,
   and,
-  desc,
   inArray,
   gte,
   lte,
@@ -29,6 +28,10 @@ import {
 import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { variantsCTE } from "../common/cte";
+import {
+  getProductsOrdering,
+  type ProductsSortBy,
+} from "../common/products-ordering";
 import { alias } from "drizzle-orm/pg-core";
 
 export const _categories = {
@@ -159,7 +162,10 @@ export const _categories = {
       filters,
       slug,
       sortBy,
-    }: Pagination & { filters?: CategoryProductsFilters; slug: string }) => {
+    }: Pagination<Record<string, unknown>, ProductsSortBy> & {
+      filters?: CategoryProductsFilters;
+      slug: string;
+    }) => {
       const brandsMedia = alias(media, "brands_media");
 
       // this might need future refactoring I don't think this query is as optimal as it could be
@@ -170,8 +176,9 @@ export const _categories = {
       const categoryIds =
         await _categories.queries.helpers.getCategoryIdsBySlug(slug);
 
+      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const preds = [
-        gt(products.id, cursor ?? 0),
+        cursorWhere,
         eq(products.published, true),
         eq(products.archived, false),
         inArray(categories.id, categoryIds),
@@ -193,23 +200,6 @@ export const _categories = {
       }
       if (filters?.price?.max) {
         preds.push(lte(products.price, filters.price.max));
-      }
-
-      // Default order by is newest (desc)
-      let orderByClause = desc(products.id);
-      switch (sortBy) {
-        case "price-asc":
-          orderByClause = asc(products.price);
-          break;
-        case "price-desc":
-          orderByClause = desc(products.price);
-          break;
-        case "newest":
-          orderByClause = desc(products.id);
-          break;
-        case "oldest":
-          orderByClause = asc(products.id);
-          break;
       }
 
       return db
@@ -247,7 +237,7 @@ export const _categories = {
         .leftJoin(brandsMedia, eq(brands.logoMediaId, brandsMedia.id))
         .leftJoin(variantsCTE, eq(variantsCTE.productId, products.id))
         .where(and(availabilityPredicate, ...preds))
-        .orderBy(orderByClause)
+        .orderBy(...orderBy)
         .limit(pageSize + 1);
     },
 

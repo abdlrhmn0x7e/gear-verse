@@ -1,16 +1,4 @@
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  gte,
-  ilike,
-  inArray,
-  isNull,
-  lte,
-  sql,
-} from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, isNull, lte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -24,6 +12,10 @@ import {
 } from "~/server/db/schema";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
 import type { Pagination } from "../common/types";
+import {
+  getProductsOrdering,
+  type ProductsSortBy,
+} from "../common/products-ordering";
 
 export const _products = {
   queries: {
@@ -42,10 +34,11 @@ export const _products = {
           max: number;
         };
       },
-      "price-asc" | "price-desc" | "newest" | "oldest"
+      ProductsSortBy
     >) => {
+      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const whereClause = [
-        gt(products.id, cursor ?? 0),
+        cursorWhere,
         eq(products.published, true),
         eq(products.archived, false),
       ];
@@ -75,23 +68,6 @@ export const _products = {
       }
       if (filters?.price?.max) {
         whereClause.push(lte(products.price, filters.price.max));
-      }
-
-      // Default order by is newest (desc)
-      let orderBy = desc(products.id);
-      switch (sortBy) {
-        case "price-asc":
-          orderBy = asc(products.price);
-          break;
-        case "price-desc":
-          orderBy = desc(products.price);
-          break;
-        case "newest":
-          orderBy = desc(products.id);
-          break;
-        case "oldest":
-          orderBy = asc(products.id);
-          break;
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -140,7 +116,7 @@ export const _products = {
           ),
         )
         .limit(pageSize + 1)
-        .orderBy(orderBy);
+        .orderBy(...orderBy);
     },
 
     findBySlug: async (slug: string) => {
