@@ -16,7 +16,7 @@ export function PriceInput({
     <InputGroup>
       <InputGroupNumberInput value={value ?? ""} step={step} {...props} />
       <InputGroupAddon>
-        <p className="text-muted-foreground select-none">E£</p>
+        <p className="text-muted-foreground select-none">EGP</p>
       </InputGroupAddon>
     </InputGroup>
   );
