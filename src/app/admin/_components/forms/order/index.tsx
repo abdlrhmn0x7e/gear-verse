@@ -65,11 +65,13 @@ const PAYMENT_METHODS = [
     id: "COD",
     title: "Cash on Delivery",
     description: "Pay when the order is delivered.",
+    disabled: false,
   },
   {
     id: "ONLINE",
     title: "Online Payment",
-    description: "Pay online using your credit card.",
+    description: "Coming soon. Card payments aren't available yet.",
+    disabled: true,
   },
 ] as const;
 
@@ -161,6 +163,7 @@ export function OrderForm({
                   <Field
                     orientation="horizontal"
                     data-invalid={fieldState.invalid}
+                    data-disabled={paymentMethod.disabled}
                   >
                     <FieldContent>
                       <FieldTitle>{paymentMethod.title}</FieldTitle>
@@ -172,6 +175,7 @@ export function OrderForm({
                       value={paymentMethod.id}
                       id={`form-rhf-radiogroup-${paymentMethod.id}`}
                       aria-invalid={fieldState.invalid}
+                      disabled={paymentMethod.disabled}
                     />
                   </Field>
                 </FieldLabel>
