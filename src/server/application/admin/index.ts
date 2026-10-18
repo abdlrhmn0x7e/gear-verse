@@ -10,6 +10,7 @@ import { _addresses } from "./addresses";
 import { _attributes } from "./attributes";
 import { _attributeValues } from "./attribute-values";
 import { _reviews } from "./reviews";
+import { _dashboard } from "./dashboard";
 
 export const _admin = {
   products: _products,
@@ -24,4 +25,5 @@ export const _admin = {
   attributes: _attributes,
   attributeValues: _attributeValues,
   reviews: _reviews,
+  dashboard: _dashboard,
 };
