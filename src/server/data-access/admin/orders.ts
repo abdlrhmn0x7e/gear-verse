@@ -278,6 +278,8 @@ export const _orders = {
             address: addresses.address,
             city: addresses.city,
             governorate: addresses.governorate,
+            latitude: addresses.latitude,
+            longitude: addresses.longitude,
           },
           user: {
             name: users.name,

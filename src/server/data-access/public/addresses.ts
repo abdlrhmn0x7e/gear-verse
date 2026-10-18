@@ -16,6 +16,8 @@ export const _addresses = {
           buildingNameOrNumber: addresses.buildingNameOrNumber,
           city: addresses.city,
           governorate: addresses.governorate,
+          latitude: addresses.latitude,
+          longitude: addresses.longitude,
         })
         .from(addresses)
         .where(eq(addresses.userId, userId));

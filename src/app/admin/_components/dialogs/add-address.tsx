@@ -51,11 +51,11 @@ export function AddAddressDialog({ userId }: { userId: number }) {
           Add Address
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto]">
         <DialogHeader>
           <DialogTitle>Add Address</DialogTitle>
         </DialogHeader>
-        <DialogBody>
+        <DialogBody className="-mx-6 -my-1 min-h-0 overflow-y-auto px-6 py-1">
           <AddressForm onSubmit={onSubmit} />
         </DialogBody>
         <DialogFooter>

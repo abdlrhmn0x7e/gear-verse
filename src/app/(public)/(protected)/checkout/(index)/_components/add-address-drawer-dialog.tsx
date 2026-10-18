@@ -101,6 +101,7 @@ export function AddAddressDrawerDialog({
   const { mutate: addAddress, isPending } = useAddAddress((id) => {
     onSuccess?.(id);
     setOpen(false);
+    toast.success("Address added");
   });
 
   function onSubmit(values: AddressFormValues) {
@@ -113,12 +114,14 @@ export function AddAddressDrawerDialog({
         {children}
       </DrawerDialogTrigger>
 
-      <DrawerDialogContent>
+      {/* the map makes the form taller than a laptop screen, so the dialog
+          scrolls its body between a fixed header and footer */}
+      <DrawerDialogContent className="md:max-h-[calc(100dvh-2rem)] md:grid-rows-[auto_minmax(0,1fr)_auto]">
         <DrawerDialogHeader>
           <DrawerDialogTitle>Add address</DrawerDialogTitle>
         </DrawerDialogHeader>
 
-        <DrawerDialogBody>
+        <DrawerDialogBody className="md:-mx-6 md:-my-1 md:min-h-0 md:overflow-y-auto md:px-6 md:py-1">
           <AddressForm onSubmit={onSubmit} />
         </DrawerDialogBody>
 
