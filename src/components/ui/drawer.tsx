@@ -7,7 +7,9 @@ import { Drawer as DrawerPrimitive } from "vaul";
 function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
+  // vaul leaves focus on the trigger unless asked, so keyboard and screen
+  // reader users would land behind the open drawer
+  return <DrawerPrimitive.Root data-slot="drawer" autoFocus {...props} />;
 }
 
 function DrawerTrigger({
