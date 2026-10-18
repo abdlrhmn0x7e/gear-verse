@@ -80,7 +80,9 @@
   --brand-text: var(--plum-700);
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
+  /* selected text takes its own colour too, so it reads on the plum panel as well as the page: 12.27:1 */
   --selection: var(--plum-200);
+  --selection-foreground: var(--plum-950);
   /* the wordmark's own purple (#501854); 12.74:1 on the page, 11.84:1 on the footer card */
   --brand-logo: var(--plum-900);
 
@@ -162,7 +164,9 @@
   --brand-text: var(--plum-250);
   --brand-solid: var(--plum-900);
   --brand-solid-foreground: var(--plum-50);
-  --selection: var(--plum-800);
+  /* plum-50 on plum-700 is 7.56:1; plum-700 rather than 800 so the highlight still shows on the plum-900 panel (1.61:1 vs 1.22:1) */
+  --selection: var(--plum-700);
+  --selection-foreground: var(--plum-50);
   /* lavender at the brand hue; 10.82:1 on the page, 9.69:1 on the footer card */
   --brand-logo: oklch(0.84 0.045 325);
 
@@ -391,6 +395,7 @@
   }
   ::selection {
     background-color: var(--selection);
+    color: var(--selection-foreground);
   }
 }
 
