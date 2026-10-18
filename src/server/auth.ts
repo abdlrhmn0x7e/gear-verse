@@ -8,6 +8,7 @@ import { addresses, carts, orders, users } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { invalidateCache } from "./actions/cache";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -42,6 +43,20 @@ export const auth = betterAuth({
   },
   verification: {
     modelName: "verifications",
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        // the landing page lists the latest customers, so a real sign up
+        // (not an anonymous visitor) has to show up there
+        after: async (user) => {
+          if (user.isAnonymous !== true) {
+            await invalidateCache("customer-summary");
+          }
+        },
+      },
+    },
   },
 
   advanced: {
