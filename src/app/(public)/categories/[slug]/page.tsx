@@ -15,6 +15,12 @@ import { Filters } from "./_components/filters";
 import { Products, ProductsSkeleton } from "./_components/products";
 import { loadFilterSearchParams } from "./_components/utils";
 
+// Category and product edits expire this page (`expire: 0`), and the blocking
+// re-render that follows is checked for an App Shell. The navbar's usePathname
+// and the params read below sit outside Suspense on purpose (a missing category
+// is a real 404), so the check failed every category page with a 500.
+export const instant = false;
+
 export async function generateStaticParams() {
   const slugs = await app.public.categories.queries.findAllSlugs();
   if (slugs.length === 0) {
