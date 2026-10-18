@@ -3,13 +3,23 @@ import Link from "next/link";
 import { ProductCard } from "~/components/features/products/product-card";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Button } from "~/components/ui/button";
-import { getLatestProducts } from "../_lib/queries";
-import { HERO_PRODUCT_COUNT } from "./hero";
+import {
+  getHeroProducts,
+  getLatestProducts,
+  MORE_PRODUCT_COUNT,
+} from "../_lib/queries";
 import { SectionHeader } from "./section-header";
 
-/** Whatever the hero row had no room for; nothing renders while the whole catalog fits in the hero. */
+/** The newest products the hero row isn't already showing; nothing renders while the whole catalog fits in the hero. */
 export async function MoreProducts() {
-  const products = (await getLatestProducts()).slice(HERO_PRODUCT_COUNT);
+  const [hero, latest] = await Promise.all([
+    getHeroProducts(),
+    getLatestProducts(),
+  ]);
+  const inHero = new Set(hero.map((product) => product.id));
+  const products = latest
+    .filter((product) => !inHero.has(product.id))
+    .slice(0, MORE_PRODUCT_COUNT);
   if (products.length === 0) return null;
 
   return (
