@@ -12,7 +12,6 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "./spinner";
 import { authClient } from "~/lib/auth-client";
-import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
 import { GoogleLogo } from "./google-logo";
 import { Logo } from "./logo";
@@ -82,16 +81,13 @@ export function GoogleSignInButton({
   });
 
   return (
-    // Google's sign-in branding: neutral fill, grey hairline and the full-colour G, never the brand colour
+    // the site's own outline button carrying Google's full-colour G, never the brand colour
     <Button
-      variant="ghost"
+      variant="outline"
       size={size}
       onClick={() => signInWithGoogle()}
       disabled={isSigningIn}
-      className={cn(
-        "border-[#747775] bg-white text-[#1F1F1F] hover:bg-[#EEEEEE] dark:border-[#8E918F] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#242425]",
-        className,
-      )}
+      className={className}
     >
       {isSigningIn ? (
         <Spinner data-icon="inline-start" />
