@@ -58,13 +58,15 @@ function OrderSummary({
 
         {cart.items.map((item, index) => (
           <div className="flex gap-3" key={`item-${item.id}-${index}`}>
-            <ImageWithFallback
-              src={item.thumbnailUrl}
-              alt={item.title}
-              className="size-24 shrink-0 rounded-md"
-              width={256}
-              height={256}
-            />
+            <div className="image-well outline-image-outline size-24 shrink-0 overflow-hidden rounded-xl outline-1 -outline-offset-1">
+              <ImageWithFallback
+                src={item.thumbnailUrl}
+                alt={item.title}
+                className="size-full rounded-none border-none"
+                width={256}
+                height={256}
+              />
+            </div>
 
             <div className="flex flex-1 flex-col justify-between">
               <div>
@@ -100,7 +102,7 @@ function OrderSummary({
           {cart.items.map((item, index) => (
             <div
               key={`item-${item.id}-${index}`}
-              className="overflow-hidden rounded-lg"
+              className="image-well outline-image-outline overflow-hidden rounded-lg outline-1 -outline-offset-1"
             >
               <AspectRatio key={`item-${item.id}-${index}`} ratio={16 / 10}>
                 <ImageWithFallback
