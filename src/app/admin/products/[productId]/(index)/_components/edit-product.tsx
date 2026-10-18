@@ -38,7 +38,7 @@ export function EditProduct({
           ...data,
           inventory: data.inventory
             ? {
-                id: product.inventory?.id ?? 0, // always send the id even if it's not changed
+                id: product.inventory?.id, // always send the id even if it's not changed
                 quantity: data.inventory?.quantity ?? 0, //  there's always one inventory item for a product
               }
             : undefined,
@@ -89,12 +89,10 @@ export function EditProduct({
         metaDescription: product.seo?.metaDescription ?? "",
       },
 
-      inventory: product.inventory
-        ? {
-            id: product.inventory.id,
-            quantity: product.inventory.quantity,
-          }
-        : undefined,
+      inventory: {
+        id: product.inventory?.id,
+        quantity: product.inventory?.quantity ?? 0,
+      },
 
       media: [product.thumbnail, ...product.media],
       attributeIds: product.attributeIds ?? [],

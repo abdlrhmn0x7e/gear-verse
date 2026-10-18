@@ -327,6 +327,7 @@ export const _products = {
           } else if (variants) {
             await data.admin.inventoryItems.mutations.ensureProductItem(
               productId,
+              product.inventory?.quantity ?? 0,
               tx,
             );
           }

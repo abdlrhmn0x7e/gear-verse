@@ -24,8 +24,8 @@ import type { InventoryItem } from "~/lib/schemas/entities/inventory-item";
 
 type TableInventoryItem = Omit<
   InventoryItem,
-  "productId" | "productVariantId" | "createdAt" | "updatedAt"
->;
+  "id" | "productId" | "productVariantId" | "createdAt" | "updatedAt"
+> & { id?: number };
 
 const features = tableFeatures({
   columnSizingFeature,
@@ -41,7 +41,9 @@ export function InventoryTableInput({ data }: { data: TableInventoryItem[] }) {
         accessorKey: "id",
         header: "Item No.",
         cell: ({ row }) => {
-          return <span># {row.original.id}</span>;
+          return (
+            <span>{row.original.id ? `# ${row.original.id}` : "New"}</span>
+          );
         },
       },
       {

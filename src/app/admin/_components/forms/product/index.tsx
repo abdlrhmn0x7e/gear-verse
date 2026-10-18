@@ -103,6 +103,7 @@ export function ProductForm({
       attributeIds: [],
       media: [],
       options: [],
+      inventory: { quantity: 0 },
     },
   });
 
@@ -126,6 +127,11 @@ export function ProductForm({
     control: form.control,
     name: "inventory",
     defaultValue: defaultValues?.inventory,
+  });
+  const variants = useWatch({
+    control: form.control,
+    name: "variants",
+    defaultValue: defaultValues?.variants,
   });
   const categoryId = useWatch({
     control: form.control,
@@ -242,22 +248,13 @@ export function ProductForm({
             </CardContent>
           </Card>
 
-          {inventory && (
+          {!variants?.length && (
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Inventory</CardTitle>
-                  <div className="pointer-events-none flex items-center gap-2 opacity-50">
-                    <p className="text-muted-foreground text-sm">
-                      Inventory tracked (you want this?)
-                    </p>
-
-                    <Switch />
-                  </div>
-                </div>
+                <CardTitle>Inventory</CardTitle>
               </CardHeader>
               <CardContent>
-                <InventoryTableInput data={[inventory]} />
+                <InventoryTableInput data={[inventory ?? { quantity: 0 }]} />
               </CardContent>
             </Card>
           )}
