@@ -1,8 +1,6 @@
-import { IconTag } from "@tabler/icons-react";
 import { TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Header from "~/components/header";
 import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Button } from "~/components/ui/button";
@@ -11,6 +9,7 @@ import { Separator } from "~/components/ui/separator";
 import { requireAdmin } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { EditVariant } from "./_components/edit-variant";
+import { PageLayout } from "../../../../_components/page-layout";
 
 export default async function AdminVariantPage({
   params,
@@ -44,7 +43,14 @@ export default async function AdminVariantPage({
   }
 
   return (
-    <section className="space-y-6">
+    <PageLayout
+      title="Variant Details"
+      description="View and edit the details of this product variant"
+      parent={{
+        title: product.title,
+        href: `/admin/products/${parsedProductId}`,
+      }}
+    >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
@@ -54,75 +60,66 @@ export default async function AdminVariantPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-6">
-        <Header
-          title="Variant Details"
-          description="View and edit the details of this product variant"
-          headingLevel={5}
-          Icon={IconTag}
-        />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <Card className="h-fit">
+          <CardHeader>
+            <div className="flex gap-4">
+              <ImageWithFallback
+                src={product.thumbnailUrl}
+                alt="Product Thumbnail"
+                width={256}
+                height={256}
+                className="size-24"
+              />
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card className="h-fit">
-            <CardHeader>
-              <div className="flex gap-4">
-                <ImageWithFallback
-                  src={product.thumbnailUrl}
-                  alt="Product Thumbnail"
-                  width={256}
-                  height={256}
-                  className="size-24"
-                />
-
-                <div className="flex flex-1 flex-col">
-                  <Heading level={4}>{product.title}</Heading>
-                  <p className="text-muted-foreground">
-                    {product.variants.length} variants
-                  </p>
-                </div>
+              <div className="flex flex-1 flex-col">
+                <Heading level={4}>{product.title}</Heading>
+                <p className="text-muted-foreground">
+                  {product.variants.length} variants
+                </p>
               </div>
-            </CardHeader>
+            </div>
+          </CardHeader>
 
-            <Separator />
+          <Separator />
 
-            <CardContent className="space-y-2">
-              {/*Maybe Later*/}
-              {/*<SearchInput />*/}
-              <Heading level={4}>Related Variants</Heading>
-              {product.variants.map((variant, index) => {
-                const optionValues = Object.values(variant.options)
-                  .map((val) => val.value)
-                  .join(" / ");
+          <CardContent className="space-y-2">
+            {/*Maybe Later*/}
+            {/*<SearchInput />*/}
+            <Heading level={4}>Related Variants</Heading>
+            {product.variants.map((variant, index) => {
+              const optionValues = Object.values(variant.options)
+                .map((val) => val.value)
+                .join(" / ");
 
-                return (
-                  <Button
-                    key={`variant-${index}`}
-                    variant="link"
-                    className="w-full justify-start"
-                    disabled={variant.id === parsedVariantId}
-                    asChild
+              return (
+                <Button
+                  key={`variant-${index}`}
+                  variant="link"
+                  className="w-full justify-start"
+                  disabled={variant.id === parsedVariantId}
+                  asChild
+                >
+                  <Link
+                    href={`/admin/products/${parsedProductId}/variants/${variant.id}`}
                   >
-                    <Link
-                      href={`/admin/products/${parsedProductId}/variants/${variant.id}`}
-                    >
-                      <ImageWithFallback
-                        src={variant.thumbnailUrl ?? ""}
-                        alt={"Variant Thumbnail"}
-                        width={64}
-                        height={64}
-                        className="size-8"
-                      />
-                      <p className="text-sm">{optionValues}</p>
-                    </Link>
-                  </Button>
-                );
-              })}
-            </CardContent>
-          </Card>
+                    <ImageWithFallback
+                      src={variant.thumbnailUrl ?? ""}
+                      alt={"Variant Thumbnail"}
+                      width={64}
+                      height={64}
+                      className="size-8"
+                    />
+                    <p className="text-sm">{optionValues}</p>
+                  </Link>
+                </Button>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-          <EditVariant variant={variant} />
-        </div>
+        <EditVariant variant={variant} />
       </div>
-    </section>
+    </PageLayout>
   );
 }

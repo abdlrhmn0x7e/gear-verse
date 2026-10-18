@@ -1,5 +1,4 @@
-import { PackageIcon, TriangleAlertIcon } from "lucide-react";
-import Header from "~/components/header";
+import { TriangleAlertIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,10 +7,15 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
+import { PageLayout } from "../../../_components/page-layout";
 
 export default function Loading() {
   return (
-    <section className="mx-auto max-w-7xl space-y-6">
+    <PageLayout
+      title="Edit Product"
+      description="Let's get this product looking good alright?"
+      parent={{ title: "Products", href: "/admin/products" }}
+    >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
@@ -20,12 +24,6 @@ export default function Loading() {
           </p>
         </div>
       </div>
-
-      <Header
-        title={`Edit Product`}
-        description="Let's get this product looking good alright?"
-        Icon={PackageIcon}
-      />
 
       <div className="grid grid-cols-1 gap-6 pb-24 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
@@ -181,6 +179,6 @@ export default function Loading() {
           </Card>
         </div>
       </div>
-    </section>
+    </PageLayout>
   );
 }

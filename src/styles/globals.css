@@ -99,13 +99,16 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
 
-  --sidebar: var(--neutral-50);
+  /* the admin frame takes the card surface and the content card sits on it at page white; item text is the foreground
+     at 75% (10.24:1 on the frame), group labels at 70% (8.67:1), the account email muted-foreground (5.22:1) */
+  --sidebar: var(--neutral-100);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
+  /* the active item; hover takes it at half strength. Full foreground on it measures 15.84:1 */
+  --sidebar-accent: var(--neutral-200);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--neutral-200);
   --sidebar-ring: var(--ring);
 
   --font-serif: Georgia, serif;
@@ -179,7 +182,12 @@
   --image-well: var(--neutral-250);
   --image-outline: oklch(1 0 0 / 0.1);
 
+  /* the frame steps up from the page like a card, so the content card reads as the page itself: items at 75% measure
+     8.30:1, labels at 70% 7.32:1, the email 6.94:1; the active item (neutral-800) keeps the foreground at 13.02:1 */
   --sidebar: var(--neutral-850);
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--neutral-800);
 
   --shadow-2xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
   --shadow-xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);

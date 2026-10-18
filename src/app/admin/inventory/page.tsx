@@ -1,6 +1,4 @@
-import { PackageIcon } from "lucide-react";
 import { EditInventory } from "./_components/edit-inventory";
-import Header from "~/components/header";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
 import { Suspense } from "react";
@@ -9,6 +7,7 @@ import { loadInventorySearchParams } from "../_hooks/use-inventory-search-params
 import { InventoryItemFilter } from "../_components/tables/inventory/filters";
 import { InventoryTableSkeleton } from "../_components/tables/inventory/skeleton";
 import { requireAdmin } from "~/server/auth";
+import { PageLayout } from "../_components/page-layout";
 
 export default async function AdminInventoryPage({
   searchParams,
@@ -30,13 +29,11 @@ export default async function AdminInventoryPage({
   );
 
   return (
-    <section className="space-y-6">
-      <Header
-        title="Inventory"
-        description="Easily view, update, and organize your product inventory"
-        Icon={PackageIcon}
-      />
-
+    <PageLayout
+      title="Inventory"
+      description="Easily view, update, and organize your product inventory"
+      contentWidth="full"
+    >
       <Card className="gap-1 p-2">
         <CardHeader className="p-0">
           <InventoryItemFilter className="max-w-sm" />
@@ -49,6 +46,6 @@ export default async function AdminInventoryPage({
           </HydrateClient>
         </CardContent>
       </Card>
-    </section>
+    </PageLayout>
   );
 }
