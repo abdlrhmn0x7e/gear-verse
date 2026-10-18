@@ -245,7 +245,9 @@ async function RelatedProducts({
       <h2 id="related-heading" className="text-headline-sm text-balance">
         You might also like
       </h2>
-      <div className={productGridClassName}>
+      <div
+        className={cn(productGridClassName, "lg:grid-cols-3 xl:grid-cols-4")}
+      >
         {related.map((item) => (
           <ProductCard key={item.id} product={item} />
         ))}

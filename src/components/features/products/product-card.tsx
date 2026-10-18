@@ -89,6 +89,6 @@ export function ProductCardSkeleton() {
   );
 }
 
-/** Grid used by every product listing, so card widths match across home, store and category pages. */
+/** Grid for the store and category listings, which share their row with the filter sidebar. */
 export const productGridClassName =
-  "grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 lg:grid-cols-3 xl:grid-cols-4";
+  "grid grid-cols-2 gap-x-4 gap-y-10 md:gap-x-6 xl:grid-cols-3";
