@@ -48,7 +48,7 @@ export default async function SuccessPage({
 
   return (
     <section>
-      <MaxWidthWrapper className="flex min-h-screen max-w-2xl flex-col items-center justify-center space-y-8 py-32">
+      <MaxWidthWrapper className="flex min-h-svh max-w-2xl flex-col items-center justify-center space-y-8 py-32">
         <div className="flex flex-col items-center gap-4">
           <BadgeCheckIcon className="size-24 text-green-500 dark:text-green-300" />
           <div className="space-y-2 text-center">

@@ -18,7 +18,7 @@ export default function GlobalError({
   return (
     <html>
       <body>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-3 pb-12">
+        <div className="flex min-h-svh flex-col items-center justify-center gap-3 pb-12">
           <SkullIcon className="size-24" />
           <Heading level={3}>Something Went Wrong!</Heading>
           <p className="text-muted-foreground">

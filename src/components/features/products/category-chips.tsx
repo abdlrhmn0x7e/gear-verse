@@ -28,9 +28,9 @@ export async function CategoryChips({
 
   return (
     <nav aria-label="Categories" className="-mx-6 lg:-mx-8">
-      <ul className="no-scrollbar flex gap-2 overflow-x-auto px-6 py-1 lg:px-8">
+      <ul className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-2 overflow-x-auto px-6 py-1 lg:scroll-px-8 lg:px-8">
         {chips.map((chip) => (
-          <li key={chip.href}>
+          <li key={chip.href} className="snap-start">
             <Link
               href={chip.href}
               aria-current={chip.active ? "page" : undefined}

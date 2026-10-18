@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 
 export function NotFoundContent() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 pb-12 text-center">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-4 px-6 pb-12 text-center">
       <p className="text-muted-foreground text-sm font-medium tabular-nums">
         404
       </p>
