@@ -24,6 +24,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
+import { formatCurrency } from "~/lib/utils/format-currency";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 export function ProductSearchDialog({
@@ -185,11 +186,10 @@ function Content({ close }: { close: () => void }) {
   );
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (!data) return;
-
     const key = e.key;
     switch (key) {
       case "ArrowDown": {
+        if (!data) return;
         e.preventDefault();
         e.stopPropagation();
         setHover((hover) => {
@@ -200,6 +200,7 @@ function Content({ close }: { close: () => void }) {
       }
 
       case "ArrowUp": {
+        if (!data) return;
         e.preventDefault();
         e.stopPropagation();
         setHover((hover) => {
@@ -213,9 +214,18 @@ function Content({ close }: { close: () => void }) {
         e.preventDefault();
         e.stopPropagation();
 
-        if (hover && data.data[hover - 1]?.slug) {
+        const highlighted = hover ? data?.data[hover - 1] : undefined;
+        if (highlighted?.slug) {
           close();
-          route.push(`/products/${data.data[hover - 1]?.slug}`);
+          route.push(`/products/${highlighted.slug}`);
+          break;
+        }
+
+        // nothing highlighted: Enter means "show me everything that matches"
+        const query = search.trim();
+        if (query) {
+          close();
+          route.push(`/products?title=${encodeURIComponent(query)}`);
         }
         break;
       }
@@ -229,6 +239,7 @@ function Content({ close }: { close: () => void }) {
 
         <input
           type="text"
+          enterKeyHint="search"
           aria-label="Search products"
           placeholder="Search products"
           className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none"
@@ -348,10 +359,15 @@ export function ProductSearchItem({
           />
         </div>
 
-        <div className="flex size-full flex-1 flex-col">
-          <p className="text-foreground text-sm font-medium">
-            {product.title}
-          </p>
+        <div className="flex size-full min-w-0 flex-1 flex-col">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-foreground text-sm font-medium">
+              {product.title}
+            </p>
+            <p className="shrink-0 text-sm font-medium tabular-nums">
+              {formatCurrency(product.price)}
+            </p>
+          </div>
 
           <p className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm">
             {product.summary}

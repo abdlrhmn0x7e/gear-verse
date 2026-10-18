@@ -3,6 +3,7 @@
  * listing they produce is a copy of the clean page, so it isn't indexed.
  */
 const FACET_PARAMS = new Set([
+  "title",
   "categories",
   "brands",
   "minPrice",
