@@ -11,6 +11,10 @@ const config = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  experimental: {
+    turbopackRustReactCompiler: true,
+    turbopackPluginRuntimeStrategy: "workerThreads",
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
