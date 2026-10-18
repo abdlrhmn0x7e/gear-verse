@@ -68,9 +68,10 @@ export function EditOrderDrawer() {
         void setParams({ editId: null });
       },
 
-      onError: () => {
+      onError: (error) => {
         toast.error(
-          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+          error.message ||
+            "Couldn't save the order. Check each item has enough stock.",
         );
       },
     }),

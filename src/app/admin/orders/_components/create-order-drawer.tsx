@@ -33,9 +33,10 @@ export function CreateOrderDrawer() {
         toast.success("Order created successfully");
         void setParams({ create: null });
       },
-      onError: () => {
+      onError: (error) => {
         toast.error(
-          "Something went wrong! Probably one of the items quantatity is larger than the available stock.",
+          error.message ||
+            "Couldn't create the order. Check each item has enough stock.",
         );
       },
     }),
