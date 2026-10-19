@@ -119,6 +119,7 @@ export const _products = {
           title: true,
           slug: true,
           published: true,
+          trendingAt: true,
           price: true,
         },
 
@@ -337,6 +338,7 @@ export const _products = {
           summary: products.summary,
           slug: products.slug,
           published: products.published,
+          trendingAt: products.trendingAt,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           profit: products.profit,
@@ -365,7 +367,8 @@ export const _products = {
           >`coalesce(${optionsQuery.options}, '[]'::jsonb)`,
 
           thumbnail: {
-            mediaId: sql<number>`${media.id}`,
+            // a raw bigint comes back as a string, which the form rejects
+            mediaId: sql<number>`${media.id}`.mapWith(Number),
             url: sql<string>`${media.url}`,
           },
           media: sql<

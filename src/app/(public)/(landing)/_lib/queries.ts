@@ -1,13 +1,31 @@
 import { cacheTag } from "next/cache";
 import { app } from "~/server/application";
 
-/** Newest in-stock products: three for the hero row, then one desktop row of four after it. */
+export const HERO_PRODUCT_COUNT = 3;
+export const MORE_PRODUCT_COUNT = 4;
+
+/** The hero row: in-stock trending products, the latest marked first, then the newest to fill it. */
+export async function getHeroProducts() {
+  "use cache";
+
+  cacheTag("recent-products");
+
+  const page = await app.public.products.queries.getPage({
+    pageSize: HERO_PRODUCT_COUNT,
+    sortBy: "trending",
+  });
+  return page.data;
+}
+
+/** Newest in-stock products, enough for one desktop row of four after whatever the hero row already shows. */
 export async function getLatestProducts() {
   "use cache";
 
   cacheTag("recent-products");
 
-  const page = await app.public.products.queries.getPage({ pageSize: 7 });
+  const page = await app.public.products.queries.getPage({
+    pageSize: HERO_PRODUCT_COUNT + MORE_PRODUCT_COUNT,
+  });
   return page.data;
 }
 

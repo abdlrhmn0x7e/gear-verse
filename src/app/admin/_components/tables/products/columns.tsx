@@ -152,6 +152,7 @@ export const productColumns: ListColumn<ProductRow>[] = [
             id={row.original.id}
             slug={row.original.slug}
             published={row.original.published}
+            trending={row.original.trendingAt !== null}
           />
         </div>
       );

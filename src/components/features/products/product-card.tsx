@@ -55,6 +55,9 @@ export function ProductCard({
       </div>
 
       <div className="flex flex-col gap-1 px-1">
+        {product.trending && (
+          <p className="text-brand-text text-sm font-medium">Trending</p>
+        )}
         {product.brand.name && (
           <p className="text-muted-foreground text-sm">{product.brand.name}</p>
         )}

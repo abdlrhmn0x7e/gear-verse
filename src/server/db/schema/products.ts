@@ -36,6 +36,8 @@ export const products = pgTable(
     description: jsonb("description").$type<JSONContent>().notNull(),
     published: boolean("published").notNull().default(false),
     archived: boolean("archived").notNull().default(false),
+    // null when not trending; otherwise when it was marked, so the latest pick leads the home page
+    trendingAt: timestamp("trending_at"),
     slug: text("slug").notNull(),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {

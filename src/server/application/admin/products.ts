@@ -65,6 +65,7 @@ export const _products = {
         media,
         attributeIds,
         originalCost,
+        trending,
         ...product
       } = input;
 
@@ -107,6 +108,7 @@ export const _products = {
           margin: Math.ceil((product.price - originalCost) / product.price),
           slug,
           thumbnailMediaId: thumbnail.mediaId,
+          trendingAt: trending ? new Date() : null,
         },
         newAttributes: attributeIds,
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
@@ -130,7 +132,12 @@ export const _products = {
     },
 
     async editDeep(productId: number, input: UpdateProductInput) {
-      const { options, variants, ...product } = input;
+      const { options, variants, trending, ...rest } = input;
+      // only sent when it changes, so turning it on dates it to now
+      const product =
+        trending === undefined
+          ? rest
+          : { ...rest, trendingAt: trending ? new Date() : null };
 
       try {
         // every write commits together or not at all

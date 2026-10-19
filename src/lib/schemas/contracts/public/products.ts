@@ -20,6 +20,7 @@ export const productSortBySchema = z.enum([
   "oldest",
   "price-asc",
   "price-desc",
+  "trending",
 ]);
 export type ProductSortBy = z.infer<typeof productSortBySchema>;
 

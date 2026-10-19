@@ -8,12 +8,10 @@ import {
 } from "~/components/features/products/product-row";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Button } from "~/components/ui/button";
-import { getLatestProducts } from "../_lib/queries";
-
-export const HERO_PRODUCT_COUNT = 3;
+import { getHeroProducts, HERO_PRODUCT_COUNT } from "../_lib/queries";
 
 export async function Hero() {
-  const products = (await getLatestProducts()).slice(0, HERO_PRODUCT_COUNT);
+  const products = await getHeroProducts();
 
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-16">
