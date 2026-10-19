@@ -18,6 +18,8 @@ import {
   type DataGridTableInstance,
 } from "~/components/reui/data-grid/data-grid";
 import { DataGridTable } from "~/components/reui/data-grid/data-grid-table";
+import { DataGridTableDndRows } from "~/components/reui/data-grid/data-grid-table-dnd-rows";
+import type { DragEndEvent } from "@dnd-kit/core";
 import { LoadMore } from "~/components/load-more";
 import {
   Empty,
@@ -79,6 +81,7 @@ export function ListGrid<Row extends object>({
   hasNextPage = false,
   loadMoreRef,
   empty,
+  sortable,
   dense = false,
   className,
 }: {
@@ -90,6 +93,11 @@ export function ListGrid<Row extends object>({
   hasNextPage?: boolean;
   loadMoreRef?: ForwardedRef<HTMLDivElement>;
   empty: { title: string; description?: ReactNode; icon?: ReactNode };
+  /**
+   * Rows that can be dragged, by mouse, touch or keyboard, into a new order
+   * through a `DataGridTableDndRowHandle`. Every other row stays in place.
+   */
+  sortable?: { ids: string[]; onDragEnd: (event: DragEndEvent) => void };
   dense?: boolean;
   className?: string;
 }) {
@@ -133,7 +141,14 @@ export function ListGrid<Row extends object>({
         }}
       >
         <DataGridContainer className="overflow-x-auto">
-          <DataGridTable />
+          {sortable ? (
+            <DataGridTableDndRows
+              dataIds={sortable.ids}
+              handleDragEnd={sortable.onDragEnd}
+            />
+          ) : (
+            <DataGridTable />
+          )}
         </DataGridContainer>
       </DataGrid>
 

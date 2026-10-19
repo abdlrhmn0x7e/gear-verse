@@ -1,4 +1,17 @@
-import { and, eq, gt, ilike, inArray, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  eq,
+  gt,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  sql,
+  type AnyColumn,
+  type SQL,
+} from "drizzle-orm";
+import { AppError } from "~/lib/errors/app-error";
 import { productAttributeValues } from "~/server/db/schema/attributes";
 import { inventoryItems } from "~/server/db/schema/inventory";
 import { db, type Tx } from "../../db";
@@ -55,32 +68,26 @@ type UpdateProduct = Partial<
 >;
 type NewInventoryItem = typeof inventoryItems.$inferInsert;
 
-export const _products = {
-  queries: {
-    getPage: async ({
-      cursor,
-      pageSize,
-      filters,
-    }: Pagination<{
-      title: string;
-      brands: number[];
-      categories: number[];
-    }>) => {
-      const whereClause = [
-        gt(products.id, cursor ?? 0),
-        eq(products.archived, false),
-      ];
-      if (filters?.title) {
-        whereClause.push(ilike(products.title, `%${filters.title}%`));
-      }
-      if (filters?.brands) {
-        whereClause.push(inArray(products.brandId, filters.brands));
-      }
-      if (filters?.categories) {
-        const categoriesIds = new Set<number>([...filters.categories]);
-        await Promise.all(
-          filters.categories.map(async (categoryId) => {
-            const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
+type ProductsFilter = {
+  title: string;
+  brands: number[];
+  categories: number[];
+};
+
+/** Live products matching the list's search and filters. */
+async function getListWhere(filters?: Partial<ProductsFilter>) {
+  const whereClause = [eq(products.archived, false)];
+  if (filters?.title) {
+    whereClause.push(ilike(products.title, `%${filters.title}%`));
+  }
+  if (filters?.brands) {
+    whereClause.push(inArray(products.brandId, filters.brands));
+  }
+  if (filters?.categories) {
+    const categoriesIds = new Set<number>([...filters.categories]);
+    await Promise.all(
+      filters.categories.map(async (categoryId) => {
+        const childrenCategoriesIdsQuery = sql<{ id: number }[]>`
             WITH RECURSIVE all_children_categories AS (
               SELECT id
               FROM categories
@@ -97,72 +104,112 @@ export const _products = {
             SELECT id FROM all_children_categories
           `;
 
-            return db
-              .execute<{ id: number }>(childrenCategoriesIdsQuery)
-              .then((result) =>
-                result.forEach((row) => {
-                  categoriesIds.add(row.id);
-                }),
-              );
-          }),
-        );
+        return db
+          .execute<{ id: number }>(childrenCategoriesIdsQuery)
+          .then((result) =>
+            result.forEach((row) => {
+              categoriesIds.add(row.id);
+            }),
+          );
+      }),
+    );
 
-        whereClause.push(
-          inArray(products.categoryId, Array.from(categoriesIds)),
-        );
-      }
+    whereClause.push(inArray(products.categoryId, Array.from(categoriesIds)));
+  }
 
-      return db.query.products.findMany({
-        where: and(...whereClause),
+  return whereClause;
+}
+
+function findListRows({
+  where,
+  orderBy,
+  limit,
+}: {
+  where: SQL | undefined;
+  orderBy: SQL | AnyColumn;
+  limit?: number;
+}) {
+  return db.query.products.findMany({
+    where,
+    columns: {
+      id: true,
+      title: true,
+      slug: true,
+      published: true,
+      pinnedPosition: true,
+      price: true,
+    },
+
+    with: {
+      thumbnail: {
         columns: {
-          id: true,
-          title: true,
-          slug: true,
-          published: true,
-          trendingAt: true,
-          price: true,
+          url: true,
         },
+      },
 
+      brand: {
+        columns: {
+          name: true,
+        },
         with: {
-          thumbnail: {
+          logo: {
             columns: {
               url: true,
             },
           },
+        },
+      },
 
-          brand: {
-            columns: {
-              name: true,
-            },
-            with: {
-              logo: {
-                columns: {
-                  url: true,
-                },
-              },
-            },
-          },
-
-          category: {
+      category: {
+        columns: {
+          id: true,
+          name: true,
+          icon: true,
+        },
+        with: {
+          parent: {
             columns: {
               id: true,
               name: true,
               icon: true,
             },
-            with: {
-              parent: {
-                columns: {
-                  id: true,
-                  name: true,
-                  icon: true,
-                },
-              },
-            },
           },
         },
+      },
+    },
 
-        limit: pageSize + 1,
+    limit,
+    orderBy,
+  });
+}
+
+export const _products = {
+  queries: {
+    /** Unpinned products in id order; the pinned ones lead the list from `getPinned`. */
+    getPage: async ({
+      cursor,
+      pageSize,
+      filters,
+    }: Pagination<ProductsFilter>) => {
+      return findListRows({
+        where: and(
+          gt(products.id, cursor ?? 0),
+          isNull(products.pinnedPosition),
+          ...(await getListWhere(filters)),
+        ),
         orderBy: products.id,
+        limit: pageSize + 1,
+      });
+    },
+
+    /** Pinned products, top first. There are only ever a few, so no paging. */
+    getPinned: async (filters?: Partial<ProductsFilter>) => {
+      return findListRows({
+        where: and(
+          isNotNull(products.pinnedPosition),
+          ...(await getListWhere(filters)),
+        ),
+        orderBy: products.pinnedPosition,
       });
     },
 
@@ -321,7 +368,6 @@ export const _products = {
           summary: products.summary,
           slug: products.slug,
           published: products.published,
-          trendingAt: products.trendingAt,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           profit: products.profit,
@@ -737,7 +783,7 @@ export const _products = {
 
         const product = tx
           .update(products)
-          .set({ archived: true })
+          .set({ archived: true, pinnedPosition: null })
           .where(eq(products.id, productId))
           .returning({ id: products.id })
           .then(([product]) => product);
@@ -749,6 +795,52 @@ export const _products = {
               .returning({ id: products.id })
               .then(([product]) => product)
           : product;
+      });
+    },
+
+    /**
+     * Rewrites the pinned order, top first. `reorder` gets the current order
+     * and returns the new one, under a lock so two admins pinning at once
+     * can't drop each other's pin. Every id it returns must be a live product.
+     */
+    rewritePinned(reorder: (pinnedIds: number[]) => number[]) {
+      return db.transaction(async (tx) => {
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtext('products.pinned_position'))`,
+        );
+        const pinnedIds = await tx
+          .select({ id: products.id })
+          .from(products)
+          .where(isNotNull(products.pinnedPosition))
+          .orderBy(asc(products.pinnedPosition))
+          .then((rows) => rows.map((row) => row.id));
+        const ids = reorder(pinnedIds);
+
+        // pinning doesn't change the product page, so the sitemap's lastModified stays put
+        const updatedAt = sql`${products.updatedAt}`;
+        // positions are unique and checked row by row, so clear them before writing the new ones
+        await tx
+          .update(products)
+          .set({ pinnedPosition: null, updatedAt })
+          .where(isNotNull(products.pinnedPosition));
+        if (ids.length === 0) return ids;
+
+        const pinned = await tx
+          .update(products)
+          .set({
+            pinnedPosition: sql`case ${products.id} ${sql.join(
+              ids.map((id, index) => sql`when ${id} then ${index}::integer`),
+              sql` `,
+            )} end`,
+            updatedAt,
+          })
+          .where(and(inArray(products.id, ids), eq(products.archived, false)))
+          .returning({ id: products.id });
+        if (pinned.length !== ids.length) {
+          throw new AppError("Product not found", "NOT_FOUND");
+        }
+
+        return ids;
       });
     },
 

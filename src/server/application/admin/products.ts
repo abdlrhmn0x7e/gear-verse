@@ -2,7 +2,7 @@
 import { AppError } from "~/lib/errors/app-error";
 import { data } from "~/server/data-access";
 import type { CreateProductInput, UpdateProductInput } from "@schemas/entities";
-import type { ProductsGetPageInput } from "@schemas/contracts";
+import type { ProductsFilter, ProductsGetPageInput } from "@schemas/contracts";
 import { paginate } from "~/server/application/helpers/pagination";
 import { generateSlug } from "~/lib/utils/slugs";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
@@ -28,6 +28,10 @@ export const _products = {
   queries: {
     getPage: (input: ProductsGetPageInput) => {
       return paginate({ input, getPage: data.admin.products.queries.getPage });
+    },
+
+    getPinned: (filters: ProductsFilter) => {
+      return data.admin.products.queries.getPinned(filters);
     },
 
     findById: async (id: number) => {
@@ -65,7 +69,6 @@ export const _products = {
         media,
         attributeIds,
         originalCost,
-        trending,
         ...product
       } = input;
 
@@ -108,7 +111,6 @@ export const _products = {
           margin: Math.ceil((product.price - originalCost) / product.price),
           slug,
           thumbnailMediaId: thumbnail.mediaId,
-          trendingAt: trending ? new Date() : null,
         },
         newAttributes: attributeIds,
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
@@ -132,12 +134,7 @@ export const _products = {
     },
 
     async editDeep(productId: number, input: UpdateProductInput) {
-      const { options, variants, trending, ...rest } = input;
-      // only sent when it changes, so turning it on dates it to now
-      const product =
-        trending === undefined
-          ? rest
-          : { ...rest, trendingAt: trending ? new Date() : null };
+      const { options, variants, ...product } = input;
 
       try {
         // every write commits together or not at all
@@ -349,6 +346,43 @@ export const _products = {
           await invalidateCache("category-filters");
         }
       }
+    },
+
+    /** Pins a product to the top of the home page's row, or moves it there if it's already pinned. */
+    async pin(productId: number) {
+      const order = await data.admin.products.mutations.rewritePinned(
+        (pinnedIds) => [
+          productId,
+          ...pinnedIds.filter((id) => id !== productId),
+        ],
+      );
+      await invalidateCache("recent-products");
+      return order;
+    },
+
+    async unpin(productId: number) {
+      const order = await data.admin.products.mutations.rewritePinned(
+        (pinnedIds) => pinnedIds.filter((id) => id !== productId),
+      );
+      await invalidateCache("recent-products");
+      return order;
+    },
+
+    /**
+     * Orders the pinned products as listed. A list from a stale page can't
+     * pin or unpin anything: ids that aren't pinned are dropped, and pinned
+     * ones it's missing keep their order after it.
+     */
+    async reorderPinned(productIds: number[]) {
+      const order = await data.admin.products.mutations.rewritePinned(
+        (pinnedIds) => {
+          const pinned = new Set(pinnedIds);
+          const listed = new Set(productIds.filter((id) => pinned.has(id)));
+          return [...listed, ...pinnedIds.filter((id) => !listed.has(id))];
+        },
+      );
+      await invalidateCache("recent-products");
+      return order;
     },
 
     async delete(productId: number) {

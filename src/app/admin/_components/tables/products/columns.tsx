@@ -8,17 +8,32 @@ import type { RouterOutput } from "~/trpc/client";
 import { iconsMap } from "~/lib/icons-map";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { ProductsTableActions } from "./actions";
+import { PinToggle } from "./pin";
 import { Badge } from "~/components/ui/badge";
 import {
   DataGridTableRowSelect,
   DataGridTableRowSelectAll,
 } from "~/components/reui/data-grid/data-grid-table";
+import { DataGridTableDndRowHandle } from "~/components/reui/data-grid/data-grid-table-dnd-rows";
 import type { ListColumn } from "../list-grid";
 
 export type ProductRow =
   RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
 
 export const productColumns: ListColumn<ProductRow>[] = [
+  {
+    id: "reorder",
+    header: () => <span className="sr-only">Reorder</span>,
+    enableHiding: false,
+    meta: { headerTitle: "Reorder", headerClassName: "w-10" },
+    cell: ({ row }) =>
+      row.original.pinnedPosition !== null && (
+        // the row opens the product drawer, and Enter on the grip clicks it
+        <div onClick={(event) => event.stopPropagation()}>
+          <DataGridTableDndRowHandle disabledLabel="Clear the filters to reorder" />
+        </div>
+      ),
+  },
   {
     id: "select",
     header: () => <DataGridTableRowSelectAll />,
@@ -147,12 +162,18 @@ export const productColumns: ListColumn<ProductRow>[] = [
       return (
         // The menu portals out, but the trigger's click would still open the
         // row's drawer.
-        <div onClick={(event) => event.stopPropagation()}>
+        <div
+          className="flex justify-end gap-1"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <PinToggle
+            id={row.original.id}
+            pinned={row.original.pinnedPosition !== null}
+          />
           <ProductsTableActions
             id={row.original.id}
             slug={row.original.slug}
             published={row.original.published}
-            trending={row.original.trendingAt !== null}
           />
         </div>
       );

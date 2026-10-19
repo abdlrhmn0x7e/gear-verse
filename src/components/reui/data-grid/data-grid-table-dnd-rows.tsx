@@ -131,8 +131,10 @@ function DataGridTableDndRowHandle({
   const context = useContext(SortableRowContext);
   const resolvedDisabledLabel =
     disabledLabel ?? i18n.labels.reorderingUnavailable;
+  // outside a sortable row the grip is inert, so it mustn't announce a drag
+  const inert = disabled || !context;
 
-  if (!context || disabled) {
+  if (inert) {
     return (
       <Button
         variant="ghost"
@@ -142,13 +144,11 @@ function DataGridTableDndRowHandle({
           // The Button's own disabled treatment supplies the muting; only the
           // cursor needs saying, so the grip reads as unavailable rather than
           // merely unresponsive.
-          disabled && "cursor-not-allowed",
+          "cursor-not-allowed",
           className,
         )}
-        aria-label={
-          disabled ? resolvedDisabledLabel : i18n.labels.dragToReorderRow
-        }
-        title={disabled ? resolvedDisabledLabel : undefined}
+        aria-label={resolvedDisabledLabel}
+        title={resolvedDisabledLabel}
         disabled
       >
         <HugeiconsIcon
@@ -199,10 +199,16 @@ const holdRowsInPlaceStrategy: SortingStrategy = () => null;
 
 function DataGridTableDndRow<TData extends object>({
   row,
+  sortable,
   renderRowDecoration,
   dropIndicator = true,
 }: {
   row: Row<DataGridFeatures, TData>;
+  /**
+   * False for a row outside `dataIds`: it can't be picked up or dropped on,
+   * so a grid can reorder one group of rows and list the rest in place.
+   */
+  sortable: boolean;
   renderRowDecoration?: DataGridTableDndRowDecoration<TData>;
   dropIndicator?: boolean;
 }) {
@@ -226,6 +232,8 @@ function DataGridTableDndRow<TData extends object>({
   } = useSortable({
     id: row.id,
     data: rowData,
+    // a plain `true` would still take drops, for backwards compatibility
+    disabled: { draggable: !sortable, droppable: !sortable },
   });
 
   // Which edge of THIS row the carried row would land on, or null when it is
@@ -326,7 +334,9 @@ function DataGridTableDndRow<TData extends object>({
   );
 
   return (
-    <SortableRowContext.Provider value={{ attributes, listeners }}>
+    <SortableRowContext.Provider
+      value={sortable ? { attributes, listeners } : null}
+    >
       <DataGridTableBodyRow
         row={row}
         dndRef={setNodeRef}
@@ -400,12 +410,15 @@ function DataGridTableDndRowsBody<TData extends object>({
 
   if (!table.getRowModel().rows.length) return <DataGridTableEmpty />;
 
+  const sortableIds = new Set(dataIds.map(String));
+
   return (
     <SortableContext items={dataIds} strategy={sortingStrategy}>
       {table.getRowModel().rows.map((row: Row<DataGridFeatures, TData>) => {
         return (
           <DataGridTableDndRow
             row={row}
+            sortable={sortableIds.has(row.id)}
             renderRowDecoration={renderRowDecoration}
             dropIndicator={dropIndicator}
             key={row.id}

@@ -1,5 +1,5 @@
 {
-  "id": "3652d18b-a184-421a-8224-232f58835b71",
+  "id": "d1732d17-8131-4f02-ab58-b23118761354",
   "prevId": "4925f384-2f1c-4467-896d-2b2e234da436",
   "version": "7",
   "dialect": "postgresql",
@@ -1932,9 +1932,9 @@
           "notNull": true,
           "default": false
         },
-        "trending_at": {
-          "name": "trending_at",
-          "type": "timestamp",
+        "pinned_position": {
+          "name": "pinned_position",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -2028,6 +2028,21 @@
           "columns": [
             {
               "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "products_pinned_position_idx": {
+          "name": "products_pinned_position_idx",
+          "columns": [
+            {
+              "expression": "pinned_position",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
