@@ -56,7 +56,6 @@ export function AttributeNode(props: NodeProps<AttributeNode>) {
           <EditAttributeDialog attribute={props.data} />
           <DeleteAttributeAlertDialog
             id={props.data.id}
-            slug={props.data.slug}
             name={props.data.name}
           />
         </Badge>

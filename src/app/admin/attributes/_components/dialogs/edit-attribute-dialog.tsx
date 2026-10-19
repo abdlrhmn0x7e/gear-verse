@@ -20,6 +20,7 @@ import {
   type AttributeFormValues,
 } from "../../../_components/forms/attribute-form";
 import { useReactFlow } from "@xyflow/react";
+import { attributeNodeId } from "../nodes/attribute-node";
 import { Spinner } from "~/components/spinner";
 import { useDialog } from "~/hooks/use-dialog";
 
@@ -45,7 +46,7 @@ export function EditAttributeDialog({ attribute }: { attribute: Attribute }) {
             trpc.admin.attributes.queries.getAll.queryFilter(),
           );
 
-          updateNodeData(`attribute-${attribute.slug}-${attribute.id}`, res);
+          updateNodeData(attributeNodeId(attribute.id), res);
 
           dialog.dismiss();
         },

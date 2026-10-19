@@ -16,20 +16,19 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { useTRPC } from "~/trpc/client";
+import { attributeNodeId } from "../nodes/attribute-node";
 
 export function DeleteAttributeAlertDialog({
   id,
-  slug,
   name,
   ...props
 }: {
   id: number;
-  slug: string;
   name: string;
   onOpenChange?: (open: boolean) => void;
 } & Omit<React.ComponentProps<typeof AlertDialog>, "onOpenChange">) {
   const trpc = useTRPC();
-  const { deleteElements } = useReactFlow();
+  const { setNodes, setEdges } = useReactFlow();
   const queryClient = useQueryClient();
   const { mutate: deleteAttribute, isPending } = useMutation(
     trpc.admin.attributes.mutations.delete.mutationOptions({
@@ -37,13 +36,11 @@ export function DeleteAttributeAlertDialog({
         void queryClient.invalidateQueries(
           trpc.admin.attributes.queries.getAll.queryFilter(),
         );
-        void deleteElements({
-          nodes: [
-            {
-              id: `attribute-${slug}-${id}`,
-            },
-          ],
-        });
+        // deleteElements skips nodes that aren't deletable, and the server
+        // already dropped the attribute's connections along with it
+        const nodeId = attributeNodeId(id);
+        setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
+        setEdges((edges) => edges.filter((edge) => edge.source !== nodeId));
         props.onOpenChange?.(false);
       },
     }),

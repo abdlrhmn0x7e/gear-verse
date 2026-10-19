@@ -30,6 +30,14 @@ export async function invalidateCategories() {
 }
 
 /**
+ * Invalidates the category filter sidebars, the only cached view of the
+ * attributes and their values. Filtering products by an attribute runs live.
+ */
+export async function invalidateAttributes() {
+  await invalidateCache("category-filters");
+}
+
+/**
  * Invalidates the product pages and the cached product listings, which only
  * show products that are in stock. Call it after the write is done.
  *

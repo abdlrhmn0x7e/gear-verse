@@ -148,7 +148,7 @@ export const _attributes = {
 
         // create a true value for the boolean
         if (res.type === "BOOLEAN") {
-          tx.insert(attributeValues).values({
+          await tx.insert(attributeValues).values({
             value: "true",
             slug: "true",
             attributeId: res.id,

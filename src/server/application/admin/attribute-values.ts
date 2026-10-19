@@ -2,6 +2,7 @@ import { AppError } from "~/lib/errors/app-error";
 import type { CreateAttributeValueInput } from "~/lib/schemas/entities/attribute-value";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
+import { invalidateAttributes } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _attributeValues = {
@@ -36,6 +37,7 @@ export const _attributeValues = {
         });
       }
 
+      await invalidateAttributes();
       return value;
     },
 
@@ -50,6 +52,7 @@ export const _attributeValues = {
         });
       }
 
+      await invalidateAttributes();
       return value;
     },
   },
