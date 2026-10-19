@@ -679,8 +679,25 @@
     mix-blend-mode: multiply;
   }
 
-  /* a photo shot on off-white keeps a visible box after the blend, so it gets corners that scale with its size */
+  /* A photo shot on off-white keeps a visible box after the blend, so it gets corners that scale with its size. Product
+     photos are square, so each one is the largest centred square its box fits and the corners land on the photo, not
+     on a letterbox around it. */
+  &:has(> img),
+  & :has(> img) {
+    container-type: size;
+    display: grid;
+    place-items: center;
+
+    & > * {
+      grid-area: 1 / 1;
+    }
+  }
+
   & img {
+    width: min(100cqw, 100cqh);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
     border-radius: 6%;
   }
 }
