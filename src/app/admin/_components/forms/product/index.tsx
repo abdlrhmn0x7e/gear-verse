@@ -7,6 +7,7 @@ import {
   useForm,
   useFormContext,
   useWatch,
+  type FieldErrors,
   type UseFormReturn,
 } from "react-hook-form";
 import z from "zod";
@@ -58,6 +59,7 @@ import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
+import { toast } from "~/components/ui/toast";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -78,6 +80,25 @@ const productFormSchema = createProductInputSchema
     ),
   });
 export type ProductFormValues = z.infer<typeof productFormSchema>;
+
+/** What each field is called on the page, to tell the admin where to look. */
+const fieldLabels: Record<keyof ProductFormValues, string> = {
+  title: "Title",
+  summary: "Summary",
+  description: "Description",
+  media: "Media",
+  inventory: "Inventory",
+  options: "Variants",
+  variants: "Variants",
+  published: "Status",
+  price: "Price",
+  strikeThroughPrice: "Strike through price",
+  originalCost: "Original cost",
+  brandId: "Brand",
+  categoryId: "Category",
+  attributeIds: "Attributes",
+  seo: "Search engine optimization",
+};
 
 export function ProductForm({
   onSubmit,
@@ -167,11 +188,25 @@ export function ProductForm({
     form.reset();
   }
 
+  function handleInvalid(errors: FieldErrors<ProductFormValues>) {
+    const labels = new Set(
+      Object.keys(errors).map(
+        (name) => fieldLabels[name as keyof ProductFormValues],
+      ),
+    );
+
+    // one id, so pressing save again updates the toast instead of stacking another
+    toast.error("Fix these before saving", {
+      id: "product-form-invalid",
+      description: [...labels].join(", "),
+    });
+  }
+
   return (
     <Form {...form}>
       <form
         id="product-form"
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
         className="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-3"
       >
         <div className="min-w-0 space-y-8 lg:col-span-2">

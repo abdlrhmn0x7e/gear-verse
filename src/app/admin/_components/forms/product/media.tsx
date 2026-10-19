@@ -1,6 +1,10 @@
 "use client";
 
-import { useFormContext, type UseFieldArrayMove } from "react-hook-form";
+import {
+  useFormContext,
+  useFormState,
+  type UseFieldArrayMove,
+} from "react-hook-form";
 
 import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
@@ -41,7 +45,8 @@ export function MediaFields({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [checkedIds, setCheckedIds] = useState<ReadonlySet<number>>(new Set());
 
-  const { getValues, setValue } = useFormContext<ProductFormValues>();
+  const { getValues, setValue, control } = useFormContext<ProductFormValues>();
+  const { errors } = useFormState({ control, name: "media" });
 
   // The form owns the media and its order (the first is the thumbnail). The
   // store only backs the picker, so it is seeded from the form each time the
@@ -193,6 +198,14 @@ export function MediaFields({
       <p className="text-muted-foreground text-sm">
         The first media will be used as the main image.
       </p>
+
+      {/* an error inside one media is about data the admin can't edit */}
+      {errors.media && (
+        <p className="text-destructive text-sm">
+          {errors.media.message ??
+            "One of these media couldn't be read. Remove it and add it again."}
+        </p>
+      )}
     </div>
   );
 }
