@@ -6,7 +6,7 @@ import type {
 } from "~/lib/schemas/entities/attribute";
 import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
-import { invalidateCache } from "~/server/actions/cache";
+import { invalidateAttributes } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
 
 export const _attributes = {
@@ -69,7 +69,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("category-filters");
+      await invalidateAttributes();
 
       return createdAttribute;
     },
@@ -84,7 +84,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("category-filters");
+      await invalidateAttributes();
       return updatedAttribute;
     },
 
@@ -98,7 +98,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("category-filters");
+      await invalidateAttributes();
       return deletedAttribute;
     },
 
@@ -112,7 +112,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("category-filters");
+      await invalidateAttributes();
       return connection;
     },
 
@@ -126,7 +126,7 @@ export const _attributes = {
         });
       }
 
-      await invalidateCache("category-filters");
+      await invalidateAttributes();
       return connection;
     },
   },
