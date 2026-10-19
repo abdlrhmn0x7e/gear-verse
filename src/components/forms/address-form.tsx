@@ -39,9 +39,11 @@ const touchField = "pointer-coarse:h-11";
 type PrefillField = "governorate" | "city" | "address";
 
 export function AddressForm({
+  id = "address-form",
   onSubmit,
   className,
 }: {
+  id?: string;
   onSubmit: (values: AddressFormValues) => void;
   className?: string;
 }) {
@@ -123,7 +125,7 @@ export function AddressForm({
   return (
     <Form {...form}>
       <form
-        id="address-form"
+        id={id}
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn("space-y-4", className)}
       >

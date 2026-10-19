@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createAddressInputSchema } from "~/lib/schemas/entities/address";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
-import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
+import { completeCheckoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
 
 export const userCheckoutRouter = createTRPCRouter({
   queries: {
@@ -36,25 +36,27 @@ export const userCheckoutRouter = createTRPCRouter({
       }),
 
     complete: protectedProcedure
-      .input(checkoutInputSchema)
+      .input(completeCheckoutInputSchema)
       .mutation(async ({ ctx, input }) => {
-        // the address must be one of the customer's own saved addresses
-        const { data: isOwnedAddress, error: findAddressError } =
-          await tryCatch(
-            ctx.app.public.checkout.queries.isOwnedAddress({
-              addressId: input.addressId,
-              userId: ctx.user.id,
-            }),
-          );
-        if (findAddressError) {
-          throw errorMap(findAddressError);
-        }
+        // a saved address must be one of the customer's own
+        if ("addressId" in input) {
+          const { data: isOwnedAddress, error: findAddressError } =
+            await tryCatch(
+              ctx.app.public.checkout.queries.isOwnedAddress({
+                addressId: input.addressId,
+                userId: ctx.user.id,
+              }),
+            );
+          if (findAddressError) {
+            throw errorMap(findAddressError);
+          }
 
-        if (!isOwnedAddress) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Please choose one of your saved addresses",
-          });
+          if (!isOwnedAddress) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Please choose one of your saved addresses",
+            });
+          }
         }
 
         // validate cart
@@ -128,7 +130,7 @@ export const userCheckoutRouter = createTRPCRouter({
             input: {
               userId: ctx.user.id,
               paymentMethod: input.paymentMethod,
-              addressId: input.addressId,
+              address: "addressId" in input ? input.addressId : input.address,
               status: "PENDING",
             },
             items: cart.items.map((item) => ({

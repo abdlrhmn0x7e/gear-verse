@@ -68,7 +68,10 @@ export const _checkout = {
       items,
     }: {
       cartId: number;
-      input: CreateOrderInput;
+      /** a saved address id, or a new address saved in the same transaction */
+      input: Omit<CreateOrderInput, "addressId"> & {
+        address: number | CreateAddressInput;
+      };
       items: CreateOrderItemInput[];
     }) => {
       const { data: order, error } = await tryCatch(

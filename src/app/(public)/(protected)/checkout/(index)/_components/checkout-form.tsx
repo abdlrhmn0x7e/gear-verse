@@ -18,13 +18,14 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { IconHomePlus } from "@tabler/icons-react";
 import { Button } from "~/components/ui/button";
 import { PayOnDelivery } from "~/components/features/payment/pay-on-delivery";
-import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
-import { useTRPC } from "~/trpc/client";
 import {
-  AddAddressDrawerDialog,
-  AddAddressInline,
-} from "./add-address-drawer-dialog";
+  checkoutInputSchema,
+  type CompleteCheckoutInput,
+} from "~/lib/schemas/contracts/public/checkout";
+import { useTRPC } from "~/trpc/client";
+import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AddressForm } from "~/components/forms/address-form";
 
 const checkoutFormSchema = checkoutInputSchema;
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -32,7 +33,7 @@ export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 export function CheckoutForm({
   onSubmit,
 }: {
-  onSubmit: (data: CheckoutFormValues) => void;
+  onSubmit: (data: CompleteCheckoutInput) => void;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -74,7 +75,18 @@ export function CheckoutForm({
         </h2>
 
         {addresses?.length === 0 ? (
-          <AddAddressInline onSuccess={selectAddress} />
+          <div className="bg-card rounded-3xl p-5 sm:p-6">
+            {/* takes the checkout form's id, so place order saves the address with the order */}
+            <AddressForm
+              id="checkout-form"
+              onSubmit={(address) =>
+                onSubmit({
+                  paymentMethod: form.getValues("paymentMethod"),
+                  address,
+                })
+              }
+            />
+          </div>
         ) : (
           <>
             <form
