@@ -18,13 +18,15 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { IconHomePlus } from "@tabler/icons-react";
 import { Button } from "~/components/ui/button";
 import { PayOnDelivery } from "~/components/features/payment/pay-on-delivery";
-import { checkoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
-import { useTRPC } from "~/trpc/client";
 import {
-  AddAddressDrawerDialog,
-  AddAddressInline,
-} from "./add-address-drawer-dialog";
+  checkoutInputSchema,
+  type CompleteCheckoutInput,
+} from "~/lib/schemas/contracts/public/checkout";
+import { useTRPC } from "~/trpc/client";
+import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
+import { DeleteAddressDialog } from "./delete-address-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AddressForm } from "~/components/forms/address-form";
 
 const checkoutFormSchema = checkoutInputSchema;
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -32,7 +34,7 @@ export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 export function CheckoutForm({
   onSubmit,
 }: {
-  onSubmit: (data: CheckoutFormValues) => void;
+  onSubmit: (data: CompleteCheckoutInput) => void;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -63,6 +65,13 @@ export function CheckoutForm({
     form.setValue("addressId", id, { shouldValidate: true });
   }
 
+  function handleAddressDeleted(id: number) {
+    if (form.getValues("addressId") !== id) return;
+    // with none left the list gives way to the first-address form
+    const next = addresses?.find((address) => address.id !== id);
+    form.setValue("addressId", next?.id ?? 0);
+  }
+
   return (
     <div className="space-y-10">
       <section aria-labelledby="checkout-address-heading" className="space-y-4">
@@ -74,7 +83,18 @@ export function CheckoutForm({
         </h2>
 
         {addresses?.length === 0 ? (
-          <AddAddressInline onSuccess={selectAddress} />
+          <div className="bg-card rounded-3xl p-5 sm:p-6">
+            {/* takes the checkout form's id, so place order saves the address with the order */}
+            <AddressForm
+              id="checkout-form"
+              onSubmit={(address) =>
+                onSubmit({
+                  paymentMethod: form.getValues("paymentMethod"),
+                  address,
+                })
+              }
+            />
+          </div>
         ) : (
           <>
             <form
@@ -94,31 +114,39 @@ export function CheckoutForm({
                       aria-labelledby="checkout-address-heading"
                     >
                       {addresses?.map((address) => (
-                        <FieldLabel
-                          key={address.id}
-                          htmlFor={`form-rhf-radiogroup-${address.id}`}
-                        >
-                          <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
+                        // the delete button sits over the row, not in it: a label can't hold a second control
+                        <div key={address.id} className="relative">
+                          <FieldLabel
+                            htmlFor={`form-rhf-radiogroup-${address.id}`}
+                            className="*:data-[slot=field]:pe-14"
                           >
-                            <FieldContent>
-                              {/* names and streets are often Arabic; isolating each keeps the phone number in place */}
-                              <FieldTitle>
-                                <bdi>{address.fullName}</bdi> ·{" "}
-                                <bdi dir="ltr">{address.phoneNumber}</bdi>
-                              </FieldTitle>
-                              <FieldDescription dir="auto">
-                                {address.address}
-                              </FieldDescription>
-                            </FieldContent>
-                            <RadioGroupItem
-                              value={address.id.toString()}
-                              id={`form-rhf-radiogroup-${address.id}`}
-                              aria-invalid={fieldState.invalid}
-                            />
-                          </Field>
-                        </FieldLabel>
+                            <Field
+                              orientation="horizontal"
+                              data-invalid={fieldState.invalid}
+                            >
+                              <FieldContent>
+                                {/* names and streets are often Arabic; isolating each keeps the phone number in place */}
+                                <FieldTitle>
+                                  <bdi>{address.fullName}</bdi> ·{" "}
+                                  <bdi dir="ltr">{address.phoneNumber}</bdi>
+                                </FieldTitle>
+                                <FieldDescription dir="auto">
+                                  {address.address}
+                                </FieldDescription>
+                              </FieldContent>
+                              <RadioGroupItem
+                                value={address.id.toString()}
+                                id={`form-rhf-radiogroup-${address.id}`}
+                                aria-invalid={fieldState.invalid}
+                              />
+                            </Field>
+                          </FieldLabel>
+                          <DeleteAddressDialog
+                            address={address}
+                            onDeleted={handleAddressDeleted}
+                            className="text-muted-foreground absolute end-3 top-1/2 -translate-y-1/2"
+                          />
+                        </div>
                       ))}
                     </RadioGroup>
                     {fieldState.invalid && (

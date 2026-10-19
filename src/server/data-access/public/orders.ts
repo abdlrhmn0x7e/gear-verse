@@ -23,6 +23,7 @@ import {
 } from "../common/unit-prices";
 
 type NewOrder = typeof orders.$inferInsert;
+type NewAddress = Omit<typeof addresses.$inferInsert, "userId">;
 type NewOrderItem = typeof orderItems.$inferInsert;
 
 export const _orders = {
@@ -259,15 +260,31 @@ export const _orders = {
 
   mutations: {
     create: async (
-      input: NewOrder,
+      {
+        address,
+        ...input
+      }: Omit<NewOrder, "addressId"> & { address: number | NewAddress },
       items: Omit<NewOrderItem, "orderId">[],
       cartId: number,
     ) => {
       return db.transaction(async (tx) => {
+        // a first-time customer's address is saved with the order, or not at all
+        const addressId =
+          typeof address === "number"
+            ? address
+            : await tx
+                .insert(addresses)
+                .values({ ...address, userId: input.userId })
+                .returning({ id: addresses.id })
+                .then(([res]) => res?.id);
+        if (!addressId) {
+          throw new Error("Failed to create address");
+        }
+
         // create order
         const [order] = await tx
           .insert(orders)
-          .values(input)
+          .values({ ...input, addressId })
           .returning({ id: orders.id });
         if (!order) {
           throw new Error("Failed to create order");

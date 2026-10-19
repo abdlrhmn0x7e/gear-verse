@@ -1,14 +1,15 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
-import { CheckoutForm, type CheckoutFormValues } from "./checkout-form";
+import { CheckoutForm } from "./checkout-form";
+import type { CompleteCheckoutInput } from "~/lib/schemas/contracts/public/checkout";
 import { LockIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
 
 export function CompleteCheckout({
@@ -24,12 +25,6 @@ export function CompleteCheckout({
   className?: string;
 }) {
   const trpc = useTRPC();
-  // the form picks the first saved address, so having one means one is selected
-  const { data: addresses } = useQuery(
-    trpc.public.checkout.queries.getAddresses.queryOptions(),
-  );
-  const needsAddress = addresses?.length === 0;
-
   const router = useRouter();
   const { mutate: checkout, isPending: checkoutPending } = useMutation(
     trpc.public.checkout.mutations.complete.mutationOptions({
@@ -48,7 +43,7 @@ export function CompleteCheckout({
     }),
   );
 
-  function onSubmit(data: CheckoutFormValues) {
+  function onSubmit(data: CompleteCheckoutInput) {
     checkout(data);
   }
 
@@ -111,20 +106,16 @@ export function CompleteCheckout({
           <Button
             className="w-full min-w-48 lg:w-fit"
             size="xl"
+            type="submit"
             form="checkout-form"
-            disabled={
-              !addresses?.length ||
-              !hasCartItems ||
-              hasStockIssues ||
-              checkoutPending
-            }
+            disabled={!hasCartItems || hasStockIssues || checkoutPending}
           >
             {checkoutPending ? (
               <Spinner data-icon="inline-start" />
             ) : (
               <LockIcon data-icon="inline-start" />
             )}
-            {needsAddress ? "Add an address to continue" : "Place order"}
+            Place order
           </Button>
         </div>
       </div>

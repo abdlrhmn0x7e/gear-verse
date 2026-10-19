@@ -46,20 +46,9 @@ function useAddAddress(onSuccess: (id: number) => void) {
   );
 }
 
-function SaveAddressButton({
-  pending,
-  className,
-}: {
-  pending: boolean;
-  className?: string;
-}) {
+function SaveAddressButton({ pending }: { pending: boolean }) {
   return (
-    <Button
-      type="submit"
-      form="address-form"
-      disabled={pending}
-      className={className}
-    >
+    <Button type="submit" form="address-form" disabled={pending}>
       {pending ? (
         <Spinner data-icon="inline-start" />
       ) : (
@@ -67,25 +56,6 @@ function SaveAddressButton({
       )}
       Save address
     </Button>
-  );
-}
-
-/** For a customer with no saved address: the form sits in the checkout itself, one step fewer than a drawer. */
-export function AddAddressInline({
-  onSuccess,
-}: {
-  onSuccess: (id: number) => void;
-}) {
-  const { mutate: addAddress, isPending } = useAddAddress(onSuccess);
-
-  return (
-    <div className="bg-card space-y-6 rounded-3xl p-5 sm:p-6">
-      <AddressForm onSubmit={(values) => addAddress(values)} />
-      <SaveAddressButton
-        pending={isPending}
-        className="w-full sm:w-fit pointer-coarse:h-11"
-      />
-    </div>
   );
 }
 

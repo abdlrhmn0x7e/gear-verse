@@ -62,13 +62,32 @@ export const _checkout = {
       return address;
     },
 
+    deleteAddress: async ({ id, userId }: { id: number; userId: number }) => {
+      const { data: address, error } = await tryCatch(
+        data.public.addresses.mutations.softDelete({ id, userId }),
+      );
+      if (error) {
+        throw new AppError("Failed to delete address", "INTERNAL", {
+          cause: error,
+        });
+      }
+      if (!address) {
+        throw new AppError("Address not found", "NOT_FOUND");
+      }
+
+      return address;
+    },
+
     create: async ({
       cartId,
       input,
       items,
     }: {
       cartId: number;
-      input: CreateOrderInput;
+      /** a saved address id, or a new address saved in the same transaction */
+      input: Omit<CreateOrderInput, "addressId"> & {
+        address: number | CreateAddressInput;
+      };
       items: CreateOrderItemInput[];
     }) => {
       const { data: order, error } = await tryCatch(
