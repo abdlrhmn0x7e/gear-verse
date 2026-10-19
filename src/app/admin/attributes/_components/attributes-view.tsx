@@ -20,6 +20,7 @@ import { CustomControls } from "./custom-controls";
 import { AddAttributeDialog } from "./dialogs/add-attribute-dialog";
 import { CustomEdge } from "./edges/custom";
 import { AttributeNode } from "./nodes/attribute";
+import { attributeNode, attributeNodeId } from "./nodes/attribute-node";
 import { CategoryNode } from "./nodes/category";
 import { LayoutNode } from "./nodes/layout";
 
@@ -65,16 +66,7 @@ export function AttributesView() {
   );
 
   const [nodes, , onNodesChange] = useNodesState([
-    ...attributes.map((attribute, index) => ({
-      id: `attribute-${attribute.slug}-${attribute.id}`,
-      position: {
-        x: 0,
-        y: index * 100,
-      },
-      type: "attribute",
-      data: attribute,
-      deletable: false,
-    })),
+    ...attributes.map(attributeNode),
 
     {
       id: "categories-layout",
@@ -98,7 +90,7 @@ export function AttributesView() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(
     connections.map((conn) => ({
       id: `e-${conn.attribute.slug}-${conn.attribute.id}-${conn.category.slug}-${conn.category.id}`,
-      source: `attribute-${conn.attribute.slug}-${conn.attribute.id}`,
+      source: attributeNodeId(conn.attribute.id),
       target: `category-${conn.category.slug}-${conn.category.id}`,
       type: "custom-edge",
     })),

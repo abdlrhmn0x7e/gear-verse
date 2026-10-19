@@ -22,6 +22,7 @@ import {
   type AttributeFormValues,
 } from "../../../_components/forms/attribute-form";
 import { useReactFlow } from "@xyflow/react";
+import { attributeNode } from "../nodes/attribute-node";
 
 export function AddAttributeDialog({
   className,
@@ -44,14 +45,7 @@ export function AddAttributeDialog({
         void queryClient.invalidateQueries(
           trpc.admin.attributes.queries.getAll.queryFilter(),
         );
-        addNodes([
-          {
-            id: response.id.toString(),
-            position: { x: 0, y: 60 * (attributesLength ?? 0) },
-            type: "attribute",
-            data: response,
-          },
-        ]);
+        addNodes([attributeNode(response, attributesLength ?? 0)]);
         void fitView();
         setOpen(false);
       },
