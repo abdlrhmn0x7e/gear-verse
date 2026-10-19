@@ -91,7 +91,7 @@ export const _products = {
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           summary: products.summary,
-          trending: sql<boolean>`${products.trendingAt} is not null`,
+          trending: sql<boolean>`${products.pinnedPosition} is not null`,
           thumbnailUrl: media.url,
           stock: inventoryItems.quantity,
           category: {

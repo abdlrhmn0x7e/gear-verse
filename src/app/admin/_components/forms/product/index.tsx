@@ -97,7 +97,6 @@ export function ProductForm({
       summary: "",
       description: {},
       published: false,
-      trending: false,
       price: 0,
       categoryId: 0,
       brandId: 0,
@@ -339,28 +338,6 @@ export function ProductForm({
                         />
                       </FormControl>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="trending"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between gap-2">
-                      <FormLabel>Trending</FormLabel>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormDescription>
-                      Leads the home page&apos;s top row while it&apos;s
-                      published and in stock, the latest marked first.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -9,7 +9,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   keepPreviousData,
   useSuspenseInfiniteQuery,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
+import { arrayMove } from "@dnd-kit/sortable";
+import type { DragEndEvent } from "@dnd-kit/core";
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
@@ -23,6 +26,7 @@ import { useProductSearchParams } from "../../../_hooks/use-product-search-param
 // Table logic & components
 import { productColumns } from "./columns";
 import { ProductsTableSkeleton } from "./skeleton";
+import { useProductPins } from "./pin";
 import { ListGrid, useListTable } from "../list-grid";
 import { useTRPC } from "~/trpc/client";
 import { BulkDeleteProductsDialog } from "../../dialogs/bulk-delete-products";
@@ -33,6 +37,17 @@ export function ProductsTable() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const trpc = useTRPC();
+  const filters = {
+    title: debouncedFilters.title ?? undefined,
+    brands: params.brands ?? undefined,
+    categories: params.categories ?? undefined,
+  };
+  const { data: pinned, isFetching: isFetchingPinned } = useSuspenseQuery(
+    trpc.admin.products.queries.getPinned.queryOptions(
+      { filters },
+      { placeholderData: keepPreviousData },
+    ),
+  );
   const {
     data: products,
     isPending,
@@ -41,24 +56,19 @@ export function ProductsTable() {
     fetchNextPage,
   } = useSuspenseInfiniteQuery(
     trpc.admin.products.queries.getPage.infiniteQueryOptions(
-      {
-        pageSize: 15,
-        filters: {
-          title: debouncedFilters.title ?? undefined,
-          brands: params.brands ?? undefined,
-          categories: params.categories ?? undefined,
-        },
-      },
+      { pageSize: 15, filters },
       {
         placeholderData: keepPreviousData,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     ),
   );
+  // the pinned products lead the list, in the order the home page shows them
   const productsData = useMemo(
-    () => products?.pages.flatMap((page) => page.data) ?? [],
-    [products],
+    () => [...pinned, ...(products?.pages.flatMap((page) => page.data) ?? [])],
+    [pinned, products],
   );
+  const pins = useProductPins();
 
   const table = useListTable({
     data: productsData,
@@ -67,6 +77,7 @@ export function ProductsTable() {
     enableRowSelection: true,
     state: {
       rowSelection,
+      columnVisibility: { reorder: pinned.length > 0 },
     },
     onRowSelectionChange: setRowSelection,
   });
@@ -108,6 +119,16 @@ export function ProductsTable() {
     params.categories?.length,
   ].some(Boolean);
 
+  const pinnedIds = pinned.map((product) => product.id);
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    if (!over || active.id === over.id) return;
+    const from = pinnedIds.indexOf(Number(active.id));
+    const to = pinnedIds.indexOf(Number(over.id));
+    if (from === -1 || to === -1) return;
+    pins.reorder(arrayMove(pinnedIds, from, to));
+  }
+
   return (
     <div className="space-y-4">
       {selectedProductIds.length > 0 && (
@@ -127,7 +148,7 @@ export function ProductsTable() {
 
       <ListGrid
         table={table}
-        isFetching={isFetching}
+        isFetching={isFetching || isFetchingPinned}
         onRowClick={(product) =>
           setParams(
             () => ({
@@ -139,6 +160,12 @@ export function ProductsTable() {
         }
         hasNextPage={hasNextPage}
         loadMoreRef={ref}
+        // a filtered list shows only some pinned products, so there's no whole order to drag
+        sortable={
+          filtered
+            ? undefined
+            : { ids: pinnedIds.map(String), onDragEnd: handleDragEnd }
+        }
         empty={
           filtered
             ? {

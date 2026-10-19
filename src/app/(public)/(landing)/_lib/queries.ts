@@ -4,7 +4,7 @@ import { app } from "~/server/application";
 export const HERO_PRODUCT_COUNT = 3;
 export const MORE_PRODUCT_COUNT = 4;
 
-/** The hero row: in-stock trending products, the latest marked first, then the newest to fill it. */
+/** The hero row: in-stock pinned products in the admin's order, then the newest to fill it. */
 export async function getHeroProducts() {
   "use cache";
 

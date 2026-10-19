@@ -19,8 +19,8 @@
     {
       "idx": 2,
       "version": "7",
-      "when": 1792366375316,
-      "tag": "0002_products_trending_at",
+      "when": 1792369414750,
+      "tag": "0002_products_pinned_position",
       "breakpoints": true
     }
   ]

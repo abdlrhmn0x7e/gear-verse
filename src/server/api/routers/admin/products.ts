@@ -6,6 +6,8 @@ import z from "zod";
 import {
   productsBulkDeleteInputSchema,
   productsGetPageInputSchema,
+  productsGetPinnedInputSchema,
+  productsReorderPinnedInputSchema,
 } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
@@ -21,6 +23,20 @@ export const productsRouter = createTRPCRouter({
       .query(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.queries.getPage(input),
+        );
+
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    getPinned: adminProcedure
+      .input(productsGetPinnedInputSchema)
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.queries.getPinned(input.filters),
         );
 
         if (error) {
@@ -79,6 +95,45 @@ export const productsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.mutations.editDeep(input.id, input.data),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    pin: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.pin(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    unpin: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.unpin(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    reorderPinned: adminProcedure
+      .input(productsReorderPinnedInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.reorderPinned(input.ids),
         );
         if (error) {
           throw errorMap(error);

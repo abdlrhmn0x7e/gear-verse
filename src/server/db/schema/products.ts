@@ -36,8 +36,8 @@ export const products = pgTable(
     description: jsonb("description").$type<JSONContent>().notNull(),
     published: boolean("published").notNull().default(false),
     archived: boolean("archived").notNull().default(false),
-    // null when not trending; otherwise when it was marked, so the latest pick leads the home page
-    trendingAt: timestamp("trending_at"),
+    // null when not pinned; pinned products lead the home page's top row, lowest first
+    pinnedPosition: integer("pinned_position"),
     slug: text("slug").notNull(),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
@@ -63,6 +63,7 @@ export const products = pgTable(
     index("products_brand_id_idx").on(table.brandId),
     index("products_category_id_idx").on(table.categoryId),
     uniqueIndex("products_slug_idx").on(table.slug),
+    uniqueIndex("products_pinned_position_idx").on(table.pinnedPosition),
   ],
 );
 export const productRelations = relations(products, ({ one, many }) => ({

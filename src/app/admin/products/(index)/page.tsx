@@ -28,16 +28,17 @@ export default async function AdminProductsPage({
   await requireAdmin();
 
   const params = await loadProductSearchParams(searchParams);
+  const filters = {
+    title: params.title ?? undefined,
+    brands: params.brands ?? undefined,
+    categories: params.categories ?? undefined,
+  };
+  void prefetch(
+    trpc.admin.products.queries.getPinned.queryOptions({ filters }),
+  );
   void prefetch(
     trpc.admin.products.queries.getPage.infiniteQueryOptions(
-      {
-        pageSize: 15,
-        filters: {
-          title: params.title ?? undefined,
-          brands: params.brands ?? undefined,
-          categories: params.categories ?? undefined,
-        },
-      },
+      { pageSize: 15, filters },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),
   );

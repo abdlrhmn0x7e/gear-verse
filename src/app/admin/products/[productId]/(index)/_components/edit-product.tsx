@@ -72,7 +72,6 @@ export function EditProduct({
       description: product.description,
 
       published: product.published,
-      trending: product.trendingAt !== null,
 
       price: product.price,
       strikeThroughPrice: product.strikeThroughPrice ?? 0,
