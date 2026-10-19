@@ -4,17 +4,26 @@ import { app } from "~/server/application";
 export const HERO_PRODUCT_COUNT = 3;
 export const MORE_PRODUCT_COUNT = 4;
 
-/** The hero row: in-stock pinned products in the admin's order, then the newest to fill it. */
+/** Every pinned product the home row can carry; there are only ever a handful. */
+const PINNED_LIMIT = 24;
+
+/**
+ * The hero row: every in-stock pinned product in the admin's order, and when fewer than three are pinned, the newest
+ * products to fill it to three.
+ */
 export async function getHeroProducts() {
   "use cache";
 
   cacheTag("recent-products");
 
   const page = await app.public.products.queries.getPage({
-    pageSize: HERO_PRODUCT_COUNT,
+    pageSize: PINNED_LIMIT,
     sortBy: "trending",
   });
-  return page.data;
+  const pinned = page.data.filter((product) => product.trending);
+  if (pinned.length >= HERO_PRODUCT_COUNT) return pinned;
+
+  return page.data.slice(0, HERO_PRODUCT_COUNT);
 }
 
 /** Newest in-stock products, enough for one desktop row of four after whatever the hero row already shows. */

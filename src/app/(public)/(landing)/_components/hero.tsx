@@ -2,6 +2,10 @@ import { ArrowDownIcon, ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "~/components/features/products/product-card";
 import {
+  ProductCarousel,
+  ProductCarouselItem,
+} from "~/components/features/products/product-carousel";
+import {
   ProductRow,
   ProductRowItem,
   StoreTile,
@@ -50,24 +54,42 @@ export async function Hero() {
           </div>
         </div>
 
-        {products.length > 0 && (
-          <ProductRow className="md:grid-cols-3">
+        {products.length > HERO_PRODUCT_COUNT ? (
+          // more pins than fit a row: page through them, ending on the way to the whole store
+          <ProductCarousel label="Trending products">
             {products.map((product, index) => (
-              <ProductRowItem key={product.id}>
+              <ProductCarouselItem key={product.id}>
                 <ProductCard
                   product={product}
                   sizes="(min-width: 768px) 33vw, 80vw"
                   eager={index === 0}
                 />
-              </ProductRowItem>
+              </ProductCarouselItem>
             ))}
+            <ProductCarouselItem>
+              <StoreTile />
+            </ProductCarouselItem>
+          </ProductCarousel>
+        ) : (
+          products.length > 0 && (
+            <ProductRow className="md:grid-cols-3">
+              {products.map((product, index) => (
+                <ProductRowItem key={product.id}>
+                  <ProductCard
+                    product={product}
+                    sizes="(min-width: 768px) 33vw, 80vw"
+                    eager={index === 0}
+                  />
+                </ProductRowItem>
+              ))}
 
-            {products.length < HERO_PRODUCT_COUNT && (
-              <ProductRowItem>
-                <StoreTile />
-              </ProductRowItem>
-            )}
-          </ProductRow>
+              {products.length < HERO_PRODUCT_COUNT && (
+                <ProductRowItem>
+                  <StoreTile />
+                </ProductRowItem>
+              )}
+            </ProductRow>
+          )
         )}
       </MaxWidthWrapper>
     </section>
