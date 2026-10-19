@@ -198,7 +198,11 @@ const CategoryComboboxItem = ({
     );
   }
   return (
-    <Collapsible className="group/collapsible data-open:[&>div>button>svg:first-child]:rotate-90">
+    <Collapsible
+      // opens on the product's current sub-category, so the picker shows what's selected
+      defaultOpen={hasDescendant(category, selectedValue)}
+      className="group/collapsible data-open:[&>div>button>svg:first-child]:rotate-90"
+    >
       <CommandItem
         value={`${category.id}-${category.name}`}
         data-checked={category.id === selectedValue}
@@ -227,3 +231,12 @@ const CategoryComboboxItem = ({
     </Collapsible>
   );
 };
+
+function hasDescendant(category: CategoryTree, id: number | null): boolean {
+  return (
+    id !== null &&
+    (category.children ?? []).some(
+      (child) => child.id === id || hasDescendant(child, id),
+    )
+  );
+}
