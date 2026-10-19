@@ -60,6 +60,8 @@ export const addresses = pgTable(
     governorate: addressGovernoratesEnum("governorate").notNull(),
     latitude: doublePrecision("latitude"),
     longitude: doublePrecision("longitude"),
+    // orders keep pointing at a deleted address, so deleting only hides it
+    deletedAt: timestamp("deleted_at"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

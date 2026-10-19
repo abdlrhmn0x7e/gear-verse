@@ -3,7 +3,10 @@ import { TRPCError } from "@trpc/server";
 import { createAddressInputSchema } from "~/lib/schemas/entities/address";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
-import { completeCheckoutInputSchema } from "~/lib/schemas/contracts/public/checkout";
+import {
+  completeCheckoutInputSchema,
+  deleteAddressInputSchema,
+} from "~/lib/schemas/contracts/public/checkout";
 
 export const userCheckoutRouter = createTRPCRouter({
   queries: {
@@ -27,6 +30,22 @@ export const userCheckoutRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.public.checkout.mutations.addAddress(input, ctx.user.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    deleteAddress: protectedProcedure
+      .input(deleteAddressInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.public.checkout.mutations.deleteAddress({
+            id: input.id,
+            userId: ctx.user.id,
+          }),
         );
         if (error) {
           throw errorMap(error);

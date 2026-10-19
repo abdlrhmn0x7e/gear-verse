@@ -62,6 +62,22 @@ export const _checkout = {
       return address;
     },
 
+    deleteAddress: async ({ id, userId }: { id: number; userId: number }) => {
+      const { data: address, error } = await tryCatch(
+        data.public.addresses.mutations.softDelete({ id, userId }),
+      );
+      if (error) {
+        throw new AppError("Failed to delete address", "INTERNAL", {
+          cause: error,
+        });
+      }
+      if (!address) {
+        throw new AppError("Address not found", "NOT_FOUND");
+      }
+
+      return address;
+    },
+
     create: async ({
       cartId,
       input,

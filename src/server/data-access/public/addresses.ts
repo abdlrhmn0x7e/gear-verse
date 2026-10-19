@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { addresses } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 type NewAddress = typeof addresses.$inferInsert;
 
@@ -20,14 +20,20 @@ export const _addresses = {
           longitude: addresses.longitude,
         })
         .from(addresses)
-        .where(eq(addresses.userId, userId));
+        .where(and(eq(addresses.userId, userId), isNull(addresses.deletedAt)));
     },
 
     findOwned: async ({ id, userId }: { id: number; userId: number }) => {
       return db
         .select({ id: addresses.id })
         .from(addresses)
-        .where(and(eq(addresses.id, id), eq(addresses.userId, userId)))
+        .where(
+          and(
+            eq(addresses.id, id),
+            eq(addresses.userId, userId),
+            isNull(addresses.deletedAt),
+          ),
+        )
         .limit(1)
         .then(([res]) => res ?? null);
     },
@@ -40,6 +46,21 @@ export const _addresses = {
         .values(input)
         .returning({ id: addresses.id })
         .then(([res]) => res);
+    },
+
+    softDelete: async ({ id, userId }: { id: number; userId: number }) => {
+      return db
+        .update(addresses)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(
+            eq(addresses.id, id),
+            eq(addresses.userId, userId),
+            isNull(addresses.deletedAt),
+          ),
+        )
+        .returning({ id: addresses.id })
+        .then(([res]) => res ?? null);
     },
   },
 };

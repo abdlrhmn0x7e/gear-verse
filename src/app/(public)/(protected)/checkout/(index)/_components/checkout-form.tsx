@@ -24,6 +24,7 @@ import {
 } from "~/lib/schemas/contracts/public/checkout";
 import { useTRPC } from "~/trpc/client";
 import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
+import { DeleteAddressDialog } from "./delete-address-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddressForm } from "~/components/forms/address-form";
 
@@ -62,6 +63,13 @@ export function CheckoutForm({
 
   function selectAddress(id: number) {
     form.setValue("addressId", id, { shouldValidate: true });
+  }
+
+  function handleAddressDeleted(id: number) {
+    if (form.getValues("addressId") !== id) return;
+    // with none left the list gives way to the first-address form
+    const next = addresses?.find((address) => address.id !== id);
+    form.setValue("addressId", next?.id ?? 0);
   }
 
   return (
@@ -106,31 +114,39 @@ export function CheckoutForm({
                       aria-labelledby="checkout-address-heading"
                     >
                       {addresses?.map((address) => (
-                        <FieldLabel
-                          key={address.id}
-                          htmlFor={`form-rhf-radiogroup-${address.id}`}
-                        >
-                          <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
+                        // the delete button sits over the row, not in it: a label can't hold a second control
+                        <div key={address.id} className="relative">
+                          <FieldLabel
+                            htmlFor={`form-rhf-radiogroup-${address.id}`}
+                            className="*:data-[slot=field]:pe-14"
                           >
-                            <FieldContent>
-                              {/* names and streets are often Arabic; isolating each keeps the phone number in place */}
-                              <FieldTitle>
-                                <bdi>{address.fullName}</bdi> ·{" "}
-                                <bdi dir="ltr">{address.phoneNumber}</bdi>
-                              </FieldTitle>
-                              <FieldDescription dir="auto">
-                                {address.address}
-                              </FieldDescription>
-                            </FieldContent>
-                            <RadioGroupItem
-                              value={address.id.toString()}
-                              id={`form-rhf-radiogroup-${address.id}`}
-                              aria-invalid={fieldState.invalid}
-                            />
-                          </Field>
-                        </FieldLabel>
+                            <Field
+                              orientation="horizontal"
+                              data-invalid={fieldState.invalid}
+                            >
+                              <FieldContent>
+                                {/* names and streets are often Arabic; isolating each keeps the phone number in place */}
+                                <FieldTitle>
+                                  <bdi>{address.fullName}</bdi> ·{" "}
+                                  <bdi dir="ltr">{address.phoneNumber}</bdi>
+                                </FieldTitle>
+                                <FieldDescription dir="auto">
+                                  {address.address}
+                                </FieldDescription>
+                              </FieldContent>
+                              <RadioGroupItem
+                                value={address.id.toString()}
+                                id={`form-rhf-radiogroup-${address.id}`}
+                                aria-invalid={fieldState.invalid}
+                              />
+                            </Field>
+                          </FieldLabel>
+                          <DeleteAddressDialog
+                            address={address}
+                            onDeleted={handleAddressDeleted}
+                            className="text-muted-foreground absolute end-3 top-1/2 -translate-y-1/2"
+                          />
+                        </div>
                       ))}
                     </RadioGroup>
                     {fieldState.invalid && (

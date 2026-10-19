@@ -22,3 +22,7 @@ export const completeCheckoutInputSchema = z.union([
   checkoutWithNewAddressInputSchema,
 ]);
 export type CompleteCheckoutInput = z.infer<typeof completeCheckoutInputSchema>;
+
+export const deleteAddressInputSchema = z.object({
+  id: z.number().positive(),
+});
