@@ -7,6 +7,7 @@ import {
   useForm,
   useFormContext,
   useWatch,
+  type FieldErrors,
   type UseFormReturn,
 } from "react-hook-form";
 import z from "zod";
@@ -58,6 +59,7 @@ import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
+import { toast } from "~/components/ui/toast";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -78,6 +80,26 @@ const productFormSchema = createProductInputSchema
     ),
   });
 export type ProductFormValues = z.infer<typeof productFormSchema>;
+
+/** What each field is called on the page, to tell the admin where to look. */
+const fieldLabels: Record<keyof ProductFormValues, string> = {
+  title: "Title",
+  summary: "Summary",
+  description: "Description",
+  media: "Media",
+  inventory: "Inventory",
+  options: "Variants",
+  variants: "Variants",
+  published: "Status",
+  trending: "Status",
+  price: "Price",
+  strikeThroughPrice: "Strike through price",
+  originalCost: "Original cost",
+  brandId: "Brand",
+  categoryId: "Category",
+  attributeIds: "Attributes",
+  seo: "Search engine optimization",
+};
 
 export function ProductForm({
   onSubmit,
@@ -104,6 +126,7 @@ export function ProductForm({
       attributeIds: [],
       media: [],
       options: [],
+      inventory: { quantity: 0 },
     },
   });
 
@@ -114,7 +137,7 @@ export function ProductForm({
   const {
     fields: mediaFields,
     insert: insertMedia,
-    swap: swapMedia,
+    move: moveMedia,
   } = useFieldArray({
     control: form.control,
     name: "media",
@@ -127,6 +150,11 @@ export function ProductForm({
     control: form.control,
     name: "inventory",
     defaultValue: defaultValues?.inventory,
+  });
+  const variants = useWatch({
+    control: form.control,
+    name: "variants",
+    defaultValue: defaultValues?.variants,
   });
   const categoryId = useWatch({
     control: form.control,
@@ -162,11 +190,25 @@ export function ProductForm({
     form.reset();
   }
 
+  function handleInvalid(errors: FieldErrors<ProductFormValues>) {
+    const labels = new Set(
+      Object.keys(errors).map(
+        (name) => fieldLabels[name as keyof ProductFormValues],
+      ),
+    );
+
+    // one id, so pressing save again updates the toast instead of stacking another
+    toast.error("Fix these before saving", {
+      id: "product-form-invalid",
+      description: [...labels].join(", "),
+    });
+  }
+
   return (
     <Form {...form}>
       <form
         id="product-form"
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
         className="mx-auto grid grid-cols-1 gap-6 lg:grid-cols-3"
       >
         <div className="min-w-0 space-y-8 lg:col-span-2">
@@ -237,28 +279,19 @@ export function ProductForm({
                     )}
                   />
                 ) : (
-                  <MediaFields media={mediaFields} swap={swapMedia} />
+                  <MediaFields media={mediaFields} move={moveMedia} />
                 )}
               </MediaStoreProvider>
             </CardContent>
           </Card>
 
-          {inventory && (
+          {!variants?.length && (
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Inventory</CardTitle>
-                  <div className="pointer-events-none flex items-center gap-2 opacity-50">
-                    <p className="text-muted-foreground text-sm">
-                      Inventory tracked (you want this?)
-                    </p>
-
-                    <Switch />
-                  </div>
-                </div>
+                <CardTitle>Inventory</CardTitle>
               </CardHeader>
               <CardContent>
-                <InventoryTableInput data={[inventory]} />
+                <InventoryTableInput data={[inventory ?? { quantity: 0 }]} />
               </CardContent>
             </Card>
           )}

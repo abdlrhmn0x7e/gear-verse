@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, ilike, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, gt, ilike, inArray, isNull, sql } from "drizzle-orm";
 import { productAttributeValues } from "~/server/db/schema/attributes";
 import { inventoryItems } from "~/server/db/schema/inventory";
 import { db, type Tx } from "../../db";
@@ -167,36 +167,19 @@ export const _products = {
     },
 
     findById: async (id: number) => {
-      const productMediaCTE = db.$with("product_media_cte").as(
-        db
-          .select({
-            productId: productsMedia.productId,
-            mediaId: media.id,
-            url: media.url,
-          })
-          .from(productsMedia)
-          .leftJoin(media, eq(media.id, productsMedia.mediaId))
-          .orderBy(asc(productsMedia.order)),
-      );
-
       const productMediaQuery = db
-        .with(productMediaCTE)
         .select({
-          productId: productMediaCTE.productId,
+          productId: productsMedia.productId,
           json: sql<{ mediaId: number; url: string }[]>`
-            coalesce(
-              jsonb_agg(
-                jsonb_build_object(
-                  'mediaId', ${productMediaCTE.mediaId},
-                  'url', ${productMediaCTE.url}
-                )
-              ),
-              '[]'::jsonb
+            jsonb_agg(
+              jsonb_build_object('mediaId', ${media.id}, 'url', ${media.url})
+              order by ${productsMedia.order}, ${productsMedia.id}
             )
           `.as("product_media_json"),
         })
-        .from(productMediaCTE)
-        .groupBy(productMediaCTE.productId)
+        .from(productsMedia)
+        .innerJoin(media, eq(media.id, productsMedia.mediaId))
+        .groupBy(productsMedia.productId)
         .as("product_media_query");
 
       const productAttributesQuery = db
@@ -367,9 +350,8 @@ export const _products = {
           >`coalesce(${optionsQuery.options}, '[]'::jsonb)`,
 
           thumbnail: {
-            // a raw bigint comes back as a string, which the form rejects
-            mediaId: sql<number>`${media.id}`.mapWith(Number),
-            url: sql<string>`${media.url}`,
+            mediaId: media.id,
+            url: media.url,
           },
           media: sql<
             { mediaId: number; url: string }[]
@@ -384,7 +366,7 @@ export const _products = {
           productMediaQuery,
           eq(productMediaQuery.productId, products.id),
         )
-        .leftJoin(media, eq(media.id, products.thumbnailMediaId))
+        .innerJoin(media, eq(media.id, products.thumbnailMediaId))
         .leftJoin(
           productAttributesQuery,
           eq(productAttributesQuery.productId, products.id),

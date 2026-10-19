@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  functionalUpdate,
   type ColumnVisibilityState,
   type RowSelectionState,
+  type Updater,
 } from "@tanstack/react-table";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 // Table logic & components
 import { mediaColumns } from "./columns";
@@ -36,12 +38,29 @@ export function MediaTable({
   const shiftKey = useRef(false);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>(
-    selectedMedia.reduce((acc, media) => {
-      acc[media.mediaId.toString()] = true;
-      return acc;
-    }, {} as RowSelectionState),
+  // The store owns the selection, so picks made outside the table (an upload)
+  // show here too.
+  const rowSelection: RowSelectionState = Object.fromEntries(
+    selectedMedia.map((media) => [media.mediaId.toString(), true]),
   );
+
+  // The selection keeps its order: media already picked stay where they are,
+  // even when they are not on a loaded page, and new picks go on the end.
+  function setRowSelection(updater: Updater<RowSelectionState>) {
+    const next = functionalUpdate(updater, rowSelection);
+    const pickedIds = new Set(
+      Object.keys(next)
+        .filter((id) => next[id])
+        .map(Number),
+    );
+    const kept = selectedMedia.filter((m) => pickedIds.has(m.mediaId));
+    const keptIds = new Set(kept.map((m) => m.mediaId));
+    const added = data
+      .filter((m) => pickedIds.has(m.id) && !keptIds.has(m.id))
+      .map((m) => ({ mediaId: m.id, url: m.url }));
+
+    setSelectedMedia([...kept, ...added]);
+  }
 
   const table = useListTable({
     data,
@@ -51,9 +70,7 @@ export function MediaTable({
     enableRowSelection: maxFiles
       ? Object.keys(rowSelection).length < maxFiles
       : true,
-    onRowSelectionChange: (selection) => {
-      setRowSelection(selection);
-    },
+    onRowSelectionChange: setRowSelection,
     state: {
       // hide secondary columns to make room for the preview panel
       columnVisibility: mediaPreviewUrl
@@ -90,27 +107,6 @@ export function MediaTable({
       setLastSelectedRowId(rowId);
     }
   };
-
-  // The selection keeps its order: media already picked stay where they are,
-  // even when they are not on a loaded page, and new picks go on the end.
-  // Rebuilding it from the table's rows would reorder it to the server's
-  // order and drop every picked media the table has not loaded.
-  useEffect(() => {
-    const pickedIds = new Set(
-      Object.keys(rowSelection)
-        .filter((id) => rowSelection[id])
-        .map(Number),
-    );
-    const kept = selectedMedia.filter((m) => pickedIds.has(m.mediaId));
-    const keptIds = new Set(kept.map((m) => m.mediaId));
-    const added = table
-      .getSelectedRowModel()
-      .rows.filter((row) => !keptIds.has(row.original.id))
-      .map((row) => ({ mediaId: row.original.id, url: row.original.url }));
-
-    setSelectedMedia([...kept, ...added]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowSelection]);
 
   return (
     <div

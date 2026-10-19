@@ -127,6 +127,8 @@ export const createProductInputSchema = productEntitySchema
         createdAt: true,
         updatedAt: true,
       })
+      // a new product's stock row doesn't exist yet
+      .partial({ id: true })
       .optional(),
   });
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;

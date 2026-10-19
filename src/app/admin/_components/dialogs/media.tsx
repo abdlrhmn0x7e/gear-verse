@@ -166,12 +166,25 @@ export function MediaDialog({
 
 function MediaFileDropzone({ options = {}, className }: FileDropZoneProps) {
   const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
+  const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
+  const addSelectedMedia = useMediaStore((state) => state.addSelectedMedia);
+  const maxFiles = useMediaStore((state) => state.maxFiles);
 
   const onDropAccepted = useCallback(
     (acceptedFiles: File[]) => {
-      uploadFiles(acceptedFiles);
+      uploadFiles(acceptedFiles, {
+        onSuccess: (media) => {
+          const uploaded = media.map(({ id, url }) => ({ mediaId: id, url }));
+          if (maxFiles === 1) {
+            setSelectedMedia(uploaded.slice(0, 1));
+            return;
+          }
+
+          addSelectedMedia(uploaded);
+        },
+      });
     },
-    [uploadFiles],
+    [uploadFiles, setSelectedMedia, addSelectedMedia, maxFiles],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

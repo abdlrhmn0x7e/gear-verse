@@ -172,7 +172,7 @@ export const _inventoryItems = {
      * (no variant id). Creates that row if it's missing, e.g. after every
      * variant of the product was removed.
      */
-    ensureProductItem(productId: number, tx?: Tx) {
+    ensureProductItem(productId: number, quantity: number, tx?: Tx) {
       return withTx(tx, async (tx) => {
         const [existing] = await tx
           .select({ id: inventoryItems.id })
@@ -191,7 +191,7 @@ export const _inventoryItems = {
 
         return tx
           .insert(inventoryItems)
-          .values({ productId, quantity: 0 })
+          .values({ productId, quantity })
           .returning({ id: inventoryItems.id })
           .then(([res]) => res);
       });

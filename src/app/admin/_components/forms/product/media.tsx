@@ -1,6 +1,10 @@
 "use client";
 
-import { useFormContext, type UseFieldArraySwap } from "react-hook-form";
+import {
+  useFormContext,
+  useFormState,
+  type UseFieldArrayMove,
+} from "react-hook-form";
 
 import { ImageIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
@@ -19,7 +23,7 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
-import { rectSwappingStrategy } from "@dnd-kit/sortable";
+import { rectSortingStrategy } from "@dnd-kit/sortable";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Badge } from "~/components/ui/badge";
 import type { ProductFormValues } from ".";
@@ -31,19 +35,18 @@ import {
 
 export function MediaFields({
   media,
-  swap,
+  move,
 }: {
   media: ProductFormValues["media"];
-  swap: UseFieldArraySwap;
+  move: UseFieldArrayMove;
 }) {
   const setSelectedMedia = useMediaStore((state) => state.setSelectedMedia);
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [checkedMedia, setCheckedMedia] = useState<ProductFormValues["media"]>(
-    [],
-  );
+  const [checkedIds, setCheckedIds] = useState<ReadonlySet<number>>(new Set());
 
-  const { getValues, setValue } = useFormContext<ProductFormValues>();
+  const { getValues, setValue, control } = useFormContext<ProductFormValues>();
+  const { errors } = useFormState({ control, name: "media" });
 
   // The form owns the media and its order (the first is the thumbnail). The
   // store only backs the picker, so it is seeded from the form each time the
@@ -52,6 +55,10 @@ export function MediaFields({
   function commitMedia(next: ProductFormValues["media"]) {
     setValue("media", next, { shouldDirty: true });
     setSelectedMedia(next);
+    // media only come and go through here, so their ticks go with them
+    setCheckedIds(
+      (ids) => new Set(next.map((m) => m.mediaId).filter((id) => ids.has(id))),
+    );
   }
 
   function handlePicked(picked: SelectedMedia[]) {
@@ -78,42 +85,39 @@ export function MediaFields({
 
       if (oldIndex === -1 || newIndex === -1) return;
 
-      swap(oldIndex, newIndex);
+      move(oldIndex, newIndex);
 
       setActiveId(null);
     }
   }
 
-  function handleCheckboxChange(media: ProductFormValues["media"][number]) {
+  function handleCheckboxChange(mediaId: number) {
     return (checked: boolean) =>
-      setCheckedMedia((prev) =>
-        checked
-          ? [...prev, media]
-          : prev.filter((m) => m.mediaId !== media.mediaId),
-      );
+      setCheckedIds((ids) => {
+        const next = new Set(ids);
+        if (checked) next.add(mediaId);
+        else next.delete(mediaId);
+        return next;
+      });
   }
 
   return (
     <div className="space-y-2">
-      {checkedMedia.length > 0 ? (
+      {checkedIds.size > 0 ? (
         <div className="flex h-9 items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Checkbox
               id="select-all"
-              checked={checkedMedia.length === media.length}
-              indeterminate={
-                checkedMedia.length > 0 && checkedMedia.length < media.length
+              checked={checkedIds.size === media.length}
+              indeterminate={checkedIds.size < media.length}
+              onCheckedChange={(checked) =>
+                setCheckedIds(
+                  new Set(checked ? media.map((m) => m.mediaId) : []),
+                )
               }
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  setCheckedMedia(getValues("media"));
-                } else {
-                  setCheckedMedia([]);
-                }
-              }}
             />
 
-            <Label htmlFor="select-all">{checkedMedia.length} selected</Label>
+            <Label htmlFor="select-all">{checkedIds.size} selected</Label>
           </div>
 
           <Button
@@ -122,15 +126,12 @@ export function MediaFields({
             type="button"
             onClick={() => {
               commitMedia(
-                getValues("media").filter(
-                  (m) => !checkedMedia.some((m2) => m2.mediaId === m.mediaId),
-                ),
+                getValues("media").filter((m) => !checkedIds.has(m.mediaId)),
               );
-              setCheckedMedia([]);
             }}
           >
             <Trash2Icon data-icon="inline-start" />
-            Delete Selected
+            Delete selected
           </Button>
         </div>
       ) : (
@@ -144,7 +145,7 @@ export function MediaFields({
         >
           <DragableSortableContext
             items={media.map((m) => m.mediaId)}
-            strategy={rectSwappingStrategy}
+            strategy={rectSortingStrategy}
           >
             <div className="relative flex flex-wrap gap-2">
               {media.map((m, index) => (
@@ -160,10 +161,8 @@ export function MediaFields({
 
                     <Checkbox
                       className="absolute top-2 left-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-0 data-checked:opacity-100"
-                      checked={checkedMedia.some(
-                        (m2) => m2.mediaId === m.mediaId,
-                      )}
-                      onCheckedChange={handleCheckboxChange(m)}
+                      checked={checkedIds.has(m.mediaId)}
+                      onCheckedChange={handleCheckboxChange(m.mediaId)}
                       onPointerDown={(e) => e.stopPropagation()}
                     />
                   </SortableItem>
@@ -199,6 +198,14 @@ export function MediaFields({
       <p className="text-muted-foreground text-sm">
         The first media will be used as the main image.
       </p>
+
+      {/* an error inside one media is about data the admin can't edit */}
+      {errors.media && (
+        <p className="text-destructive text-sm">
+          {errors.media.message ??
+            "One of these media couldn't be read. Remove it and add it again."}
+        </p>
+      )}
     </div>
   );
 }
