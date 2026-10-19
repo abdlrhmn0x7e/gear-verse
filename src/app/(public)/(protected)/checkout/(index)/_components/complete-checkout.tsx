@@ -111,6 +111,7 @@ export function CompleteCheckout({
           <Button
             className="w-full min-w-48 lg:w-fit"
             size="xl"
+            type="submit"
             form="checkout-form"
             disabled={
               !addresses?.length ||
