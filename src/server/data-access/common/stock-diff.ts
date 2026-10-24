@@ -34,3 +34,17 @@ export const getStockDiff = (removed: OrderLine[], added: OrderLine[]) => {
 
   return Array.from(diffs.values()).filter((line) => line.quantity !== 0);
 };
+
+/**
+ * How many units an edited line leaves on backorder: the units it held from
+ * stock stay held, so a lower quantity drops backordered units first and a
+ * higher one takes the extra from stock. A new line holds everything.
+ */
+export const backorderedAfterEdit = (
+  previous: { quantity: number; backorderedQuantity: number } | undefined,
+  quantity: number,
+) => {
+  if (!previous) return 0;
+  const held = previous.quantity - previous.backorderedQuantity;
+  return Math.max(0, Math.min(previous.backorderedQuantity, quantity - held));
+};

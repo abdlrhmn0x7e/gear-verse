@@ -229,7 +229,6 @@ function OrderItem({
             {item.values.join(", ")}
           </p>
         )}
-        {/* these units weren't in stock when it was ordered, they have to be sourced */}
         {item.backorderedQuantity > 0 && (
           <Badge variant="warning">
             {item.backorderedQuantity === item.quantity

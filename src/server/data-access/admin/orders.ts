@@ -17,7 +17,7 @@ import {
 import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
 import { cartLineKey } from "../common/merge-cart-lines";
-import { getStockDiff } from "../common/stock-diff";
+import { backorderedAfterEdit, getStockDiff } from "../common/stock-diff";
 import {
   getCurrentUnitPrices,
   orderLineUnitPrice,
@@ -464,17 +464,14 @@ export const _orders = {
               unitPrice: orderItems.unitPrice,
               backorderedQuantity: orderItems.backorderedQuantity,
             });
-          const previousBackordered = new Map(
-            deleted.map((line) => [
-              cartLineKey(line),
-              line.backorderedQuantity,
-            ]),
+          const previousLines = new Map(
+            deleted.map((line) => [cartLineKey(line), line]),
           );
 
           // create the new items. lines already on the order keep the price
-          // they were ordered at, added lines get the current price. they keep
-          // their backordered units up to the new quantity, added units come
-          // from stock
+          // they were ordered at, added lines get the current price. a lowered
+          // quantity drops backordered units before held ones, so we source
+          // less instead of releasing stock we have; added units come from stock
           const prices = await getCurrentUnitPrices(tx, itemsInput);
           const created = await tx
             .insert(orderItems)
@@ -486,8 +483,8 @@ export const _orders = {
               ).map((item) => ({
                 ...item,
                 orderId: id,
-                backorderedQuantity: Math.min(
-                  previousBackordered.get(cartLineKey(item)) ?? 0,
+                backorderedQuantity: backorderedAfterEdit(
+                  previousLines.get(cartLineKey(item)),
                   item.quantity,
                 ),
               })),

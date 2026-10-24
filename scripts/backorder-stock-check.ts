@@ -154,15 +154,15 @@ try {
   ]);
   assert.deepEqual(await lineOf(order.id), {
     quantity: 2,
-    backorderedQuantity: 2,
+    backorderedQuantity: 1,
   });
   assert.equal(
     await stockOf(backorderId),
-    1,
-    "the edit gives back the held unit",
+    0,
+    "the edit drops a backordered unit and keeps the held one",
   );
   console.log(
-    "ok  edit 3 -> 2 keeps 2 backordered and returns the held unit -> stock 1",
+    "ok  edit 3 -> 2 drops a backordered unit and keeps the held one -> stock 0",
   );
 
   await adminOrders.mutations.delete(order.id);
