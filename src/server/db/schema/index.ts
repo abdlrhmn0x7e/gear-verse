@@ -11,3 +11,4 @@ export * from "./products-media";
 export * from "./seo";
 export * from "./inventory";
 export * from "./settings";
+export * from "./category-product-positions";
