@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { cn } from "~/lib/utils";

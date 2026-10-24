@@ -1,5 +1,5 @@
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { notFound } from "next/navigation";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Button } from "~/components/ui/button";

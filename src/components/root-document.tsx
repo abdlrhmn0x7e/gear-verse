@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from "next-intl";
 
 import { TRPCReactProvider } from "~/trpc/client";
 import { ThemeProvider } from "~/components/theme-provider";
@@ -11,6 +12,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { fontSans, jetBrainsMono } from "~/fonts";
 import { env } from "~/env";
+import type { Locale } from "~/i18n/routing";
 import { cn } from "~/lib/utils";
 import { JsonLd } from "~/lib/seo/json-ld";
 import { siteJsonLd } from "~/lib/seo/structured-data";
@@ -19,7 +21,8 @@ import { Suspense } from "react";
 
 import * as Sentry from "@sentry/nextjs";
 
-export const metadata: Metadata = {
+/** The storefront's root layout localizes the title, description and Open Graph locale over this; the admin uses it as is. */
+export const siteMetadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
     default: "Gear Verse: Imported Gaming Gear in Egypt",
@@ -61,25 +64,33 @@ export const metadata: Metadata = {
 };
 
 // No themeColor: it follows the site's theme rather than the phone's, so ThemeColorScript and ThemeColorSync own it
-export const viewport: Viewport = {
+export const siteViewport: Viewport = {
   // the page runs under the notch and the home indicator; body keeps flow content inside the side and bottom insets,
   // and fixed bars pad themselves
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+/** The `<html>` document and app-wide providers, shared by the storefront's and the admin's root layouts. */
+export function RootDocument({
+  locale,
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  locale: Locale;
+  children: React.ReactNode;
+}) {
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={locale}
+      dir={dir}
       // globals.css scrolls smoothly; this lets Next jump instantly on navigation
       data-scroll-behavior="smooth"
       suppressHydrationWarning
       className="font-sans"
       style={{ "--font-sans": fontSans } as React.CSSProperties}
     >
+      {/* eslint-disable-next-line @next/next/no-head-element -- the rule reads this file as a pages/ document; it is an App Router root */}
       <head>
         <ThemeColorScript />
         {/* <script
@@ -95,32 +106,34 @@ export default function RootLayout({
         )}
       >
         <Suspense fallback={null}>
-          <SiteJsonLd />
+          <SiteJsonLd locale={locale} />
         </Suspense>
-        <NuqsAdapter>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ThemeColorSync />
-            <TRPCReactProvider>
-              {/* Base UI takes the direction from here, not from <html dir>, so the two change together */}
-              <DirectionProvider direction="ltr">
-                <TooltipProvider>{children}</TooltipProvider>
-                <Toaster />
-              </DirectionProvider>
-            </TRPCReactProvider>
-          </ThemeProvider>
-        </NuqsAdapter>
+        <NextIntlClientProvider locale={locale}>
+          <NuqsAdapter>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ThemeColorSync />
+              <TRPCReactProvider>
+                {/* Base UI takes the direction from here, not from <html dir>, so the two change together */}
+                <DirectionProvider direction={dir}>
+                  <TooltipProvider>{children}</TooltipProvider>
+                  <Toaster />
+                </DirectionProvider>
+              </TRPCReactProvider>
+            </ThemeProvider>
+          </NuqsAdapter>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
 }
 
 /** The store's structured data, with its social profiles from the admin store settings. */
-async function SiteJsonLd() {
+async function SiteJsonLd({ locale }: { locale: Locale }) {
   const settings = await getStoreSettings();
-  return <JsonLd data={siteJsonLd(settings)} />;
+  return <JsonLd data={siteJsonLd(settings, locale)} />;
 }

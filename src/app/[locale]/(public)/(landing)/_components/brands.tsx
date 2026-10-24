@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { getBrands } from "../_lib/queries";

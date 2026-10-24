@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { StarRating } from "~/components/features/reviews/star-rating";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { getFeaturedReviews, shortReviewerName } from "~/lib/featured-reviews";

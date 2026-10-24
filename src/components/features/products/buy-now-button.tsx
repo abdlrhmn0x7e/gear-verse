@@ -2,8 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LockIcon, ZapIcon } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "~/i18n/navigation";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";

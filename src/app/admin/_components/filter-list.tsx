@@ -7,7 +7,7 @@ import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
 import type { RouterOutput } from "~/trpc/client";
 import { OrderStatus } from "./tables/orders/order-status";
-import { PaymentMethod } from "~/app/(public)/(protected)/_components/payment-method";
+import { PaymentMethod } from "~/app/[locale]/(public)/(protected)/_components/payment-method";
 import type { CategoryTree } from "~/lib/schemas/entities";
 
 const itemVariant = {

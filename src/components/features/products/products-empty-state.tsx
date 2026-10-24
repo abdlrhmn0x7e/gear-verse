@@ -6,7 +6,7 @@ import {
   MessageSquarePlusIcon,
   PackageSearchIcon,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { Button } from "~/components/ui/button";
 
 /** Every listing ends in a way forward: clear what narrowed it, request what isn't stocked, or go to the full store. */

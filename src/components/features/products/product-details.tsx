@@ -5,7 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cacheTag } from "next/cache";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense, type JSX, type ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
