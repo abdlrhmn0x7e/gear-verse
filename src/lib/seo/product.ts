@@ -1,6 +1,22 @@
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { SITE_NAME } from "./site";
 
 const DESCRIPTION_LENGTH = 160;
+const TITLE_LENGTH = 60;
+
+/**
+ * The longest of "{title}: Price in Egypt | Gear Verse", "{title}: Price in
+ * Egypt" and "{title}" that fits Google's ~60 characters, so a long product
+ * name keeps its own words instead of being cut mid-name.
+ */
+export function productPageTitle(title: string) {
+  const name = title.replace(/\s+/g, " ").trim();
+  const candidates = [
+    `${name}: Price in Egypt | ${SITE_NAME}`,
+    `${name}: Price in Egypt`,
+  ];
+  return candidates.find((c) => c.length <= TITLE_LENGTH) ?? name;
+}
 
 /** The summary is one feature per line: "8K Polling Rate\n75% Layout" → "8K Polling Rate, 75% Layout". */
 export function joinSummary(summary: string) {

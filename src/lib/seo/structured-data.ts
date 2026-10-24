@@ -95,6 +95,12 @@ export function categoryTrail(categoryPath: { name: string; slug: string }[]) {
   ];
 }
 
+const ITEM_CONDITIONS = {
+  NEW: "https://schema.org/NewCondition",
+  USED: "https://schema.org/UsedCondition",
+  REFURBISHED: "https://schema.org/RefurbishedCondition",
+};
+
 export function productJsonLd({
   product,
   categoryPath,
@@ -105,6 +111,7 @@ export function productJsonLd({
     summary: string;
     price: number;
     strikeThroughPrice: number | null;
+    condition: "NEW" | "USED" | "REFURBISHED";
     inStock: boolean;
     thumbnailUrl: string;
     media: string[];
@@ -152,7 +159,7 @@ export function productJsonLd({
       availability: product.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
+      itemCondition: ITEM_CONDITIONS[product.condition],
       seller: { "@id": ORGANIZATION_ID },
       hasMerchantReturnPolicy: returnPolicy(),
     },
