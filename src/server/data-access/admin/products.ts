@@ -2,7 +2,6 @@ import {
   and,
   asc,
   eq,
-  gt,
   ilike,
   inArray,
   isNotNull,
@@ -187,19 +186,20 @@ function findListRows({
 
 export const _products = {
   queries: {
-    /** Unpinned products in id order; the pinned ones lead the list from `getPinned`. */
+    /** Unpinned products in store order; the pinned ones lead the list from `getPinned`. */
     getPage: async ({
       cursor,
       pageSize,
       filters,
     }: Pagination<ProductsFilter>) => {
+      const ordering = getProductsOrdering("trending", cursor);
       return findListRows({
         where: and(
-          gt(products.id, cursor ?? 0),
+          ordering.cursorWhere,
           isNull(products.pinnedPosition),
           ...(await getListWhere(filters)),
         ),
-        orderBy: products.id,
+        orderBy: ordering.orderBy,
         limit: pageSize + 1,
       });
     },
@@ -853,6 +853,56 @@ export const _products = {
         }
 
         return ids;
+      });
+    },
+
+    /** Rewrites the store order below the pins, under a lock so concurrent moves can't interleave. */
+    rewriteStoreOrder(reorder: (rankedIds: number[]) => number[]) {
+      return db.transaction(async (tx) => {
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtext('products.position'))`,
+        );
+        const rankedIds = await tx
+          .select({ id: products.id })
+          .from(products)
+          .where(
+            and(
+              isNotNull(products.position),
+              isNull(products.pinnedPosition),
+              eq(products.archived, false),
+            ),
+          )
+          .orderBy(asc(products.position))
+          .then((rows) => rows.map((row) => row.id));
+        const ids = reorder(rankedIds);
+        const updatedAt = sql`${products.updatedAt}`;
+
+        // positions are unique and checked row by row, so clear them before writing the new ones
+        await tx
+          .update(products)
+          .set({ position: null, updatedAt })
+          .where(isNotNull(products.position));
+        if (ids.length === 0) return ids;
+
+        const ranked = await tx
+          .update(products)
+          .set({
+            position: sql`case ${products.id} ${sql.join(
+              ids.map((id, index) => sql`when ${id} then ${index}::integer`),
+              sql` `,
+            )} end`,
+            updatedAt,
+          })
+          .where(
+            and(
+              inArray(products.id, ids),
+              isNull(products.pinnedPosition),
+              eq(products.archived, false),
+            ),
+          )
+          .returning({ id: products.id });
+        const written = new Set(ranked.map((row) => row.id));
+        return ids.filter((id) => written.has(id));
       });
     },
 

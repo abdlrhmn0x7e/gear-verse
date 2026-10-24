@@ -10,6 +10,7 @@ import {
   productsGetPinnedInputSchema,
   productsReorderCategoryInputSchema,
   productsReorderPinnedInputSchema,
+  productsReorderStoreInputSchema,
 } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
@@ -150,6 +151,19 @@ export const productsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.mutations.reorderPinned(input.ids),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    reorderStore: adminProcedure
+      .input(productsReorderStoreInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.reorderStore(input.ids),
         );
         if (error) {
           throw errorMap(error);

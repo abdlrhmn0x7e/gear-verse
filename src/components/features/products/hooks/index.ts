@@ -1,4 +1,5 @@
 import { useQueryStates } from "nuqs";
+import type { ProductsGetPageInput } from "~/lib/schemas/contracts/public/products";
 import {
   createLoader,
   parseAsArrayOf,
@@ -22,10 +23,14 @@ export function useAllProductSearchParams() {
 
 export const loadAllProductSearchParams = createLoader(productsNuqsParsers);
 
-type ProductsSearchParams = Awaited<ReturnType<typeof loadAllProductSearchParams>>;
+type ProductsSearchParams = Awaited<
+  ReturnType<typeof loadAllProductSearchParams>
+>;
 
 /** One mapping from URL filters to the products query, shared by the server prefetch and the client list. */
-export function toProductsPageInput(filters: ProductsSearchParams) {
+export function toProductsPageInput(
+  filters: ProductsSearchParams,
+): ProductsGetPageInput {
   const hasPrice = filters.minPrice !== null || filters.maxPrice !== null;
 
   return {
@@ -38,6 +43,6 @@ export function toProductsPageInput(filters: ProductsSearchParams) {
         ? { min: filters.minPrice ?? 0, max: filters.maxPrice ?? 99999 }
         : undefined,
     },
-    sortBy: filters.sortBy ?? undefined,
+    sortBy: filters.sortBy ?? "trending",
   };
 }

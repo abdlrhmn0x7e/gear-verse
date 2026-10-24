@@ -368,6 +368,10 @@ export const _products = {
       const order = await data.admin.products.mutations.rewritePinned(
         (pinnedIds) => pinnedIds.filter((id) => id !== productId),
       );
+      await data.admin.products.mutations.rewriteStoreOrder((rankedIds) => [
+        productId,
+        ...rankedIds.filter((id) => id !== productId),
+      ]);
       await invalidateCache("recent-products");
       return order;
     },
@@ -384,6 +388,22 @@ export const _products = {
           const listed = new Set(productIds.filter((id) => pinned.has(id)));
           return [...listed, ...pinnedIds.filter((id) => !listed.has(id))];
         },
+      );
+      await invalidateCache("recent-products");
+      return order;
+    },
+
+    /**
+     * Orders the unpinned products as listed. Pinned and archived ids are
+     * dropped, and ranked ones the list is missing keep their order after it.
+     */
+    async reorderStore(productIds: number[]) {
+      const listed = new Set(productIds);
+      const order = await data.admin.products.mutations.rewriteStoreOrder(
+        (rankedIds) => [
+          ...listed,
+          ...rankedIds.filter((id) => !listed.has(id)),
+        ],
       );
       await invalidateCache("recent-products");
       return order;
