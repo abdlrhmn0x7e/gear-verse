@@ -80,8 +80,8 @@ const RULES: Rule[] = [
   },
 ];
 
-// left-1/2 + -translate-x-1/2 centres the element in either direction; start-1/2 would push it off-centre in RTL
-const CENTERING = /translate-x-(?:1\/2|\[-?50%\])/;
+// left-1/2 + -translate-x-1/2 (or -translate-1/2) centres the element in either direction; start-1/2 would push it off-centre in RTL
+const CENTERING = /translate-(?:x-)?(?:1\/2|\[-?50%\])/;
 const CENTER_VALUE = /^(?:left|right)-(?:1\/2|\[50%\])$/;
 
 /** Splits "md:hover:-ml-2!" into its variant prefix, important/negative markers and the bare utility. */
@@ -182,6 +182,10 @@ function selfCheck() {
     [
       `"absolute left-1/2 -translate-x-1/2"`,
       `"absolute left-1/2 -translate-x-1/2"`,
+    ],
+    [
+      `"pointer-coarse:after:left-1/2 pointer-coarse:after:-translate-1/2"`,
+      `"pointer-coarse:after:left-1/2 pointer-coarse:after:-translate-1/2"`,
     ],
     [
       `"pl-[env(safe-area-inset-left)] left-panel pl-PL right"`,
