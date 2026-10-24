@@ -1,5 +1,8 @@
 import type { BrandsGetPageInput } from "@schemas/contracts/admin/brands";
-import type { CreateBrandInput } from "@schemas/entities/brand";
+import type {
+  CreateBrandInput,
+  UpdateBrandInput,
+} from "@schemas/entities/brand";
 import { generateSlug } from "~/lib/utils/slugs";
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
@@ -37,7 +40,51 @@ export const _brands = {
       return brand;
     },
 
+    update: async ({ id, ...input }: UpdateBrandInput) => {
+      if (input.name === undefined && input.logoMediaId === undefined) {
+        throw new AppError("No brand changes provided", "BAD_REQUEST");
+      }
+
+      const { data: brand, error } = await tryCatch(
+        data.admin.brands.mutations.update(id, input),
+      );
+
+      if (error) {
+        throw new AppError("Could not update brand", "INTERNAL", {
+          cause: error,
+        });
+      }
+
+      if (!brand) {
+        throw new AppError("Brand not found", "NOT_FOUND");
+      }
+
+      await Promise.all([
+        invalidateCache("filters"),
+        invalidateCache("brands"),
+      ]);
+
+      return brand;
+    },
+
     delete: async (brandId: number) => {
+      const { data: productCount, error: countError } = await tryCatch(
+        data.admin.brands.queries.countProducts(brandId),
+      );
+
+      if (countError) {
+        throw new AppError("Could not check brand usage", "INTERNAL", {
+          cause: countError,
+        });
+      }
+
+      if (productCount > 0) {
+        throw new AppError(
+          `This brand is used by ${productCount} products. Move them to another brand first.`,
+          "BAD_REQUEST",
+        );
+      }
+
       const { data: brand, error } = await tryCatch(
         data.admin.brands.mutations.delete(brandId),
       );
