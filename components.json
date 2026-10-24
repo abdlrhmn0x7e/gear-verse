@@ -18,7 +18,7 @@
     "lib": "~/lib",
     "hooks": "~/hooks"
   },
-  "rtl": false,
+  "rtl": true,
   "menuColor": "default",
   "menuAccent": "subtle",
   "registries": {

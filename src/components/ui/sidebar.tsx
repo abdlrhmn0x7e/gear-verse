@@ -288,8 +288,8 @@ function SidebarTrigger({
             size="icon-sm"
             className={cn(
               className,
-              "cursor-w-resize",
-              !open && "cursor-e-resize",
+              "cursor-w-resize rtl:cursor-e-resize",
+              !open && "cursor-e-resize rtl:cursor-w-resize",
             )}
             onClick={(event) => {
               onClick?.(event);
@@ -345,7 +345,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
               onPointerEnter={() => setHovered(true)}
               onPointerLeave={() => setHovered(false)}
               className={cn(
-                "group/rail absolute top-1/2 start-0 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
+                "group/rail absolute start-0 top-1/2 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
                 className,
               )}
               {...props}
@@ -733,7 +733,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        "border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-s px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
+        "border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-s px-2.5 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px",
         className,
       )}
       {...props}
@@ -775,22 +775,22 @@ function SidebarMenuSubButton({
     props: mergeProps<"a">(
       {
         className: cn(
-          "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-xl px-3 outline-hidden group-data-[collapsible=icon]:hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+          "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px rtl:translate-x-px items-center gap-2 overflow-hidden rounded-xl px-3 outline-hidden group-data-[collapsible=icon]:hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
           "group/sidebar-menu-sub-button relative ps-9",
           className,
         ),
         children: (
           <div className="flex w-full items-center">
             {showVerticalBorder && (
-              <div className="bg-primary absolute top-0 bottom-0 start-4 w-0.5" />
+              <div className="bg-primary absolute start-4 top-0 bottom-0 w-0.5" />
             )}
             {showArrow && (
-              <div className="bg-primary absolute top-0 bottom-0 start-4 z-10 h-1/3 w-0.5" />
+              <div className="bg-primary absolute start-4 top-0 bottom-0 z-10 h-1/3 w-0.5" />
             )}
 
             <svg
               className={cn(
-                "text-primary! absolute top-1 start-4 -ms-[3.2px] size-4 stroke-3 opacity-0 transition-opacity duration-100",
+                "text-primary! absolute start-4 top-1 -ms-[3.2px] size-4 stroke-3 opacity-0 transition-opacity duration-100",
                 showArrow
                   ? "opacity-100"
                   : "group-hover/sidebar-menu-sub-button:opacity-50",
