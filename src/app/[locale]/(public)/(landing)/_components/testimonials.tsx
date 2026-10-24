@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { StarRating } from "~/components/features/reviews/star-rating";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -6,7 +7,10 @@ import { SectionHeader } from "./section-header";
 
 /** Real product reviews only; the section stays hidden until customers have left some. */
 export async function Testimonials() {
-  const reviews = await getFeaturedReviews(4);
+  const [reviews, t] = await Promise.all([
+    getFeaturedReviews(4),
+    getTranslations("landing.testimonials"),
+  ]);
   if (reviews.length === 0) return null;
 
   return (
@@ -15,8 +19,8 @@ export async function Testimonials() {
         <div className="bg-card space-y-12 rounded-[2rem] p-6 sm:p-12 lg:p-16">
           <SectionHeader
             id="testimonials-heading"
-            title="What customers say"
-            description="Reviews left on the gear they bought, unedited."
+            title={t("title")}
+            description={t("description")}
           />
 
           <ul className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto *:w-[85%] *:shrink-0 *:snap-start md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:*:w-auto xl:grid-cols-4">
@@ -33,13 +37,17 @@ export async function Testimonials() {
                   {review.comment}
                 </blockquote>
                 <p className="text-muted-foreground mt-auto text-sm">
-                  {shortReviewerName(review.name)} on{" "}
-                  <Link
-                    href={`/products/${review.product.slug}`}
-                    className="text-foreground underline decoration-from-font underline-offset-4"
-                  >
-                    {review.product.title}
-                  </Link>
+                  {t.rich("byline", {
+                    name: () => <bdi>{shortReviewerName(review.name)}</bdi>,
+                    product: () => (
+                      <Link
+                        href={`/products/${review.product.slug}`}
+                        className="text-foreground underline decoration-from-font underline-offset-4"
+                      >
+                        <bdi>{review.product.title}</bdi>
+                      </Link>
+                    ),
+                  })}
                 </p>
               </li>
             ))}

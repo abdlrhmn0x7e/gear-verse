@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -23,7 +24,10 @@ const tileClassName: Record<TileLayout, string> = {
 };
 
 export async function CategoryBento() {
-  const covers = await getCategoryCovers();
+  const [covers, t] = await Promise.all([
+    getCategoryCovers(),
+    getTranslations("landing.categories"),
+  ]);
   if (covers.length === 0) return null;
 
   return (
@@ -31,8 +35,8 @@ export async function CategoryBento() {
       <MaxWidthWrapper className="space-y-12">
         <SectionHeader
           id="categories-heading"
-          title="Shop by category"
-          description="Each one is a short list, so picking takes minutes."
+          title={t("title")}
+          description={t("description")}
         />
 
         <ul
@@ -65,7 +69,7 @@ export async function CategoryBento() {
                         layout === "lead" ? "text-headline-sm" : "text-title",
                       )}
                     >
-                      {category.name}
+                      <bdi>{category.name}</bdi>
                     </h3>
                     <span className="surface-control flex size-10 shrink-0 items-center justify-center rounded-full">
                       <ArrowRightIcon

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -5,7 +6,10 @@ import { getBrands } from "../_lib/queries";
 import { SectionHeader } from "./section-header";
 
 export async function Brands() {
-  const brands = await getBrands();
+  const [brands, t] = await Promise.all([
+    getBrands(),
+    getTranslations("landing.brands"),
+  ]);
   if (brands.length === 0) return null;
 
   return (
@@ -13,8 +17,8 @@ export async function Brands() {
       <MaxWidthWrapper className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
         <SectionHeader
           id="brands-heading"
-          title="Brands on the shelf"
-          description="Tap a brand to see everything we carry from it."
+          title={t("title")}
+          description={t("description")}
         />
 
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6">
@@ -34,7 +38,7 @@ export async function Brands() {
                     className="size-full rounded-none border-none bg-transparent p-[22%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.04] [&_img]:object-contain"
                   />
                 </div>
-                <span className="text-sm font-medium">{brand.name}</span>
+                <bdi className="text-sm font-medium">{brand.name}</bdi>
               </Link>
             </li>
           ))}
