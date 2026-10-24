@@ -13,13 +13,6 @@ export function formatWhatsAppNumber(number: string) {
   return `+20 ${network} ${first} ${second}`;
 }
 
-/**
- * Typed into the chat when a customer reports a defective or damaged product.
- * shortcut: English only, for the product page until it reads common.whatsapp.reportIssue; delete then.
- */
-export const REPORT_ISSUE_MESSAGE =
-  "Hi Gear Verse, I'd like to report a problem with a product from my order.";
-
 /** Longest item text carried into a request chat, so a pasted page can't build an unwieldy link. */
 const REQUEST_ITEM_MAX_LENGTH = 300;
 

@@ -31,7 +31,6 @@ import {
 import { env } from "~/env";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { getStoreSettings } from "~/lib/store-settings";
-import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
 import { cn } from "~/lib/utils";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { app } from "~/server/application";
@@ -54,6 +53,7 @@ const inlineLinkClassName =
  */
 function policyRows(
   whatsappNumber: string | null,
+  reportIssueMessage: string,
   t: Awaited<ReturnType<typeof getTranslations<"products.policies">>>,
 ): {
   value: string;
@@ -85,7 +85,7 @@ function policyRows(
           whatsappNumber && (
             <WhatsAppNumberLink
               number={whatsappNumber}
-              message={REPORT_ISSUE_MESSAGE}
+              message={reportIssueMessage}
               className={`${inlineLinkClassName} tabular-nums`}
             />
           ),
@@ -128,10 +128,11 @@ export async function ProductDetails({
     (node) => node.id === product.categoryId,
   );
   const category = categoryPath.at(-1);
-  const [{ whatsappNumber }, t, tPolicies] = await Promise.all([
+  const [{ whatsappNumber }, t, tPolicies, tWhatsApp] = await Promise.all([
     getStoreSettings(),
     getTranslations("products"),
     getTranslations("products.policies"),
+    getTranslations("common.whatsapp"),
   ]);
 
   return (
@@ -251,7 +252,11 @@ export async function ProductDetails({
             <PayOnDelivery className="px-1" />
 
             <Accordion className="border-t">
-              {policyRows(whatsappNumber, tPolicies).map((row) => (
+              {policyRows(
+                whatsappNumber,
+                tWhatsApp("reportIssue"),
+                tPolicies,
+              ).map((row) => (
                 <AccordionItem key={row.value} value={row.value}>
                   <AccordionTrigger>
                     <span className="flex items-center gap-3">
