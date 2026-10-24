@@ -1,3 +1,5 @@
+import { getLocale } from "next-intl/server";
+import { localizedCopyProps } from "~/lib/arabic";
 import { ArrowRightIcon } from "lucide-react";
 import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -23,6 +25,7 @@ const tileClassName: Record<TileLayout, string> = {
 };
 
 export async function CategoryBento() {
+  const locale = await getLocale();
   const covers = await getCategoryCovers();
   if (covers.length === 0) return null;
 
@@ -64,6 +67,7 @@ export async function CategoryBento() {
                         "text-balance",
                         layout === "lead" ? "text-headline-sm" : "text-title",
                       )}
+                      {...localizedCopyProps(locale, category.fallback.name)}
                     >
                       {category.name}
                     </h3>

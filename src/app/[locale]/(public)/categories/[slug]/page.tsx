@@ -9,6 +9,7 @@ import {
 } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Skeleton } from "~/components/ui/skeleton";
+import { localizedCopyProps } from "~/lib/arabic";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { pageMetadata } from "~/lib/seo/metadata";
 import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
@@ -56,10 +57,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const [{ category }, indexable, locale, t] = await Promise.all([
+  const [{ category }, indexable, t] = await Promise.all([
     findCategoryBySlug(slug),
     findSitemapEntries(),
-    getLocale(),
     getTranslations("products.metadata"),
   ]);
   if (!category) {
@@ -73,9 +73,9 @@ export async function generateMetadata({
     title,
     ...(await pageMetadata({
       title,
-      // the admin writes category descriptions in English, so Arabic pages use the Arabic template
+      // an Arabic page without an Arabic description uses the Arabic template, not the English text
       description:
-        locale === "en" && category.description
+        category.description && !category.fallback?.description
           ? clampDescription(category.description)
           : t("categoryDescription", { name: category.name }),
       path: `/categories/${slug}`,
@@ -118,10 +118,16 @@ export default async function CategoryPage({
         )}
       />
       <header className="max-w-2xl space-y-3">
-        <h1 className="text-headline-sm md:text-display-sm text-balance">
+        <h1
+          className="text-headline-sm md:text-display-sm text-balance"
+          {...localizedCopyProps(locale, category.fallback?.name)}
+        >
           {category.name}
         </h1>
-        <p className="text-muted-foreground text-body-lg text-pretty">
+        <p
+          className="text-muted-foreground text-body-lg text-pretty"
+          {...localizedCopyProps(locale, category.fallback?.description)}
+        >
           {/* the name is a heading already, and singular names ("Mouse") don't fit inside a sentence */}
           {category.description ??
             "Hand-imported from international brands, customs cleared and delivered to your door."}

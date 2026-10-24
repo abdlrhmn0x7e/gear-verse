@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "~/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { SearchIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -39,6 +39,7 @@ export function SearchDrawer() {
   const navigateAway = useCloseOnBack(open, () => setOpen(false));
   const inputRef = useRef<HTMLInputElement>(null);
   const trpc = useTRPC();
+  const locale = useLocale();
   const {
     data: products,
     isPending: productsPending,
@@ -50,6 +51,7 @@ export function SearchDrawer() {
         filters: {
           title: debouncedSearch,
         },
+        locale,
       },
       // the drawer is mounted on every page, so search only once it opens
       { enabled: open },

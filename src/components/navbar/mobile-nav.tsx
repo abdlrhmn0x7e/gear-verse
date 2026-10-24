@@ -16,12 +16,13 @@ import {
   IconReceipt,
 } from "@tabler/icons-react";
 import { MenuIcon, XIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "~/i18n/navigation";
 import { useState } from "react";
 import { useCloseOnBackStack } from "~/hooks/use-close-on-back-stack";
 import { authClient } from "~/lib/auth-client";
 import { iconsMap } from "~/lib/icons-map";
+import { localizedCopyProps } from "~/lib/arabic";
 import type { CategoryIconEnum } from "~/lib/schemas/entities/category";
 import { cn } from "~/lib/utils";
 import { formatWhatsAppNumber, whatsAppLink } from "~/lib/whatsapp";
@@ -65,9 +66,15 @@ export function MobileNav({
   /** E.164; the menu leaves the number out when the store has none */
   whatsappNumber: string | null;
   socialLinks: SocialLinksSettings;
-  categories: { name: string; slug: string; icon: CategoryIconEnum }[];
+  categories: {
+    name: string;
+    slug: string;
+    icon: CategoryIconEnum;
+    fallback: { name: boolean };
+  }[];
 }) {
   const t = useTranslations("nav");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   // back leaves categories for the menu, then the menu for the page
@@ -170,7 +177,14 @@ export function MobileNav({
                           icon={iconsMap.get(category.icon) ?? IconFolder}
                           onNavigate={closeAll}
                         >
-                          <bdi>{category.name}</bdi>
+                          <bdi
+                            {...localizedCopyProps(
+                              locale,
+                              category.fallback.name,
+                            )}
+                          >
+                            {category.name}
+                          </bdi>
                         </RowLink>
                       ))}
                       <RowLink

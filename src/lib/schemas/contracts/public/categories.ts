@@ -1,6 +1,6 @@
 import z from "zod";
 import { paginationSchema } from "../pagination";
-import { productsFilterSchema } from "./products";
+import { localeSchema, productsFilterSchema } from "./products";
 
 export const categoriesFilterSchema = z
   .object({
@@ -13,6 +13,7 @@ export type CategoriesFilter = z.infer<typeof categoriesFilterSchema>;
 export const categoriesFindAllInputSchema = z
   .object({
     filters: categoriesFilterSchema,
+    locale: localeSchema,
   })
   .optional();
 export type CategoriesFindAllInput = z.infer<
@@ -45,5 +46,6 @@ export type CategoryProductsFilters = z.infer<
 export const categoryProductsInputSchema = paginationSchema.extend({
   slug: z.string(),
   filters: categoryProductsFilterSchema.optional(),
+  locale: localeSchema,
 });
 export type CategoryProductsInput = z.infer<typeof categoryProductsInputSchema>;

@@ -1,5 +1,7 @@
 import { cacheTag } from "next/cache";
+import { getLocale } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
+import { localizedCopyProps } from "~/lib/arabic";
 import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 
@@ -30,11 +32,13 @@ export async function CategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findRoots();
+  const locale = await getLocale();
+  const categories = await app.public.categories.queries.findRoots(locale);
   const chips = [
     { label: "All products", href: "/products", active: activeSlug === null },
     ...categories.map((category) => ({
       label: category.name,
+      labelProps: localizedCopyProps(locale, category.fallback.name),
       href: `/categories/${category.slug}`,
       active: category.slug === activeSlug,
     })),
@@ -55,7 +59,11 @@ export async function SubCategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
-  const children = await app.public.categories.queries.getChildren(parent.slug);
+  const locale = await getLocale();
+  const children = await app.public.categories.queries.getChildren(
+    parent.slug,
+    locale,
+  );
   if (children.length === 0) return null;
 
   const chips = [
@@ -66,6 +74,7 @@ export async function SubCategoryChips({
     },
     ...children.map((child) => ({
       label: child.name,
+      labelProps: localizedCopyProps(locale, child.fallback.name),
       href: `/categories/${child.slug}`,
       active: child.slug === activeSlug,
     })),
@@ -86,7 +95,12 @@ function ChipNav({
   level,
 }: {
   label: string;
-  chips: { label: string; href: string; active: boolean }[];
+  chips: {
+    label: string;
+    href: string;
+    active: boolean;
+    labelProps?: ReturnType<typeof localizedCopyProps>;
+  }[];
   level: keyof typeof chipLevels;
 }) {
   const styles = chipLevels[level];
@@ -104,7 +118,12 @@ function ChipNav({
                 chip.active ? styles.active : styles.idle,
               )}
             >
-              {chip.label}
+              {/* English pages keep the bare label */}
+              {chip.labelProps && Object.keys(chip.labelProps).length > 0 ? (
+                <span {...chip.labelProps}>{chip.label}</span>
+              ) : (
+                chip.label
+              )}
             </Link>
           </li>
         ))}

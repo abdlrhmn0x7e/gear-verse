@@ -1,4 +1,5 @@
 import type { SearchParams } from "nuqs/server";
+import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
 import {
   loadAllProductSearchParams,
@@ -21,7 +22,7 @@ export async function Products({
   const filters = await loadAllProductSearchParams(searchParams);
   void prefetch(
     trpc.public.products.queries.getPage.infiniteQueryOptions(
-      toProductsPageInput(filters),
+      toProductsPageInput(filters, await getLocale()),
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),
   );

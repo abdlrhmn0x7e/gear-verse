@@ -1,3 +1,4 @@
+import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
 import { MobileFiltersDrawer } from "~/components/features/products/mobile-filters-drawer";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
@@ -55,6 +56,7 @@ export async function Products({
         pageSize: 12,
         slug,
         filters: parsedFilters,
+        locale: await getLocale(),
       },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),

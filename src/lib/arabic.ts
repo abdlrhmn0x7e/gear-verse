@@ -24,7 +24,17 @@ export function hasContent(doc: JSONContent | null | undefined): boolean {
   return doc.content?.some(hasContent) ?? false;
 }
 
-/** Marks copy shown in English on the Arabic site, so screen readers and the bidi algorithm treat it as English. */
-export function englishFallbackProps(isFallback: boolean | undefined) {
-  return isFallback ? ({ lang: "en", dir: "ltr" } as const) : {};
+/**
+ * On the Arabic site, marks catalog copy still in English as English, so screen readers and the bidi algorithm treat
+ * it as English, and pins Arabic copy right to left: drafts keep Latin terms, and dir="auto" would read
+ * "Rapid Trigger لحد 0.005mm" as left to right. English pages get nothing.
+ */
+export function localizedCopyProps(
+  locale: string,
+  isFallback: boolean | undefined,
+) {
+  if (locale !== "ar") return {};
+  return isFallback
+    ? ({ lang: "en", dir: "ltr" } as const)
+    : ({ dir: "rtl" } as const);
 }

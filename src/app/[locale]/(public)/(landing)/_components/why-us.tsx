@@ -1,3 +1,4 @@
+import { localizedCopyProps } from "~/lib/arabic";
 import { getCategoryCovers, getLatestProducts } from "../_lib/queries";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -158,7 +159,10 @@ export async function WhyUs() {
                         className="absolute inset-0 size-full rounded-none border-none bg-transparent p-3 [&_img]:object-contain"
                       />
                     </div>
-                    <p className="truncate text-sm opacity-80">
+                    <p
+                      className="truncate text-sm opacity-80"
+                      {...localizedCopyProps(locale, category.fallback.name)}
+                    >
                       {category.name}
                     </p>
                   </li>

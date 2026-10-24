@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import {
@@ -17,12 +18,14 @@ export function ProductList({ slug }: { slug: string }) {
   const [filters, setFilters] = useCategoryProductsFilters();
 
   const trpc = useTRPC();
+  const locale = useLocale();
   const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
     trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
       {
         pageSize: 12,
         slug,
         filters,
+        locale,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,

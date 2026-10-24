@@ -27,6 +27,7 @@ import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 import { useLocale } from "next-intl";
+import { localizedCopyProps } from "~/lib/arabic";
 
 export function ProductSearchDialog({
   children,
@@ -125,7 +126,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "surface-control surface-floating absolute -inset-y-2 -end-2 start-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
+                "surface-control surface-floating absolute -inset-y-2 start-0 -end-2 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -171,6 +172,7 @@ function Content({ close }: { close: () => void }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [hover, setHover] = useState<number | null>(null);
+  const locale = useLocale();
   const { data, isPending, isFetching, isError } = useQuery(
     trpc.public.products.queries.getPage.queryOptions(
       {
@@ -178,6 +180,7 @@ function Content({ close }: { close: () => void }) {
         filters: {
           title: debouncedSearch,
         },
+        locale,
       },
       {
         placeholderData: keepPreviousData,
@@ -242,7 +245,7 @@ function Content({ close }: { close: () => void }) {
           enterKeyHint="search"
           aria-label="Search products"
           placeholder="Search products"
-          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 rtl:group-data-[state=closed]:translate-x-4 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none rtl:group-data-[state=closed]:translate-x-4 [&::-webkit-search-cancel-button]:appearance-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -251,7 +254,7 @@ function Content({ close }: { close: () => void }) {
         {isFetching ? (
           <Spinner />
         ) : (
-          <KbdGroup className="absolute top-1/2 end-3 z-10 -translate-y-1/2 pt-1">
+          <KbdGroup className="absolute end-3 top-1/2 z-10 -translate-y-1/2 pt-1">
             <Kbd>Esc</Kbd>
           </KbdGroup>
         )}
@@ -388,7 +391,10 @@ export function ProductSearchItem({
             </p>
           </div>
 
-          <p className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm">
+          <p
+            className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm"
+            {...localizedCopyProps(locale, product.fallback.summary)}
+          >
             {product.summary}
           </p>
         </div>
