@@ -19,7 +19,7 @@ import {
 } from "~/components/reui/data-grid/data-grid";
 import { DataGridTable } from "~/components/reui/data-grid/data-grid-table";
 import { DataGridTableDndRows } from "~/components/reui/data-grid/data-grid-table-dnd-rows";
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { CollisionDetection, DragEndEvent } from "@dnd-kit/core";
 import { LoadMore } from "~/components/load-more";
 import {
   Empty,
@@ -97,7 +97,11 @@ export function ListGrid<Row extends object>({
    * Rows that can be dragged, by mouse, touch or keyboard, into a new order
    * through a `DataGridTableDndRowHandle`. Every other row stays in place.
    */
-  sortable?: { ids: string[]; onDragEnd: (event: DragEndEvent) => void };
+  sortable?: {
+    ids: string[];
+    onDragEnd: (event: DragEndEvent) => void;
+    collisionDetection?: CollisionDetection;
+  };
   dense?: boolean;
   className?: string;
 }) {
@@ -145,6 +149,7 @@ export function ListGrid<Row extends object>({
             <DataGridTableDndRows
               dataIds={sortable.ids}
               handleDragEnd={sortable.onDragEnd}
+              collisionDetection={sortable.collisionDetection}
             />
           ) : (
             <DataGridTable />

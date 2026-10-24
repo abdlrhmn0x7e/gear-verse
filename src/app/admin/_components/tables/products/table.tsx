@@ -12,7 +12,11 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { arrayMove } from "@dnd-kit/sortable";
-import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  closestCenter,
+  type CollisionDetection,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { useInView } from "react-intersection-observer";
 
 // UI & Icons
@@ -77,7 +81,6 @@ export function ProductsTable() {
     enableRowSelection: true,
     state: {
       rowSelection,
-      columnVisibility: { reorder: pinned.length > 0 },
     },
     onRowSelectionChange: setRowSelection,
   });
@@ -120,13 +123,31 @@ export function ProductsTable() {
   ].some(Boolean);
 
   const pinnedIds = pinned.map((product) => product.id);
+  const unpinnedIds = products.pages.flatMap((page) =>
+    page.data.map((product) => product.id),
+  );
+  const pinnedSet = new Set(pinnedIds);
+  const collisionDetection: CollisionDetection = (args) =>
+    closestCenter({
+      ...args,
+      droppableContainers: args.droppableContainers.filter(
+        (container) =>
+          pinnedSet.has(Number(container.id)) ===
+          pinnedSet.has(Number(args.active.id)),
+      ),
+    });
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return;
-    const from = pinnedIds.indexOf(Number(active.id));
-    const to = pinnedIds.indexOf(Number(over.id));
+    const activePinned = pinnedSet.has(Number(active.id));
+    if (activePinned !== pinnedSet.has(Number(over.id))) return;
+    const ids = activePinned ? pinnedIds : unpinnedIds;
+    const from = ids.indexOf(Number(active.id));
+    const to = ids.indexOf(Number(over.id));
     if (from === -1 || to === -1) return;
-    pins.reorder(arrayMove(pinnedIds, from, to));
+    const reordered = arrayMove(ids, from, to);
+    if (activePinned) pins.reorder(reordered);
+    else pins.reorderStore(reordered);
   }
 
   return (
@@ -160,11 +181,15 @@ export function ProductsTable() {
         }
         hasNextPage={hasNextPage}
         loadMoreRef={ref}
-        // a filtered list shows only some pinned products, so there's no whole order to drag
+        // a filtered list shows only some products, so there's no whole order to drag
         sortable={
           filtered
             ? undefined
-            : { ids: pinnedIds.map(String), onDragEnd: handleDragEnd }
+            : {
+                ids: [...pinnedIds, ...unpinnedIds].map(String),
+                onDragEnd: handleDragEnd,
+                collisionDetection,
+              }
         }
         empty={
           filtered
