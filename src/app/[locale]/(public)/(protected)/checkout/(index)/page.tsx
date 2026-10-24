@@ -13,6 +13,7 @@ import { CartStockNotice } from "~/components/cart-stock-notice";
 import { blocksCheckout, getStockIssue } from "~/lib/utils/cart-stock";
 import { OrderTotals } from "../../_components/order-totals";
 import { getStoreSettings } from "~/lib/store-settings";
+import { useLocale } from "next-intl";
 
 export default async function CheckoutPage() {
   await requireAuth();
@@ -59,6 +60,7 @@ function OrderSummary({
   cols: number;
   isMobile?: boolean;
 }) {
+  const locale = useLocale();
   const subtotal = cart.items.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
@@ -98,7 +100,7 @@ function OrderSummary({
               </div>
 
               <p className="text-end text-lg font-medium">
-                {formatCurrency(item.price * item.quantity)}
+                {formatCurrency(item.price * item.quantity, locale)}
               </p>
             </div>
           </div>
@@ -157,7 +159,7 @@ function OrderSummary({
               </div>
 
               <p className="text-lg font-medium">
-                {formatCurrency(item.price * item.quantity)}
+                {formatCurrency(item.price * item.quantity, locale)}
               </p>
             </div>
           ))}

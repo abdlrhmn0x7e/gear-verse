@@ -1,9 +1,10 @@
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import type { RouterOutput } from "~/trpc/client";
 import { ImageWithFallback } from "../../image-with-fallback";
 import { Badge } from "../../ui/badge";
 import { Skeleton } from "../../ui/skeleton";
+import { useLocale } from "next-intl";
 
 export type ProductCardItem =
   RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
@@ -26,6 +27,7 @@ export function ProductCard({
   /** the first card above the fold: its image is fetched first, likely the LCP */
   eager?: boolean;
 }) {
+  const locale = useLocale();
   const discount = getDiscountPercentage(
     product.price,
     product.strikeThroughPrice,
@@ -65,11 +67,11 @@ export function ProductCard({
           {product.title}
         </h3>
         <p className="mt-1 flex flex-wrap items-baseline gap-x-2 tabular-nums">
-          <span className="font-medium">{formatCurrency(product.price)}</span>
+          <span className="font-medium">{formatCurrency(product.price, locale)}</span>
           {discount > 0 && (
             <s className="text-muted-foreground text-sm">
               <span className="sr-only">Was </span>
-              {formatCurrency(product.strikeThroughPrice!)}
+              {formatCurrency(product.strikeThroughPrice!, locale)}
             </s>
           )}
         </p>

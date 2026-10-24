@@ -114,7 +114,7 @@ function UserOrdersDrawerContent() {
                     </span>
                   </div>
                   <span className="text-sm tabular-nums">
-                    {formatCurrency(Number(order.totalPrice ?? 0))}
+                    {formatCurrency(Number(order.totalPrice ?? 0), "en")}
                   </span>
                   <ArrowRightIcon className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </Link>

@@ -63,7 +63,7 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
     accessorKey: "totalValue",
     header: "Total Value",
     cell: ({ row }) => {
-      return <span>{formatCurrency(row.original.totalValue)}</span>;
+      return <span>{formatCurrency(row.original.totalValue, "en")}</span>;
     },
     meta: {
       headerClassName: "text-right",

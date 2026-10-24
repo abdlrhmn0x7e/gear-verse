@@ -1,14 +1,18 @@
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { useLocale } from "next-intl";
 
 /** Subtotal and total for an order or cart. Shipping depends on the address and is confirmed by the team after the order, so no fee is shown or added here. */
 export function OrderTotals({ subtotal }: { subtotal: number }) {
+  const locale = useLocale();
   return (
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground font-medium">Subtotal</p>
-          <p className="text-lg font-medium">{formatCurrency(subtotal)}</p>
+          <p className="text-lg font-medium">
+            {formatCurrency(subtotal, locale)}
+          </p>
         </div>
 
         <div className="flex items-start justify-between gap-4">
@@ -30,7 +34,7 @@ export function OrderTotals({ subtotal }: { subtotal: number }) {
       <div className="flex items-center justify-between gap-4">
         <p className="text-muted-foreground font-medium">Total</p>
         <p className="text-lg font-medium">
-          {formatCurrency(subtotal)}
+          {formatCurrency(subtotal, locale)}
           <span className="text-muted-foreground text-sm font-normal">
             {" "}
             + shipping

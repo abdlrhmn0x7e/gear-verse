@@ -7,7 +7,7 @@ import {
   PackageIcon,
   XIcon,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -18,6 +18,7 @@ import { humanizeString } from "~/lib/utils/humanize-string";
 import { whatsAppLink } from "~/lib/whatsapp";
 import type { RouterOutput } from "~/trpc/client";
 import { orderTimeline, type TimelineStep } from "./order-status";
+import { useLocale } from "next-intl";
 
 type Order = RouterOutput["public"]["orders"]["queries"]["findById"];
 
@@ -168,7 +169,11 @@ const STEP_STATE_LABEL: Record<TimelineStep["state"], string> = {
 };
 
 export function OrderTimeline({ order }: { order: Order }) {
-  const steps = orderTimeline({ ...order, formatDate });
+  const locale = useLocale();
+  const steps = orderTimeline({
+    ...order,
+    formatDate: (date) => formatDate(date, locale),
+  });
 
   return (
     <ol className="flex flex-col">
@@ -356,6 +361,7 @@ export function OrderThumbnail({
 }
 
 function OrderItems({ order }: { order: Order }) {
+  const locale = useLocale();
   const items = order.items ?? [];
   const subtotal = items.reduce(
     (acc, item) => acc + item.quantity * item.price,
@@ -384,10 +390,10 @@ function OrderItems({ order }: { order: Order }) {
               )}
               <div className="mt-1 flex items-baseline justify-between gap-4 text-sm tabular-nums">
                 <p className="text-muted-foreground">
-                  {item.quantity} × {formatCurrency(item.price)}
+                  {item.quantity} × {formatCurrency(item.price, locale)}
                 </p>
                 <p className="font-medium">
-                  {formatCurrency(item.quantity * item.price)}
+                  {formatCurrency(item.quantity * item.price, locale)}
                 </p>
               </div>
             </div>
@@ -398,7 +404,7 @@ function OrderItems({ order }: { order: Order }) {
       <dl className="mt-5 flex flex-col gap-2 border-t pt-4 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Subtotal</dt>
-          <dd className="tabular-nums">{formatCurrency(subtotal)}</dd>
+          <dd className="tabular-nums">{formatCurrency(subtotal, locale)}</dd>
         </div>
         {order.status !== "CANCELLED" && (
           <div className="flex justify-between gap-4">
@@ -413,7 +419,7 @@ function OrderItems({ order }: { order: Order }) {
         <div className="flex items-baseline justify-between gap-4 pt-1">
           <dt className="font-medium">Total</dt>
           <dd className="text-base font-medium tabular-nums">
-            {formatCurrency(subtotal)}
+            {formatCurrency(subtotal, locale)}
             {order.status !== "CANCELLED" && (
               <span className="text-muted-foreground text-sm font-normal">
                 {" "}

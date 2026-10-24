@@ -5,6 +5,7 @@ import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
 import { getDiscountPercentage } from "./product-card";
+import { useLocale } from "next-intl";
 
 export function ProductPrice({
   originalPrice,
@@ -15,6 +16,7 @@ export function ProductPrice({
   strikeThroughPrice?: number | null;
   size?: "lg" | "sm";
 }) {
+  const locale = useLocale();
   const price =
     useVariantSelectionStore((store) => store.selectedVariant?.overridePrice) ??
     originalPrice;
@@ -29,7 +31,7 @@ export function ProductPrice({
           size === "lg" ? "text-3xl tracking-tight" : "text-base",
         )}
       >
-        {formatCurrency(price)}
+        {formatCurrency(price, locale)}
       </span>
       {discount > 0 && (
         <>
@@ -40,7 +42,7 @@ export function ProductPrice({
             )}
           >
             <span className="sr-only">Was </span>
-            {formatCurrency(strikeThroughPrice!)}
+            {formatCurrency(strikeThroughPrice!, locale)}
           </s>
           {size === "lg" && <Badge variant="brand">Save {discount}%</Badge>}
         </>

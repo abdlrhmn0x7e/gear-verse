@@ -7,7 +7,7 @@ import {
   LogInIcon,
   PackageIcon,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import { LoadMore } from "~/components/load-more";
@@ -24,6 +24,7 @@ import {
 import { OrderThumbnail } from "../../_components/order-details";
 import { SaveOrdersPrompt } from "../../_components/save-orders-prompt";
 import { useOrderDrawer } from "../_hooks/use-orders-search-params";
+import { useLocale } from "next-intl";
 
 type OrderSummary =
   RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number];
@@ -110,6 +111,7 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
 }
 
 function OrderCard({ order }: { order: OrderSummary }) {
+  const locale = useLocale();
   const drawer = useOrderDrawer();
   const thumbnails = order.items.slice(0, MAX_THUMBNAILS);
   const hidden = order.items.length - thumbnails.length;
@@ -130,7 +132,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
             </button>
           </h2>
           <p className="text-muted-foreground text-sm">
-            Placed {formatDate(order.createdAt)}
+            Placed {formatDate(order.createdAt, locale)}
           </p>
         </div>
         <ChevronRightIcon
@@ -172,7 +174,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
         </p>
         <p className="text-end">
           <span className="text-base font-medium tabular-nums">
-            {formatCurrency(order.totalPrice)}
+            {formatCurrency(order.totalPrice, locale)}
           </span>
           {order.status !== "CANCELLED" && (
             <span className="text-muted-foreground"> + shipping</span>

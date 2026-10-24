@@ -17,6 +17,7 @@ import { useTRPC } from "~/trpc/client";
 import { OrderDetails } from "../../_components/order-details";
 import { OrderStatusLabel } from "../../_components/order-status";
 import { useOrderDrawer } from "../_hooks/use-orders-search-params";
+import { useLocale } from "next-intl";
 
 export function OrdersDrawer({
   whatsappNumber,
@@ -24,6 +25,7 @@ export function OrdersDrawer({
   /** E.164 from the store settings; questions go nowhere without one */
   whatsappNumber: string | null;
 }) {
+  const locale = useLocale();
   const trpc = useTRPC();
   const drawer = useOrderDrawer();
   // the drawer keeps showing the last order while it slides out after the param clears
@@ -70,7 +72,7 @@ export function OrdersDrawer({
           >
             {order ? (
               <>
-                <span>Placed {formatDate(order.createdAt)}</span>
+                <span>Placed {formatDate(order.createdAt, locale)}</span>
                 <OrderStatusLabel
                   status={order.status}
                   className="text-foreground"

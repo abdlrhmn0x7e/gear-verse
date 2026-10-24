@@ -177,6 +177,7 @@ function OrderDrawerContent() {
                   (acc, item) => acc + item.quantity * item.price,
                   0,
                 ) ?? 0,
+                "en",
               )}
             </p>
           </div>
@@ -238,7 +239,7 @@ function OrderItem({
         )}
 
         <p className="text-muted-foreground ml-auto">
-          {formatCurrency(item.quantity * item.price)}
+          {formatCurrency(item.quantity * item.price, "en")}
         </p>
       </div>
     </div>

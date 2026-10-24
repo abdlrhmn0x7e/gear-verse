@@ -4,6 +4,7 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { getLocale } from "next-intl/server";
 
 /** The newest pick with the biggest saving, so the "worth the money" tile shows a real price rather than a claim. */
 async function getFeaturedPick() {
@@ -27,6 +28,7 @@ const inset = "px-5 sm:px-8";
  * right-hand column it introduces. Plum carries the story, so nothing on it is a button.
  */
 export async function WhyUs() {
+  const locale = await getLocale();
   const [pick, covers] = await Promise.all([
     getFeaturedPick(),
     getCategoryCovers(),
@@ -83,11 +85,11 @@ export async function WhyUs() {
                       pick.strikeThroughPrice > pick.price && (
                         <s className="text-sm opacity-70">
                           <span className="sr-only">Was </span>
-                          {formatCurrency(pick.strikeThroughPrice)}
+                          {formatCurrency(pick.strikeThroughPrice, locale)}
                         </s>
                       )}
                     <span className="text-headline-sm">
-                      {formatCurrency(pick.price)}
+                      {formatCurrency(pick.price, locale)}
                     </span>
                   </span>
                   <span className="block truncate text-sm opacity-75">

@@ -4,8 +4,7 @@ import { IconBrandWhatsapp, IconShoppingBagX } from "@tabler/icons-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { SearchIcon } from "lucide-react";
 import { motion } from "motion/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "~/i18n/navigation";
 import { Dialog } from "@base-ui/react/dialog";
 import { useEffect, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -27,6 +26,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
+import { useLocale } from "next-intl";
 
 export function ProductSearchDialog({
   children,
@@ -361,6 +361,7 @@ export function ProductSearchItem({
   hover: number | null;
   index: number;
 } & React.ComponentProps<"li">) {
+  const locale = useLocale();
   return (
     <li {...props} className="relative">
       <Link
@@ -383,7 +384,7 @@ export function ProductSearchItem({
               {product.title}
             </p>
             <p className="shrink-0 text-sm font-medium tabular-nums">
-              {formatCurrency(product.price)}
+              {formatCurrency(product.price, locale)}
             </p>
           </div>
 
