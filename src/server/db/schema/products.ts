@@ -46,6 +46,8 @@ export const products = pgTable(
     archived: boolean("archived").notNull().default(false),
     // null when not pinned; pinned products lead the home page's top row, lowest first
     pinnedPosition: integer("pinned_position"),
+    // store order below the pinned products, lowest first; null follows ranked products, newest first
+    position: integer("position"),
     slug: text("slug").notNull(),
     condition: productConditionEnum("condition").notNull().default("NEW"),
 
@@ -73,6 +75,7 @@ export const products = pgTable(
     index("products_category_id_idx").on(table.categoryId),
     uniqueIndex("products_slug_idx").on(table.slug),
     uniqueIndex("products_pinned_position_idx").on(table.pinnedPosition),
+    uniqueIndex("products_position_idx").on(table.position),
   ],
 );
 export const productRelations = relations(products, ({ one, many }) => ({
