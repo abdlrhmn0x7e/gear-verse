@@ -23,20 +23,21 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function ProductsPage({
+export default async function ProductsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const t = await getTranslations("products");
+
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
-          Gaming Gear in Egypt
+          {t("store.title")}
         </h1>
         <p className="text-muted-foreground text-body-lg text-pretty">
-          Hand-imported gear from international brands, in stock and ready to
-          ship in Egypt.
+          {t("store.description")}
         </p>
       </header>
 
@@ -45,7 +46,7 @@ export default function ProductsPage({
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
-        <aside aria-label="Filters" className="hidden lg:block">
+        <aside aria-label={t("filters.title")} className="hidden lg:block">
           <div className="sticky top-24">
             <Suspense>
               <Filters />

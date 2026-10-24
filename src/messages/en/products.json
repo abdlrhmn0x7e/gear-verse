@@ -10,5 +10,147 @@
     "categoryTitle": "Buy {name} in Egypt",
     "categoryDescription": "{name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery."
   },
-  "breadcrumbStore": "Store"
+  "breadcrumbStore": "Store",
+  "store": {
+    "title": "Gaming Gear in Egypt",
+    "description": "Hand-imported gear from international brands, in stock and ready to ship in Egypt."
+  },
+  "category": {
+    "fallbackDescription": "Hand-imported from international brands, customs cleared and delivered to your door."
+  },
+  "listing": {
+    "heading": "Products",
+    "resultsFor": "Results for <q>“<bdi>{query}</bdi>”</q>",
+    "clearSearch": "Clear search"
+  },
+  "chips": {
+    "label": "Categories",
+    "allProducts": "All products",
+    "allIn": "All <bdi>{name}</bdi>",
+    "subLabel": "{name} categories"
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Narrow the products by brand and price",
+    "brand": "Brand",
+    "price": "Price",
+    "priceRange": "Price range",
+    "minPrice": "Minimum price",
+    "maxPrice": "Maximum price",
+    "currency": "EGP",
+    "noBrands": "No brands to filter by yet.",
+    "attribute": "Attribute",
+    "unknownAttribute": "Unknown attribute",
+    "clear": "Clear filters"
+  },
+  "sort": {
+    "label": "Sort products",
+    "placeholder": "Sort by",
+    "default": "Sort: Featured",
+    "newest": "Sort: Newest",
+    "oldest": "Sort: Oldest",
+    "priceAsc": "Sort: Price, low to high",
+    "priceDesc": "Sort: Price, high to low"
+  },
+  "empty": {
+    "filteredTitle": "Nothing matches these filters",
+    "filteredBody": "Try removing a filter, or browse everything in the store.",
+    "emptyTitle": "Nothing on this shelf yet",
+    "emptyBody": "Tell us what you're after and we'll get it for you.",
+    "requestItem": "Request an item",
+    "browseAll": "Browse all products"
+  },
+  "card": {
+    "save": "Save {discount}%",
+    "trending": "Trending",
+    "was": "Was",
+    "options": "{count, plural, one {# option} other {# options}}"
+  },
+  "carousel": {
+    "previous": "Previous products",
+    "next": "Next products"
+  },
+  "storeTile": {
+    "pitch": "A short list, and every pick on it is worth the money.",
+    "cta": "See the whole store"
+  },
+  "details": {
+    "used": "Used",
+    "refurbished": "Refurbished",
+    "questions": "Questions? WhatsApp <link></link>",
+    "questionMessage": "Hi Gear Verse, I have a question about {title}: {url}",
+    "heading": "Details",
+    "noDescription": "No description has been added yet.",
+    "related": "You might also like",
+    "loadingReviews": "Loading reviews…"
+  },
+  "policies": {
+    "deliveryTitle": "Delivery",
+    "deliveryBody": "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
+    "authenticityTitle": "Authenticity & warranty",
+    "authenticityBody": "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
+    "returnsTitle": "Returns & refunds",
+    "returnsBody": "We refund a product only if it arrives defective or damaged, or has a problem caused by us. Report it{hasWhatsApp, select, true { on WhatsApp at <link></link>} other {}} within 24 hours of opening, with photos or videos of the problem. Once our team inspects it and approves the return, we collect the product and process your refund within 7 days.",
+    "returnsLink": "Read the full Returns & Refunds Policy"
+  },
+  "gallery": {
+    "photos": "{title} photos",
+    "photoAlt": "{title}, photo {index} of {total}",
+    "thumbnails": "Product photos",
+    "showPhoto": "Show photo {index} of {total}"
+  },
+  "purchase": {
+    "addToCart": "Add to cart",
+    "viewCart": "View cart",
+    "buyNow": "Buy now",
+    "checkOut": "Check out",
+    "unavailable": "Unavailable",
+    "outOfStock": "Out of stock",
+    "cartError": "Couldn't update your cart. Try again.",
+    "checkoutError": "Couldn't start checkout. Try again."
+  },
+  "stock": {
+    "inStock": "In stock, ready to ship",
+    "low": "Only {count} left in stock",
+    "out": "Out of stock",
+    "backorder": "Out of stock, available on backorder",
+    "unselected": "This combination isn't available",
+    "backorderNote": "We source it for you in about {days} days on average, counted from when we confirm your order on WhatsApp."
+  },
+  "payment": {
+    "label": "Ways to pay",
+    "note": "Cash on delivery available. Shipping depends on your location, and we'll confirm it with you.",
+    "cash": "Cash"
+  },
+  "reviews": {
+    "heading": "What customers are saying",
+    "count": "{count, plural, one {# review} other {# reviews}}",
+    "none": "No reviews for this product yet.",
+    "noneWithOthers": "No reviews for this product yet. Here's what customers said about other gear from us.",
+    "verified": "Verified purchase",
+    "onProduct": "on <link>{title}</link>",
+    "signInPrompt": "<signIn>Sign in</signIn> to review this product.",
+    "write": "Write a review",
+    "writeDescription": "Tell other customers what you thought of it.",
+    "post": "Post review",
+    "created": "Review created successfully",
+    "edit": "Edit review",
+    "editTitle": "Edit Review",
+    "save": "Save",
+    "updated": "Review updated successfully",
+    "delete": "Delete review",
+    "yourReview": "Your review",
+    "placeholder": "What did you think of it?",
+    "rating": "Rating",
+    "stars": "{rating} out of 5 stars"
+  },
+  "search": {
+    "title": "Search products",
+    "drawerPlaceholder": "Keyboards, mice, IEMs…",
+    "errorTitle": "Unable to load products",
+    "errorBody": "Check your connection and search again.",
+    "emptyTitle": "Not on the shelf",
+    "emptyBody": "We can still get it for you.",
+    "request": "Request “<bdi>{item}</bdi>”"
+  }
 }

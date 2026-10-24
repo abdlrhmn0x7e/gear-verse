@@ -119,12 +119,15 @@ export default async function CategoryPage({
       />
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
-          {category.name}
+          <bdi>{category.name}</bdi>
         </h1>
-        <p className="text-muted-foreground text-body-lg text-pretty">
+        {/* descriptions are stored in English, so they set their own direction on Arabic pages */}
+        <p
+          dir="auto"
+          className="text-muted-foreground text-body-lg text-pretty"
+        >
           {/* the name is a heading already, and singular names ("Mouse") don't fit inside a sentence */}
-          {category.description ??
-            "Hand-imported from international brands, customs cleared and delivered to your door."}
+          {category.description ?? t("category.fallbackDescription")}
         </p>
       </header>
 
@@ -141,7 +144,7 @@ export default async function CategoryPage({
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
-        <aside aria-label="Filters" className="hidden lg:block">
+        <aside aria-label={t("filters.title")} className="hidden lg:block">
           <div className="sticky top-24">
             {/* the filters read the URL, so they stream in */}
             <Suspense fallback={<Skeleton className="h-96" />}>
