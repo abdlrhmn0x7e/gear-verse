@@ -20,6 +20,18 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // shortcut: hand-listed renamed product slugs, until slug edits in the admin record their own redirects
+  async redirects() {
+    return [
+      {
+        source:
+          "/products/razer-huntman-v3-pro-tenekyeless-8khz-white-editiongood-condition",
+        destination:
+          "/products/razer-huntsman-v3-pro-tenkeyless-8khz-white-edition-used",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

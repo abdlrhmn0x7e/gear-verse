@@ -29,7 +29,7 @@ export default function ProductsPage({
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
-          Store
+          Gaming Gear in Egypt
         </h1>
         <p className="text-muted-foreground text-body-lg text-pretty">
           Hand-imported gear from international brands, in stock and ready to

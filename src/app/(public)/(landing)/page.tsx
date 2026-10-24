@@ -10,14 +10,15 @@ import { Testimonials } from "./_components/testimonials";
 import { TrustStrip } from "./_components/trust-strip";
 import { WhyUs } from "./_components/why-us";
 
-const HOME_TITLE = "Gear Verse: Gaming Keyboards, Mice & IEMs in Stock in Egypt";
+const HOME_TITLE =
+  "Gear Verse: Gaming Keyboards, Mice & IEMs in Stock in Egypt";
 
 export const metadata: Metadata = {
   title: { absolute: HOME_TITLE },
   ...pageMetadata({
     title: HOME_TITLE,
     description:
-      "A short list of gaming keyboards, mice and IEMs worth the money, from AKKO, SIMGOT and more. In stock in Egypt, delivered in 1–2 days, cash on delivery. Not on the shelf? Request it.",
+      "Gaming keyboards, mice and IEMs worth the money, from Razer, AKKO, SIMGOT and more. In stock in Egypt, delivered in 1–2 days, cash on delivery.",
     path: "/",
   }),
 };

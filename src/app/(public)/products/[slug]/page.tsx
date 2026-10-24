@@ -8,7 +8,7 @@ import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { isAppError } from "~/lib/errors/app-error";
 import { JsonLd } from "~/lib/seo/json-ld";
 import { pageMetadata } from "~/lib/seo/metadata";
-import { productMetaDescription } from "~/lib/seo/product";
+import { productMetaDescription, productPageTitle } from "~/lib/seo/product";
 import {
   breadcrumbJsonLd,
   categoryTrail,
@@ -70,7 +70,8 @@ export async function generateMetadata({
     notFound();
   }
 
-  const title = metadata.seo?.pageTitle ?? `${metadata.title}: Price in Egypt`;
+  // an admin-set title goes through the " | Gear Verse" template; the default sizes itself
+  const title = metadata.seo?.pageTitle ?? productPageTitle(metadata.title);
   const description =
     metadata.seo?.metaDescription ??
     productMetaDescription({
@@ -81,7 +82,7 @@ export async function generateMetadata({
     });
 
   return {
-    title,
+    title: metadata.seo?.pageTitle ? title : { absolute: title },
     ...pageMetadata({
       title,
       description,
@@ -125,7 +126,9 @@ export default async function ProductPage({
       <ProductDetails
         slug={slug}
         Reviews={({ productId }) => (
-          <Suspense fallback={<p className="text-muted-foreground">Loading reviews…</p>}>
+          <Suspense
+            fallback={<p className="text-muted-foreground">Loading reviews…</p>}
+          >
             <Reviews productId={productId} />
           </Suspense>
         )}
