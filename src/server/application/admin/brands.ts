@@ -80,7 +80,7 @@ export const _brands = {
 
       if (productCount > 0) {
         throw new AppError(
-          `This brand is used by ${productCount} products. Move them to another brand first.`,
+          `This brand is used by ${productCount} ${productCount === 1 ? "product" : "products"}. Move its products to another brand first.`,
           "BAD_REQUEST",
         );
       }

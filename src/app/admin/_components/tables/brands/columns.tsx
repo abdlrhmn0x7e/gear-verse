@@ -19,7 +19,7 @@ export const brandsColumns: ListColumn<BrandRow>[] = [
           alt=""
           width={32}
           height={32}
-          className="size-8 shrink-0 rounded-sm border bg-white"
+          className="size-8 shrink-0 rounded-sm border bg-white [&_img]:object-contain"
         />
         <span className="truncate font-medium">{row.original.name}</span>
       </div>

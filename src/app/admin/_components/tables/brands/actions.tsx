@@ -60,8 +60,9 @@ export function BrandsTableActions({ brand }: { brand: BrandRow }) {
               Delete
             </TooltipTrigger>
             <TooltipContent>
-              This brand is used by {brand.productCount} products. Move them to
-              another brand first.
+              This brand is used by {brand.productCount}{" "}
+              {brand.productCount === 1 ? "product" : "products"}. Move its
+              products to another brand first.
             </TooltipContent>
           </Tooltip>
         </DropdownMenuContent>
