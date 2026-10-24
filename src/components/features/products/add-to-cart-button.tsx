@@ -9,7 +9,7 @@ import { toast } from "~/components/ui/toast";
 import { QuantityStepper } from "~/components/quantity-stepper";
 import { Button } from "~/components/ui/button";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { useTRPC } from "~/trpc/client";
 import { CartDrawer } from "../../cart-drawer";
 import { findCartLine } from "./hooks/use-selected-stock";
@@ -27,6 +27,7 @@ export function AddToCartButton({
   const t = useTranslations("products.purchase");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const getErrorMessage = useCustomerErrorMessage();
   const [cartOpen, setCartOpen] = useState(false);
   const variantId = useVariantSelectionStore(
     (state) => state.selectedVariant?.id,
@@ -37,8 +38,8 @@ export function AddToCartButton({
       queryKey: trpc.public.carts.queries.find.queryKey(),
     });
   };
-  const onError = (error: Parameters<typeof getCustomerErrorMessage>[0]) => {
-    toast.error(getCustomerErrorMessage(error, t("cartError")));
+  const onError = (error: Parameters<typeof getErrorMessage>[0]) => {
+    toast.error(getErrorMessage(error, t("cartError")));
   };
   const { mutate: addToCart, isPending: addingToCart } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess, onError }),

@@ -9,7 +9,7 @@ import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
-import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { useTRPC } from "~/trpc/client";
 import { findCartLine } from "./hooks/use-selected-stock";
 
@@ -31,6 +31,7 @@ export function BuyNowButton({
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const getErrorMessage = useCustomerErrorMessage();
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
@@ -47,7 +48,7 @@ export function BuyNowButton({
         router.push("/checkout");
       },
       onError: (error) => {
-        toast.error(getCustomerErrorMessage(error, t("checkoutError")));
+        toast.error(getErrorMessage(error, t("checkoutError")));
       },
     }),
   );
