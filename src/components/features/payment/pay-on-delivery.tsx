@@ -1,6 +1,6 @@
 import { BanknoteIcon, type LucideIcon } from "lucide-react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 
 type PayOnDeliveryMethod = {
@@ -59,6 +59,7 @@ export function PayOnDelivery({
   className?: string;
 }) {
   const t = useTranslations("products.payment");
+  const locale = useLocale();
   const shownLabel = label ?? t("label");
   // shipping is confirmed per order, so the short promise never quotes a fee
   const shownNote = note === undefined ? t("note") : note;
@@ -97,8 +98,9 @@ export function PayOnDelivery({
                   className="h-5 w-auto"
                 />
               )}
-              {/* a wallet's "Cash" is part of its brand name; only plain cash is translated */}
-              {method.logo ? method.label : t("cash")}
+              {/* English keeps each wallet's own casing ("e& cash"); Arabic writes every one of them كاش, as the wallets do */}
+              {method.label &&
+                (method.logo && locale === "en" ? method.label : t("cash"))}
             </li>
           ))}
         </ul>
