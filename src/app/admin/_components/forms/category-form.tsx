@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 import { categoryEntitySchema } from "~/lib/schemas/entities/category";
 import { CategoriesCombobox } from "../inputs/categories-combobox";
 import {
@@ -62,6 +63,7 @@ export function CategoryForm({
       name: defaultValues.name ?? "",
       icon: defaultValues.icon ?? "CABLES",
       parent_id: defaultValues.parent_id ?? null,
+      description: defaultValues.description ?? "",
     },
   });
 
@@ -123,6 +125,24 @@ export function CategoryForm({
             )}
           />
         </div>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description (optional)</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  value={field.value ?? ""}
+                  className="h-24"
+                  placeholder="Shown under the category title and as its search snippet"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {showParentCombobox && (
           <FormField
             control={form.control}

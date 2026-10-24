@@ -28,6 +28,12 @@ export const categoryEntitySchema = z.object({
     .transform((val) => val.charAt(0).toUpperCase() + val.slice(1)),
   icon: categoryIconEnum,
   slug: z.string("Slug is required").min(1, "Slug is required"),
+  // a cleared field saves null, so the page falls back to the shared line
+  description: z
+    .string()
+    .trim()
+    .transform((val) => val || null)
+    .nullish(),
 
   parent_id: z.number("Parent ID must be a number").nullish(),
 
@@ -49,6 +55,7 @@ export const categoryTreeSchema = z.object({
   name: z.string("Name is required").min(1, "Name is required"),
   icon: categoryIconEnum,
   slug: z.string("Slug is required").min(1, "Slug is required"),
+  description: z.string().nullish(),
   created_at: z.coerce.date<Date>("Created at must be a date"),
 
   get children() {

@@ -38,6 +38,13 @@ async function findCategoryBySlug(slug: string) {
   return { path, category: path.at(-1) };
 }
 
+/** Google cuts snippets at about 160 characters, so end on a whole word. */
+function clampDescription(text: string) {
+  if (text.length <= 160) return text;
+  const space = text.lastIndexOf(" ", 157);
+  return `${text.slice(0, space > 0 ? space : 157).trimEnd()}…`;
+}
+
 // filtered and sorted URLs get noindex from the proxy and canonicalise here
 export async function generateMetadata({
   params,
@@ -53,14 +60,16 @@ export async function generateMetadata({
     notFound();
   }
 
-  const title = `${category.name}: Imported, Delivered in Egypt`;
+  const title = `Buy ${category.name} in Egypt`;
   const isEmpty = !indexable.categories.some((live) => live.slug === slug);
 
   return {
     title,
     ...pageMetadata({
       title,
-      description: `${category.name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
+      description: category.description
+        ? clampDescription(category.description)
+        : `${category.name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
       path: `/categories/${slug}`,
     }),
     // nothing to buy yet, so keep it out of the index until it has stock
@@ -97,8 +106,8 @@ export default async function CategoryPage({
         </h1>
         <p className="text-muted-foreground text-body-lg text-pretty">
           {/* the name is a heading already, and singular names ("Mouse") don't fit inside a sentence */}
-          Hand-imported from international brands, customs cleared and delivered
-          to your door.
+          {category.description ??
+            "Hand-imported from international brands, customs cleared and delivered to your door."}
         </p>
       </header>
 

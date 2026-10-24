@@ -128,6 +128,7 @@ export function CategoryDetails({
                   icon: category.icon,
                   name: category.name,
                   parent_id: parent?.id,
+                  description: category.description,
                 }}
                 onSuccess={() => setMode("view")}
                 cancel={() => setMode("view")}

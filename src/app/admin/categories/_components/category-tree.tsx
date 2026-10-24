@@ -168,6 +168,7 @@ function CategoryTreeItem({
             icon: category.icon,
             name: category.name,
             parent_id: parentCategory?.id,
+            description: category.description,
           }}
           onSuccess={() => setShowEditForm(false)}
           cancel={() => setShowEditForm(false)}
