@@ -61,7 +61,7 @@
     "browseAll": "اتفرّج على كل المنتجات"
   },
   "card": {
-    "save": "وفّر {discount}%",
+    "save": "وفّر ⁦{discount}%⁩",
     "trending": "الأكثر طلبًا",
     "was": "بدل",
     "options": "{count, plural, =0 {مفيش اختيارات} one {اختيار واحد} two {اختيارين} few {# اختيارات} many {# اختيار} other {# اختيار}}"
