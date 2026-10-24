@@ -14,7 +14,7 @@ export async function CategoryChips({
 }) {
   "use cache";
 
-  cacheTag("categories-menu");
+  cacheTag("categories-menu", "sitemap");
 
   const categories = await app.public.categories.queries.findRoots();
   const chips = [
@@ -26,8 +26,49 @@ export async function CategoryChips({
     })),
   ];
 
+  return <ChipNav label="Categories" chips={chips} />;
+}
+
+/** The sub-categories of `parent` that have stock; `activeSlug` undefined means "All {parent}". */
+export async function SubCategoryChips({
+  parent,
+  activeSlug,
+}: {
+  parent: { name: string; slug: string };
+  activeSlug: string | undefined;
+}) {
+  "use cache";
+
+  cacheTag("categories-menu", "sitemap");
+
+  const children = await app.public.categories.queries.getChildren(parent.slug);
+  if (children.length === 0) return null;
+
+  const chips = [
+    {
+      label: `All ${parent.name}`,
+      href: `/categories/${parent.slug}`,
+      active: activeSlug === undefined,
+    },
+    ...children.map((child) => ({
+      label: child.name,
+      href: `/categories/${child.slug}`,
+      active: child.slug === activeSlug,
+    })),
+  ];
+
+  return <ChipNav label={`${parent.name} categories`} chips={chips} />;
+}
+
+function ChipNav({
+  label,
+  chips,
+}: {
+  label: string;
+  chips: { label: string; href: string; active: boolean }[];
+}) {
   return (
-    <nav aria-label="Categories" className="-mx-6 lg:-mx-8">
+    <nav aria-label={label} className="-mx-6 lg:-mx-8">
       <ul className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-2 overflow-x-auto px-6 py-1 lg:scroll-px-8 lg:px-8">
         {chips.map((chip) => (
           <li key={chip.href} className="snap-start">
