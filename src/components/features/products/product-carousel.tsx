@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -18,6 +19,7 @@ export function ProductCarousel({
   className?: string;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("products.carousel");
   const listRef = useRef<HTMLUListElement>(null);
   const [edges, setEdges] = useState({ atStart: true, atEnd: false });
 
@@ -79,7 +81,7 @@ export function ProductCarousel({
           variant="outline"
           size="icon-lg"
           className="rounded-full"
-          aria-label="Previous products"
+          aria-label={t("previous")}
           disabled={edges.atStart}
           onClick={() => scrollByCard(-1)}
         >
@@ -89,7 +91,7 @@ export function ProductCarousel({
           variant="outline"
           size="icon-lg"
           className="rounded-full"
-          aria-label="Next products"
+          aria-label={t("next")}
           disabled={edges.atEnd}
           onClick={() => scrollByCard(1)}
         >

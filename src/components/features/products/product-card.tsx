@@ -4,7 +4,7 @@ import type { RouterOutput } from "~/trpc/client";
 import { ImageWithFallback } from "../../image-with-fallback";
 import { Badge } from "../../ui/badge";
 import { Skeleton } from "../../ui/skeleton";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export type ProductCardItem =
   RouterOutput["public"]["products"]["queries"]["getPage"]["data"][number];
@@ -28,6 +28,7 @@ export function ProductCard({
   eager?: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("products.card");
   const discount = getDiscountPercentage(
     product.price,
     product.strikeThroughPrice,
@@ -41,8 +42,8 @@ export function ProductCard({
     >
       <div className="image-well relative aspect-square overflow-hidden rounded-3xl">
         {discount > 0 && (
-          <Badge variant="brand" className="absolute top-3 start-3 z-10">
-            Save {discount}%
+          <Badge variant="brand" className="absolute start-3 top-3 z-10">
+            {t("save", { discount })}
           </Badge>
         )}
         <ImageWithFallback
@@ -58,25 +59,32 @@ export function ProductCard({
 
       <div className="flex flex-col gap-1 px-1">
         {product.trending && (
-          <p className="text-brand-text text-sm font-medium">Trending</p>
+          <p className="text-brand-text text-sm font-medium">{t("trending")}</p>
         )}
         {product.brand.name && (
-          <p className="text-muted-foreground text-sm">{product.brand.name}</p>
+          <p className="text-muted-foreground text-sm">
+            <bdi>{product.brand.name}</bdi>
+          </p>
         )}
+        {/* titles are stored in English; isolated so "Zero 2 (MIC)" keeps its parenthesis in Arabic */}
         <h3 className="line-clamp-2 font-medium text-pretty">
-          {product.title}
+          <bdi>{product.title}</bdi>
         </h3>
         <p className="mt-1 flex flex-wrap items-baseline gap-x-2 tabular-nums">
-          <span className="font-medium">{formatCurrency(product.price, locale)}</span>
+          <span className="font-medium">
+            {formatCurrency(product.price, locale)}
+          </span>
           {discount > 0 && (
             <s className="text-muted-foreground text-sm">
-              <span className="sr-only">Was </span>
+              <span className="sr-only">{t("was")} </span>
               {formatCurrency(product.strikeThroughPrice!, locale)}
             </s>
           )}
         </p>
         {optionCount > 1 && (
-          <p className="text-muted-foreground text-sm">{optionCount} options</p>
+          <p className="text-muted-foreground text-sm">
+            {t("options", { count: optionCount })}
+          </p>
         )}
       </div>
     </Link>
