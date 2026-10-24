@@ -80,6 +80,8 @@ export const orderItems = pgTable(
     }).references(() => productVariants.id),
     quantity: integer("quantity").notNull(),
     unitPrice: integer("unit_price"),
+    // units not taken from stock at placement; the line holds quantity - this from inventory
+    backorderedQuantity: integer("backordered_quantity").notNull().default(0),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
@@ -94,6 +96,10 @@ export const orderItems = pgTable(
     ),
     index("order_items_product_variant_id_idx").on(table.productVariantId),
     check("order_items_unit_price_non_negative", sql`${table.unitPrice} >= 0`),
+    check(
+      "order_items_backordered_quantity_range",
+      sql`${table.backorderedQuantity} BETWEEN 0 AND ${table.quantity}`,
+    ),
   ],
 );
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({

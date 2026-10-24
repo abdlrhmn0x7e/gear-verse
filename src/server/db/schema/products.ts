@@ -48,6 +48,8 @@ export const products = pgTable(
     pinnedPosition: integer("pinned_position"),
     slug: text("slug").notNull(),
     condition: productConditionEnum("condition").notNull().default("NEW"),
+    // stays on sale while out of stock; the missing units are sourced per order
+    allowBackorder: boolean("allow_backorder").notNull().default(false),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
