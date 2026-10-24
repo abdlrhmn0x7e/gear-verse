@@ -1,3 +1,5 @@
+import { routing } from "~/i18n/routing";
+
 /**
  * Query params that only filter, sort or open a drawer on a listing. The
  * listing they produce is a copy of the clean page, so it isn't indexed.
@@ -25,7 +27,11 @@ export function isFacetedSearch(searchParams: URLSearchParams) {
   return false;
 }
 
-/** The listings that take facet params: the store and the category pages. */
+const LISTING_PATH = new RegExp(
+  `^(?:/(?:${routing.locales.join("|")}))?(?:/products|/categories/[^/]+/?)$`,
+);
+
+/** The listings that take facet params: the store and the category pages, in every locale. */
 export function isListingPath(pathname: string) {
-  return pathname === "/products" || /^\/categories\/[^/]+\/?$/.test(pathname);
+  return LISTING_PATH.test(pathname);
 }
