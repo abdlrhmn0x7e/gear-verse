@@ -1,7 +1,10 @@
+import type { Locale } from "~/i18n/routing";
 import type { StoreSettings } from "~/lib/schemas/entities/store-settings";
+import { localizedPath } from "./metadata";
 import { joinSummary } from "./product";
 import { absoluteUrl, SITE_NAME, SITE_URL } from "./site";
 
+// one store in every locale, so the ids never take a locale prefix
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
 
@@ -27,7 +30,7 @@ export function getSameAs(settings: StoreSettings) {
  * or method to state, and shipping is left out because its fee depends on
  * the address.
  */
-function returnPolicy() {
+function returnPolicy(locale: Locale) {
   return {
     "@type": "MerchantReturnPolicy",
     applicableCountry: "EG",
@@ -35,12 +38,12 @@ function returnPolicy() {
     returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
     merchantReturnDays: 1,
     refundType: "https://schema.org/FullRefund",
-    merchantReturnLink: absoluteUrl("/returns"),
+    merchantReturnLink: absoluteUrl(localizedPath("/returns", locale)),
   };
 }
 
 /** The store and the site, rendered once by the root layout. */
-export function siteJsonLd(settings: StoreSettings) {
+export function siteJsonLd(settings: StoreSettings, locale: Locale) {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -55,14 +58,14 @@ export function siteJsonLd(settings: StoreSettings) {
         currenciesAccepted: "EGP",
         paymentAccepted:
           "Cash on delivery, InstaPay, Vodafone Cash, Orange Cash, e& cash",
-        hasMerchantReturnPolicy: returnPolicy(),
+        hasMerchantReturnPolicy: returnPolicy(locale),
       },
       {
         "@type": "WebSite",
         "@id": WEBSITE_ID,
         name: SITE_NAME,
         url: absoluteUrl("/"),
-        inLanguage: "en-EG",
+        inLanguage: `${locale}-EG`,
         publisher: { "@id": ORGANIZATION_ID },
       },
     ],
@@ -71,7 +74,8 @@ export function siteJsonLd(settings: StoreSettings) {
 
 type BreadcrumbItem = { name: string; path: string };
 
-export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
+/** `path`s are unprefixed; each item links to its page in `locale`. */
+export function breadcrumbJsonLd(items: BreadcrumbItem[], locale: Locale) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -79,15 +83,18 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: absoluteUrl(item.path),
+      item: absoluteUrl(localizedPath(item.path, locale)),
     })),
   };
 }
 
-/** The store, then the category from its root down to `category` itself. */
-export function categoryTrail(categoryPath: { name: string; slug: string }[]) {
+/** The store, under its translated name, then the category from its root down to `category` itself. */
+export function categoryTrail(
+  categoryPath: { name: string; slug: string }[],
+  storeName: string,
+) {
   return [
-    { name: "Store", path: "/products" },
+    { name: storeName, path: "/products" },
     ...categoryPath.map((category) => ({
       name: category.name,
       path: `/categories/${category.slug}`,
@@ -104,6 +111,7 @@ const ITEM_CONDITIONS = {
 export function productJsonLd({
   product,
   categoryPath,
+  locale,
 }: {
   product: {
     slug: string;
@@ -120,8 +128,9 @@ export function productJsonLd({
     reviews: { count: number; averageRating: number | null };
   };
   categoryPath: { name: string }[];
+  locale: Locale;
 }) {
-  const url = absoluteUrl(`/products/${product.slug}`);
+  const url = absoluteUrl(localizedPath(`/products/${product.slug}`, locale));
   const images = [...new Set([product.thumbnailUrl, ...product.media])].filter(
     Boolean,
   );
@@ -164,7 +173,7 @@ export function productJsonLd({
           : "https://schema.org/OutOfStock",
       itemCondition: ITEM_CONDITIONS[product.condition],
       seller: { "@id": ORGANIZATION_ID },
-      hasMerchantReturnPolicy: returnPolicy(),
+      hasMerchantReturnPolicy: returnPolicy(locale),
     },
     // product reviews only: the store testimonials are not about this product
     ...(product.reviews.count > 0 &&

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cacheTag } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductDetails } from "~/components/features/products/product-details";
@@ -70,27 +71,29 @@ export async function generateMetadata({
     notFound();
   }
 
+  // the admin writes the SEO overrides in English, so Arabic pages always use the Arabic templates
+  const seo = (await getLocale()) === "en" ? metadata.seo : null;
   // an admin-set title goes through the " | Gear Verse" template; the default sizes itself
-  const title = metadata.seo?.pageTitle ?? productPageTitle(metadata.title);
+  const title = seo?.pageTitle ?? (await productPageTitle(metadata.title));
   const description =
-    metadata.seo?.metaDescription ??
-    productMetaDescription({
+    seo?.metaDescription ??
+    (await productMetaDescription({
       title: metadata.title,
       brand: metadata.brand?.name ?? null,
       price: metadata.price,
       summary: metadata.summary,
-    });
+    }));
 
   return {
-    title: metadata.seo?.pageTitle ? title : { absolute: title },
-    ...pageMetadata({
+    title: seo?.pageTitle ? title : { absolute: title },
+    ...(await pageMetadata({
       title,
       description,
       path: `/products/${metadata.slug}`,
       images: [...new Set([metadata.thumbnailUrl, ...metadata.media])].filter(
         Boolean,
       ),
-    }),
+    })),
   };
 }
 
@@ -108,20 +111,28 @@ export default async function ProductPage({
     notFound();
   }
 
+  const [tree, locale, t] = await Promise.all([
+    getCategoryTree(),
+    getLocale(),
+    getTranslations("products"),
+  ]);
   const categoryPath = findCategoryPath(
-    await getCategoryTree(),
+    tree,
     (node) => node.id === product.categoryId,
   );
 
   return (
     <div className="pt-24 pb-12 md:pt-28">
       {/* here and not in ProductDetails, which the admin preview renders too */}
-      <JsonLd data={productJsonLd({ product, categoryPath })} />
+      <JsonLd data={productJsonLd({ product, categoryPath, locale })} />
       <JsonLd
-        data={breadcrumbJsonLd([
-          ...categoryTrail(categoryPath),
-          { name: product.title, path: `/products/${product.slug}` },
-        ])}
+        data={breadcrumbJsonLd(
+          [
+            ...categoryTrail(categoryPath, t("breadcrumbStore")),
+            { name: product.title, path: `/products/${product.slug}` },
+          ],
+          locale,
+        )}
       />
       <ProductDetails
         slug={slug}

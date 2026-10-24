@@ -1,22 +1,25 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { getStoreSettings } from "~/lib/store-settings";
 import { REPORT_ISSUE_MESSAGE } from "~/lib/whatsapp";
 import { pageMetadata } from "~/lib/seo/metadata";
 
-const TITLE = "Returns & Refunds Policy";
-
 // the root title template adds " | Gear Verse"
-export const metadata: Metadata = {
-  title: TITLE,
-  ...pageMetadata({
-    title: TITLE,
-    description:
-      "We refund products that arrive defective or damaged when you report the issue within 24 hours of opening.",
-    path: "/returns",
-  }),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("returns.metadata");
+  const title = t("title");
+
+  return {
+    title,
+    ...(await pageMetadata({
+      title,
+      description: t("description"),
+      path: "/returns",
+    })),
+  };
+}
 
 export default async function ReturnsPage() {
   const { whatsappNumber } = await getStoreSettings();

@@ -1,19 +1,22 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { SITE_NAME } from "./site";
 
 const DESCRIPTION_LENGTH = 160;
 const TITLE_LENGTH = 60;
 
 /**
  * The longest of "{title}: Price in Egypt | Gear Verse", "{title}: Price in
- * Egypt" and "{title}" that fits Google's ~60 characters, so a long product
- * name keeps its own words instead of being cut mid-name.
+ * Egypt" and "{title}" (or their Arabic twins) that fits Google's ~60
+ * characters, so a long product name keeps its own words instead of being cut
+ * mid-name. Names stay in Latin script: Egyptians search with the English
+ * product name plus Arabic words.
  */
-export function productPageTitle(title: string) {
+export async function productPageTitle(title: string) {
+  const t = await getTranslations("products.metadata");
   const name = title.replace(/\s+/g, " ").trim();
   const candidates = [
-    `${name}: Price in Egypt | ${SITE_NAME}`,
-    `${name}: Price in Egypt`,
+    t("productTitle", { title: name }),
+    t("productTitleShort", { title: name }),
   ];
   return candidates.find((c) => c.length <= TITLE_LENGTH) ?? name;
 }
@@ -29,10 +32,10 @@ export function joinSummary(summary: string) {
 
 /**
  * "Buy the {title} by {brand} in Egypt for {price}. {summary}. Cash on
- * delivery across Egypt.", dropping summary features from the end until it
- * fits in about 160 characters.
+ * delivery across Egypt." (or its Arabic twin), dropping summary features from
+ * the end until it fits in about 160 characters.
  */
-export function productMetaDescription({
+export async function productMetaDescription({
   title,
   brand,
   price,
@@ -43,8 +46,15 @@ export function productMetaDescription({
   price: number;
   summary: string;
 }) {
-  const lead = `Buy the ${title}${brand ? ` by ${brand}` : ""} in Egypt for ${formatCurrency(price)}.`;
-  const close = "Cash on delivery across Egypt.";
+  const [t, locale] = await Promise.all([
+    getTranslations("products.metadata"),
+    getLocale(),
+  ]);
+  const values = { title, price: formatCurrency(price, locale) };
+  const lead = brand
+    ? t("productDescription", { ...values, brand })
+    : t("productDescriptionNoBrand", values);
+  const close = t("productDescriptionClose");
 
   const features = joinSummary(summary).split(", ").filter(Boolean);
   while (features.length > 0) {

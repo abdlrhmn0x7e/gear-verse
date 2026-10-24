@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { routing } from "~/i18n/routing";
+import { languageAlternates, localizedPath } from "~/lib/seo/metadata";
 import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
 import { absoluteUrl } from "~/lib/seo/site";
 
@@ -7,17 +9,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // the home page and the store list the newest products
   const newest = products[0]?.updatedAt;
 
-  return [
-    { url: absoluteUrl("/"), lastModified: newest },
-    { url: absoluteUrl("/products"), lastModified: newest },
-    { url: absoluteUrl("/returns") },
+  const pages: { path: string; lastModified?: Date }[] = [
+    { path: "/", lastModified: newest },
+    { path: "/products", lastModified: newest },
+    { path: "/returns" },
     ...categories.map((category) => ({
-      url: absoluteUrl(`/categories/${category.slug}`),
+      path: `/categories/${category.slug}`,
       lastModified: category.updatedAt,
     })),
     ...products.map((product) => ({
-      url: absoluteUrl(`/products/${product.slug}`),
+      path: `/products/${product.slug}`,
       lastModified: product.updatedAt,
     })),
   ];
+
+  // every page once per locale, each entry naming all of its language versions
+  return pages.flatMap(({ path, lastModified }) => {
+    const languages = Object.fromEntries(
+      Object.entries(languageAlternates(path)).map(([language, href]) => [
+        language,
+        absoluteUrl(href),
+      ]),
+    );
+    return routing.locales.map((locale) => ({
+      url: absoluteUrl(localizedPath(path, locale)),
+      lastModified,
+      alternates: { languages },
+    }));
+  });
 }

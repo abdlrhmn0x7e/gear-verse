@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import {
@@ -48,33 +49,37 @@ function clampDescription(text: string) {
   return `${text.slice(0, space > 0 ? space : 157).trimEnd()}…`;
 }
 
-// filtered and sorted URLs get noindex from the proxy and canonicalise here
+// filtered and sorted URLs get noindex from the proxy and canonicalise here, in each locale
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const [{ category }, indexable] = await Promise.all([
+  const [{ category }, indexable, locale, t] = await Promise.all([
     findCategoryBySlug(slug),
     findSitemapEntries(),
+    getLocale(),
+    getTranslations("products.metadata"),
   ]);
   if (!category) {
     notFound();
   }
 
-  const title = `Buy ${category.name} in Egypt`;
+  const title = t("categoryTitle", { name: category.name });
   const isEmpty = !indexable.categories.some((live) => live.slug === slug);
 
   return {
     title,
-    ...pageMetadata({
+    ...(await pageMetadata({
       title,
-      description: category.description
-        ? clampDescription(category.description)
-        : `${category.name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery.`,
+      // the admin writes category descriptions in English, so Arabic pages use the Arabic template
+      description:
+        locale === "en" && category.description
+          ? clampDescription(category.description)
+          : t("categoryDescription", { name: category.name }),
       path: `/categories/${slug}`,
-    }),
+    })),
     // nothing to buy yet, so keep it out of the index until it has stock
     ...(isEmpty && { robots: { index: false, follow: true } }),
   };
@@ -99,10 +104,19 @@ export default async function CategoryPage({
   if (!category) {
     notFound();
   }
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations("products"),
+  ]);
 
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
-      <JsonLd data={breadcrumbJsonLd(categoryTrail(path))} />
+      <JsonLd
+        data={breadcrumbJsonLd(
+          categoryTrail(path, t("breadcrumbStore")),
+          locale,
+        )}
+      />
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
           {category.name}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { pageMetadata } from "~/lib/seo/metadata";
 import { Brands } from "./_components/brands";
 import { CategoryBento } from "./_components/category-bento";
@@ -10,18 +11,19 @@ import { Testimonials } from "./_components/testimonials";
 import { TrustStrip } from "./_components/trust-strip";
 import { WhyUs } from "./_components/why-us";
 
-const HOME_TITLE =
-  "Gear Verse: Gaming Keyboards, Mice & IEMs in Stock in Egypt";
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.metadata");
+  const title = t("title");
 
-export const metadata: Metadata = {
-  title: { absolute: HOME_TITLE },
-  ...pageMetadata({
-    title: HOME_TITLE,
-    description:
-      "Gaming keyboards, mice and IEMs worth the money, from Razer, AKKO, SIMGOT and more. In stock in Egypt, delivered in 1–2 days, cash on delivery.",
-    path: "/",
-  }),
-};
+  return {
+    title: { absolute: title },
+    ...(await pageMetadata({
+      title,
+      description: t("description"),
+      path: "/",
+    })),
+  };
+}
 
 export default function Home() {
   return (
