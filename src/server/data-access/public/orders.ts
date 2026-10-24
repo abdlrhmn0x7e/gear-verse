@@ -131,6 +131,7 @@ export const _orders = {
           orderId: sql<number>`${orderItems.orderId}`.as("order_item_order_id"),
 
           quantity: orderItems.quantity,
+          backorderedQuantity: orderItems.backorderedQuantity,
           productId: sql<number>`${products.id}`.as("order_item_product_id"),
           title: products.title,
           summary: products.summary,
@@ -199,6 +200,7 @@ export const _orders = {
         productVariantId: number | null;
 
         quantity: number;
+        backorderedQuantity: number;
         stock: number;
 
         price: number;
@@ -215,6 +217,7 @@ export const _orders = {
               jsonb_build_object(
                 'id', ${items.id},
                 'quantity', ${items.quantity},
+                'backorderedQuantity', ${items.backorderedQuantity},
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'stock', ${items.stock},
@@ -264,7 +267,10 @@ export const _orders = {
         address,
         ...input
       }: Omit<NewOrder, "addressId"> & { address: number | NewAddress },
-      items: Omit<NewOrderItem, "orderId">[],
+      items: (Omit<NewOrderItem, "orderId"> & {
+        /** only when the customer acknowledged the backorder; other lines must be fully in stock */
+        allowBackorder?: boolean;
+      })[],
       cartId: number,
     ) => {
       return db.transaction(async (tx) => {
@@ -290,12 +296,40 @@ export const _orders = {
           throw new Error("Failed to create order");
         }
 
+        // take each line's units from stock; a backorder line takes what is
+        // there and sources the rest, any other line must be fully in stock
+        // (the inventory check constraint rejects the order otherwise)
+        const placed = [];
+        for (const { allowBackorder, ...item } of items) {
+          const inventoryWhere = and(
+            eq(inventoryItems.productId, item.productId),
+            item.productVariantId
+              ? eq(inventoryItems.productVariantId, item.productVariantId)
+              : isNull(inventoryItems.productVariantId),
+          );
+          const [inventory] = await tx
+            .select({ quantity: inventoryItems.quantity })
+            .from(inventoryItems)
+            .where(inventoryWhere)
+            .for("update");
+
+          const taken = allowBackorder
+            ? Math.min(Math.max(inventory?.quantity ?? 0, 0), item.quantity)
+            : item.quantity;
+          await tx
+            .update(inventoryItems)
+            .set({ quantity: sql`${inventoryItems.quantity} - ${taken}` })
+            .where(inventoryWhere);
+
+          placed.push({ ...item, backorderedQuantity: item.quantity - taken });
+        }
+
         // create order items at the current price
-        const prices = await getCurrentUnitPrices(tx, items);
+        const prices = await getCurrentUnitPrices(tx, placed);
         const newOrderItems = await tx
           .insert(orderItems)
           .values(
-            withUnitPrices(items, prices).map((item) => ({
+            withUnitPrices(placed, prices).map((item) => ({
               ...item,
               orderId: order.id,
             })),
@@ -307,37 +341,6 @@ export const _orders = {
 
         // clear the cart
         await tx.delete(cartItems).where(eq(cartItems.cartId, cartId));
-
-        // update the product variants stock
-        for (const item of items) {
-          if (item.productVariantId) {
-            await tx
-              .update(inventoryItems)
-              .set({
-                quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
-              })
-              .where(
-                and(
-                  eq(inventoryItems.productId, item.productId),
-                  eq(inventoryItems.productVariantId, item.productVariantId),
-                ),
-              );
-
-            continue;
-          }
-
-          await tx
-            .update(inventoryItems)
-            .set({
-              quantity: sql`${inventoryItems.quantity} - ${item.quantity}`,
-            })
-            .where(
-              and(
-                eq(inventoryItems.productId, item.productId),
-                isNull(inventoryItems.productVariantId),
-              ),
-            );
-        }
 
         return order;
       });

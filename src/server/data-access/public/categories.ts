@@ -29,7 +29,7 @@ import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { getCategoryIdsBySlug } from "../common/category-ids";
 import { variantsCTE } from "../common/cte";
-import { inStockSql } from "../common/in-stock";
+import { purchasableSql } from "../common/purchasable";
 import {
   getProductsOrdering,
   type ProductsSortBy,
@@ -128,7 +128,7 @@ export const _categories = {
 
     /**
      * Categories, at any depth, whose page lists at least one product: one
-     * that is published, not archived and in stock, in the category or any
+     * that is published, not archived and in stock or on backorder, in the category or any
      * of its sub-categories.
      */
     async findWithLiveProducts() {
@@ -156,7 +156,7 @@ export const _categories = {
           WHERE subtree.root_id = c.id
             AND ${products.published} = true
             AND ${products.archived} = false
-            AND ${inStockSql(products.id)}
+            AND ${purchasableSql()}
         )
         ORDER BY c.id
       `);
@@ -234,6 +234,8 @@ export const _categories = {
       ];
 
       const availabilityPredicate = sql`(
+        ${products.allowBackorder}
+        OR
         coalesce(${inventoryItems.quantity}, 0) > 0
         OR
         coalesce((${variantsCTE.json} @@ '$.stock > 0'), false)

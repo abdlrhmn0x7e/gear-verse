@@ -6,6 +6,7 @@ import {
   carts,
   inventoryItems,
   orders,
+  products,
   reviews,
   users,
 } from "~/server/db/schema";
@@ -61,8 +62,13 @@ export const _users = {
                     productId: inventoryItems.productId,
                     productVariantId: inventoryItems.productVariantId,
                     quantity: inventoryItems.quantity,
+                    allowBackorder: products.allowBackorder,
                   })
                   .from(inventoryItems)
+                  .innerJoin(
+                    products,
+                    eq(products.id, inventoryItems.productId),
+                  )
                   .where(
                     inArray(
                       inventoryItems.productId,
@@ -74,7 +80,13 @@ export const _users = {
           const { toUpdate, toInsert } = mergeCartLines(
             userLines,
             guestLines,
-            new Map(stock.map((item) => [cartLineKey(item), item.quantity])),
+            // backorder products aren't capped by their stock
+            new Map(
+              stock.map((item) => [
+                cartLineKey(item),
+                item.allowBackorder ? Infinity : item.quantity,
+              ]),
+            ),
           );
 
           for (const line of toUpdate) {

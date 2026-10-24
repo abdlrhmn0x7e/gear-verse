@@ -24,7 +24,7 @@ import {
 } from "~/server/db/schema";
 import { getCategoryIdsBySlug } from "../common/category-ids";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
-import { inStockSql } from "../common/in-stock";
+import { inStockSql } from "../common/purchasable";
 import type { Pagination } from "../common/types";
 import {
   getProductsOrdering,
@@ -120,6 +120,8 @@ export const _products = {
         .where(
           and(
             sql`(
+                ${products.allowBackorder}
+                OR
                 coalesce(${inventoryItems.quantity}, 0) > 0
                 OR
                 ${variantsCTE.json} @@ '$.stock > 0'
@@ -162,6 +164,7 @@ export const _products = {
           published: products.published,
           condition: products.condition,
           categoryId: products.categoryId,
+          allowBackorder: products.allowBackorder,
           stock: inventoryItems.quantity,
 
           brand: {
@@ -246,6 +249,7 @@ export const _products = {
           thumbnailUrl: sql<string>`${media.url}`,
           media: sql<string[]>`coalesce(${productMedia.urls}, '[]'::jsonb)`,
           inStock: inStockSql(products.id),
+          allowBackorder: products.allowBackorder,
           reviews: {
             count: sql<number>`(
               select count(*)::int from ${reviews}

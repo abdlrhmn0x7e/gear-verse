@@ -127,10 +127,15 @@ export const userCheckoutRouter = createTRPCRouter({
             item,
           ]),
         );
+        let hasBackorder = false;
         for (const item of itemsStock) {
           const cartItem = cartItemsMap.get(
             `${item.productId}-${item.productVariantId}`,
           );
+          if (cartItem?.allowBackorder && cartItem.quantity > item.stock) {
+            hasBackorder = true;
+            continue;
+          }
           if (cartItem && cartItem.quantity > item.stock) {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -140,6 +145,14 @@ export const userCheckoutRouter = createTRPCRouter({
                   : `Insufficient stock for ${cartItem.title}: it is out of stock`,
             });
           }
+        }
+
+        if (hasBackorder && !input.acknowledgeBackorder) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Some items are on backorder. Please confirm you're happy to wait for them",
+          });
         }
 
         // create an order, order items and clear the cart
@@ -156,6 +169,8 @@ export const userCheckoutRouter = createTRPCRouter({
               productId: item.productId,
               productVariantId: item.productVariantId,
               quantity: item.quantity,
+              allowBackorder:
+                item.allowBackorder && input.acknowledgeBackorder === true,
             })),
           }),
         );

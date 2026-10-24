@@ -88,7 +88,7 @@ export const _checkout = {
       input: Omit<CreateOrderInput, "addressId"> & {
         address: number | CreateAddressInput;
       };
-      items: CreateOrderItemInput[];
+      items: (CreateOrderItemInput & { allowBackorder: boolean })[];
     }) => {
       const { data: order, error } = await tryCatch(
         data.public.orders.mutations.create(input, items, cartId),
