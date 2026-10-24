@@ -57,6 +57,13 @@
       "when": 1792872742417,
       "tag": "0007_backorders",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792878591531,
+      "tag": "0008_catalog_arabic",
+      "breakpoints": true
     }
   ]
 }

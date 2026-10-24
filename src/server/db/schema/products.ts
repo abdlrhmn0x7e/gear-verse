@@ -42,6 +42,11 @@ export const products = pgTable(
     margin: integer("margin"),
     summary: text("summary").notNull(),
     description: jsonb("description").$type<JSONContent>().notNull(),
+    // Arabic twins; null shows the English on the Arabic site
+    summaryAr: text("summary_ar"),
+    descriptionAr: jsonb("description_ar").$type<JSONContent>(),
+    // a person checked the Arabic against the current English
+    arReviewed: boolean("ar_reviewed").notNull().default(false),
     published: boolean("published").notNull().default(false),
     archived: boolean("archived").notNull().default(false),
     // null when not pinned; pinned products lead the home page's top row, lowest first
