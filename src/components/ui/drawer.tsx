@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
+import { useDirection } from "@base-ui/react/direction-provider";
 import { cn } from "~/lib/utils";
 import { isToastInteraction } from "~/components/ui/toast";
 
@@ -13,10 +14,18 @@ function Drawer({
   onOpenChange,
   ...props
 }: DrawerPrimitive.Root.Props) {
+  // a side drawer opens from the trailing edge the caller names in LTR terms, so RTL mirrors it
+  const mirror = useDirection() === "rtl";
   return (
     <DrawerPrimitive.Root
       data-slot="drawer"
-      swipeDirection={swipeDirection}
+      swipeDirection={
+        mirror && swipeDirection === "right"
+          ? "left"
+          : mirror && swipeDirection === "left"
+            ? "right"
+            : swipeDirection
+      }
       onOpenChange={(open, details) => {
         // closing a toast that sits over the drawer shouldn't close the drawer
         if (

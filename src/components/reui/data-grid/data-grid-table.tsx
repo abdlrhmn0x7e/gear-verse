@@ -1866,10 +1866,10 @@ function DataGridTableResizeIndicator({
       data-slot="data-grid-table-resize-indicator"
       className="pointer-events-none absolute inset-y-0 z-50"
     >
-      <div className="bg-primary/85 absolute inset-y-0 start-0 w-px -translate-x-1/2" />
+      <div className="bg-primary/85 absolute inset-y-0 start-0 w-px -translate-x-1/2 rtl:translate-x-1/2" />
       <div
         ref={indicatorHeadRef}
-        className="bg-primary absolute top-0 start-0 -translate-x-1/2 rounded-b-lg shadow-xs"
+        className="bg-primary absolute top-0 start-0 -translate-x-1/2 rounded-b-lg rtl:translate-x-1/2 shadow-xs"
         style={{ width: 5 }}
       />
     </div>

@@ -416,6 +416,25 @@
   --text-body-lg--line-height: 1.55;
 }
 
+/* Arabic: any letter-spacing pulls joined letters apart, and the dots and descenders need taller lines than the
+   display and headline sizes give Latin */
+:lang(ar) {
+  --text-display--letter-spacing: 0em;
+  --text-display-sm--letter-spacing: 0em;
+  --text-headline--letter-spacing: 0em;
+  --text-headline-sm--letter-spacing: 0em;
+  --text-title--letter-spacing: 0em;
+  --tracking-tighter: 0em;
+  --tracking-tight: 0em;
+  --tracking-wide: 0em;
+  --tracking-wider: 0em;
+  --tracking-widest: 0em;
+  --text-display--line-height: 1.3;
+  --text-display-sm--line-height: 1.3;
+  --text-headline--line-height: 1.3;
+  --text-headline-sm--line-height: 1.3;
+}
+
 @theme {
   --animate-search-dialog-in: scale-search-in 0.2s ease-out forwards;
   --animate-search-dialog-out: scale-search-out 0.1s ease-out forwards;
@@ -753,6 +772,9 @@ html body[data-scroll-locked] {
   .typeset :where(h1, h2, h3, h4) {
     font-weight: 500;
     letter-spacing: -0.015em;
+  }
+  .typeset :where(h1, h2, h3, h4):lang(ar) {
+    letter-spacing: 0;
   }
   .typeset a:focus-visible {
     outline-color: var(--focus);

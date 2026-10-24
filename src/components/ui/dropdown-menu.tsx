@@ -230,7 +230,7 @@ function DropdownMenuSubTrigger({
       <HugeiconsIcon
         icon={ArrowRight01Icon}
         strokeWidth={2}
-        className="ms-auto"
+        className="ms-auto rtl:-scale-x-100"
       />
     </MenuPrimitive.SubmenuTrigger>
   );

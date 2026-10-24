@@ -83,6 +83,7 @@ function PaginationPrevious({
         icon={ArrowLeft01Icon}
         strokeWidth={2}
         data-icon="inline-start"
+        className="rtl:-scale-x-100"
       />
       <span className="hidden sm:block">{text}</span>
     </PaginationLink>
@@ -106,6 +107,7 @@ function PaginationNext({
         icon={ArrowRight01Icon}
         strokeWidth={2}
         data-icon="inline-end"
+        className="rtl:-scale-x-100"
       />
     </PaginationLink>
   );

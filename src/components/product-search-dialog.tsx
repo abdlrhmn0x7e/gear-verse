@@ -142,7 +142,7 @@ export function ProductSearchIcon({ className }: { className?: string }) {
   return (
     <SearchIcon
       className={cn(
-        "transition-all duration-200 group-data-[state=open]:-translate-x-2 group-data-[state=open]:opacity-0",
+        "transition-all duration-200 group-data-[state=open]:-translate-x-2 group-data-[state=open]:opacity-0 rtl:group-data-[state=open]:translate-x-2",
         className,
       )}
     />
@@ -242,7 +242,7 @@ function Content({ close }: { close: () => void }) {
           enterKeyHint="search"
           aria-label="Search products"
           placeholder="Search products"
-          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 rtl:group-data-[state=closed]:translate-x-4 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}

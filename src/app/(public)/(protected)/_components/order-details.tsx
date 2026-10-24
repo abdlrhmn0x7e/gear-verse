@@ -80,7 +80,10 @@ export function OrderDetails({
             render={<Link href="/returns" />}
           >
             Returns policy
-            <ArrowRightIcon data-icon="inline-end" />
+            <ArrowRightIcon
+              data-icon="inline-end"
+              className="rtl:-scale-x-100"
+            />
           </Button>
         </div>
       </OrderSection>

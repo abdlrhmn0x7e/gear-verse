@@ -58,7 +58,7 @@ export function ProductsEmptyState({
           render={<Link href="/products" />}
         >
           Browse all products
-          <ArrowRightIcon data-icon="inline-end" />
+          <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
       </div>
     </div>

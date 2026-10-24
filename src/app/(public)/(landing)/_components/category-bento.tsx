@@ -69,7 +69,7 @@ export async function CategoryBento() {
                     </h3>
                     <span className="surface-control flex size-10 shrink-0 items-center justify-center rounded-full">
                       <ArrowRightIcon
-                        className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5"
+                        className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
                         aria-hidden
                       />
                     </span>

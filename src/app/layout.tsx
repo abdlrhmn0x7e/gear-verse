@@ -8,7 +8,8 @@ import { ThemeColorScript, ThemeColorSync } from "~/components/theme-color";
 import { Toaster } from "~/components/ui/toast";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { jetBrainsMono } from "~/fonts";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
+import { fontSans, jetBrainsMono } from "~/fonts";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { JsonLd } from "~/lib/seo/json-ld";
@@ -17,9 +18,6 @@ import { getStoreSettings } from "~/lib/store-settings";
 import { Suspense } from "react";
 
 import * as Sentry from "@sentry/nextjs";
-import { Geist } from "next/font/google";
-
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
@@ -75,10 +73,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
       // globals.css scrolls smoothly; this lets Next jump instantly on navigation
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={cn("font-sans", geist.variable)}
+      className="font-sans"
+      style={{ "--font-sans": fontSans } as React.CSSProperties}
     >
       <head>
         <ThemeColorScript />
@@ -106,8 +106,11 @@ export default function RootLayout({
           >
             <ThemeColorSync />
             <TRPCReactProvider>
-              <TooltipProvider>{children}</TooltipProvider>
-              <Toaster />
+              {/* Base UI takes the direction from here, not from <html dir>, so the two change together */}
+              <DirectionProvider direction="ltr">
+                <TooltipProvider>{children}</TooltipProvider>
+                <Toaster />
+              </DirectionProvider>
             </TRPCReactProvider>
           </ThemeProvider>
         </NuqsAdapter>

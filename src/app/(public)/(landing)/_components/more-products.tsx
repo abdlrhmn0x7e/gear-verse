@@ -36,7 +36,10 @@ export async function MoreProducts() {
               render={<Link href="/products" />}
             >
               Shop all
-              <ArrowRightIcon data-icon="inline-end" />
+              <ArrowRightIcon
+                data-icon="inline-end"
+                className="rtl:-scale-x-100"
+              />
             </Button>
           }
         />

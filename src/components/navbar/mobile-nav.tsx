@@ -172,7 +172,7 @@ export function MobileNav({
                       ))}
                       <RowLink
                         href="/products"
-                        icon={IconArrowRight}
+                        icon={ForwardArrowIcon}
                         onNavigate={closeAll}
                       >
                         Shop everything
@@ -242,6 +242,15 @@ const rowItemClassName =
 const rowClassName =
   "aria-[current=page]:text-brand-text focus-visible:outline-focus active:bg-foreground/6 flex min-h-12 w-full items-center gap-3 px-4 text-[0.9375rem] font-medium transition-[background-color] duration-150 outline-none select-none focus-visible:outline-2 focus-visible:-outline-offset-2 [-webkit-touch-callout:none] touch-manipulation";
 const iconClassName = "size-5 shrink-0 text-muted-foreground";
+// "Shop everything" points onward, so it mirrors with the reading direction
+function ForwardArrowIcon({
+  className,
+  ...props
+}: React.ComponentProps<typeof IconArrowRight>) {
+  return (
+    <IconArrowRight className={cn(className, "rtl:-scale-x-100")} {...props} />
+  );
+}
 const chevronClassName =
   "text-muted-foreground/70 size-4 shrink-0 rtl:-scale-x-100";
 
