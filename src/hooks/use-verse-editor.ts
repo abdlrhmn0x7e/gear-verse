@@ -9,9 +9,14 @@ import { useUploadFilesMutation } from "./mutations/use-upload-files-mutations";
 export function useVerseEditor({
   onUpdate,
   defaultContent,
+  arabic = false,
+  label,
 }: {
   onUpdate?: (json: JSONContent) => void;
-  defaultContent?: JSONContent;
+  defaultContent?: JSONContent | null;
+  /** Arabic copy: right to left inside an LTR admin */
+  arabic?: boolean;
+  label?: string;
 } = {}) {
   const { mutate: uploadFiles } = useUploadFilesMutation();
   const extensions = useMemo(() => {
@@ -86,9 +91,16 @@ export function useVerseEditor({
     extensions,
 
     editorProps: {
+      // on the root rather than through the textDirection option, which writes a dir attribute into every stored node
       attributes: {
         class:
           "m-auto prose prose-leading-2 prose-pink focus-visible:outline-none",
+        ...(arabic && { dir: "rtl", lang: "ar" }),
+        ...(label && {
+          role: "textbox",
+          "aria-multiline": "true",
+          "aria-label": label,
+        }),
       },
     },
 

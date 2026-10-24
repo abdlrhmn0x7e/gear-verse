@@ -1,6 +1,6 @@
 "use client";
 
-import { TagIcon, TargetIcon } from "lucide-react";
+import { LanguagesIcon, TagIcon, TargetIcon } from "lucide-react";
 import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { debounce } from "nuqs";
@@ -18,6 +18,13 @@ import {
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
 import { useTRPC } from "~/trpc/client";
+import { arabicStatuses, type ArabicStatus } from "~/lib/arabic";
+
+const arabicLabels: Record<ArabicStatus, string> = {
+  missing: "Missing",
+  draft: "Draft",
+  reviewed: "Reviewed",
+};
 
 // The server keeps a product when its brand (or category) is any of the
 // picked ones, so that is the only condition either field offers.
@@ -32,6 +39,14 @@ function ids(filters: CommittedFilter[], field: string) {
   const picked = (Array.isArray(value) ? value : [])
     .map(Number)
     .filter(Number.isInteger);
+  return picked.length > 0 ? picked : null;
+}
+
+function statuses(filters: CommittedFilter[]) {
+  const value = filters.find((filter) => filter.field === "arabic")?.value;
+  const picked = arabicStatuses.filter(
+    (status) => Array.isArray(value) && value.includes(status),
+  );
   return picked.length > 0 ? picked : null;
 }
 
@@ -119,6 +134,17 @@ export function ProductsFilters() {
           };
         }),
       },
+      {
+        id: "arabic",
+        label: "Arabic",
+        icon: <LanguagesIcon />,
+        type: "select",
+        operators: [...isAnyOf],
+        options: arabicStatuses.map((status) => ({
+          value: status,
+          label: arabicLabels[status],
+        })),
+      },
     ];
   }, [flatCategories, queryClient, trpc]);
 
@@ -138,12 +164,24 @@ export function ProductsFilters() {
     });
   }
 
+  if (filters.arabic?.length) {
+    committed.push({
+      field: "arabic",
+      operator: "is_any_of",
+      value: filters.arabic,
+    });
+  }
+
   const chips = useFilterQuery({
     fields,
     committed,
     onCommit: (next) =>
       void setFilters(
-        { brands: ids(next, "brands"), categories: ids(next, "categories") },
+        {
+          brands: ids(next, "brands"),
+          categories: ids(next, "categories"),
+          arabic: statuses(next),
+        },
         { limitUrlUpdates: debounce(500) },
       ),
   });

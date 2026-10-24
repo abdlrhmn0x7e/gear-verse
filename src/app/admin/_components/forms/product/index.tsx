@@ -14,6 +14,7 @@ import z from "zod";
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -48,7 +49,14 @@ import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
 import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
-import { TriangleAlertIcon } from "lucide-react";
+import { ArrowUpRightIcon, TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
+import { Button } from "~/components/ui/button";
+import type { ArabicStatus } from "~/lib/arabic";
+import {
+  ArabicStatusBadge,
+  MarkArabicReviewedButton,
+} from "../../arabic-status";
 import { PriceInput } from "../../inputs/price-input";
 import {
   InputGroup,
@@ -100,6 +108,8 @@ const fieldLabels: Record<keyof ProductFormValues, string> = {
   title: "Title",
   summary: "Summary",
   description: "Description",
+  summaryAr: "Summary (Arabic)",
+  descriptionAr: "Description (Arabic)",
   media: "Media",
   inventory: "Inventory",
   options: "Variants",
@@ -121,11 +131,20 @@ export function ProductForm({
   onSubmitPartial,
   defaultValues,
   onFormReady,
+  saved,
 }: {
   onSubmit?: (data: ProductFormValues) => void;
   onSubmitPartial?: (data: Partial<ProductFormValues>) => void;
   defaultValues?: Partial<ProductFormValues>;
   onFormReady?: (form: UseFormReturn<ProductFormValues>) => void;
+  /** The product as last saved, for the Arabic status; absent for a new product. */
+  saved?: {
+    id: number;
+    slug: string;
+    published: boolean;
+    arabicStatus: ArabicStatus;
+    onArabicReviewed: () => void;
+  };
 }) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -133,6 +152,8 @@ export function ProductForm({
       title: "",
       summary: "",
       description: {},
+      summaryAr: "",
+      descriptionAr: null,
       published: false,
       condition: "NEW",
       allowBackorder: false,
@@ -298,6 +319,89 @@ export function ProductForm({
                   <MediaFields media={mediaFields} move={moveMedia} />
                 )}
               </MediaStoreProvider>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <CardTitle>Arabic</CardTitle>
+                <ArabicStatusBadge status={saved?.arabicStatus ?? "missing"} />
+              </div>
+              <CardDescription>
+                Shown on the Arabic site. Empty fields show the English instead.
+              </CardDescription>
+              {saved && (
+                <CardAction className="flex flex-wrap justify-end gap-2">
+                  {saved.arabicStatus === "draft" && (
+                    <MarkArabicReviewedButton
+                      target="products"
+                      id={saved.id}
+                      onReviewed={saved.onArabicReviewed}
+                    />
+                  )}
+                  {/* drafts 404 on the store, so there is nothing to preview yet */}
+                  {saved.published && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      nativeButton={false}
+                      render={
+                        <Link
+                          href={`/ar/products/${saved.slug}`}
+                          target="_blank"
+                          rel="noopener"
+                        />
+                      }
+                    >
+                      Preview in Arabic
+                      <ArrowUpRightIcon data-icon="inline-end" />
+                    </Button>
+                  )}
+                </CardAction>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <FormField
+                control={form.control}
+                name="summaryAr"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel>Summary (Arabic)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        dir="rtl"
+                        lang="ar"
+                        className="h-24"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="descriptionAr"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel>Description (Arabic)</FormLabel>
+                    <FormControl>
+                      <MediaStoreProvider>
+                        <Editor
+                          arabic
+                          label="Description (Arabic)"
+                          onUpdate={field.onChange}
+                          defaultContent={field.value}
+                        />
+                      </MediaStoreProvider>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 

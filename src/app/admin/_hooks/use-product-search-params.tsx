@@ -4,7 +4,9 @@ import {
   parseAsString,
   parseAsArrayOf,
   parseAsInteger,
+  parseAsStringLiteral,
 } from "nuqs/server";
+import { arabicStatuses } from "~/lib/arabic";
 
 const productSearchParams = {
   id: parseAsInteger,
@@ -12,6 +14,7 @@ const productSearchParams = {
   slug: parseAsString,
   brands: parseAsArrayOf(parseAsInteger),
   categories: parseAsArrayOf(parseAsInteger),
+  arabic: parseAsArrayOf(parseAsStringLiteral(arabicStatuses)),
 };
 
 export function useProductSearchParams() {

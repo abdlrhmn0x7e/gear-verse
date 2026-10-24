@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useId } from "react";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 import {
@@ -24,6 +25,8 @@ import {
   SelectGroup,
 } from "~/components/ui/select";
 import { iconsMap } from "~/lib/icons-map";
+import type { ArabicStatus } from "~/lib/arabic";
+import { ArabicStatusBadge, MarkArabicReviewedButton } from "../arabic-status";
 
 const categoryFormSchema = categoryEntitySchema.omit({
   id: true,
@@ -50,13 +53,21 @@ export function CategoryForm({
   showParentCombobox = true,
   formId = "category-form",
   onSubmit,
+  saved,
 }: {
   defaultValues: Partial<CategoryFormValues>;
   showParentCombobox?: boolean;
   /** For the submit button's `form`; give each form open at once its own. */
   formId?: string;
   onSubmit: (data: CategoryFormValues) => void;
+  /** The category as last saved, for the Arabic status; absent for a new one. */
+  saved?: {
+    id: number;
+    arabicStatus: ArabicStatus;
+    onArabicReviewed: () => void;
+  };
 }) {
+  const arabicHeadingId = useId();
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
@@ -64,6 +75,8 @@ export function CategoryForm({
       icon: defaultValues.icon ?? "CABLES",
       parent_id: defaultValues.parent_id ?? null,
       description: defaultValues.description ?? "",
+      name_ar: defaultValues.name_ar ?? "",
+      description_ar: defaultValues.description_ar ?? "",
     },
   });
 
@@ -143,6 +156,64 @@ export function CategoryForm({
             </FormItem>
           )}
         />
+        <div
+          role="group"
+          aria-labelledby={arabicHeadingId}
+          className="space-y-4 border-t pt-4"
+        >
+          <div className="flex min-h-8 items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h3 id={arabicHeadingId} className="text-sm font-medium">
+                Arabic
+              </h3>
+              <ArabicStatusBadge status={saved?.arabicStatus ?? "missing"} />
+            </div>
+            {saved?.arabicStatus === "draft" && (
+              <MarkArabicReviewedButton
+                target="categories"
+                id={saved.id}
+                onReviewed={saved.onArabicReviewed}
+              />
+            )}
+          </div>
+          <FormField
+            control={form.control}
+            name="name_ar"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name (Arabic)</FormLabel>
+                <FormControl>
+                  <Input
+                    dir="rtl"
+                    lang="ar"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description_ar"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Arabic)</FormLabel>
+                <FormControl>
+                  <Textarea
+                    dir="rtl"
+                    lang="ar"
+                    {...field}
+                    value={field.value ?? ""}
+                    className="h-24"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {showParentCombobox && (
           <FormField
             control={form.control}

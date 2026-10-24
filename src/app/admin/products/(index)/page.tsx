@@ -32,6 +32,7 @@ export default async function AdminProductsPage({
     title: params.title ?? undefined,
     brands: params.brands ?? undefined,
     categories: params.categories ?? undefined,
+    arabic: params.arabic ?? undefined,
   };
   void prefetch(
     trpc.admin.products.queries.getPinned.queryOptions({ filters }),
