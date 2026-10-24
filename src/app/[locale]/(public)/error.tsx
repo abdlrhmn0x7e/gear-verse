@@ -2,6 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { ArrowRightIcon, RotateCwIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "~/i18n/navigation";
 import { useEffect } from "react";
 import { Button } from "~/components/ui/button";
@@ -14,6 +15,8 @@ export default function PublicError({
   error: unknown;
   retry: () => void;
 }) {
+  const t = useTranslations("errors.error");
+
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -21,15 +24,15 @@ export default function PublicError({
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 px-6 pb-12 text-center">
       <h1 className="text-headline-sm md:text-headline text-balance">
-        Something went wrong
+        {t("title")}
       </h1>
       <p className="text-muted-foreground text-body-lg max-w-md text-pretty">
-        This page didn&apos;t load. Try again, or carry on shopping.
+        {t("description")}
       </p>
       <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
         <Button size="lg" onClick={() => retry()}>
           <RotateCwIcon data-icon="inline-start" />
-          Try again
+          {t("retry")}
         </Button>
         <Button
           size="lg"
@@ -37,7 +40,7 @@ export default function PublicError({
           nativeButton={false}
           render={<Link href="/products" />}
         >
-          Browse the store
+          {t("browse")}
           <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
       </div>

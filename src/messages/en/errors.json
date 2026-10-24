@@ -1,1 +1,18 @@
-{}
+{
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has moved.",
+    "browse": "Browse the store"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "This page didn't load. Try again, or carry on shopping.",
+    "retry": "Try again",
+    "browse": "Browse the store"
+  },
+  "global": {
+    "title": "Something Went Wrong!",
+    "description": "An unexpected error has occurred. Our team has been notified.",
+    "home": "Go back home kiddo"
+  }
+}
