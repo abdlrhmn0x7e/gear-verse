@@ -9,6 +9,7 @@ import { Heading } from "~/components/heading";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { PaymentMethod } from "~/components/payment-method";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { DialogTitle } from "~/components/ui/dialog";
 import {
@@ -227,6 +228,14 @@ function OrderItem({
           <p className="text-muted-foreground text-sm">
             {item.values.join(", ")}
           </p>
+        )}
+        {/* these units weren't in stock when it was ordered, they have to be sourced */}
+        {item.backorderedQuantity > 0 && (
+          <Badge variant="warning">
+            {item.backorderedQuantity === item.quantity
+              ? "Backorder"
+              : `${item.backorderedQuantity} of ${item.quantity} on backorder`}
+          </Badge>
         )}
 
         <p className="text-muted-foreground ml-auto">
