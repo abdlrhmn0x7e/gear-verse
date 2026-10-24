@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "storeTitle": "Shop Imported Gaming Gear in Egypt",
+    "storeDescription": "Hand-imported keyboards, mice, IEMs and webcams from AKKO, SIMGOT and more. Prices in EGP, cash on delivery across Egypt.",
+    "productTitle": "{title}: Price in Egypt | Gear Verse",
+    "productTitleShort": "{title}: Price in Egypt",
+    "productDescription": "Buy the {title} by {brand} in Egypt for {price}.",
+    "productDescriptionNoBrand": "Buy the {title} in Egypt for {price}.",
+    "productDescriptionClose": "Cash on delivery across Egypt.",
+    "categoryTitle": "Buy {name} in Egypt",
+    "categoryDescription": "{name}: hand-imported from international brands, customs cleared and delivered across Egypt. Prices in EGP, cash on delivery."
+  },
+  "breadcrumbStore": "Store"
+}
