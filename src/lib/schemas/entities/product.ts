@@ -17,6 +17,7 @@ export const productEntitySchema = z.object({
   description: z.custom<JSONContent>(),
   published: z.boolean("Published is required"),
   condition: z.enum(["NEW", "USED", "REFURBISHED"], "Condition is required"),
+  allowBackorder: z.boolean("Allow backorders is required"),
 
   categoryId: z
     .number("Category Id Must be a Number")

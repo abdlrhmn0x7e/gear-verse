@@ -16,7 +16,8 @@ import {
 } from "~/server/db/schema";
 import { orderedOptionValues } from "../common/cte";
 import type { Pagination } from "../common/types";
-import { getStockDiff } from "../common/stock-diff";
+import { cartLineKey } from "../common/merge-cart-lines";
+import { backorderedAfterEdit, getStockDiff } from "../common/stock-diff";
 import {
   getCurrentUnitPrices,
   orderLineUnitPrice,
@@ -182,6 +183,7 @@ export const _orders = {
             number | null
           >`${orderItems.productVariantId}`.as("order_item_product_variant_id"),
           quantity: orderItems.quantity,
+          backorderedQuantity: orderItems.backorderedQuantity,
           title: products.title,
           summary: products.summary,
           price: sql<number>`${orderLineUnitPrice}`.as("price"),
@@ -235,6 +237,7 @@ export const _orders = {
         productId: number;
         productVariantId: number | null;
         quantity: number;
+        backorderedQuantity: number;
         stock: number | null;
         title: string;
         price: number;
@@ -253,6 +256,7 @@ export const _orders = {
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'quantity', ${items.quantity},
+                'backorderedQuantity', ${items.backorderedQuantity},
                 'stock', ${items.stock},
                 'title', ${items.title},
                 'summary', ${items.summary},
@@ -394,7 +398,8 @@ export const _orders = {
             .select({
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
-              quantity: orderItems.quantity,
+              // only the units taken from stock, backordered ones never were
+              quantity: sql<number>`${orderItems.quantity} - ${orderItems.backorderedQuantity}`,
             })
             .from(orderItems)
             .where(eq(orderItems.orderId, id));
@@ -424,7 +429,8 @@ export const _orders = {
             .select({
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
-              quantity: orderItems.quantity,
+              // only the units taken from stock, backordered ones never were
+              quantity: sql<number>`${orderItems.quantity} - ${orderItems.backorderedQuantity}`,
             })
             .from(orderItems)
             .where(eq(orderItems.orderId, id));
@@ -458,10 +464,16 @@ export const _orders = {
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
               unitPrice: orderItems.unitPrice,
+              backorderedQuantity: orderItems.backorderedQuantity,
             });
+          const previousLines = new Map(
+            deleted.map((line) => [cartLineKey(line), line]),
+          );
 
           // create the new items. lines already on the order keep the price
-          // they were ordered at, added lines get the current price
+          // they were ordered at, added lines get the current price. a lowered
+          // quantity drops backordered units before held ones, so we source
+          // less instead of releasing stock we have; added units come from stock
           const prices = await getCurrentUnitPrices(tx, itemsInput);
           const created = await tx
             .insert(orderItems)
@@ -470,12 +482,20 @@ export const _orders = {
                 itemsInput,
                 prices,
                 toPreviousUnitPrices(deleted),
-              ).map((item) => ({ ...item, orderId: id })),
+              ).map((item) => ({
+                ...item,
+                orderId: id,
+                backorderedQuantity: backorderedAfterEdit(
+                  previousLines.get(cartLineKey(item)),
+                  item.quantity,
+                ),
+              })),
             )
             .returning({
               quantity: orderItems.quantity,
               productId: orderItems.productId,
               productVariantId: orderItems.productVariantId,
+              backorderedQuantity: orderItems.backorderedQuantity,
             });
 
           // a cancelled order holds no stock, so its items don't move it.
@@ -529,6 +549,7 @@ export const _orders = {
             productId: orderItems.productId,
             productVariantId: orderItems.productVariantId,
             quantity: orderItems.quantity,
+            backorderedQuantity: orderItems.backorderedQuantity,
           });
 
         // a cancelled order was already restocked when it was cancelled
@@ -546,7 +567,7 @@ export const _orders = {
           await tx
             .update(inventoryItems)
             .set({
-              quantity: sql`${inventoryItems.quantity} + ${item.quantity}`,
+              quantity: sql`${inventoryItems.quantity} + ${item.quantity - item.backorderedQuantity}`,
             })
             .where(and(...preds));
         }

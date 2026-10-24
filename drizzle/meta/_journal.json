@@ -50,6 +50,13 @@
       "when": 1792872269550,
       "tag": "0006_store_settings_order_notification_emails",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792872742417,
+      "tag": "0007_backorders",
+      "breakpoints": true
     }
   ]
 }

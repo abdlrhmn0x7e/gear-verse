@@ -6,7 +6,7 @@ type CartLine = {
 
 export const cartLineKey = (line: {
   productId: number;
-  productVariantId: number | null;
+  productVariantId?: number | null;
 }) => `${line.productId}-${line.productVariantId ?? "none"}`;
 
 /**

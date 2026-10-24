@@ -91,6 +91,7 @@ export const _carts = {
             sql`coalesce(${variantsInventory.quantity}, ${productsInventory.quantity})`.as(
               "stock",
             ),
+          allowBackorder: products.allowBackorder,
 
           available: sql<boolean>`(
             ${products.published}
@@ -146,6 +147,7 @@ export const _carts = {
 
         quantity: number;
         stock: number;
+        allowBackorder: boolean;
         available: boolean;
 
         price: number;
@@ -165,6 +167,7 @@ export const _carts = {
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'stock', ${items.stock},
+                'allowBackorder', ${items.allowBackorder},
                 'available', ${items.available},
                 'title', ${items.title},
                 'price', ${items.price},
@@ -208,7 +211,7 @@ export const _carts = {
       return db.transaction(async (tx) => {
         // only published, non-archived products (and live variants) can be bought
         const [purchasable] = await tx
-          .select({ id: products.id })
+          .select({ allowBackorder: products.allowBackorder })
           .from(products)
           .leftJoin(
             productVariants,
@@ -267,7 +270,10 @@ export const _carts = {
           stock = product?.stock ?? 0;
         }
 
-        if (stock <= 0) {
+        // backorder products sell past their stock
+        const { allowBackorder } = purchasable;
+
+        if (!allowBackorder && stock <= 0) {
           throw new AppError("This product is out of stock", "BAD_REQUEST");
         }
 
@@ -291,7 +297,7 @@ export const _carts = {
           .returning({ id: cartItems.id, quantity: cartItems.quantity });
 
         // throwing rolls the quantity bump back
-        if (stock < (updated?.quantity ?? 1)) {
+        if (!allowBackorder && stock < (updated?.quantity ?? 1)) {
           throw new AppError(
             `Only ${stock} left in stock, and your cart already has them all`,
             "BAD_REQUEST",

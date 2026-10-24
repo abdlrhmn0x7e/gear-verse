@@ -113,6 +113,7 @@ export function productJsonLd({
     strikeThroughPrice: number | null;
     condition: "NEW" | "USED" | "REFURBISHED";
     inStock: boolean;
+    allowBackorder: boolean;
     thumbnailUrl: string;
     media: string[];
     brand: { name: string | null } | null;
@@ -158,7 +159,9 @@ export function productJsonLd({
       }),
       availability: product.inStock
         ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+        : product.allowBackorder
+          ? "https://schema.org/BackOrder"
+          : "https://schema.org/OutOfStock",
       itemCondition: ITEM_CONDITIONS[product.condition],
       seller: { "@id": ORGANIZATION_ID },
       hasMerchantReturnPolicy: returnPolicy(),

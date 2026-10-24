@@ -47,6 +47,7 @@ import { CategoriesCombobox } from "../../inputs/categories-combobox";
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { Switch } from "~/components/ui/switch";
+import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
 import { TriangleAlertIcon } from "lucide-react";
 import { PriceInput } from "../../inputs/price-input";
 import {
@@ -105,6 +106,7 @@ const fieldLabels: Record<keyof ProductFormValues, string> = {
   variants: "Variants",
   published: "Status",
   condition: "Condition",
+  allowBackorder: "Allow backorders",
   price: "Price",
   strikeThroughPrice: "Strike through price",
   originalCost: "Original cost",
@@ -133,6 +135,7 @@ export function ProductForm({
       description: {},
       published: false,
       condition: "NEW",
+      allowBackorder: false,
       price: 0,
       categoryId: 0,
       brandId: 0,
@@ -385,6 +388,28 @@ export function ProductForm({
                         />
                       </FormControl>
                     </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="allowBackorder"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between gap-2">
+                      <FormLabel>Allow backorders</FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormDescription>
+                      Keeps it on sale when out of stock. Shoppers are told it
+                      takes about {BACKORDER_LEAD_DAYS} days to source.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

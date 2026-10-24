@@ -380,6 +380,7 @@ export const _products = {
           slug: products.slug,
           published: products.published,
           condition: products.condition,
+          allowBackorder: products.allowBackorder,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           profit: products.profit,

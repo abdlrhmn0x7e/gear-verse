@@ -127,10 +127,16 @@ export const userCheckoutRouter = createTRPCRouter({
             item,
           ]),
         );
+        // only lines short now may backorder, the disclaimer named exactly those;
+        // a line that runs short mid-checkout fails on the stock check instead
+        const backorderKeys = new Set<string>();
         for (const item of itemsStock) {
-          const cartItem = cartItemsMap.get(
-            `${item.productId}-${item.productVariantId}`,
-          );
+          const key = `${item.productId}-${item.productVariantId}`;
+          const cartItem = cartItemsMap.get(key);
+          if (cartItem?.allowBackorder && cartItem.quantity > item.stock) {
+            backorderKeys.add(key);
+            continue;
+          }
           if (cartItem && cartItem.quantity > item.stock) {
             throw new TRPCError({
               code: "BAD_REQUEST",
@@ -156,6 +162,9 @@ export const userCheckoutRouter = createTRPCRouter({
               productId: item.productId,
               productVariantId: item.productVariantId,
               quantity: item.quantity,
+              allowBackorder: backorderKeys.has(
+                `${item.productId}-${item.productVariantId}`,
+              ),
             })),
           }),
         );

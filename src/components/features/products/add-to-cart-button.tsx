@@ -66,7 +66,7 @@ export function AddToCartButton({
             quantity={line.quantity}
             itemLabel={productTitle}
             pending={addingToCart || removingFromCart}
-            canIncrement={line.stock > line.quantity}
+            canIncrement={line.allowBackorder || line.stock > line.quantity}
             onDecrement={() => removeFromCart(item)}
             onIncrement={() => addToCart(item)}
             className="h-12 px-1"

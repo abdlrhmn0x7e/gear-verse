@@ -13,6 +13,7 @@ export function PurchasePanel({
   productTitle,
   productStock,
   hasVariants,
+  allowBackorder,
   price,
   strikeThroughPrice,
   showActions,
@@ -21,11 +22,16 @@ export function PurchasePanel({
   productTitle: string;
   productStock: number | null;
   hasVariants: boolean;
+  allowBackorder: boolean;
   price: number;
   strikeThroughPrice: number | null;
   showActions: boolean;
 }) {
-  const stock = useSelectedStock({ productStock, hasVariants });
+  const stock = useSelectedStock({
+    productStock,
+    hasVariants,
+    allowBackorder,
+  });
   const purchasable = canPurchase(stock);
   const disabledLabel =
     stock.kind === "unselected" ? "Unavailable" : "Out of stock";

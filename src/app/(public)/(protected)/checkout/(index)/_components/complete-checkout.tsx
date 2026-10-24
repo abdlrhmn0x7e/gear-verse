@@ -1,9 +1,18 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "~/components/ui/item";
+import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
+import { whatsAppLink } from "~/lib/whatsapp";
 import { CheckoutForm } from "./checkout-form";
 import type { CompleteCheckoutInput } from "~/lib/schemas/contracts/public/checkout";
-import { LockIcon } from "lucide-react";
+import { ClockIcon, LockIcon } from "lucide-react";
 import { useTRPC } from "~/trpc/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,12 +25,17 @@ export function CompleteCheckout({
   children,
   hasCartItems,
   hasStockIssues,
+  backorderTitles,
+  whatsappNumber,
   className,
 }: {
   children: React.ReactNode;
   hasCartItems: boolean;
   /** a line asks for more than is left; the order would be rejected, so it can't be placed until the line is fixed */
   hasStockIssues: boolean;
+  /** lines short on stock whose product takes backorders; they get sourced, so the customer is told about the wait */
+  backorderTitles: string[];
+  whatsappNumber: string | null;
   className?: string;
 }) {
   const trpc = useTRPC();
@@ -85,6 +99,37 @@ export function CompleteCheckout({
             Some items are out of stock or short. Update them in your order
             summary to place your order.
           </p>
+        )}
+
+        {backorderTitles.length > 0 && (
+          <Item variant="muted">
+            <ItemMedia variant="icon">
+              <ClockIcon />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>
+                {new Intl.ListFormat("en").format(backorderTitles)}{" "}
+                {backorderTitles.length === 1 ? "is" : "are"} on backorder
+              </ItemTitle>
+              <ItemDescription className="line-clamp-none text-pretty">
+                We source {backorderTitles.length === 1 ? "it" : "them"} in
+                about {BACKORDER_LEAD_DAYS} days on average, counted from when
+                we confirm your order on{" "}
+                {whatsappNumber ? (
+                  <a
+                    href={whatsAppLink(whatsappNumber)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    WhatsApp
+                  </a>
+                ) : (
+                  "WhatsApp"
+                )}
+                .
+              </ItemDescription>
+            </ItemContent>
+          </Item>
         )}
 
         <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
