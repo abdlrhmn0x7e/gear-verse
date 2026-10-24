@@ -12,11 +12,15 @@ import { requireAuth } from "~/server/auth";
 import { CartStockNotice } from "~/components/cart-stock-notice";
 import { blocksCheckout, getStockIssue } from "~/lib/utils/cart-stock";
 import { OrderTotals } from "../../_components/order-totals";
+import { getStoreSettings } from "~/lib/store-settings";
 
 export default async function CheckoutPage() {
   await requireAuth();
   void prefetch(trpc.public.checkout.queries.getAddresses.queryOptions());
-  const cart = await api.public.carts.queries.find();
+  const [cart, { whatsappNumber }] = await Promise.all([
+    api.public.carts.queries.find(),
+    getStoreSettings(),
+  ]);
   const cols =
     cart.items.length > 1 ? (cart.items.length % 2 === 0 ? 2 : 3) : 1;
 
@@ -31,6 +35,7 @@ export default async function CheckoutPage() {
             backorderTitles={cart.items
               .filter((item) => getStockIssue(item) === "backorder")
               .map((item) => item.title)}
+            whatsappNumber={whatsappNumber}
           >
             <OrderSummary cart={cart} cols={cols} isMobile />
           </CompleteCheckout>

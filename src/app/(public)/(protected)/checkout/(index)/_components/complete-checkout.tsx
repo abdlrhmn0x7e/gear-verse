@@ -9,6 +9,7 @@ import {
   ItemTitle,
 } from "~/components/ui/item";
 import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
+import { whatsAppLink } from "~/lib/whatsapp";
 import { CheckoutForm } from "./checkout-form";
 import type { CompleteCheckoutInput } from "~/lib/schemas/contracts/public/checkout";
 import { ClockIcon, LockIcon } from "lucide-react";
@@ -25,6 +26,7 @@ export function CompleteCheckout({
   hasCartItems,
   hasStockIssues,
   backorderTitles,
+  whatsappNumber,
   className,
 }: {
   children: React.ReactNode;
@@ -33,6 +35,7 @@ export function CompleteCheckout({
   hasStockIssues: boolean;
   /** lines short on stock whose product takes backorders; they get sourced, so the customer is told about the wait */
   backorderTitles: string[];
+  whatsappNumber: string | null;
   className?: string;
 }) {
   const trpc = useTRPC();
@@ -111,7 +114,19 @@ export function CompleteCheckout({
               <ItemDescription className="line-clamp-none text-pretty">
                 We source {backorderTitles.length === 1 ? "it" : "them"} in
                 about {BACKORDER_LEAD_DAYS} days on average, counted from when
-                we confirm your order on WhatsApp.
+                we confirm your order on{" "}
+                {whatsappNumber ? (
+                  <a
+                    href={whatsAppLink(whatsappNumber)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    WhatsApp
+                  </a>
+                ) : (
+                  "WhatsApp"
+                )}
+                .
               </ItemDescription>
             </ItemContent>
           </Item>
