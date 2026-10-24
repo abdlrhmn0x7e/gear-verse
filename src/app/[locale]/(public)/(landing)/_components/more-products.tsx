@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { ProductCard } from "~/components/features/products/product-card";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
@@ -12,9 +13,10 @@ import { SectionHeader } from "./section-header";
 
 /** The newest products the hero row isn't already showing; nothing renders while the whole catalog fits in the hero. */
 export async function MoreProducts() {
-  const [hero, latest] = await Promise.all([
+  const [hero, latest, t] = await Promise.all([
     getHeroProducts(),
     getLatestProducts(),
+    getTranslations("landing.moreProducts"),
   ]);
   const inHero = new Set(hero.map((product) => product.id));
   const products = latest
@@ -27,7 +29,7 @@ export async function MoreProducts() {
       <MaxWidthWrapper className="space-y-12">
         <SectionHeader
           id="more-products-heading"
-          title="New on the shelf"
+          title={t("title")}
           action={
             <Button
               variant="outline"
@@ -35,7 +37,7 @@ export async function MoreProducts() {
               nativeButton={false}
               render={<Link href="/products" />}
             >
-              Shop all
+              {t("shopAll")}
               <ArrowRightIcon
                 data-icon="inline-end"
                 className="rtl:-scale-x-100"

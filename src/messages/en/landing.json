@@ -9,5 +9,96 @@
     "shop": "Shop the shelf",
     "request": "Request an item",
     "trending": "Trending products"
+  },
+  "moreProducts": {
+    "title": "New on the shelf",
+    "shopAll": "Shop all"
+  },
+  "categories": {
+    "title": "Shop by category",
+    "description": "Each one is a short list, so picking takes minutes."
+  },
+  "whyUs": {
+    "title": "We pick, so you don't have to dig.",
+    "description": "Most stores here either stock everything at a markup or carry the same thin selection. We keep a short list of gear we'd stand behind.",
+    "worthTitle": "Worth the money",
+    "worthDescription": "If a product doesn't earn its price, it doesn't make the shelf.",
+    "was": "Was",
+    "gotYouTitle": "We've got you",
+    "gotYouDescription": "From stock in Egypt, and replaced if it arrives defective.",
+    "days": "1–2 <unit>days</unit>",
+    "pickedTitle": "Picked, not piled",
+    "pickedDescription": "A few good options per category, so you choose in minutes.",
+    "categoriesLabel": "Categories"
+  },
+  "testimonials": {
+    "title": "What customers say",
+    "description": "Reviews left on the gear they bought, unedited.",
+    "byline": "<name></name> on <product></product>"
+  },
+  "faq": {
+    "title": "Questions, answered",
+    "askWhatsApp": "Anything else? Ask us on WhatsApp at <number></number>.",
+    "askDiscord": "Anything else? Ask us on <discord>Discord</discord>.",
+    "onWhatsApp": "on WhatsApp at <number></number>",
+    "items": {
+      "about": {
+        "question": "What is Gear Verse?",
+        "answer": "A gear store in Egypt with a short list: keyboards, mice and IEMs we think are worth the money, in stock and delivered in 1–2 days. If you want something we don't carry, request it and we'll get it for you."
+      },
+      "request": {
+        "question": "Can you get me something you don't sell?",
+        "answer": "Yes. <request>Send us the model or a link</request> on WhatsApp and we'll reply with the price and delivery time before you commit to anything."
+      },
+      "delivery": {
+        "question": "Do you deliver anywhere in Egypt?",
+        "answer": "Yes, anywhere in Egypt. Delivery times and the shipping fee depend on your location; see \"How do I pay?\" below for how the fee is confirmed and paid."
+      },
+      "payment": {
+        "question": "How do I pay?",
+        "answer": "Cash on delivery is available. After you place your order, our team contacts you on WhatsApp or by phone to confirm it along with the shipping fee, which depends on your location. You pay the shipping fee in advance by InstaPay or mobile wallet (Vodafone Cash, Orange Cash or e& cash), and the rest to the courier on delivery, in cash, by InstaPay or by mobile wallet."
+      },
+      "returns": {
+        "question": "What is your return policy?",
+        "answer": "We accept a return and refund only when a product arrives defective or damaged, or has a problem caused by us. Report the issue<whatsapp></whatsapp> within 24 hours of opening the product and send photos or videos of it. Once our team inspects the product and approves the return, we'll collect it and process your refund within 7 days. We can't take back a product that was opened and has no defect. Read the full <policy>Returns & Refunds Policy</policy>."
+      },
+      "tracking": {
+        "question": "How can I track my order?",
+        "answer": "Open My orders to see each order you've placed and its status. Our team also contacts you on WhatsApp or by phone to confirm your order before it ships."
+      },
+      "authentic": {
+        "question": "Are the products authentic and covered by warranty?",
+        "answer": "Yes. Everything we sell is original, and most products come with the manufacturer's warranty. Ask us on WhatsApp if you want to check a specific product."
+      },
+      "deliveryTime": {
+        "question": "How long does delivery take?",
+        "answer": "1–2 business days to most areas in Egypt. Farther areas can take a little longer, and we'll tell you when we confirm your order."
+      },
+      "damaged": {
+        "question": "What if I receive a damaged or defective product?",
+        "answer": "Report it to us<whatsapp></whatsapp> within 24 hours of opening the product, with photos or videos showing the problem. Our team will inspect the product and verify the issue; once we approve it, we'll arrange to collect the product and process your refund within 7 days of approval. See our <policy>Returns & Refunds Policy</policy> for the details."
+      }
+    }
+  },
+  "request": {
+    "title": "Not on the shelf? We'll get it.",
+    "description": "Send us the model or a link on WhatsApp. We'll reply with the price and delivery time before you commit to anything.",
+    "label": "What do you want?",
+    "placeholder": "A model name or a link",
+    "submit": "Ask on WhatsApp",
+    "note": "Free to ask. You only pay if you go ahead.",
+    "chatLabel": "An example request",
+    "you": "You",
+    "caption": "An example request. Every quote is priced per item.",
+    "chat": {
+      "ask": "Hi Gear Verse, can you get me this? Logitech G Pro X Superlight 2 in white",
+      "quote": "We can. It's EGP 7,850 to your door, arriving in about 2 weeks. Want us to order it?",
+      "confirm": "Yes, go ahead",
+      "done": "Done. We'll handle customs and message you when it's on its way."
+    }
+  },
+  "brands": {
+    "title": "Brands on the shelf",
+    "description": "Tap a brand to see everything we carry from it."
   }
 }
