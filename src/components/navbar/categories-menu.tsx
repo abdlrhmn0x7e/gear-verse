@@ -1,5 +1,6 @@
 import { IconArrowRight, IconFolder } from "@tabler/icons-react";
 import { cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { iconsMap } from "~/lib/icons-map";
 import { app } from "~/server/application";
 import { NavLink } from "./nav";
@@ -9,7 +10,10 @@ export async function CategoriesMenu() {
 
   cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findRoots();
+  const [categories, t] = await Promise.all([
+    app.public.categories.queries.findRoots(),
+    getTranslations("nav"),
+  ]);
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -22,7 +26,10 @@ export async function CategoriesMenu() {
             className="bg-tile hover:bg-tile-hover group flex flex-col gap-6 rounded-2xl p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             <Icon className="size-5" stroke={1.75} aria-hidden />
-            <span className="text-sm font-medium">{category.name}</span>
+            {/* category names are stored in English; isolated so their punctuation stays put in Arabic */}
+            <span className="text-sm font-medium">
+              <bdi>{category.name}</bdi>
+            </span>
           </NavLink>
         );
       })}
@@ -36,7 +43,7 @@ export async function CategoriesMenu() {
           stroke={1.75}
           aria-hidden
         />
-        <span className="text-sm font-medium">Shop everything</span>
+        <span className="text-sm font-medium">{t("shopEverything")}</span>
       </NavLink>
     </div>
   );

@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "~/i18n/navigation";
 import { ProductCard } from "~/components/features/products/product-card";
 import {
   ProductCarousel,
@@ -15,21 +16,22 @@ import { Button } from "~/components/ui/button";
 import { getHeroProducts, HERO_PRODUCT_COUNT } from "../_lib/queries";
 
 export async function Hero() {
-  const products = await getHeroProducts();
+  const [products, t] = await Promise.all([
+    getHeroProducts(),
+    getTranslations("landing.hero"),
+  ]);
 
   return (
     <section className="pt-28 pb-12 md:pt-32 md:pb-16">
       <MaxWidthWrapper className="space-y-10 md:space-y-12">
         <div className="space-y-6">
           <h1 className="text-display-sm lg:text-display max-w-5xl text-balance sm:text-[3.5rem]">
-            Gear worth the money, in stock in Egypt.
+            {t("title")}
           </h1>
 
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
             <p className="text-muted-foreground text-body-lg max-w-xl text-pretty md:text-xl/relaxed">
-              A short list of keyboards, mice and IEMs we&apos;d buy ourselves,
-              delivered in 1–2 days. Not on the shelf? We&apos;ll get it for
-              you.
+              {t("description")}
             </p>
             <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row">
               <Button
@@ -37,7 +39,7 @@ export async function Hero() {
                 nativeButton={false}
                 render={<Link href="/products" />}
               >
-                Shop the shelf
+                {t("shop")}
                 <ArrowRightIcon
                   data-icon="inline-end"
                   className="rtl:-scale-x-100"
@@ -50,7 +52,7 @@ export async function Hero() {
                 nativeButton={false}
                 render={<a href="#request" />}
               >
-                Request an item
+                {t("request")}
                 <ArrowDownIcon data-icon="inline-end" />
               </Button>
             </div>
@@ -59,7 +61,7 @@ export async function Hero() {
 
         {products.length > HERO_PRODUCT_COUNT ? (
           // more pins than fit a row: page through them, ending on the way to the whole store
-          <ProductCarousel label="Trending products">
+          <ProductCarousel label={t("trending")}>
             {products.map((product, index) => (
               <ProductCarouselItem key={product.id}>
                 <ProductCard

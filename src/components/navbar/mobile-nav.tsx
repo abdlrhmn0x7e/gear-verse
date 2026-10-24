@@ -10,13 +10,14 @@ import {
   IconChevronRight,
   IconFolder,
   IconHelpCircle,
+  IconLanguage,
   IconLogout,
   IconMessagePlus,
   IconReceipt,
 } from "@tabler/icons-react";
 import { MenuIcon, XIcon } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "~/i18n/navigation";
 import { useState } from "react";
 import { useCloseOnBackStack } from "~/hooks/use-close-on-back-stack";
 import { authClient } from "~/lib/auth-client";
@@ -24,6 +25,7 @@ import { iconsMap } from "~/lib/icons-map";
 import type { CategoryIconEnum } from "~/lib/schemas/entities/category";
 import { cn } from "~/lib/utils";
 import { formatWhatsAppNumber, whatsAppLink } from "~/lib/whatsapp";
+import { LocaleLink } from "../locale-switch";
 import { GoogleSignInButton } from "../login-drawer-dialog";
 import { Logo } from "../logo";
 import { useSignOut } from "../profile-dropdown";
@@ -65,6 +67,7 @@ export function MobileNav({
   socialLinks: SocialLinksSettings;
   categories: { name: string; slug: string; icon: CategoryIconEnum }[];
 }) {
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   // back leaves categories for the menu, then the menu for the page
@@ -92,7 +95,7 @@ export function MobileNav({
         render={<Button variant="ghost" size="icon-lg" className="md:hidden" />}
       >
         <MenuIcon />
-        <span className="sr-only">Open menu</span>
+        <span className="sr-only">{t("openMenu")}</span>
       </DrawerTrigger>
 
       <DrawerContent className={sheetMotion}>
@@ -103,11 +106,11 @@ export function MobileNav({
             <Logo className="h-10" />
           </DrawerTitle>
           <DrawerDescription className="sr-only">
-            Site navigation
+            {t("siteNavigation")}
           </DrawerDescription>
           <DrawerClose
             render={<Button variant="ghost" size="icon-lg" className="-me-2" />}
-            aria-label="Close menu"
+            aria-label={t("closeMenu")}
           >
             <XIcon />
           </DrawerClose>
@@ -116,19 +119,19 @@ export function MobileNav({
         <DrawerBody className="space-y-6 px-2 pt-2">
           <MobileAccount onNavigate={closeAll} />
 
-          <Group label="Shop">
+          <Group label={t("shop")}>
             <RowLink
               href="/products"
               icon={IconBuildingStore}
               onNavigate={closeAll}
             >
-              All products
+              {t("allProducts")}
             </RowLink>
             <li className={rowItemClassName}>
               <Drawer open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                 <DrawerTrigger className={rowClassName}>
                   <IconCategory className={iconClassName} stroke={1.75} />
-                  <span className="flex-1 text-start">Categories</span>
+                  <span className="flex-1 text-start">{t("categories")}</span>
                   <span className="text-muted-foreground tabular-nums">
                     {categories.length}
                   </span>
@@ -151,11 +154,11 @@ export function MobileNav({
                         data-icon="inline-start"
                         className="size-5 rtl:-scale-x-100"
                       />
-                      Menu
+                      {t("menu")}
                     </DrawerClose>
-                    <DrawerTitle>Categories</DrawerTitle>
+                    <DrawerTitle>{t("categories")}</DrawerTitle>
                     <DrawerDescription className="sr-only">
-                      Shop by category
+                      {t("shopByCategory")}
                     </DrawerDescription>
                   </DrawerHeader>
                   <DrawerBody className="px-2 pt-2">
@@ -167,7 +170,7 @@ export function MobileNav({
                           icon={iconsMap.get(category.icon) ?? IconFolder}
                           onNavigate={closeAll}
                         >
-                          {category.name}
+                          <bdi>{category.name}</bdi>
                         </RowLink>
                       ))}
                       <RowLink
@@ -175,7 +178,7 @@ export function MobileNav({
                         icon={ForwardArrowIcon}
                         onNavigate={closeAll}
                       >
-                        Shop everything
+                        {t("shopEverything")}
                       </RowLink>
                     </ul>
                   </DrawerBody>
@@ -183,25 +186,39 @@ export function MobileNav({
               </Drawer>
             </li>
             <RowLink href="/#faq" icon={IconHelpCircle} onNavigate={closeAll}>
-              FAQ
+              {t("faq")}
             </RowLink>
             <RowLink
               href="/#request"
               icon={IconMessagePlus}
               onNavigate={closeAll}
             >
-              Request an item
+              {t("requestItem")}
             </RowLink>
           </Group>
 
-          <Group label="Appearance">
+          <Group label={t("language")}>
+            <li className={rowItemClassName}>
+              <LocaleLink onNavigate={closeAll} className={rowClassName}>
+                {(name) => (
+                  <>
+                    <IconLanguage className={iconClassName} stroke={1.75} />
+                    <span className="flex-1">{name}</span>
+                    <IconChevronRight className={chevronClassName} />
+                  </>
+                )}
+              </LocaleLink>
+            </li>
+          </Group>
+
+          <Group label={t("appearance")}>
             <li className="p-2">
               <ThemeSegmentedControl />
             </li>
           </Group>
 
           {whatsappNumber && (
-            <Group label="Contact">
+            <Group label={t("contact")}>
               <li className={rowItemClassName}>
                 <a
                   href={whatsAppLink(whatsappNumber)}
@@ -210,7 +227,7 @@ export function MobileNav({
                   className={rowClassName}
                 >
                   <IconBrandWhatsapp className={iconClassName} stroke={1.75} />
-                  <span className="flex-1">WhatsApp</span>
+                  <span className="flex-1">{t("whatsapp")}</span>
                   <span
                     dir="ltr"
                     className="text-muted-foreground text-sm tabular-nums"
@@ -303,6 +320,7 @@ function RowLink({
  * the Google button sits on the sheet itself, since an outlined control on the gray card would read as a field.
  */
 function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
+  const t = useTranslations("nav");
   const { data, isPending } = authClient.useSession();
   const { mutate: signOut, isPending: isSigningOut } = useSignOut();
 
@@ -314,7 +332,7 @@ function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
 
   const orders = (
     <RowLink href="/orders" icon={IconReceipt} onNavigate={onNavigate}>
-      My orders
+      {t("myOrders")}
     </RowLink>
   );
 
@@ -323,7 +341,7 @@ function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
       <div className="space-y-6">
         <div className="space-y-3 px-2">
           <p className="text-muted-foreground text-sm text-pretty">
-            Sign in to see your orders on any device.
+            {t("signInPrompt")}
           </p>
           <GoogleSignInButton size="xl" className="w-full" />
         </div>
@@ -340,9 +358,11 @@ function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
           <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="grid min-w-0 flex-1 leading-tight">
-          <span className="truncate font-medium">{user.name}</span>
+          <span className="truncate font-medium">
+            <bdi>{user.name}</bdi>
+          </span>
           <span className="text-muted-foreground truncate text-sm">
-            {user.email}
+            <bdi>{user.email}</bdi>
           </span>
         </div>
       </li>
@@ -359,7 +379,7 @@ function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
           ) : (
             <IconLogout className={iconClassName} stroke={1.75} />
           )}
-          Sign out
+          {t("signOut")}
         </button>
       </li>
     </ul>

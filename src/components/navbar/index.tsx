@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "~/i18n/navigation";
 import { NavigationMenu } from "@base-ui/react/navigation-menu";
 import { cacheTag } from "next/cache";
 import { Suspense } from "react";
@@ -12,7 +13,9 @@ import {
 import { SearchDrawer } from "~/components/search-drawer";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { Kbd } from "~/components/ui/kbd";
+import { LocaleLink } from "~/components/locale-switch";
 import { getStoreSettings } from "~/lib/store-settings";
+import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 import { CartDrawer } from "../cart-drawer";
 import { ProfileDropdown } from "../profile-dropdown";
@@ -21,8 +24,11 @@ import { AdminNav } from "./admin-nav";
 import { CategoriesMenu } from "./categories-menu";
 import { MobileNav } from "./mobile-nav";
 import { NavContent, NavTextLink, NavTextTrigger, NavViewport } from "./nav";
+import { navTextClassName } from "./nav-text";
 
 export function Navbar() {
+  const t = useTranslations("nav");
+
   return (
     <NavigationMenu.Root delay={100} className="group/nav contents">
       {/* the blur and tint live on a layer that runs 4rem past the bar and eases out (a smoothstep) from just under the links to its
@@ -40,12 +46,12 @@ export function Navbar() {
 
           <NavigationMenu.List className="hidden items-center md:flex">
             <NavigationMenu.Item>
-              <NavTextLink href="/products">Store</NavTextLink>
+              <NavTextLink href="/products">{t("store")}</NavTextLink>
             </NavigationMenu.Item>
 
             <NavigationMenu.Item value="categories">
               <NavTextTrigger>
-                Categories
+                {t("categories")}
                 <ChevronDownIcon
                   className="size-3.5 transition-[rotate] duration-200 ease-out group-data-popup-open:rotate-180"
                   aria-hidden
@@ -57,7 +63,7 @@ export function Navbar() {
             </NavigationMenu.Item>
 
             <NavigationMenu.Item>
-              <NavTextLink href="/#faq">FAQ</NavTextLink>
+              <NavTextLink href="/#faq">{t("faq")}</NavTextLink>
             </NavigationMenu.Item>
           </NavigationMenu.List>
 
@@ -70,7 +76,7 @@ export function Navbar() {
                 <span className="relative z-10 flex h-9 w-60 items-center gap-2 ps-4 pe-14">
                   <ProductSearchIcon className="text-muted-foreground size-4" />
                   <ProductSearchPlaceholder className="text-sm">
-                    Search products
+                    {t("searchProducts")}
                   </ProductSearchPlaceholder>
                 </span>
                 {/* the button names its shortcut with aria-keyshortcuts, so its name stays "Search products" */}
@@ -91,7 +97,10 @@ export function Navbar() {
               <AdminNav />
             </Suspense>
 
-            {/* phones switch themes from the menu drawer, keeping the bar to search, cart and menu */}
+            {/* phones switch language and theme from the menu drawer, keeping the bar to search, cart and menu */}
+            <LocaleLink
+              className={cn(navTextClassName, "hidden md:inline-flex")}
+            />
             <ThemeToggle className="hidden md:inline-flex" />
 
             <ProfileDropdown className="mx-3 hidden md:inline-flex" />
