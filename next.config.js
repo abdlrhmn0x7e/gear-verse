@@ -4,6 +4,7 @@
  */
 import "./src/env.js";
 import { withSentryConfig } from "@sentry/nextjs/config";
+import createNextIntlPlugin from "next-intl/plugin";
 import { env } from "./src/env.js";
 
 /** @type {import("next").NextConfig} */
@@ -16,21 +17,19 @@ const config = {
     // On Vercel the restored Turbopack build cache recompiled from cold anyway (72s for a 4-file change, 3.2s locally),
     // so it only added ~16s of compaction before deploy and a 936 MB cache upload after. Dev keeps its cache.
     turbopackFileSystemCacheForBuild: false,
+    // the storefront's root layout sits under [locale] and the admin has its own, so unmatched URLs need a 404 of their own
+    globalNotFound: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
   // shortcut: hand-listed renamed product slugs, until slug edits in the admin record their own redirects
   async redirects() {
-    return [
-      {
-        source:
-          "/products/razer-huntman-v3-pro-tenekyeless-8khz-white-editiongood-condition",
-        destination:
-          "/products/razer-huntsman-v3-pro-tenkeyless-8khz-white-edition-used",
-        permanent: true,
-      },
-    ];
+    return ["", "/ar"].map((prefix) => ({
+      source: `${prefix}/products/razer-huntman-v3-pro-tenekyeless-8khz-white-editiongood-condition`,
+      destination: `${prefix}/products/razer-huntsman-v3-pro-tenkeyless-8khz-white-edition-used`,
+      permanent: true,
+    }));
   },
   images: {
     remotePatterns: [
@@ -46,7 +45,7 @@ const config = {
   },
 };
 
-export default withSentryConfig(config, {
+export default withSentryConfig(createNextIntlPlugin()(config), {
   org: "gear-verse",
   project: "javascript-nextjs",
 
