@@ -46,10 +46,11 @@ const CHAT: Message[] = [
  * /request, which opens WhatsApp with the item already typed.
  */
 export async function RequestSection() {
-  const [{ whatsappNumber }, locale, t] = await Promise.all([
+  const [{ whatsappNumber }, locale, t, tNav] = await Promise.all([
     getStoreSettings(),
     getLocale(),
     getTranslations("landing.request"),
+    getTranslations("nav"),
   ]);
   if (!whatsappNumber) return null;
 
@@ -120,7 +121,7 @@ export async function RequestSection() {
                 <p className="font-medium">Gear Verse</p>
                 <p className="text-muted-foreground flex items-center gap-1 text-sm">
                   <IconBrandWhatsapp className="size-3.5" aria-hidden />
-                  WhatsApp
+                  {tNav("whatsapp")}
                 </p>
               </div>
             </div>
