@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PencilLineIcon, SendIcon } from "lucide-react";
 import { useRouter } from "~/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
@@ -22,6 +23,7 @@ import { ReviewForm, type ReviewFormValues } from "./review-form";
 
 /** The review form waits behind a button, so it never crowds the reviews themselves. */
 export function AddReview({ productId }: { productId: number }) {
+  const t = useTranslations("products.reviews");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -42,7 +44,7 @@ export function AddReview({ productId }: { productId: number }) {
               productId,
             }),
           });
-          toast.success("Review created successfully");
+          toast.success(t("created"));
         },
       },
     );
@@ -52,13 +54,13 @@ export function AddReview({ productId }: { productId: number }) {
     <DrawerDialog open={isOpen} onOpenChange={setIsOpen}>
       <DrawerDialogTrigger render={<Button variant="outline" size="lg" />}>
         <PencilLineIcon data-icon="inline-start" />
-        Write a review
+        {t("write")}
       </DrawerDialogTrigger>
       <DrawerDialogContent>
         <DrawerDialogHeader>
-          <DrawerDialogTitle>Write a review</DrawerDialogTitle>
+          <DrawerDialogTitle>{t("write")}</DrawerDialogTitle>
           <DrawerDialogDescription>
-            Tell other customers what you thought of it.
+            {t("writeDescription")}
           </DrawerDialogDescription>
         </DrawerDialogHeader>
 
@@ -73,7 +75,7 @@ export function AddReview({ productId }: { productId: number }) {
             ) : (
               <SendIcon data-icon="inline-start" />
             )}
-            Post review
+            {t("post")}
           </Button>
         </DrawerDialogFooter>
       </DrawerDialogContent>
