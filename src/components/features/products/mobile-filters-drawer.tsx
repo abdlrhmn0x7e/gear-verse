@@ -32,7 +32,7 @@ export function MobileFiltersDrawer({
         Filters
       </DrawerTrigger>
       <DrawerContent className="p-4">
-        <DrawerHeader className="px-4 text-left">
+        <DrawerHeader className="px-4 text-start">
           <DrawerTitle className="text-title">Filters</DrawerTitle>
           <DrawerDescription className="sr-only">
             Narrow the products by brand and price

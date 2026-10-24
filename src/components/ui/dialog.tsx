@@ -85,7 +85,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="bg-tile hover:bg-tile-hover absolute top-4 right-4"
+                className="bg-tile hover:bg-tile-hover absolute top-4 end-4"
                 size="icon-sm"
               />
             }

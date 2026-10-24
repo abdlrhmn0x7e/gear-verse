@@ -140,7 +140,7 @@ export async function RequestSection() {
                           <BubbleContent
                             className={cn(
                               "px-4 text-base text-pretty",
-                              fromYou ? "rounded-br-md" : "rounded-bl-md",
+                              fromYou ? "rounded-ee-md" : "rounded-es-md",
                             )}
                           >
                             <span className="sr-only">

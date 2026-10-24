@@ -56,7 +56,7 @@ function TooltipContent({
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
           className={cn(
-            "bg-foreground text-background data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 relative isolate z-50 flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-lg",
+            "bg-foreground text-background data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 relative isolate z-50 flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs has-data-[slot=kbd]:pe-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-lg",
             className,
           )}
           {...props}
@@ -68,7 +68,7 @@ function TooltipContent({
               the label. */}
           <TooltipPrimitive.Arrow
             data-slot="tooltip-arrow"
-            className="bg-foreground -z-10 size-3 rotate-45 rounded-[2px] data-[side=bottom]:-top-[2.25px] data-[side=inline-end]:-left-[2.25px] data-[side=inline-start]:-right-[2.25px] data-[side=left]:-right-[2.25px] data-[side=right]:-left-[2.25px] data-[side=top]:-bottom-[2.25px]"
+            className="bg-foreground -z-10 size-3 rotate-45 rounded-[2px] data-[side=bottom]:-top-[2.25px] data-[side=inline-end]:-start-[2.25px] data-[side=inline-start]:-end-[2.25px] data-[side=left]:-end-[2.25px] data-[side=right]:-start-[2.25px] data-[side=top]:-bottom-[2.25px]"
           />
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>

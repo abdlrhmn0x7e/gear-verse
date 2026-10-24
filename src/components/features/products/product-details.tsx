@@ -250,7 +250,7 @@ export async function ProductDetails({
                     </span>
                   </AccordionTrigger>
                   {/* the answer lines up with the title, past the icon */}
-                  <AccordionContent className="pl-8">
+                  <AccordionContent className="ps-8">
                     <p>{row.body}</p>
                     {row.link && (
                       <p>

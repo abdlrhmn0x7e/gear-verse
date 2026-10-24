@@ -23,7 +23,7 @@ export default function Header({
   return (
     <div
       className={cn(
-        "flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left",
+        "flex flex-col items-center gap-3 text-center sm:flex-row sm:text-start",
         className,
       )}
     >

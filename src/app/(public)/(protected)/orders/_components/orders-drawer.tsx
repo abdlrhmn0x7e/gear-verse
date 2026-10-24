@@ -61,7 +61,7 @@ export function OrdersDrawer({
       swipeDirection={isMobile ? "down" : "right"}
     >
       <DrawerContent className="data-[swipe-direction=down]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[swipe-direction=right]:sm:max-w-xl">
-        <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-left group-data-[swipe-direction=down]/drawer-content:text-left">
+        <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-start group-data-[swipe-direction=down]/drawer-content:text-start">
           <DrawerTitle className="text-title">Order #{shownId}</DrawerTitle>
           <DrawerDescription
             render={

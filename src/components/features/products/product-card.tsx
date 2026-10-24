@@ -39,7 +39,7 @@ export function ProductCard({
     >
       <div className="image-well relative aspect-square overflow-hidden rounded-3xl">
         {discount > 0 && (
-          <Badge variant="brand" className="absolute top-3 left-3 z-10">
+          <Badge variant="brand" className="absolute top-3 start-3 z-10">
             Save {discount}%
           </Badge>
         )}

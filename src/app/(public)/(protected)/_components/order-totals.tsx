@@ -19,7 +19,7 @@ export function OrderTotals({ subtotal }: { subtotal: number }) {
             </p>
           </div>
 
-          <p className="text-muted-foreground text-right">
+          <p className="text-muted-foreground text-end">
             Confirmed by our team
           </p>
         </div>

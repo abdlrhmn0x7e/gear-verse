@@ -2401,9 +2401,9 @@ const CHIPS_CLASS =
   "flex flex-wrap items-center border bg-clip-padding focus-within:border-ring has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 min-h-9 gap-1.5 py-1.5 text-sm focus-within:ring-3 has-aria-invalid:ring-3 has-data-[slot=combobox-chip]:px-1.5 focus-within:ring-ring/30 bg-input/50 border-transparent rounded-3xl px-3 transition-[color,box-shadow,background-color]";
 
 const CHIP_CLASS =
-  "text-foreground flex w-fit items-center justify-center gap-1 font-medium whitespace-nowrap h-[calc(--spacing(5.5))] text-xs has-data-[slot=combobox-chip-remove]:pr-0 px-2 bg-input rounded-3xl dark:bg-input/60";
+  "text-foreground flex w-fit items-center justify-center gap-1 font-medium whitespace-nowrap h-[calc(--spacing(5.5))] text-xs has-data-[slot=combobox-chip-remove]:pe-0 px-2 bg-input rounded-3xl dark:bg-input/60";
 
-const CHIP_REMOVE_CLASS = "opacity-50 hover:opacity-100 -ml-1";
+const CHIP_REMOVE_CLASS = "opacity-50 hover:opacity-100 -ms-1";
 
 /** The floating panel's surface. The shared popup's `InputGroup` sizing is
  * left out (mirrored in `cascader-nav.tsx`), as are its `max-h-72` and

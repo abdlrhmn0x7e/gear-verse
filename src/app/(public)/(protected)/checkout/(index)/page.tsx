@@ -97,7 +97,7 @@ function OrderSummary({
                 <CartStockNotice item={item} className="mt-1" />
               </div>
 
-              <p className="text-right text-lg font-medium">
+              <p className="text-end text-lg font-medium">
                 {formatCurrency(item.price * item.quantity)}
               </p>
             </div>

@@ -163,7 +163,7 @@ function RatingItem({
         className={cn(
           "[&_svg]:pointer-events-none",
           isPartialPoint &&
-            "pointer-events-none absolute top-0 left-0 overflow-hidden",
+            "pointer-events-none absolute top-0 start-0 overflow-hidden",
           isInteractive && "cursor-pointer hover:scale-105",
           disabled && "cursor-not-allowed opacity-50",
           className,
