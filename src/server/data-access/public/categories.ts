@@ -132,7 +132,7 @@ export const _categories = {
      * of its sub-categories.
      */
     async findWithLiveProducts() {
-      return db.execute<{ id: number; slug: string; updatedAt: string }>(sql`
+      return db.execute<{ id: string; slug: string; updatedAt: string }>(sql`
         WITH RECURSIVE subtree AS (
           SELECT id AS root_id, id FROM ${categories}
 

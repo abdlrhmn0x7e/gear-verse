@@ -126,7 +126,7 @@ export async function Footer() {
 async function CategoryLinks() {
   "use cache";
 
-  cacheTag("categories-menu");
+  cacheTag("categories-menu", "sitemap");
 
   const categories = await app.public.categories.queries.findRoots();
 

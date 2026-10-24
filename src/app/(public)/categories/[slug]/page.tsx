@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CategoryChips } from "~/components/features/products/category-chips";
+import {
+  CategoryChips,
+  SubCategoryChips,
+} from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Skeleton } from "~/components/ui/skeleton";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
@@ -111,8 +114,16 @@ export default async function CategoryPage({
         </p>
       </header>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col gap-3">
         <CategoryChips activeSlug={path[0]!.slug} />
+        {/* one row per level; a level without live sub-categories renders nothing */}
+        {path.map((node, i) => (
+          <SubCategoryChips
+            key={node.slug}
+            parent={{ name: node.name, slug: node.slug }}
+            activeSlug={path[i + 1]?.slug}
+          />
+        ))}
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">

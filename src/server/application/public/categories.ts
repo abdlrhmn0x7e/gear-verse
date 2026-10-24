@@ -7,6 +7,12 @@ import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
 
+/** Categories whose subtree has a product that can be bought, so the store never links to an empty one. */
+async function liveCategorySlugs() {
+  const rows = await data.public.categories.queries.findWithLiveProducts();
+  return new Set(Array.from(rows, (row) => row.slug));
+}
+
 export const _categories = {
   queries: {
     findAll: async (input: CategoriesFindAllInput) => {
@@ -18,27 +24,35 @@ export const _categories = {
     },
 
     findRoots: async () => {
-      const { data: roots, error } = await tryCatch(
-        data.public.categories.queries.getRoots(),
+      const { data: result, error } = await tryCatch(
+        Promise.all([
+          data.public.categories.queries.getRoots(),
+          liveCategorySlugs(),
+        ]),
       );
       if (error) {
         throw new AppError("Failed to fetch categories", "INTERNAL", {
           cause: error,
         });
       }
-      return roots;
+      const [roots, live] = result;
+      return roots.filter((category) => live.has(category.slug));
     },
 
     getChildren: async (slug: string) => {
-      const { data: children, error } = await tryCatch(
-        data.public.categories.queries.findChildren(slug),
+      const { data: result, error } = await tryCatch(
+        Promise.all([
+          data.public.categories.queries.findChildren(slug),
+          liveCategorySlugs(),
+        ]),
       );
       if (error) {
         throw new AppError("Failed to fetch sub-categories", "INTERNAL", {
           cause: error,
         });
       }
-      return children;
+      const [children, live] = result;
+      return children.filter((category) => live.has(category.slug));
     },
 
     getProductsPage: async (input: CategoryProductsInput) => {

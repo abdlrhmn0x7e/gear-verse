@@ -141,7 +141,7 @@ async function StoreMobileNav() {
 async function getMenuCategories() {
   "use cache";
 
-  cacheTag("categories-menu");
+  cacheTag("categories-menu", "sitemap");
 
   const categories = await app.public.categories.queries.findRoots();
   return categories.map(({ name, slug, icon }) => ({ name, slug, icon }));

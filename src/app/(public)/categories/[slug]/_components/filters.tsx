@@ -9,13 +9,11 @@ import { RadioGroup } from "~/components/ui/radio-group";
 import { app } from "~/server/application";
 import { ClearAllFiltersButton } from "./clear-all-filters-button";
 import { FilterItem } from "./filter-item";
-import { SubCategoryFilterItem } from "./sub-category-filter-item";
 
 export async function Filters({ slug }: { slug: string }) {
   "use cache";
 
-  const [subCategories, attributes, brands, priceRange] = await Promise.all([
-    app.public.categories.queries.getChildren(slug),
+  const [attributes, brands, priceRange] = await Promise.all([
     app.public.categories.queries.getAttributes(slug),
     app.public.brands.queries.findAll({
       filters: {
@@ -30,16 +28,6 @@ export async function Filters({ slug }: { slug: string }) {
 
   return (
     <div className="flex flex-col gap-10">
-      {subCategories.length > 0 && (
-        <FilterSection title="Narrow down">
-          <div className="flex flex-wrap gap-2">
-            {subCategories.map((category) => (
-              <SubCategoryFilterItem key={category.slug} category={category} />
-            ))}
-          </div>
-        </FilterSection>
-      )}
-
       {attributes.map((att) =>
         att.type === "BOOLEAN" ? (
           <FilterItem

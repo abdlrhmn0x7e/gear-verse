@@ -7,11 +7,9 @@ import { NavLink } from "./nav";
 export async function CategoriesMenu() {
   "use cache";
 
-  cacheTag("categories-menu");
+  cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findAll({
-    filters: { root: true },
-  });
+  const categories = await app.public.categories.queries.findRoots();
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
