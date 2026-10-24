@@ -24,8 +24,10 @@ export type CreateBrandInput = z.infer<typeof createBrandInputSchema>;
 
 export const updateBrandInputSchema = brandEntitySchema
   .omit({
+    slug: true,
     createdAt: true,
     updatedAt: true,
   })
-  .partial();
+  .partial()
+  .required({ id: true });
 export type UpdateBrandInput = z.infer<typeof updateBrandInputSchema>;

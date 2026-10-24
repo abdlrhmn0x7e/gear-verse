@@ -25,6 +25,7 @@ export interface FileDropZoneProps {
   onChange?: (media: SelectedMedia[]) => void;
   value?: SelectedMedia[];
   showFiles?: boolean;
+  uploadButtonVariant?: React.ComponentProps<typeof Button>["variant"];
 }
 
 export function FileDropzone({
@@ -32,6 +33,7 @@ export function FileDropzone({
   onChange,
   className,
   showFiles = false,
+  uploadButtonVariant = "default",
 }: FileDropZoneProps) {
   const { mutate: uploadFiles, isPending } = useUploadFilesMutation();
   const selectedMedia = useMediaStore((state) => state.selectedMedia);
@@ -126,7 +128,12 @@ export function FileDropzone({
             </div>
 
             <div className="flex items-center gap-2">
-              <Button type="button" size="sm" onClick={open}>
+              <Button
+                type="button"
+                variant={uploadButtonVariant}
+                size="sm"
+                onClick={open}
+              >
                 <UploadIcon data-icon="inline-start" />
                 Click to select files
               </Button>

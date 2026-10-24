@@ -8,6 +8,7 @@ import {
   Settings01Icon,
   ShoppingCart01Icon,
   Tag01Icon,
+  TradeMarkIcon,
   UserMultipleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -58,6 +59,7 @@ const navGroups: NavGroup[] = [
         href: "/admin/categories",
         icon: FolderLibraryIcon,
       },
+      { title: "Brands", href: "/admin/brands", icon: TradeMarkIcon },
       { title: "Attributes", href: "/admin/attributes", icon: Layers01Icon },
     ],
   },

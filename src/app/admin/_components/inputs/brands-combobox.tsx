@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { TargetIcon, Trash2Icon, XCircleIcon } from "lucide-react";
+import { TargetIcon, XCircleIcon } from "lucide-react";
 
-import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -26,13 +25,7 @@ import Image from "next/image";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { LoadMore } from "~/components/load-more";
 import { AddBrandDrawer } from "../drawers/add-brand";
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { toast } from "~/components/ui/toast";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
 export function BrandsCombobox({
   value,
@@ -160,23 +153,6 @@ export function BrandsCommand({
   hasNextPage: boolean;
   ref: (node?: Element | null) => void;
 }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const { mutate: deleteBrand, isPending: deletingBrand } = useMutation(
-    trpc.admin.brands.mutations.delete.mutationOptions({
-      onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.admin.brands.queries.getPage.pathFilter(),
-        );
-      },
-      onError: () => {
-        toast.error(
-          "This brand is associated with other products you can't delete it",
-        );
-      },
-    }),
-  );
-
   return (
     <Command>
       <CommandInput placeholder="Search brands" />
@@ -203,19 +179,6 @@ export function BrandsCommand({
                 />
               </div>
               <span className="flex-1 truncate">{brand.name}</span>
-              <Button
-                size="icon-xs"
-                variant="destructive-ghost"
-                className="text-muted-foreground"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteBrand({ brandId: brand.id });
-                }}
-                disabled={deletingBrand}
-                aria-label={`Delete ${brand.name}`}
-              >
-                <Trash2Icon />
-              </Button>
             </CommandItem>
           ))}
         </CommandGroup>
