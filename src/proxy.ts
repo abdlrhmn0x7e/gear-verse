@@ -113,17 +113,17 @@ function localize(req: NextRequest) {
   const response = handleI18nRouting(
     new NextRequest(req, { headers: requestHeaders }),
   );
+  // the switch writes the cookie in the browser, so visiting a page in a language never pins it, and pages stay
+  // cacheable without a Set-Cookie
+  response.headers.delete("set-cookie");
+  response.headers.delete("x-middleware-set-cookie");
 
   const location = response.headers.get("location");
   if (!location || !/^\/en(\/|$)/.test(req.nextUrl.pathname)) {
     return response;
   }
 
-  const permanent = NextResponse.redirect(location, 308);
-  for (const cookie of response.cookies.getAll()) {
-    permanent.cookies.set(cookie);
-  }
-  return permanent;
+  return NextResponse.redirect(location, 308);
 }
 
 export const config = {
