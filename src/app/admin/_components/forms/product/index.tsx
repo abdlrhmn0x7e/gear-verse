@@ -60,6 +60,13 @@ import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
 import { toast } from "~/components/ui/toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 const productFormSchema = createProductInputSchema
   .omit({
@@ -81,6 +88,12 @@ const productFormSchema = createProductInputSchema
   });
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
+const conditionItems = [
+  { value: "NEW", label: "New" },
+  { value: "USED", label: "Used" },
+  { value: "REFURBISHED", label: "Refurbished" },
+];
+
 /** What each field is called on the page, to tell the admin where to look. */
 const fieldLabels: Record<keyof ProductFormValues, string> = {
   title: "Title",
@@ -91,6 +104,7 @@ const fieldLabels: Record<keyof ProductFormValues, string> = {
   options: "Variants",
   variants: "Variants",
   published: "Status",
+  condition: "Condition",
   price: "Price",
   strikeThroughPrice: "Strike through price",
   originalCost: "Original cost",
@@ -118,6 +132,7 @@ export function ProductForm({
       summary: "",
       description: {},
       published: false,
+      condition: "NEW",
       price: 0,
       categoryId: 0,
       brandId: 0,
@@ -473,6 +488,35 @@ export function ProductForm({
                         value={field.value}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Condition</FormLabel>
+                    <Select
+                      items={conditionItems}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {conditionItems.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

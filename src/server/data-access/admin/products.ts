@@ -368,6 +368,7 @@ export const _products = {
           summary: products.summary,
           slug: products.slug,
           published: products.published,
+          condition: products.condition,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           profit: products.profit,
