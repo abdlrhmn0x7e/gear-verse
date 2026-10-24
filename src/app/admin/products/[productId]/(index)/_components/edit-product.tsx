@@ -73,6 +73,7 @@ export function EditProduct({
 
       published: product.published,
       condition: product.condition,
+      allowBackorder: product.allowBackorder,
 
       price: product.price,
       strikeThroughPrice: product.strikeThroughPrice ?? 0,

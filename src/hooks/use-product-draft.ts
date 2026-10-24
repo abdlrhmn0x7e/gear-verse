@@ -43,6 +43,7 @@ const EMPTY_FORM_VALUES: ProductFormValues = {
   description: {},
   published: false,
   condition: "NEW",
+  allowBackorder: false,
   price: 0,
   categoryId: 0,
   brandId: 0,
@@ -159,7 +160,8 @@ export function useProductDraft({
       if (!form) return;
 
       suppressAutoSave(() => {
-        form.reset(values);
+        // drafts saved before a field existed lack it, so it falls back to its empty value
+        form.reset({ ...EMPTY_FORM_VALUES, ...values });
       });
     },
     [form, suppressAutoSave],
