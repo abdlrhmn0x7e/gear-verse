@@ -268,7 +268,7 @@ export const _orders = {
         ...input
       }: Omit<NewOrder, "addressId"> & { address: number | NewAddress },
       items: (Omit<NewOrderItem, "orderId"> & {
-        /** only when the customer acknowledged the backorder; other lines must be fully in stock */
+        /** only for lines already short at the stock check; other lines must be fully in stock */
         allowBackorder?: boolean;
       })[],
       cartId: number,
