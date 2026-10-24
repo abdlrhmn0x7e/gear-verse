@@ -135,6 +135,52 @@ export const lowStockThresholdSchema = z
   .min(0, "Can't be below 0")
   .max(999, "Keep it at 999 or below");
 
+/** Resend's cap on recipients per email. */
+const MAX_NOTIFICATION_EMAILS = 50;
+
+/**
+ * Addresses typed one per line (commas and spaces also separate them),
+ * lowercased with repeats dropped, back as one per line. It stays a string so
+ * the form and the tRPC input share a type; `splitEmails` makes the list.
+ * Empty means no order emails.
+ */
+export const orderNotificationEmailsSchema = z
+  .string()
+  .nullish()
+  .transform((value, ctx) => {
+    const emails = [
+      ...new Set(
+        (value ?? "")
+          .split(/[\s,;]+/)
+          .map((email) => email.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    ];
+
+    const invalid = emails.find((email) => !z.email().safeParse(email).success);
+    if (invalid) {
+      ctx.addIssue({
+        code: "custom",
+        message: `${invalid} isn't a valid email address`,
+      });
+      return z.NEVER;
+    }
+
+    if (emails.length > MAX_NOTIFICATION_EMAILS) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Keep it to ${MAX_NOTIFICATION_EMAILS} addresses or fewer`,
+      });
+      return z.NEVER;
+    }
+
+    return emails.join("\n");
+  });
+
+export function splitEmails(value: string) {
+  return value.split("\n").filter(Boolean);
+}
+
 export const updateStoreSettingsInputSchema = z.object({
   whatsappNumber: whatsappNumberSchema,
   instagramUrl: socialUrlSchema(socialHosts.instagramUrl),
@@ -144,6 +190,7 @@ export const updateStoreSettingsInputSchema = z.object({
   xUrl: socialUrlSchema(socialHosts.xUrl),
   youtubeUrl: socialUrlSchema(socialHosts.youtubeUrl),
   lowStockThreshold: lowStockThresholdSchema,
+  orderNotificationEmails: orderNotificationEmailsSchema,
 });
 /** What the settings form holds: text as typed, empty strings for none. */
 export type UpdateStoreSettingsFormValues = z.input<

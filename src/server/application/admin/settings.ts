@@ -2,6 +2,7 @@ import { revalidateTag } from "next/cache";
 import { AppError } from "~/lib/errors/app-error";
 import {
   defaultStoreSettings,
+  splitEmails,
   type UpdateStoreSettingsInput,
 } from "~/lib/schemas/entities/store-settings";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -22,7 +23,11 @@ export const _settings = {
 
       if (error) {
         if (isUndefinedTable(error)) {
-          return { ...defaultStoreSettings, ready: false };
+          return {
+            ...defaultStoreSettings,
+            orderNotificationEmails: [] as string[],
+            ready: false,
+          };
         }
         throw new AppError(
           "Could not load store settings",
@@ -32,14 +37,21 @@ export const _settings = {
         );
       }
 
-      return { ...(row ?? defaultStoreSettings), ready: true };
+      return {
+        orderNotificationEmails: [] as string[],
+        ...(row ?? defaultStoreSettings),
+        ready: true,
+      };
     },
   },
 
   mutations: {
     update: async (input: UpdateStoreSettingsInput) => {
       const { data: row, error } = await tryCatch(
-        data.admin.settings.mutations.upsert(input),
+        data.admin.settings.mutations.upsert({
+          ...input,
+          orderNotificationEmails: splitEmails(input.orderNotificationEmails),
+        }),
       );
 
       if (error) {

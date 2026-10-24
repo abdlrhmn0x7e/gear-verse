@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { AppError } from "~/lib/errors/app-error";
 import type { CreateAddressInput } from "~/lib/schemas/entities/address";
 import type {
@@ -7,6 +8,7 @@ import type {
 import { tryCatch } from "~/lib/utils/try-catch";
 import { invalidateProducts } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
+import { sendOrderPlacedEmail } from "~/server/emails/order-placed";
 
 export const _checkout = {
   queries: {
@@ -102,6 +104,9 @@ export const _checkout = {
 
       // Invalidate product pages and listings to update stock info
       await invalidateProducts(items.map((item) => item.productId));
+
+      // the team's email waits until the customer has their confirmation
+      after(() => sendOrderPlacedEmail(order.id));
 
       return order;
     },

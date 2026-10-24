@@ -20,6 +20,11 @@ export const env = createEnv({
 
     UPSTASH_REDIS_REST_URL: z.string().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+
+    // Order emails are optional: without both, orders are placed without sending any
+    RESEND_API_KEY: z.string().optional(),
+    // A sender on a domain verified in Resend, e.g. "Gear Verse <orders@yourdomain.com>"
+    ORDER_EMAIL_FROM: z.string().optional(),
   },
 
   client: {
@@ -46,6 +51,9 @@ export const env = createEnv({
 
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    ORDER_EMAIL_FROM: process.env.ORDER_EMAIL_FROM,
 
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,

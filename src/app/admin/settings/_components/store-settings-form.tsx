@@ -35,6 +35,7 @@ import {
   InputGroupText,
 } from "~/components/ui/input-group";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Textarea } from "~/components/ui/textarea";
 import {
   socialHosts,
   updateStoreSettingsInputSchema,
@@ -92,6 +93,7 @@ function toFormValues(settings: Settings): UpdateStoreSettingsFormValues {
     xUrl: settings.xUrl ?? "",
     youtubeUrl: settings.youtubeUrl ?? "",
     lowStockThreshold: settings.lowStockThreshold,
+    orderNotificationEmails: settings.orderNotificationEmails.join("\n"),
   };
 }
 
@@ -226,6 +228,37 @@ export function StoreSettingsForm({ settings }: { settings: Settings }) {
           />
         </Section>
 
+        <Section
+          title="Order emails"
+          description="Who hears about each order placed on the store."
+        >
+          <FormField
+            control={form.control}
+            name="orderNotificationEmails"
+            render={({ field }) => (
+              <FormItem className="max-w-md">
+                <FormLabel>Send to</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ""}
+                    rows={3}
+                    inputMode="email"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder={"orders@example.com\nowner@example.com"}
+                  />
+                </FormControl>
+                <FormDescription>
+                  One address per line. Leave it empty to send no emails.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </Section>
+
         <SaveBar
           form="store-settings-form"
           visible={isDirty || isPending}
@@ -243,8 +276,7 @@ function WhatsAppField() {
     name: "whatsappNumber",
   });
   const parsed = whatsappNumberSchema.safeParse(value);
-  const link =
-    parsed.success && parsed.data ? whatsAppLink(parsed.data) : null;
+  const link = parsed.success && parsed.data ? whatsAppLink(parsed.data) : null;
 
   return (
     <FormField<UpdateStoreSettingsFormValues, "whatsappNumber">
@@ -320,7 +352,7 @@ function Section({
 export function StoreSettingsFormSkeleton() {
   return (
     <div className="flex flex-col gap-10">
-      {[1, 6, 1].map((fields, index) => (
+      {[1, 6, 1, 1].map((fields, index) => (
         <div
           key={index}
           className="grid gap-x-10 gap-y-4 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]"

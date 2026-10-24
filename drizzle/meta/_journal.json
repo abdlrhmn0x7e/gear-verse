@@ -43,6 +43,13 @@
       "when": 1792870941798,
       "tag": "0005_clumsy_madrox",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792872269550,
+      "tag": "0006_store_settings_order_notification_emails",
+      "breakpoints": true
     }
   ]
 }
