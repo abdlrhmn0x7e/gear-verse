@@ -1,5 +1,5 @@
 {
-  "id": "45af33e8-1ba6-4a52-996e-509299bf926d",
+  "id": "c350b38f-995a-40d2-9972-d21f2baf0a96",
   "prevId": "d41a6087-be03-49ff-a113-8df64eb2dff7",
   "version": "7",
   "dialect": "postgresql",
@@ -2058,13 +2058,6 @@
           "notNull": true,
           "default": "'NEW'"
         },
-        "allow_backorder": {
-          "name": "allow_backorder",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "thumbnail_media_id": {
           "name": "thumbnail_media_id",
           "type": "bigint",
@@ -2351,13 +2344,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "backordered_quantity": {
-          "name": "backordered_quantity",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -2459,10 +2445,6 @@
         "order_items_unit_price_non_negative": {
           "name": "order_items_unit_price_non_negative",
           "value": "\"order_items\".\"unit_price\" >= 0"
-        },
-        "order_items_backordered_quantity_range": {
-          "name": "order_items_backordered_quantity_range",
-          "value": "\"order_items\".\"backordered_quantity\" BETWEEN 0 AND \"order_items\".\"quantity\""
         }
       },
       "isRLSEnabled": false
@@ -3079,6 +3061,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": 2
+        },
+        "order_notification_emails": {
+          "name": "order_notification_emails",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
         },
         "updated_at": {
           "name": "updated_at",
