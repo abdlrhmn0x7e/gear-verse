@@ -1,5 +1,6 @@
 import { BanknoteIcon, type LucideIcon } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 
 type PayOnDeliveryMethod = {
@@ -17,11 +18,21 @@ export const PAY_ON_DELIVERY_METHODS: readonly PayOnDeliveryMethod[] = [
   { name: "Cash", icon: BanknoteIcon, label: "Cash" },
   {
     name: "InstaPay",
-    logo: { src: "/payments/instapay.png", width: 152, height: 96, alt: "InstaPay" },
+    logo: {
+      src: "/payments/instapay.png",
+      width: 152,
+      height: 96,
+      alt: "InstaPay",
+    },
   },
   {
     name: "Vodafone Cash",
-    logo: { src: "/payments/vodafone.svg", width: 141, height: 35, alt: "Vodafone" },
+    logo: {
+      src: "/payments/vodafone.svg",
+      width: 141,
+      height: 35,
+      alt: "Vodafone",
+    },
     label: "Cash",
   },
   {
@@ -36,14 +47,10 @@ export const PAY_ON_DELIVERY_METHODS: readonly PayOnDeliveryMethod[] = [
   },
 ];
 
-/** Shipping is confirmed per order, so the short promise never quotes a fee. */
-export const PAYMENT_NOTE =
-  "Cash on delivery available. Shipping depends on your location, and we'll confirm it with you.";
-
 /** A label and note with the accepted methods as logo tiles; stacks when its container is narrow. */
 export function PayOnDelivery({
-  label = "Ways to pay",
-  note = PAYMENT_NOTE,
+  label,
+  note,
   className,
 }: {
   label?: string;
@@ -51,25 +58,34 @@ export function PayOnDelivery({
   note?: string | null;
   className?: string;
 }) {
+  const t = useTranslations("products.payment");
+  const shownLabel = label ?? t("label");
+  // shipping is confirmed per order, so the short promise never quotes a fee
+  const shownNote = note === undefined ? t("note") : note;
+
   return (
     <div className={cn("@container", className)}>
       <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-center @2xl:justify-between @2xl:gap-8">
         <div className="space-y-1">
-          <p className="text-sm font-medium">{label}</p>
-          {note && (
+          <p className="text-sm font-medium">{shownLabel}</p>
+          {shownNote && (
             <p className="text-muted-foreground max-w-sm text-sm text-pretty">
-              {note}
+              {shownNote}
             </p>
           )}
         </div>
-        <ul aria-label={label} className="flex flex-wrap gap-2">
+        <ul aria-label={shownLabel} className="flex flex-wrap gap-2">
           {PAY_ON_DELIVERY_METHODS.map((method) => (
             <li
               key={method.name}
               className="bg-logo-tile text-logo-tile-foreground inline-flex h-11 items-center gap-1.5 rounded-xl px-3.5 text-sm font-semibold tracking-tight whitespace-nowrap"
             >
               {method.icon && (
-                <method.icon className="size-5" strokeWidth={1.75} aria-hidden />
+                <method.icon
+                  className="size-5"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
               )}
               {method.logo && (
                 <Image
@@ -81,7 +97,8 @@ export function PayOnDelivery({
                   className="h-5 w-auto"
                 />
               )}
-              {method.label}
+              {/* a wallet's "Cash" is part of its brand name; only plain cash is translated */}
+              {method.logo ? method.label : t("cash")}
             </li>
           ))}
         </ul>

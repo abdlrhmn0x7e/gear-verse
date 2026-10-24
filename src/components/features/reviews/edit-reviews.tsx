@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/drawer-dialog";
 import { ReviewForm, type ReviewFormValues } from "./review-form";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
@@ -27,6 +28,7 @@ export function EditReview({
   review: RouterOutput["public"]["reviews"]["queries"]["findAll"][number];
   productId: number;
 }) {
+  const t = useTranslations("products.reviews");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +53,7 @@ export function EditReview({
               productId,
             }),
           });
-          toast.success("Review updated successfully");
+          toast.success(t("updated"));
         },
       },
     );
@@ -60,13 +62,13 @@ export function EditReview({
   return (
     <DrawerDialog open={isOpen} onOpenChange={setIsOpen}>
       <DrawerDialogTrigger
-        render={<Button variant="ghost" size="icon" aria-label="Edit review" />}
+        render={<Button variant="ghost" size="icon" aria-label={t("edit")} />}
       >
         <PencilIcon />
       </DrawerDialogTrigger>
       <DrawerDialogContent>
         <DrawerDialogHeader>
-          <DrawerDialogTitle>Edit Review</DrawerDialogTitle>
+          <DrawerDialogTitle>{t("editTitle")}</DrawerDialogTitle>
           <DrawerDialogDescription></DrawerDialogDescription>
         </DrawerDialogHeader>
 
@@ -89,7 +91,7 @@ export function EditReview({
             ) : (
               <SaveIcon data-icon="inline-start" />
             )}
-            Save
+            {t("save")}
           </Button>
         </DrawerDialogFooter>
       </DrawerDialogContent>

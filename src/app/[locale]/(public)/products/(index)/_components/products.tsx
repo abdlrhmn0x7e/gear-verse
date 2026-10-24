@@ -1,4 +1,5 @@
 import type { SearchParams } from "nuqs/server";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import {
   loadAllProductSearchParams,
@@ -18,7 +19,10 @@ export async function Products({
   /** the filter panel, rendered again inside the mobile sheet */
   filters: React.ReactNode;
 }) {
-  const filters = await loadAllProductSearchParams(searchParams);
+  const [filters, t] = await Promise.all([
+    loadAllProductSearchParams(searchParams),
+    getTranslations("products.listing"),
+  ]);
   void prefetch(
     trpc.public.products.queries.getPage.infiniteQueryOptions(
       toProductsPageInput(filters),
@@ -29,7 +33,7 @@ export async function Products({
   return (
     <section aria-labelledby="products-heading" className="min-w-0 space-y-8">
       <h2 id="products-heading" className="sr-only">
-        Products
+        {t("heading")}
       </h2>
       <div className="flex items-center justify-between gap-3 lg:justify-end">
         <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
@@ -47,9 +51,10 @@ export async function Products({
   );
 }
 
-export function ProductsSkeleton() {
+export async function ProductsSkeleton() {
+  const t = await getTranslations("products.listing");
   return (
-    <section aria-label="Products" className="space-y-8">
+    <section aria-label={t("heading")} className="space-y-8">
       <div className="flex justify-end">
         <Skeleton className="h-9 w-44 rounded-full" />
       </div>

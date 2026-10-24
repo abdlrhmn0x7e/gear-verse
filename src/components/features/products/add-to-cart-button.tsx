@@ -3,6 +3,7 @@
 import { IconShoppingBagPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
 import { QuantityStepper } from "~/components/quantity-stepper";
@@ -23,6 +24,7 @@ export function AddToCartButton({
   /** set when the selected item can't be bought, so the cart is never offered for it */
   disabled: boolean;
 }) {
+  const t = useTranslations("products.purchase");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [cartOpen, setCartOpen] = useState(false);
@@ -36,9 +38,7 @@ export function AddToCartButton({
     });
   };
   const onError = (error: Parameters<typeof getCustomerErrorMessage>[0]) => {
-    toast.error(
-      getCustomerErrorMessage(error, "Couldn't update your cart. Try again."),
-    );
+    toast.error(getCustomerErrorMessage(error, t("cartError")));
   };
   const { mutate: addToCart, isPending: addingToCart } = useMutation(
     trpc.public.carts.mutations.addItem.mutationOptions({ onSuccess, onError }),
@@ -79,7 +79,7 @@ export function AddToCartButton({
             aria-expanded={cartOpen}
             onClick={() => setCartOpen(true)}
           >
-            View cart
+            {t("viewCart")}
             <ArrowRightIcon
               data-icon="inline-end"
               className="rtl:-scale-x-100"
@@ -95,7 +95,7 @@ export function AddToCartButton({
           disabled={addingToCart || disabled}
         >
           <IconShoppingBagPlus data-icon="inline-start" />
-          Add to cart
+          {t("addToCart")}
         </Button>
       )}
       <CartDrawer open={cartOpen} onOpenChange={setCartOpen} Trigger={<></>} />

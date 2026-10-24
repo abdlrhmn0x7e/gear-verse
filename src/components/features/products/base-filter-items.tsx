@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { type RouterOutput } from "~/trpc/client";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -64,7 +65,7 @@ export function BrandFilterItem({
         height={48}
         className="size-6 rounded-full border-none bg-white [&_img]:object-contain"
       />
-      {brand.name}
+      <bdi>{brand.name}</bdi>
     </FilterChip>
   );
 }
@@ -85,6 +86,7 @@ function getPriceBounds(range: PriceRange | null) {
 type PriceRange = { min: number; max: number };
 
 export function PriceFilter({ range }: { range: PriceRange | null }) {
+  const t = useTranslations("products.filters");
   const [filters, setFilters] = useAllProductSearchParams();
   const { lo, hi } = getPriceBounds(range);
   const clamp = (value: number) => Math.min(hi, Math.max(lo, value));
@@ -108,7 +110,7 @@ export function PriceFilter({ range }: { range: PriceRange | null }) {
         step={PRICE_STEP}
         minStepsBetweenValues={1}
         value={[min, max]}
-        aria-label="Price range"
+        aria-label={t("priceRange")}
         onValueChange={(value) => {
           const [nextMin = lo, nextMax = hi] =
             typeof value === "number" ? [value] : value;
@@ -118,7 +120,7 @@ export function PriceFilter({ range }: { range: PriceRange | null }) {
 
       <div className="flex items-center gap-3">
         <PriceInput
-          label="Minimum price"
+          label={t("minPrice")}
           value={min}
           onCommit={(value) => {
             const next = clamp(value);
@@ -129,7 +131,7 @@ export function PriceFilter({ range }: { range: PriceRange | null }) {
           –
         </span>
         <PriceInput
-          label="Maximum price"
+          label={t("maxPrice")}
           value={max}
           onCommit={(value) => {
             const next = clamp(value);
@@ -151,6 +153,7 @@ function PriceInput({
   value: number;
   onCommit: (value: number) => void;
 }) {
+  const t = useTranslations("products.filters");
   const [draft, setDraft] = useState(String(value));
 
   // follow the slider and the URL when they move the value
@@ -173,7 +176,7 @@ function PriceInput({
 
   return (
     <InputGroup className="pointer-coarse:h-11">
-      <InputGroupAddon>EGP</InputGroupAddon>
+      <InputGroupAddon>{t("currency")}</InputGroupAddon>
       <InputGroupInput
         aria-label={label}
         inputMode="numeric"
@@ -195,7 +198,6 @@ function PriceInput({
 }
 
 export function NoBrandsFound() {
-  return (
-    <p className="text-muted-foreground text-sm">No brands to filter by yet.</p>
-  );
+  const t = useTranslations("products.filters");
+  return <p className="text-muted-foreground text-sm">{t("noBrands")}</p>;
 }

@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import {
   BrandFilterItem,
   FilterSection,
@@ -13,7 +14,7 @@ import { FilterItem } from "./filter-item";
 export async function Filters({ slug }: { slug: string }) {
   "use cache";
 
-  const [attributes, brands, priceRange] = await Promise.all([
+  const [attributes, brands, priceRange, t] = await Promise.all([
     app.public.categories.queries.getAttributes(slug),
     app.public.brands.queries.findAll({
       filters: {
@@ -21,6 +22,7 @@ export async function Filters({ slug }: { slug: string }) {
       },
     }),
     app.public.products.queries.getPriceRange({ categorySlug: slug }),
+    getTranslations("products.filters"),
   ]);
 
   // the brands and the price range only count live products, which product edits change
@@ -32,12 +34,12 @@ export async function Filters({ slug }: { slug: string }) {
         att.type === "BOOLEAN" ? (
           <FilterItem
             key={att.name}
-            label={att.name ?? "Unknown attribute"}
+            label={att.name ?? t("unknownAttribute")}
             keyName={att.slug ?? "unknown-key"}
             type="BOOLEAN"
           />
         ) : (
-          <FilterSection key={att.name} title={att.name ?? "Attribute"}>
+          <FilterSection key={att.name} title={att.name ?? t("attribute")}>
             {att.type === "SELECT" ? (
               <RadioGroup className="gap-3">
                 {att.values.map((val) => (
@@ -67,7 +69,7 @@ export async function Filters({ slug }: { slug: string }) {
         ),
       )}
 
-      <FilterSection title="Brand">
+      <FilterSection title={t("brand")}>
         {brands.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {brands.map((brand) => (
@@ -79,7 +81,7 @@ export async function Filters({ slug }: { slug: string }) {
         )}
       </FilterSection>
 
-      <FilterSection title="Price">
+      <FilterSection title={t("price")}>
         <PriceFilter range={priceRange} />
       </FilterSection>
 

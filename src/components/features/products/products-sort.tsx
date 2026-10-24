@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -9,15 +10,21 @@ import {
 } from "~/components/ui/select";
 import { useAllProductSearchParams } from "./hooks";
 
+// the values are the sortBy URL param, so only the labels are translated
 const sortOptions = [
-  { value: "default", label: "Sort: Featured" },
-  { value: "newest", label: "Sort: Newest" },
-  { value: "oldest", label: "Sort: Oldest" },
-  { value: "price-asc", label: "Sort: Price, low to high" },
-  { value: "price-desc", label: "Sort: Price, high to low" },
-];
+  { value: "default", key: "default" },
+  { value: "newest", key: "newest" },
+  { value: "oldest", key: "oldest" },
+  { value: "price-asc", key: "priceAsc" },
+  { value: "price-desc", key: "priceDesc" },
+] as const;
 
 export function ProductsSort() {
+  const t = useTranslations("products.sort");
+  const items = sortOptions.map((option) => ({
+    value: option.value,
+    label: t(option.key),
+  }));
   const [filters, setFilters] = useAllProductSearchParams();
 
   function handleSortChange(value: string) {
@@ -40,19 +47,19 @@ export function ProductsSort() {
 
   return (
     <Select
-      items={sortOptions}
+      items={items}
       defaultValue="default"
       value={filters.sortBy ?? "default"}
       onValueChange={(value) => {
         if (value) handleSortChange(value);
       }}
     >
-      <SelectTrigger aria-label="Sort products" className="min-w-44">
-        <SelectValue placeholder="Sort by" />
+      <SelectTrigger aria-label={t("label")} className="min-w-44">
+        <SelectValue placeholder={t("placeholder")} />
       </SelectTrigger>
 
       <SelectContent alignItemWithTrigger={false} align="end">
-        {sortOptions.map((option) => (
+        {items.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
           </SelectItem>

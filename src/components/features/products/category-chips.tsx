@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
@@ -30,17 +31,20 @@ export async function CategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findRoots();
+  const [categories, t] = await Promise.all([
+    app.public.categories.queries.findRoots(),
+    getTranslations("products.chips"),
+  ]);
   const chips = [
-    { label: "All products", href: "/products", active: activeSlug === null },
+    { label: t("allProducts"), href: "/products", active: activeSlug === null },
     ...categories.map((category) => ({
-      label: category.name,
+      label: <bdi>{category.name}</bdi>,
       href: `/categories/${category.slug}`,
       active: category.slug === activeSlug,
     })),
   ];
 
-  return <ChipNav label="Categories" chips={chips} level="primary" />;
+  return <ChipNav label={t("label")} chips={chips} level="primary" />;
 }
 
 /** The sub-categories of `parent` that have stock; `activeSlug` undefined means "All {parent}". */
@@ -55,17 +59,28 @@ export async function SubCategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
-  const children = await app.public.categories.queries.getChildren(parent.slug);
+  const [children, t] = await Promise.all([
+    app.public.categories.queries.getChildren(parent.slug),
+    getTranslations("products.chips"),
+  ]);
   if (children.length === 0) return null;
 
   const chips = [
     {
-      label: `All ${parent.name}`,
+      // one inline run, or the inline-flex chip trims the space before the name
+      label: (
+        <span>
+          {t.rich("allIn", {
+            name: parent.name,
+            bdi: (chunks) => <bdi>{chunks}</bdi>,
+          })}
+        </span>
+      ),
       href: `/categories/${parent.slug}`,
       active: activeSlug === undefined,
     },
     ...children.map((child) => ({
-      label: child.name,
+      label: <bdi>{child.name}</bdi>,
       href: `/categories/${child.slug}`,
       active: child.slug === activeSlug,
     })),
@@ -73,7 +88,7 @@ export async function SubCategoryChips({
 
   return (
     <ChipNav
-      label={`${parent.name} categories`}
+      label={t("subLabel", { name: parent.name })}
       chips={chips}
       level="secondary"
     />
@@ -86,7 +101,8 @@ function ChipNav({
   level,
 }: {
   label: string;
-  chips: { label: string; href: string; active: boolean }[];
+  /** category names are stored in English, so each arrives isolated for Arabic pages */
+  chips: { label: React.ReactNode; href: string; active: boolean }[];
   level: keyof typeof chipLevels;
 }) {
   const styles = chipLevels[level];

@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { StarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import TextareaAutosize from "react-textarea-autosize";
@@ -35,6 +36,7 @@ export function ReviewForm({
   onSubmit: (data: ReviewFormValues) => void;
   defaultValues?: ReviewFormValues;
 }) {
+  const t = useTranslations("products.reviews");
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: defaultValues ?? {
@@ -79,9 +81,9 @@ export function ReviewForm({
               <FormItem className="w-full">
                 <FormControl>
                   <TextareaAutosize
-                    aria-label="Your review"
+                    aria-label={t("yourReview")}
                     className="placeholder:text-muted-foreground flex min-h-20 w-full resize-none bg-transparent px-5 pt-4 pb-2 text-base outline-none md:text-sm"
-                    placeholder="What did you think of it?"
+                    placeholder={t("placeholder")}
                     {...field}
                   />
                 </FormControl>
@@ -119,13 +121,14 @@ function RatingInput({
   value: number;
   onChange: (value: number) => void;
 }) {
+  const t = useTranslations("products.reviews");
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const shown = hoveredRating ?? value;
 
   return (
     <div
       role="radiogroup"
-      aria-label="Rating"
+      aria-label={t("rating")}
       className="flex items-center"
       onMouseLeave={() => setHoveredRating(null)}
     >
@@ -143,7 +146,7 @@ function RatingInput({
             className="peer sr-only"
             id={`star-${star}`}
             name="rating"
-            aria-label={`${star} out of 5 stars`}
+            aria-label={t("stars", { rating: star })}
           />
           <label
             htmlFor={`star-${star}`}
