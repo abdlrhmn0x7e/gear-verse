@@ -2,8 +2,6 @@
   "title": "طلباتك",
   "description": "تابع كل طلب من أول رسالة التأكيد لحد باب بيتك.",
   "questions": "عندك سؤال؟ كلّمنا على واتساب على <number></number>.",
-  "whatsappMessage": "أهلًا Gear Verse، عندي سؤال عن طلبي.",
-  "whatsappOrderMessage": "أهلًا Gear Verse، عندي سؤال عن طلبي رقم #{id}.",
   "orderNumber": "طلب #{id}",
   "viewDetails": "، اعرض التفاصيل",
   "placed": "اتطلب يوم {date}",

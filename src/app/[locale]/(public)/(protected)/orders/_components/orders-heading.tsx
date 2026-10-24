@@ -7,6 +7,7 @@ export function OrdersHeading({
   whatsappNumber: string | null;
 }) {
   const t = useTranslations("orders");
+  const tWhatsApp = useTranslations("common.whatsapp");
 
   return (
     <header className="space-y-2">
@@ -22,7 +23,7 @@ export function OrdersHeading({
               number: () => (
                 <WhatsAppNumberLink
                   number={whatsappNumber}
-                  message={t("whatsappMessage")}
+                  message={tWhatsApp("orderQuestion")}
                   className="text-foreground font-medium tabular-nums underline decoration-from-font underline-offset-4"
                 />
               ),

@@ -43,6 +43,7 @@ export function OrderDetails({
 }) {
   const t = useTranslations("orders");
   const tGovernorates = useTranslations("checkout.governorates");
+  const tWhatsApp = useTranslations("common.whatsapp");
   const Heading = `h${headingLevel}` as const;
   const Subheading = headingLevel === 2 ? "h3" : "h4";
 
@@ -64,7 +65,9 @@ export function OrderDetails({
                 <a
                   href={whatsAppLink(
                     whatsappNumber,
-                    t("whatsappOrderMessage", { id: String(order.id) }),
+                    tWhatsApp("orderQuestionNumbered", {
+                      id: String(order.id),
+                    }),
                   )}
                   target="_blank"
                   rel="noopener"

@@ -44,6 +44,7 @@ export function CartDrawer({
   const locale = useLocale();
   const t = useTranslations("nav");
   const tCart = useTranslations("cart");
+  const tCommon = useTranslations("common");
   const getErrorMessage = useCustomerErrorMessage();
   const trpc = useTRPC();
   const router = useRouter();
@@ -289,13 +290,13 @@ export function CartDrawer({
 
             <ul className="text-muted-foreground flex flex-col gap-2 text-sm">
               {TRUST_PROMISES.map((promise) => (
-                <li key={promise.title} className="flex items-center gap-2">
+                <li key={promise.id} className="flex items-center gap-2">
                   <promise.icon
                     className="size-4 shrink-0"
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  {promise.title}
+                  {tCommon(`trust.${promise.id}.title`)}
                 </li>
               ))}
             </ul>

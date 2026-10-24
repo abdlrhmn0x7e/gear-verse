@@ -2,8 +2,6 @@
   "title": "Your orders",
   "description": "Follow each order from our confirmation message to your door.",
   "questions": "Questions? WhatsApp us at <number></number>.",
-  "whatsappMessage": "Hi Gear Verse, I have a question about my order.",
-  "whatsappOrderMessage": "Hi Gear Verse, I have a question about my order #{id}.",
   "orderNumber": "Order #{id}",
   "viewDetails": ", view details",
   "placed": "Placed {date}",
