@@ -28,7 +28,10 @@ export function DeleteReviewDialog({ id }: { id: number }) {
 
   return (
     <DeleteDialog
-      entity="Review"
+      title={t("deleteDialog.title")}
+      description={t("deleteDialog.description")}
+      cancelLabel={t("deleteDialog.cancel")}
+      confirmLabel={t("deleteDialog.confirm")}
       handleDelete={handleDelete}
       Trigger={
         <Button

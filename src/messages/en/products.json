@@ -139,6 +139,12 @@
     "save": "Save",
     "updated": "Review updated successfully",
     "delete": "Delete review",
+    "deleteDialog": {
+      "title": "Are you absolutely sure?",
+      "description": "This action cannot be undone. This will permanently delete the Review and remove its data from our servers.",
+      "cancel": "Cancel",
+      "confirm": "Continue"
+    },
     "yourReview": "Your review",
     "placeholder": "What did you think of it?",
     "rating": "Rating",
