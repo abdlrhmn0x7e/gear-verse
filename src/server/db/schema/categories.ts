@@ -39,6 +39,8 @@ export const categories = pgTable(
     name: text("name").notNull(),
     icon: categoryIconEnum("icon").notNull(),
     slug: text("slug").notNull(),
+    // the category page's intro and meta description; null falls back to a shared line
+    description: text("description"),
 
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at")

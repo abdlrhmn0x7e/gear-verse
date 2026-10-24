@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   integer,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { brands } from "./brands";
 import { categories } from "./categories";
@@ -19,6 +20,13 @@ import { seo } from "./seo";
 import { inventoryItems } from "./inventory";
 import { orderItems } from "./orders";
 import { productAttributeValues } from "./attributes";
+
+// the schema.org itemCondition each maps to; Google rejects used items listed as new
+export const productConditionEnum = pgEnum("product_condition", [
+  "NEW",
+  "USED",
+  "REFURBISHED",
+]);
 
 export const products = pgTable(
   "products",
@@ -39,6 +47,7 @@ export const products = pgTable(
     // null when not pinned; pinned products lead the home page's top row, lowest first
     pinnedPosition: integer("pinned_position"),
     slug: text("slug").notNull(),
+    condition: productConditionEnum("condition").notNull().default("NEW"),
 
     thumbnailMediaId: bigint("thumbnail_media_id", {
       mode: "number",
