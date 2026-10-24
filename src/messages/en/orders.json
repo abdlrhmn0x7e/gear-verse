@@ -27,7 +27,7 @@
   },
   "nextStep": {
     "PENDING": "We'll WhatsApp you to confirm the order and the shipping fee.",
-    "SHIPPED_COD": "With the courier. Pay the rest in cash when it arrives.",
+    "SHIPPED_COD": "With the courier. Pay the rest when it arrives, by cash, InstaPay or mobile wallet.",
     "SHIPPED": "With the courier and on its way to you.",
     "DELIVERED": "Delivered. Enjoy your gear.",
     "CANCELLED": "This order was cancelled and won't ship.",
@@ -58,7 +58,7 @@
     "deliveryAddress": "Delivery address",
     "payment": "Payment",
     "cashOnDelivery": "Cash on delivery",
-    "codNote": "Shipping is prepaid by InstaPay or mobile wallet. The rest is paid in cash to the courier.",
+    "codNote": "Shipping is prepaid by InstaPay or mobile wallet. The rest is paid to the courier on delivery, by cash, InstaPay or mobile wallet.",
     "onlinePayment": "Online payment",
     "backorder": "Backorder",
     "partialBackorder": "{backordered} of {quantity} on backorder",
@@ -77,11 +77,11 @@
     },
     "payRest": {
       "title": "Pay the rest on delivery",
-      "body": "In cash to the courier when your order arrives."
+      "body": "To the courier by cash, InstaPay or mobile wallet when your order arrives."
     },
     "payRestShipped": {
       "title": "Pay the rest on delivery",
-      "body": "In cash to the courier when your order arrives, usually within 1–2 business days."
+      "body": "To the courier by cash, InstaPay or mobile wallet when your order arrives, usually within 1–2 business days."
     },
     "checkGear": {
       "title": "Check your gear",
