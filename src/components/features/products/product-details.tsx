@@ -216,6 +216,7 @@ export async function ProductDetails({
               productId={product.id}
               productTitle={product.title}
               productStock={product.stock}
+              allowBackorder={product.allowBackorder}
               hasVariants={hasVariants}
               price={product.price}
               strikeThroughPrice={product.strikeThroughPrice}

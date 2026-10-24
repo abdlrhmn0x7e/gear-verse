@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
@@ -370,6 +371,13 @@ function OrderItems({ order }: { order: Order }) {
                 <p className="text-muted-foreground text-sm">
                   {item.values.join(", ")}
                 </p>
+              )}
+              {item.backorderedQuantity > 0 && (
+                <Badge variant="warning" className="mt-1">
+                  {item.backorderedQuantity === item.quantity
+                    ? "Backorder"
+                    : `${item.backorderedQuantity} of ${item.quantity} on backorder`}
+                </Badge>
               )}
               <div className="mt-1 flex items-baseline justify-between gap-4 text-sm tabular-nums">
                 <p className="text-muted-foreground">

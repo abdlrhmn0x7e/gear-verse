@@ -10,7 +10,7 @@ import type { RouterOutput } from "~/trpc/client";
 import { Heading } from "~/components/heading";
 import { requireAuth } from "~/server/auth";
 import { CartStockNotice } from "~/components/cart-stock-notice";
-import { getStockIssue } from "~/lib/utils/cart-stock";
+import { blocksCheckout, getStockIssue } from "~/lib/utils/cart-stock";
 import { OrderTotals } from "../../_components/order-totals";
 
 export default async function CheckoutPage() {
@@ -27,7 +27,10 @@ export default async function CheckoutPage() {
           <CompleteCheckout
             className="xl:col-span-2"
             hasCartItems={cart.items.length > 0}
-            hasStockIssues={cart.items.some((item) => getStockIssue(item))}
+            hasStockIssues={cart.items.some(blocksCheckout)}
+            backorderTitles={cart.items
+              .filter((item) => getStockIssue(item) === "backorder")
+              .map((item) => item.title)}
           >
             <OrderSummary cart={cart} cols={cols} isMobile />
           </CompleteCheckout>

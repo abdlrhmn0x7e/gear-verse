@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
 import { cn } from "~/lib/utils";
-import { getStockIssue } from "~/lib/utils/cart-stock";
+import { BACKORDER_LEAD_DAYS, getStockIssue } from "~/lib/utils/cart-stock";
 import { useTRPC } from "~/trpc/client";
 import { Spinner } from "./spinner";
 import { Button } from "./ui/button";
 
 /** Flags a cart line that can't be bought as is and offers the fix: remove it when none is left, or bring it down to what
- *  is left. The cart only removes one unit per call, so the fix repeats it. */
+ *  is left. The cart only removes one unit per call, so the fix repeats it. A backorder line can be bought, so it only
+ *  says how many units wait on sourcing. */
 export function CartStockNotice({
   item,
   className,
@@ -22,6 +23,7 @@ export function CartStockNotice({
     productVariantId: number | null;
     quantity: number;
     stock: number | null;
+    allowBackorder: boolean;
   };
   className?: string;
 }) {
@@ -37,6 +39,20 @@ export function CartStockNotice({
   if (!issue) return null;
 
   const stock = item.stock ?? 0;
+
+  if (issue === "backorder") {
+    return (
+      <p className={cn("text-muted-foreground text-sm text-pretty", className)}>
+        <span className="text-foreground font-medium">
+          {stock > 0
+            ? `${stock} in stock, ${item.quantity - stock} on backorder`
+            : "On backorder"}
+        </span>
+        . About {BACKORDER_LEAD_DAYS} days on average after we confirm on
+        WhatsApp.
+      </p>
+    );
+  }
 
   async function fix() {
     setPending(true);

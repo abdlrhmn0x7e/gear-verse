@@ -9,17 +9,26 @@ export type StockState =
   | { kind: "in-stock"; count: number }
   | { kind: "low"; count: number }
   | { kind: "out" }
+  /** out of stock, but the product takes backorders, so it can still be bought */
+  | { kind: "backorder" }
   /** the product has variants but the chosen option combination matches none */
   | { kind: "unselected" };
 
-export function getStockState(stock: number): StockState {
-  if (stock <= 0) return { kind: "out" };
+export function getStockState(
+  stock: number,
+  allowBackorder: boolean,
+): StockState {
+  if (stock <= 0) return { kind: allowBackorder ? "backorder" : "out" };
   if (stock < LOW_STOCK_THRESHOLD) return { kind: "low", count: stock };
   return { kind: "in-stock", count: stock };
 }
 
 export function canPurchase(state: StockState) {
-  return state.kind === "in-stock" || state.kind === "low";
+  return (
+    state.kind === "in-stock" ||
+    state.kind === "low" ||
+    state.kind === "backorder"
+  );
 }
 
 /**
@@ -29,17 +38,19 @@ export function canPurchase(state: StockState) {
 export function useSelectedStock({
   productStock,
   hasVariants,
+  allowBackorder,
 }: {
   productStock: number | null;
   hasVariants: boolean;
+  allowBackorder: boolean;
 }): StockState {
   const selectedVariant = useVariantSelectionStore(
     (state) => state.selectedVariant,
   );
 
-  if (!hasVariants) return getStockState(productStock ?? 0);
+  if (!hasVariants) return getStockState(productStock ?? 0, allowBackorder);
   if (!selectedVariant) return { kind: "unselected" };
-  return getStockState(selectedVariant.stock);
+  return getStockState(selectedVariant.stock, allowBackorder);
 }
 
 type Cart = RouterOutput["public"]["carts"]["queries"]["find"];

@@ -12,7 +12,7 @@ import type { JSX } from "react/jsx-dev-runtime";
 import { useState } from "react";
 import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { getStockIssue } from "~/lib/utils/cart-stock";
+import { blocksCheckout } from "~/lib/utils/cart-stock";
 import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { TRUST_PROMISES } from "./features/trust/trust-promises";
@@ -88,7 +88,7 @@ export function CartDrawer({
   );
   const pending = removingItem || addingItem;
   // checkout would fail on these lines, so the way there stays shut until each one is fixed
-  const hasStockIssues = items.some((item) => getStockIssue(item));
+  const hasStockIssues = items.some(blocksCheckout);
 
   return (
     <Drawer
@@ -196,7 +196,10 @@ export function CartDrawer({
                         quantity={item.quantity}
                         itemLabel={name}
                         pending={pending}
-                        canIncrement={(item.stock ?? 0) > item.quantity}
+                        canIncrement={
+                          item.allowBackorder ||
+                          (item.stock ?? 0) > item.quantity
+                        }
                         onDecrement={() =>
                           removeItem({
                             productId: item.productId,

@@ -1,6 +1,10 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
+import { useState } from "react";
 import { CheckoutForm } from "./checkout-form";
 import type { CompleteCheckoutInput } from "~/lib/schemas/contracts/public/checkout";
 import { LockIcon } from "lucide-react";
@@ -16,15 +20,21 @@ export function CompleteCheckout({
   children,
   hasCartItems,
   hasStockIssues,
+  backorderTitles,
   className,
 }: {
   children: React.ReactNode;
   hasCartItems: boolean;
   /** a line asks for more than is left; the order would be rejected, so it can't be placed until the line is fixed */
   hasStockIssues: boolean;
+  /** lines short on stock whose product takes backorders; the customer has to acknowledge the wait */
+  backorderTitles: string[];
   className?: string;
 }) {
   const trpc = useTRPC();
+  const [acknowledgeBackorder, setAcknowledgeBackorder] = useState(false);
+  const needsAcknowledgment =
+    backorderTitles.length > 0 && !acknowledgeBackorder;
   const router = useRouter();
   const { mutate: checkout, isPending: checkoutPending } = useMutation(
     trpc.public.checkout.mutations.complete.mutationOptions({
@@ -44,7 +54,7 @@ export function CompleteCheckout({
   );
 
   function onSubmit(data: CompleteCheckoutInput) {
-    checkout(data);
+    checkout({ ...data, acknowledgeBackorder });
   }
 
   return (
@@ -87,6 +97,31 @@ export function CompleteCheckout({
           </p>
         )}
 
+        {backorderTitles.length > 0 && (
+          <Field
+            orientation="horizontal"
+            className="bg-muted rounded-2xl p-4 lg:max-w-xl lg:self-end"
+          >
+            <Checkbox
+              id="acknowledge-backorder"
+              checked={acknowledgeBackorder}
+              onCheckedChange={setAcknowledgeBackorder}
+            />
+            <FieldLabel
+              htmlFor="acknowledge-backorder"
+              className="block font-normal text-pretty"
+            >
+              I understand{" "}
+              <span className="font-medium">
+                {new Intl.ListFormat("en").format(backorderTitles)}
+              </span>{" "}
+              {backorderTitles.length === 1 ? "is" : "are"} out of stock. It
+              takes about {BACKORDER_LEAD_DAYS} days on average to source,
+              counted from when my order is confirmed on WhatsApp.
+            </FieldLabel>
+          </Field>
+        )}
+
         <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
           By placing your order, you agree to our{" "}
           <Link
@@ -108,7 +143,12 @@ export function CompleteCheckout({
             size="xl"
             type="submit"
             form="checkout-form"
-            disabled={!hasCartItems || hasStockIssues || checkoutPending}
+            disabled={
+              !hasCartItems ||
+              hasStockIssues ||
+              needsAcknowledgment ||
+              checkoutPending
+            }
           >
             {checkoutPending ? (
               <Spinner data-icon="inline-start" />
