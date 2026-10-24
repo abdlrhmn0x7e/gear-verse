@@ -679,9 +679,8 @@
     mix-blend-mode: multiply;
   }
 
-  /* A photo shot on off-white keeps a visible box after the blend, so it gets corners that scale with its size. Product
-     photos are square, so each one is the largest centred square its box fits and the corners land on the photo, not
-     on a letterbox around it. */
+  /* A photo shot on off-white keeps a visible box after the blend, so it gets corners that scale with its size. Each
+     photo keeps its own ratio and shrinks to fit its box, so the corners land on the photo, not on a letterbox. */
   &:has(> img),
   & :has(> img) {
     container-type: size;
@@ -694,11 +693,16 @@
   }
 
   & img {
-    width: min(100cqw, 100cqh);
+    /* both auto: max-* scale the photo down keeping its natural ratio. It starts from its intrinsic size (the `sizes`
+       slot, or the width prop), which is always at least its well, so it never sits smaller than the box */
+    width: auto;
     height: auto;
-    aspect-ratio: 1;
-    object-fit: contain;
+    max-width: 100cqw;
+    max-height: 100cqh;
     border-radius: 6%;
+    /* lifts off-white backdrops (#f8f8f8 and up) to pure white so the multiply removes them; it only clips the top 3% of
+       highlights. shortcut: a backdrop darker than ~#f0 still shows, cut it out before upload */
+    filter: brightness(1.03);
   }
 }
 
