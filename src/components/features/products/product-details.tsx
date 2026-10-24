@@ -5,6 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense, type JSX, type ReactNode } from "react";
@@ -51,7 +52,10 @@ const inlineLinkClassName =
  * store already states. With a WhatsApp number, the returns row says where to
  * report a problem.
  */
-function policyRows(whatsappNumber: string | null): {
+function policyRows(
+  whatsappNumber: string | null,
+  t: Awaited<ReturnType<typeof getTranslations<"products.policies">>>,
+): {
   value: string;
   icon: LucideIcon;
   title: string;
@@ -62,42 +66,33 @@ function policyRows(whatsappNumber: string | null): {
     {
       value: "delivery",
       icon: PackageIcon,
-      title: "Delivery",
-      body: "We deliver anywhere in Egypt. Most areas get their order in 1–2 business days, and you can check the estimate during checkout.",
+      title: t("deliveryTitle"),
+      body: t("deliveryBody"),
     },
     {
       value: "authenticity",
       icon: AwardIcon,
-      title: "Authenticity & warranty",
-      body: "We only sell authentic gear from trusted brands, and most products come with the manufacturer's warranty.",
+      title: t("authenticityTitle"),
+      body: t("authenticityBody"),
     },
     {
       value: "returns",
       icon: Undo2Icon,
-      title: "Returns & refunds",
-      body: (
-        <>
-          We refund a product only if it arrives defective or damaged, or has a
-          problem caused by us. Report it
-          {whatsappNumber && (
-            <>
-              {" "}
-              on WhatsApp at{" "}
-              <WhatsAppNumberLink
-                number={whatsappNumber}
-                message={REPORT_ISSUE_MESSAGE}
-                className={`${inlineLinkClassName} tabular-nums`}
-              />
-            </>
-          )}{" "}
-          within 24 hours of opening, with photos or videos of the problem. Once
-          our team inspects it and approves the return, we collect the product
-          and process your refund within 7 days.
-        </>
-      ),
+      title: t("returnsTitle"),
+      body: t.rich("returnsBody", {
+        hasWhatsApp: String(Boolean(whatsappNumber)),
+        link: () =>
+          whatsappNumber && (
+            <WhatsAppNumberLink
+              number={whatsappNumber}
+              message={REPORT_ISSUE_MESSAGE}
+              className={`${inlineLinkClassName} tabular-nums`}
+            />
+          ),
+      }),
       link: {
         href: "/returns",
-        label: "Read the full Returns & Refunds Policy",
+        label: t("returnsLink"),
       },
     },
   ];
@@ -133,7 +128,11 @@ export async function ProductDetails({
     (node) => node.id === product.categoryId,
   );
   const category = categoryPath.at(-1);
-  const { whatsappNumber } = await getStoreSettings();
+  const [{ whatsappNumber }, t, tPolicies] = await Promise.all([
+    getStoreSettings(),
+    getTranslations("products"),
+    getTranslations("products.policies"),
+  ]);
 
   return (
     <VariantSelectionStoreProvider>
@@ -145,7 +144,7 @@ export async function ProductDetails({
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink render={<Link href="/products" />}>
-                  Store
+                  {t("breadcrumbStore")}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {/* the whole path, root first, not just the leaf category */}
@@ -156,14 +155,14 @@ export async function ProductDetails({
                     <BreadcrumbLink
                       render={<Link href={`/categories/${node.slug}`} />}
                     >
-                      {node.name}
+                      <bdi>{node.name}</bdi>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                 </Fragment>
               ))}
               <BreadcrumbSeparator />
               <BreadcrumbItem className="min-w-0">
-                <BreadcrumbPage className="truncate">
+                <BreadcrumbPage dir="auto" className="truncate">
                   {product.title}
                 </BreadcrumbPage>
               </BreadcrumbItem>
@@ -189,20 +188,26 @@ export async function ProductDetails({
                     height={48}
                     className="size-6 rounded-full border-none bg-white [&_img]:object-contain"
                   />
-                  {product.brand.name}
+                  <bdi>{product.brand.name}</bdi>
                 </div>
               )}
+              {/* titles and summaries are stored in English; isolated so their punctuation stays put in Arabic */}
               <h1 className="text-headline-sm text-balance md:text-[2.5rem] md:leading-[1.1]">
-                {product.title}
+                <bdi>{product.title}</bdi>
               </h1>
               {/* Google wants a used or refurbished item's condition on the page too */}
               {product.condition !== "NEW" && (
                 <Badge variant="secondary">
-                  {product.condition === "USED" ? "Used" : "Refurbished"}
+                  {product.condition === "USED"
+                    ? t("details.used")
+                    : t("details.refurbished")}
                 </Badge>
               )}
               {product.summary && (
-                <p className="text-muted-foreground text-body-lg text-pretty">
+                <p
+                  dir="auto"
+                  className="text-muted-foreground text-body-lg text-pretty"
+                >
                   {product.summary}
                 </p>
               )}
@@ -225,19 +230,28 @@ export async function ProductDetails({
 
             {!hideActions && whatsappNumber && (
               <p className="text-muted-foreground -mt-4 px-1 text-sm text-pretty">
-                Questions? WhatsApp{" "}
-                <WhatsAppNumberLink
-                  number={whatsappNumber}
-                  message={`Hi Gear Verse, I have a question about ${product.title}: ${new URL(`/products/${slug}`, env.NEXT_PUBLIC_APP_URL).href}`}
-                  className="text-foreground font-medium tabular-nums underline decoration-from-font underline-offset-4"
-                />
+                {t.rich("details.questions", {
+                  link: () => (
+                    <WhatsAppNumberLink
+                      number={whatsappNumber}
+                      message={t("details.questionMessage", {
+                        title: product.title,
+                        url: new URL(
+                          `/products/${slug}`,
+                          env.NEXT_PUBLIC_APP_URL,
+                        ).href,
+                      })}
+                      className="text-foreground font-medium tabular-nums underline decoration-from-font underline-offset-4"
+                    />
+                  ),
+                })}
               </p>
             )}
 
             <PayOnDelivery className="px-1" />
 
             <Accordion className="border-t">
-              {policyRows(whatsappNumber).map((row) => (
+              {policyRows(whatsappNumber, tPolicies).map((row) => (
                 <AccordionItem key={row.value} value={row.value}>
                   <AccordionTrigger>
                     <span className="flex items-center gap-3">
@@ -276,7 +290,7 @@ export async function ProductDetails({
           className="grid gap-8 border-t pt-12 md:pt-16 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] @4xl:gap-16"
         >
           <h2 id="details-heading" className="text-headline-sm text-balance">
-            Details
+            {t("details.heading")}
           </h2>
           <Suspense>
             <ProductDescription description={product.description} />
@@ -338,6 +352,7 @@ async function RelatedProducts({
   if (related.length === 0) return null;
 
   const tileSpan = STORE_TILE_SPAN[related.length];
+  const t = await getTranslations("products.details");
 
   return (
     <section
@@ -345,7 +360,7 @@ async function RelatedProducts({
       className="space-y-10 border-t pt-12 md:pt-16"
     >
       <h2 id="related-heading" className="text-headline-sm text-balance">
-        You might also like
+        {t("related")}
       </h2>
       {/* a size container, so the spanning store tile can be exactly one card-image tall */}
       <ProductRow className="@container/related md:grid-cols-3 xl:grid-cols-4">

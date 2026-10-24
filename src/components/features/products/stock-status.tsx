@@ -4,6 +4,7 @@ import {
   CircleXIcon,
   ClockIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 import { BACKORDER_LEAD_DAYS } from "~/lib/utils/cart-stock";
 import type { StockState } from "./hooks/use-selected-stock";
@@ -12,39 +13,39 @@ const STOCK_COPY = {
   "in-stock": {
     icon: CircleCheckIcon,
     className: "text-green-700 dark:text-green-400",
-    label: () => "In stock, ready to ship",
+    key: "inStock",
   },
   low: {
     icon: CircleAlertIcon,
     className: "text-amber-700 dark:text-amber-400",
-    label: (state: StockState) =>
-      state.kind === "low" ? `Only ${state.count} left in stock` : "",
+    key: "low",
   },
   out: {
     icon: CircleXIcon,
     className: "text-destructive",
-    label: () => "Out of stock",
+    key: "out",
   },
   backorder: {
     icon: ClockIcon,
     className: "text-amber-700 dark:text-amber-400",
-    label: () => "Out of stock, available on backorder",
+    key: "backorder",
   },
   unselected: {
     icon: CircleXIcon,
     className: "text-muted-foreground",
-    label: () => "This combination isn't available",
+    key: "unselected",
   },
-} satisfies Record<
+} as const satisfies Record<
   StockState["kind"],
   {
     icon: typeof CircleCheckIcon;
     className: string;
-    label: (state: StockState) => string;
+    key: string;
   }
 >;
 
 export function StockStatus({ state }: { state: StockState }) {
+  const t = useTranslations("products.stock");
   const copy = STOCK_COPY[state.kind];
   return (
     <div role="status" className="flex flex-col gap-1">
@@ -55,12 +56,11 @@ export function StockStatus({ state }: { state: StockState }) {
         )}
       >
         <copy.icon className="size-4" strokeWidth={2} aria-hidden />
-        {copy.label(state)}
+        {t(copy.key, { count: "count" in state ? state.count : 0 })}
       </p>
       {state.kind === "backorder" && (
         <p className="text-muted-foreground text-sm text-pretty">
-          We source it for you in about {BACKORDER_LEAD_DAYS} days on average,
-          counted from when we confirm your order on WhatsApp.
+          {t("backorderNote", { days: BACKORDER_LEAD_DAYS })}
         </p>
       )}
     </div>

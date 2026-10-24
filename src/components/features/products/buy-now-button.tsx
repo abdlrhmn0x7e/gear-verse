@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LockIcon, ZapIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "~/i18n/navigation";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
@@ -26,6 +27,7 @@ export function BuyNowButton({
   size?: "xl" | "lg";
   className?: string;
 }) {
+  const t = useTranslations("products.purchase");
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -45,9 +47,7 @@ export function BuyNowButton({
         router.push("/checkout");
       },
       onError: (error) => {
-        toast.error(
-          getCustomerErrorMessage(error, "Couldn't start checkout. Try again."),
-        );
+        toast.error(getCustomerErrorMessage(error, t("checkoutError")));
       },
     }),
   );
@@ -61,7 +61,7 @@ export function BuyNowButton({
         render={<Link href="/checkout" />}
       >
         <LockIcon data-icon="inline-start" />
-        Check out
+        {t("checkOut")}
       </Button>
     );
   }
@@ -83,7 +83,7 @@ export function BuyNowButton({
       ) : (
         !disabled && <ZapIcon data-icon="inline-start" />
       )}
-      {disabled ? disabledLabel : "Buy now"}
+      {disabled ? disabledLabel : t("buyNow")}
     </Button>
   );
 }
