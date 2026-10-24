@@ -1,4 +1,7 @@
+"use client";
+
 import { PlusIcon, TargetIcon } from "lucide-react";
+import { useId } from "react";
 import { Button } from "~/components/ui/button";
 import { BrandForm, type BrandFormValues } from "../forms/brand-form";
 import { toast } from "~/components/ui/toast";
@@ -8,6 +11,7 @@ import { Spinner } from "~/components/spinner";
 import {
   Drawer,
   DrawerContent,
+  DrawerBody,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
@@ -17,7 +21,12 @@ import {
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useDialog } from "~/hooks/use-dialog";
 
-export function AddBrandDrawer() {
+export function AddBrandDrawer({
+  variant = "ghost",
+}: {
+  variant?: "default" | "ghost";
+}) {
+  const formId = useId();
   const isMobile = useIsMobile();
   const drawer = useDialog();
   const trpc = useTRPC();
@@ -35,11 +44,14 @@ export function AddBrandDrawer() {
         );
         drawer.dismiss();
       },
+      onError: (error) => {
+        toast.error(error.message || "Couldn't create the brand");
+      },
     });
   }
   return (
     <Drawer {...drawer.props} swipeDirection={isMobile ? "down" : "right"}>
-      <DrawerTrigger render={<Button variant="ghost" />}>
+      <DrawerTrigger render={<Button variant={variant} />}>
         <PlusIcon data-icon="inline-start" />
         Add Brand
       </DrawerTrigger>
@@ -51,11 +63,11 @@ export function AddBrandDrawer() {
           </div>
           <DrawerDescription>Add a new brand to your store.</DrawerDescription>
         </DrawerHeader>
-        <div className="p-4">
-          <BrandForm onSubmit={handleSubmit} />
-        </div>
+        <DrawerBody>
+          <BrandForm formId={formId} onSubmit={handleSubmit} />
+        </DrawerBody>
         <DrawerFooter>
-          <Button type="submit" form="brand-form" disabled={isCreatingBrand}>
+          <Button type="submit" form={formId} disabled={isCreatingBrand}>
             {isCreatingBrand ? (
               <Spinner size="small" data-icon="inline-start" />
             ) : (
