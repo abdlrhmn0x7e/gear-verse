@@ -100,7 +100,7 @@ export function CompleteCheckout({
         {backorderTitles.length > 0 && (
           <Field
             orientation="horizontal"
-            className="bg-muted rounded-2xl p-4 lg:max-w-xl lg:self-end"
+            className="rounded-2xl border p-4 lg:max-w-xl lg:self-end"
           >
             <Checkbox
               id="acknowledge-backorder"
