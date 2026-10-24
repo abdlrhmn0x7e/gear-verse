@@ -1,23 +1,26 @@
-import { asc, desc, gt, lt, sql } from "drizzle-orm";
-import { products } from "~/server/db/schema";
+import { asc, desc, gt, lt, sql, type AnyColumn, type SQL } from "drizzle-orm";
+import { categoryProductPositions, products } from "~/server/db/schema";
 
 export type ProductsSortBy =
   "price-asc" | "price-desc" | "newest" | "oldest" | "trending";
+
+// what an unranked product sorts as, so it follows every ranked one
+const LAST = 2147483647;
 
 /**
  * Returns the order by clauses and the keyset predicate for a products page.
  * The cursor is the id of the last product on the previous page, so the
  * predicate has to follow the sort direction (and the price for price sorts,
  * with the id breaking ties) or the next page repeats or skips products.
+ * With no `sortBy`, a category page (`categoryId`) follows the admin's order
+ * for that category; anything else lists the newest first.
  */
 export function getProductsOrdering(
   sortBy: ProductsSortBy | undefined,
   cursor: number | undefined,
+  categoryId?: number,
 ) {
   const cursorPrice = sql`(select cursor_products.price from ${products} as cursor_products where cursor_products.id = ${cursor})`;
-  // unpinned products sort after every pinned one
-  const pinnedPosition = sql`coalesce(${products.pinnedPosition}, 2147483647)`;
-  const cursorPinnedPosition = sql`(select coalesce(cursor_products.pinned_position, 2147483647) from ${products} as cursor_products where cursor_products.id = ${cursor})`;
 
   switch (sortBy) {
     case "price-asc":
@@ -36,22 +39,54 @@ export function getProductsOrdering(
       };
     // pinned products in the admin's order, then the newest
     case "trending":
-      return {
-        orderBy: [asc(pinnedPosition), desc(products.id)],
-        cursorWhere: cursor
-          ? sql`(${pinnedPosition}, -${products.id}) > (${cursorPinnedPosition}, -${cursor}::bigint)`
-          : undefined,
-      };
+      return rankThenNewest(
+        sql`coalesce(${products.pinnedPosition}, ${LAST})`,
+        sql`(select coalesce(cursor_products.pinned_position, ${LAST}) from ${products} as cursor_products where cursor_products.id = ${cursor})`,
+        cursor,
+      );
     case "oldest":
       return {
         orderBy: [asc(products.id)],
         cursorWhere: cursor ? gt(products.id, cursor) : undefined,
       };
-    // newest is the default
+    case "newest":
+      return newest(cursor);
     default:
-      return {
-        orderBy: [desc(products.id)],
-        cursorWhere: cursor ? lt(products.id, cursor) : undefined,
-      };
+      return categoryId === undefined
+        ? newest(cursor)
+        : rankThenNewest(
+            categoryPosition(categoryId, products.id),
+            categoryPosition(categoryId, cursor),
+            cursor,
+          );
   }
+}
+
+function newest(cursor: number | undefined) {
+  return {
+    orderBy: [desc(products.id)],
+    cursorWhere: cursor ? lt(products.id, cursor) : undefined,
+  };
+}
+
+/** Lowest `rank` first, then the newest; `cursorRank` is the cursor product's rank. */
+function rankThenNewest(
+  rank: SQL,
+  cursorRank: SQL,
+  cursor: number | undefined,
+) {
+  return {
+    orderBy: [asc(rank), desc(products.id)],
+    cursorWhere: cursor
+      ? sql`(${rank}, -${products.id}) > (${cursorRank}, -${cursor}::bigint)`
+      : undefined,
+  };
+}
+
+function categoryPosition(
+  categoryId: number,
+  productId: AnyColumn | number | undefined,
+) {
+  // raw names: the relational query builder would rewrite these columns onto its products alias
+  return sql`coalesce((select positions.position from ${categoryProductPositions} as positions where positions.category_id = ${categoryId} and positions.product_id = ${productId}), ${LAST})`;
 }

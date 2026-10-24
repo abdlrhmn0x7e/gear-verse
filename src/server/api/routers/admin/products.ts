@@ -6,7 +6,9 @@ import z from "zod";
 import {
   productsBulkDeleteInputSchema,
   productsGetPageInputSchema,
+  productsGetByCategoryInputSchema,
   productsGetPinnedInputSchema,
+  productsReorderCategoryInputSchema,
   productsReorderPinnedInputSchema,
 } from "~/lib/schemas/contracts/admin/products";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -37,6 +39,20 @@ export const productsRouter = createTRPCRouter({
       .query(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.queries.getPinned(input.filters),
+        );
+
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    getByCategory: adminProcedure
+      .input(productsGetByCategoryInputSchema)
+      .query(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.queries.getByCategory(input.categoryId),
         );
 
         if (error) {
@@ -134,6 +150,22 @@ export const productsRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.products.mutations.reorderPinned(input.ids),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+
+        return data;
+      }),
+
+    reorderCategory: adminProcedure
+      .input(productsReorderCategoryInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.reorderCategory(
+            input.categoryId,
+            input.ids,
+          ),
         );
         if (error) {
           throw errorMap(error);

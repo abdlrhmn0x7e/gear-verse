@@ -211,9 +211,20 @@ export const _categories = {
         filters?.attributes.map(
           _categories.queries.helpers.existsFragmentForFilter,
         ) ?? [];
-      const categoryIds = await getCategoryIdsBySlug(slug);
+      const [categoryIds, [category]] = await Promise.all([
+        getCategoryIdsBySlug(slug),
+        db
+          .select({ id: categories.id })
+          .from(categories)
+          .where(eq(categories.slug, slug)),
+      ]);
 
-      const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
+      // the page's own category orders it, not the sub-category a product sits in
+      const { orderBy, cursorWhere } = getProductsOrdering(
+        sortBy,
+        cursor,
+        category?.id,
+      );
       const preds = [
         cursorWhere,
         eq(products.published, true),

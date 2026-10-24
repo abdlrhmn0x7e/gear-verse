@@ -34,6 +34,10 @@ export const _products = {
       return data.admin.products.queries.getPinned(filters);
     },
 
+    getByCategory: (categoryId: number) => {
+      return data.admin.products.queries.getByCategory(categoryId);
+    },
+
     findById: async (id: number) => {
       const product = await data.admin.products.queries.findById(id);
       if (!product) {
@@ -383,6 +387,29 @@ export const _products = {
       );
       await invalidateCache("recent-products");
       return order;
+    },
+
+    /**
+     * Orders a category page as listed. Ids that aren't live products in the
+     * category's subtree are dropped, and ordered ones the list is missing
+     * keep their order after it, so a stale list can't lose a position.
+     */
+    async reorderCategory(categoryId: number, productIds: number[]) {
+      const members = new Set(
+        (await data.admin.products.queries.getByCategory(categoryId)).map(
+          (product) => product.id,
+        ),
+      );
+      return data.admin.products.mutations.rewriteCategoryOrder(
+        categoryId,
+        (orderedIds) => {
+          const listed = new Set(productIds.filter((id) => members.has(id)));
+          return [
+            ...listed,
+            ...orderedIds.filter((id) => members.has(id) && !listed.has(id)),
+          ];
+        },
+      );
     },
 
     async delete(productId: number) {

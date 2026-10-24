@@ -16,6 +16,7 @@ import { productAttributeValues } from "~/server/db/schema/attributes";
 import { inventoryItems } from "~/server/db/schema/inventory";
 import { db, type Tx } from "../../db";
 import {
+  categoryProductPositions,
   media,
   orderItems,
   orders,
@@ -28,6 +29,7 @@ import {
   seo,
 } from "../../db/schema";
 import { fullVariantValuesCTE } from "../common/cte";
+import { getProductsOrdering } from "../common/products-ordering";
 import type { Pagination } from "../common/types";
 import { withTx } from "../common/transaction";
 import { type NewOption } from "./options";
@@ -126,7 +128,7 @@ function findListRows({
   limit,
 }: {
   where: SQL | undefined;
-  orderBy: SQL | AnyColumn;
+  orderBy: SQL | AnyColumn | (SQL | AnyColumn)[];
   limit?: number;
 }) {
   return db.query.products.findMany({
@@ -210,6 +212,15 @@ export const _products = {
           ...(await getListWhere(filters)),
         ),
         orderBy: products.pinnedPosition,
+      });
+    },
+
+    /** A category's live products in the order its page shows them by default. */
+    getByCategory: async (categoryId: number) => {
+      // shortcut: loads every product in the category, page it once a category passes a few hundred products
+      return findListRows({
+        where: and(...(await getListWhere({ categories: [categoryId] }))),
+        orderBy: getProductsOrdering(undefined, undefined, categoryId).orderBy,
       });
     },
 
@@ -839,6 +850,44 @@ export const _products = {
           .returning({ id: products.id });
         if (pinned.length !== ids.length) {
           throw new AppError("Product not found", "NOT_FOUND");
+        }
+
+        return ids;
+      });
+    },
+
+    /**
+     * Rewrites a category page's order, top first. `reorder` gets the current
+     * order and returns the new one, under a per-category lock so two admins
+     * reordering at once can't interleave their writes.
+     */
+    rewriteCategoryOrder(
+      categoryId: number,
+      reorder: (orderedIds: number[]) => number[],
+    ) {
+      return db.transaction(async (tx) => {
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtext('category_product_positions'), ${categoryId}::integer)`,
+        );
+        const orderedIds = await tx
+          .select({ id: categoryProductPositions.productId })
+          .from(categoryProductPositions)
+          .where(eq(categoryProductPositions.categoryId, categoryId))
+          .orderBy(asc(categoryProductPositions.position))
+          .then((rows) => rows.map((row) => row.id));
+        const ids = reorder(orderedIds);
+
+        await tx
+          .delete(categoryProductPositions)
+          .where(eq(categoryProductPositions.categoryId, categoryId));
+        if (ids.length > 0) {
+          await tx.insert(categoryProductPositions).values(
+            ids.map((productId, position) => ({
+              categoryId,
+              productId,
+              position,
+            })),
+          );
         }
 
         return ids;
