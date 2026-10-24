@@ -294,7 +294,7 @@ export function CategoriesViewer() {
             </div>
           )}
 
-          <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-px overflow-y-auto px-1">
+          <div className="-m-1 flex min-h-0 flex-1 flex-col gap-px overflow-y-auto p-1">
             {isPendingCategories ? (
               <CategoryTreeSkeleton />
             ) : visibleCategories.length === 0 ? (
