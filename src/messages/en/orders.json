@@ -63,7 +63,8 @@
     "backorder": "Backorder",
     "partialBackorder": "{backordered} of {quantity} on backorder",
     "shippingPending": "Confirmed on WhatsApp",
-    "shippingPaid": "Paid separately"
+    "shippingPaid": "Paid separately",
+    "addressParts": "<first></first>, <second></second>"
   },
   "steps": {
     "whatsapp": {

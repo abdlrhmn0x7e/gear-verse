@@ -40,7 +40,7 @@
     "fullNamePlaceholder": "مثلًا أحمد مصطفى",
     "phone": "رقم الموبايل",
     "countryCode": "كود الدولة",
-    "phonePlaceholder": "مثلًا 010 1234 5678",
+    "phonePlaceholder": "مثلًا ⁦010 1234 5678⁩",
     "phoneHint": "هنكلّمك أو نبعتلك واتساب عليه عشان نأكد طلبك.",
     "governorate": "المحافظة",
     "governoratePlaceholder": "اختار المحافظة",
@@ -110,7 +110,7 @@
   },
   "success": {
     "title": "طلبك اتسجّل",
-    "description": "شكرًا! رقم طلبك <number>#{id}</number>. هنكلّمك على واتساب عشان نأكده ونأكد معاك مصاريف الشحن.",
+    "description": "شكرًا! رقم طلبك <number>{id}</number>. هنكلّمك على واتساب عشان نأكده ونأكد معاك مصاريف الشحن.",
     "track": "تابع طلبك",
     "continue": "كمّل تسوّق",
     "loading": "بنحمّل طلبك…"

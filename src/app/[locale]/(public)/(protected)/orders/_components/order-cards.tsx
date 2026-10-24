@@ -156,7 +156,8 @@ function OrderCard({ order }: { order: OrderSummary }) {
           ))}
           {hidden > 0 && (
             <li className="bg-input-background text-muted-foreground flex size-14 items-center justify-center rounded-xl text-sm font-medium tabular-nums">
-              +{hidden}
+              {/* a sign before a number, so it keeps to the left in Arabic too */}
+              <span dir="ltr">+{hidden}</span>
               <span className="sr-only"> {t("more")}</span>
             </li>
           )}

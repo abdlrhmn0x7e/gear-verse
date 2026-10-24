@@ -2,7 +2,7 @@
   "title": "طلباتك",
   "description": "تابع كل طلب من أول رسالة التأكيد لحد باب بيتك.",
   "questions": "عندك سؤال؟ كلّمنا على واتساب على <number></number>.",
-  "orderNumber": "طلب #{id}",
+  "orderNumber": "طلب رقم {id}",
   "viewDetails": "، اعرض التفاصيل",
   "placed": "اتطلب يوم {date}",
   "items": "المنتجات",
@@ -63,7 +63,8 @@
     "backorder": "بالطلب",
     "partialBackorder": "{backordered} من {quantity} بالطلب",
     "shippingPending": "بنأكده على واتساب",
-    "shippingPaid": "بيتدفع لوحده"
+    "shippingPaid": "بيتدفع لوحده",
+    "addressParts": "<first></first>، <second></second>"
   },
   "steps": {
     "whatsapp": {

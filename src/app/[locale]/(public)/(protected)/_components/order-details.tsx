@@ -44,6 +44,7 @@ export function OrderDetails({
   const t = useTranslations("orders");
   const tGovernorates = useTranslations("checkout.governorates");
   const tWhatsApp = useTranslations("common.whatsapp");
+  const { address } = order;
   const Heading = `h${headingLevel}` as const;
   const Subheading = headingLevel === 2 ? "h3" : "h4";
 
@@ -99,7 +100,7 @@ export function OrderDetails({
 
       <OrderSection>
         <div className="grid gap-6 sm:grid-cols-2">
-          {order.address && (
+          {address && (
             <div className="min-w-0">
               <Subheading className="mb-2 font-medium">
                 {t("details.deliveryAddress")}
@@ -107,18 +108,22 @@ export function OrderDetails({
               <address className="text-muted-foreground text-sm not-italic">
                 {/* typed in Arabic or English, so each part is isolated from the punctuation around it */}
                 <span className="text-foreground block">
-                  <bdi>{order.address.fullName}</bdi>
+                  <bdi>{address.fullName}</bdi>
                 </span>
                 <span className="block">
-                  <bdi>{order.address.buildingNameOrNumber}</bdi>,{" "}
-                  <bdi>{order.address.address}</bdi>
+                  {t.rich("details.addressParts", {
+                    first: () => <bdi>{address.buildingNameOrNumber}</bdi>,
+                    second: () => <bdi>{address.address}</bdi>,
+                  })}
                 </span>
                 <span className="block">
-                  <bdi>{order.address.city}</bdi>,{" "}
-                  {tGovernorates(order.address.governorate)}
+                  {t.rich("details.addressParts", {
+                    first: () => <bdi>{address.city}</bdi>,
+                    second: () => tGovernorates(address.governorate),
+                  })}
                 </span>
                 <span className="block tabular-nums" dir="ltr">
-                  {order.address.phoneNumber}
+                  {address.phoneNumber}
                 </span>
               </address>
             </div>
