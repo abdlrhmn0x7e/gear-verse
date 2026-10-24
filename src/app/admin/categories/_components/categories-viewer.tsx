@@ -100,6 +100,12 @@ export function CategoriesViewer() {
       pageSize: 10,
     };
   }, [selectedId]);
+  const { data: pinned, isPending: isLoadingPinned } = useQuery(
+    trpc.admin.products.queries.getPinned.queryOptions(
+      { filters: queryParams.filters },
+      { enabled: selectedId !== undefined },
+    ),
+  );
   const {
     data,
     isPending: isLoadingProducts,
@@ -119,9 +125,11 @@ export function CategoriesViewer() {
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
+  // getPage skips pinned products, so they lead the list as on the products page
   const products = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data);
-  }, [data]);
+    if (!pinned || !data) return undefined;
+    return [...pinned, ...data.pages.flatMap((page) => page.data)];
+  }, [pinned, data]);
   const activeProduct = useMemo(() => {
     if (!activeId || typeof activeId !== "string") return undefined;
     const [type, raw] = activeId.split(":");
@@ -148,7 +156,7 @@ export function CategoriesViewer() {
     trpc.admin.products.mutations.editDeep.mutationOptions({
       onSuccess: () => {
         void queryClient.invalidateQueries(
-          trpc.admin.products.queries.getPage.infiniteQueryFilter(),
+          trpc.admin.products.queries.pathFilter(),
         );
       },
     }),
@@ -333,7 +341,7 @@ export function CategoriesViewer() {
               category={selectedCategory}
               parent={parentCategory}
               products={products}
-              isLoadingProducts={isLoadingProducts}
+              isLoadingProducts={isLoadingProducts || isLoadingPinned}
               hasNextPage={hasNextPage}
               loadMoreRef={ref}
               activeId={activeId}
