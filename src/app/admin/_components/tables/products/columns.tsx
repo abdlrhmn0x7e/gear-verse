@@ -26,13 +26,12 @@ export const productColumns: ListColumn<ProductRow>[] = [
     header: () => <span className="sr-only">Reorder</span>,
     enableHiding: false,
     meta: { headerTitle: "Reorder", headerClassName: "w-10" },
-    cell: ({ row }) =>
-      row.original.pinnedPosition !== null && (
-        // the row opens the product drawer, and Enter on the grip clicks it
-        <div onClick={(event) => event.stopPropagation()}>
-          <DataGridTableDndRowHandle disabledLabel="Clear the filters to reorder" />
-        </div>
-      ),
+    cell: () => (
+      // the row opens the product drawer, and Enter on the grip clicks it
+      <div onClick={(event) => event.stopPropagation()}>
+        <DataGridTableDndRowHandle disabledLabel="Clear the filters to reorder" />
+      </div>
+    ),
   },
   {
     id: "select",

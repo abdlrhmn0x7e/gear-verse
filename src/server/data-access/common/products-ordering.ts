@@ -37,11 +37,17 @@ export function getProductsOrdering(
           ? sql`(${products.price}, ${products.id}) < (${cursorPrice}, ${cursor})`
           : undefined,
       };
-    // pinned products in the admin's order, then the newest
+    // pinned products first, then the store order, then the newest
     case "trending":
       return rankThenNewest(
-        sql`coalesce(${products.pinnedPosition}, ${LAST})`,
-        sql`(select coalesce(cursor_products.pinned_position, ${LAST}) from ${products} as cursor_products where cursor_products.id = ${cursor})`,
+        [
+          sql`coalesce(${products.pinnedPosition}, ${LAST})`,
+          sql`coalesce(${products.position}, ${LAST})`,
+        ],
+        [
+          sql`(select coalesce(cursor_products.pinned_position, ${LAST}) from ${products} as cursor_products where cursor_products.id = ${cursor})`,
+          sql`(select coalesce(cursor_products.position, ${LAST}) from ${products} as cursor_products where cursor_products.id = ${cursor})`,
+        ],
         cursor,
       );
     case "oldest":
@@ -55,8 +61,8 @@ export function getProductsOrdering(
       return categoryId === undefined
         ? newest(cursor)
         : rankThenNewest(
-            categoryPosition(categoryId, products.id),
-            categoryPosition(categoryId, cursor),
+            [categoryPosition(categoryId, products.id)],
+            [categoryPosition(categoryId, cursor)],
             cursor,
           );
   }
@@ -69,16 +75,16 @@ function newest(cursor: number | undefined) {
   };
 }
 
-/** Lowest `rank` first, then the newest; `cursorRank` is the cursor product's rank. */
+/** Lowest ranks first, then the newest; `cursorRanks` match the cursor product's ranks. */
 function rankThenNewest(
-  rank: SQL,
-  cursorRank: SQL,
+  ranks: SQL[],
+  cursorRanks: SQL[],
   cursor: number | undefined,
 ) {
   return {
-    orderBy: [asc(rank), desc(products.id)],
+    orderBy: [...ranks.map((rank) => asc(rank)), desc(products.id)],
     cursorWhere: cursor
-      ? sql`(${rank}, -${products.id}) > (${cursorRank}, -${cursor}::bigint)`
+      ? sql`(${sql.join(ranks, sql`, `)}, -${products.id}) > (${sql.join(cursorRanks, sql`, `)}, -${cursor}::bigint)`
       : undefined,
   };
 }

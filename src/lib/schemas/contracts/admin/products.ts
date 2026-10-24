@@ -24,6 +24,10 @@ export const productsReorderPinnedInputSchema = z.object({
   ids: z.array(z.number()),
 });
 
+export const productsReorderStoreInputSchema = z.object({
+  ids: z.array(z.number()),
+});
+
 export const productsGetByCategoryInputSchema = z.object({
   categoryId: z.number(),
 });

@@ -10,7 +10,8 @@ import {
 import { useAllProductSearchParams } from "./hooks";
 
 const sortOptions = [
-  { value: "default", label: "Sort: Newest" },
+  { value: "default", label: "Sort: Featured" },
+  { value: "newest", label: "Sort: Newest" },
   { value: "oldest", label: "Sort: Oldest" },
   { value: "price-asc", label: "Sort: Price, low to high" },
   { value: "price-desc", label: "Sort: Price, high to low" },
@@ -41,12 +42,7 @@ export function ProductsSort() {
     <Select
       items={sortOptions}
       defaultValue="default"
-      // "newest" is also the default order, so both share one option
-      value={
-        !filters.sortBy || filters.sortBy === "newest"
-          ? "default"
-          : filters.sortBy
-      }
+      value={filters.sortBy ?? "default"}
       onValueChange={(value) => {
         if (value) handleSortChange(value);
       }}

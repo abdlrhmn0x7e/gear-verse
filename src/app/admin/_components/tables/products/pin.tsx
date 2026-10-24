@@ -116,8 +116,18 @@ export function useProductPins() {
         const row = findRow(id);
         return applyOptimistic({
           pinned: (rows) => rows.filter((r) => r.id !== id),
-          pages: (data) =>
-            row ? insertById(data, { ...row, pinnedPosition: null }) : data,
+          pages: (data) => ({
+            ...data,
+            pages: data.pages.map((page, index) => ({
+              ...page,
+              data: [
+                ...(index === 0 && row
+                  ? [{ ...row, pinnedPosition: null }]
+                  : []),
+                ...page.data.filter((r) => r.id !== id),
+              ],
+            })),
+          }),
         });
       },
       onSuccess: () => toast.success("Unpinned"),
@@ -143,6 +153,41 @@ export function useProductPins() {
     }),
   );
 
+  const reorderStore = useMutation(
+    trpc.admin.products.mutations.reorderStore.mutationOptions({
+      ...shared,
+      onMutate: ({ ids }) =>
+        applyOptimistic({
+          pinned: (rows) => rows,
+          pages: (data) => {
+            const rows = data.pages.flatMap((page) => page.data);
+            const byId = new Map(rows.map((row) => [row.id, row]));
+            const listed = new Set(ids);
+            const ordered = [
+              ...Array.from(listed).flatMap((id) => byId.get(id) ?? []),
+              ...rows.filter((row) => !listed.has(row.id)),
+            ];
+            let offset = 0;
+            return {
+              ...data,
+              pages: data.pages.map((page) => {
+                const pageRows = ordered.slice(
+                  offset,
+                  offset + page.data.length,
+                );
+                offset += page.data.length;
+                return { ...page, data: pageRows };
+              }),
+            };
+          },
+        }),
+      onError: (_error, _input, context) => {
+        rollback(context);
+        toast.error("Couldn't save the new order");
+      },
+    }),
+  );
+
   function findRow(id: number) {
     const cached = [
       ...queryClient
@@ -159,6 +204,7 @@ export function useProductPins() {
     pin: (id: number) => pin.mutate({ id }),
     unpin: (id: number) => unpin.mutate({ id }),
     reorder: (ids: number[]) => reorder.mutate({ ids }),
+    reorderStore: (ids: number[]) => reorderStore.mutate({ ids }),
   };
 }
 
@@ -169,30 +215,6 @@ function mapRows(
   return {
     ...data,
     pages: data.pages.map((page) => ({ ...page, data: fn(page.data) })),
-  };
-}
-
-/** Puts an unpinned row back in its id-ordered place, if that place is loaded yet. */
-function insertById(
-  data: InfiniteData<ProductsPage>,
-  row: ProductRow,
-): InfiniteData<ProductsPage> {
-  const pageIndex = data.pages.findIndex(
-    (page, index) =>
-      page.data.some((r) => r.id > row.id) ||
-      (index === data.pages.length - 1 && page.nextCursor === null),
-  );
-  if (pageIndex === -1) return data;
-
-  return {
-    ...data,
-    pages: data.pages.map((page, index) => {
-      if (index !== pageIndex) return page;
-      const at = page.data.findIndex((r) => r.id > row.id);
-      const rows = [...page.data];
-      rows.splice(at === -1 ? rows.length : at, 0, row);
-      return { ...page, data: rows };
-    }),
   };
 }
 
