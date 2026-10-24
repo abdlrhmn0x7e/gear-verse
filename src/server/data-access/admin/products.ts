@@ -31,6 +31,7 @@ import { fullVariantValuesCTE } from "../common/cte";
 import { getProductsOrdering } from "../common/products-ordering";
 import type { Pagination } from "../common/types";
 import { withTx } from "../common/transaction";
+import type { ArabicStatus } from "~/lib/arabic";
 import { type NewOption } from "./options";
 import { _productVariants } from "./product-variants";
 
@@ -73,6 +74,7 @@ type ProductsFilter = {
   title: string;
   brands: number[];
   categories: number[];
+  arabic: ArabicStatus[];
 };
 
 /** Live products matching the list's search and filters. */
@@ -83,6 +85,21 @@ async function getListWhere(filters?: Partial<ProductsFilter>) {
   }
   if (filters?.brands) {
     whereClause.push(inArray(products.brandId, filters.brands));
+  }
+  // the SQL twin of arabicStatus(), so the list can filter before it pages
+  if (filters?.arabic) {
+    const hasArabic = sql`(${products.summaryAr} is not null or ${products.descriptionAr} is not null)`;
+    const byStatus = {
+      missing: sql`not ${hasArabic}`,
+      draft: sql`(${hasArabic} and not ${products.arReviewed})`,
+      reviewed: sql`(${hasArabic} and ${products.arReviewed})`,
+    };
+    whereClause.push(
+      sql`(${sql.join(
+        filters.arabic.map((status) => byStatus[status]),
+        sql` or `,
+      )})`,
+    );
   }
   if (filters?.categories) {
     const categoriesIds = new Set<number>([...filters.categories]);
@@ -139,7 +156,14 @@ function findListRows({
       published: true,
       pinnedPosition: true,
       price: true,
+      arReviewed: true,
     },
+    extras: (table, { sql }) => ({
+      hasArabic:
+        sql<boolean>`(${table.summaryAr} is not null or ${table.descriptionAr} is not null)`.as(
+          "has_arabic",
+        ),
+    }),
 
     with: {
       thumbnail: {
@@ -377,6 +401,9 @@ export const _products = {
           title: products.title,
           description: products.description,
           summary: products.summary,
+          summaryAr: products.summaryAr,
+          descriptionAr: products.descriptionAr,
+          arReviewed: products.arReviewed,
           slug: products.slug,
           published: products.published,
           condition: products.condition,
@@ -461,6 +488,21 @@ export const _products = {
             : and(eq(products.slug, slug), eq(products.archived, false)),
         )
         .limit(1)
+        .then((rows) => rows[0]);
+    },
+
+    /** The copy the Arabic review rules compare a save against, locked until the save commits. */
+    findCopy: async (id: number, tx: Tx) => {
+      return tx
+        .select({
+          summary: products.summary,
+          description: products.description,
+          summaryAr: products.summaryAr,
+          descriptionAr: products.descriptionAr,
+        })
+        .from(products)
+        .where(eq(products.id, id))
+        .for("update")
         .then((rows) => rows[0]);
     },
 
@@ -661,6 +703,15 @@ export const _products = {
 
         return product;
       });
+    },
+
+    async markArabicReviewed(productId: number) {
+      return db
+        .update(products)
+        .set({ arReviewed: true })
+        .where(eq(products.id, productId))
+        .returning({ id: products.id })
+        .then((rows) => rows[0]);
     },
 
     async update(productId: number, updatedData: UpdateProduct, tx?: Tx) {

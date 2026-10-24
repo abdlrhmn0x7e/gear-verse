@@ -111,6 +111,10 @@ export const _categories = {
       return db
         .select({
           slug: categories.slug,
+          name: categories.name,
+          description: categories.description,
+          name_ar: categories.name_ar,
+          description_ar: categories.description_ar,
         })
         .from(categories)
         .where(eq(categories.id, id))
@@ -128,6 +132,15 @@ export const _categories = {
       return db
         .update(categories)
         .set(data)
+        .where(eq(categories.id, id))
+        .returning({ id: categories.id })
+        .then((result) => result[0]);
+    },
+
+    async markArabicReviewed(id: number) {
+      return db
+        .update(categories)
+        .set({ ar_reviewed: true })
         .where(eq(categories.id, id))
         .returning({ id: categories.id })
         .then((result) => result[0]);

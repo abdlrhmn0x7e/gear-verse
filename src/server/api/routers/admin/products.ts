@@ -107,6 +107,18 @@ export const productsRouter = createTRPCRouter({
         return data;
       }),
 
+    markArabicReviewed: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.products.mutations.markArabicReviewed(input.id),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
     editDeep: adminProcedure
       .input(z.object({ id: z.number(), data: updateProductInputSchema }))
       .mutation(async ({ ctx, input }) => {

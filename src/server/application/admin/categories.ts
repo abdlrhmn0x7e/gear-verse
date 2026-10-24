@@ -10,6 +10,12 @@ import { generateSlug } from "~/lib/utils/slugs";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { invalidateCategories } from "~/server/actions/cache";
 import { data } from "~/server/data-access";
+import { arReviewedAfterSave } from "../helpers/arabic-review";
+
+const categoryCopy = {
+  english: ["name", "description"],
+  arabic: ["name_ar", "description_ar"],
+};
 
 export const _categories = {
   queries: {
@@ -57,6 +63,12 @@ export const _categories = {
         data.admin.categories.mutations.create({
           ...input,
           slug,
+          ar_reviewed:
+            arReviewedAfterSave({
+              current: {},
+              next: input,
+              ...categoryCopy,
+            }) ?? false,
         }),
       );
 
@@ -93,8 +105,17 @@ export const _categories = {
         }
       }
 
+      // shortcut: reads then writes outside a transaction; two admins saving one category at once could race
+      const current = await data.admin.categories.queries.findById(id);
+      const arReviewed =
+        current &&
+        arReviewedAfterSave({ current, next: updatedData, ...categoryCopy });
+
       const { data: updatedCategory, error } = await tryCatch(
-        data.admin.categories.mutations.update(id, updatedData),
+        data.admin.categories.mutations.update(id, {
+          ...updatedData,
+          ...(arReviewed !== undefined && { ar_reviewed: arReviewed }),
+        }),
       );
 
       if (error) {
@@ -111,6 +132,16 @@ export const _categories = {
 
       await invalidateCategories();
       return updatedCategory;
+    },
+
+    /** The Arabic was checked as it stands; the storefront doesn't show the flag, so no cache to clear. */
+    markArabicReviewed: async (id: number) => {
+      const category =
+        await data.admin.categories.mutations.markArabicReviewed(id);
+      if (!category) {
+        throw new AppError("Category not found", "NOT_FOUND");
+      }
+      return category;
     },
 
     delete: async (input: DeleteCategoryInput) => {

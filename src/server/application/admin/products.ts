@@ -7,6 +7,12 @@ import { paginate } from "~/server/application/helpers/pagination";
 import { generateSlug } from "~/lib/utils/slugs";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 import { invalidateCache, invalidateProducts } from "~/server/actions/cache";
+import { arReviewedAfterSave } from "../helpers/arabic-review";
+
+const productCopy = {
+  english: ["summary", "description"],
+  arabic: ["summaryAr", "descriptionAr"],
+};
 
 async function deleteProductAndInvalidate(productId: number) {
   const deleted = await data.admin.products.mutations.delete(productId);
@@ -51,6 +57,7 @@ export const _products = {
     findSummaryBySlug: async (slug: string) => {
       const product = await data.public.products.queries.findBySlug(slug, {
         includeDrafts: true,
+        locale: "en",
       });
       if (!product) {
         throw new AppError("Product not found", "NOT_FOUND");
@@ -115,6 +122,12 @@ export const _products = {
           margin: Math.ceil((product.price - originalCost) / product.price),
           slug,
           thumbnailMediaId: thumbnail.mediaId,
+          arReviewed:
+            arReviewedAfterSave({
+              current: {},
+              next: product,
+              ...productCopy,
+            }) ?? false,
         },
         newAttributes: attributeIds,
         newProdcutMediaIds: restMedia.map((m) => m.mediaId),
@@ -145,10 +158,19 @@ export const _products = {
         await data.transaction(async (tx) => {
           // update the product if there are any changes
           if (Object.keys(product).length > 0) {
+            const current = await data.admin.products.queries.findCopy(
+              productId,
+              tx,
+            );
+            const arReviewed =
+              current &&
+              arReviewedAfterSave({ current, next: product, ...productCopy });
+
             await data.admin.products.mutations.update(
               productId,
               {
                 ...product,
+                ...(arReviewed !== undefined && { arReviewed }),
                 media: product.media?.map((m) => m.mediaId) ?? [],
                 inventory: {
                   id: product.inventory?.id ?? 0,
@@ -350,6 +372,16 @@ export const _products = {
           await invalidateCache("category-filters");
         }
       }
+    },
+
+    /** The Arabic was checked as it stands; the storefront doesn't show the flag, so no cache to clear. */
+    async markArabicReviewed(productId: number) {
+      const product =
+        await data.admin.products.mutations.markArabicReviewed(productId);
+      if (!product) {
+        throw new AppError("Product not found", "NOT_FOUND");
+      }
+      return product;
     },
 
     /** Pins a product to the top of the home page's row, or moves it there if it's already pinned. */
