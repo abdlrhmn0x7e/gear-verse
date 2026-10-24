@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
   return (
     <PageLayout
       title="Store settings"
-      description="Contact details and social links shown on the store."
+      description="Contact details and social links shown on the store, and who gets order emails."
     >
       <Suspense fallback={<StoreSettingsFormSkeleton />}>
         <StoreSettings />

@@ -19,6 +19,7 @@ const columns = {
   xUrl: storeSettings.xUrl,
   youtubeUrl: storeSettings.youtubeUrl,
   lowStockThreshold: storeSettings.lowStockThreshold,
+  orderNotificationEmails: storeSettings.orderNotificationEmails,
   updatedAt: storeSettings.updatedAt,
 };
 
@@ -30,6 +31,14 @@ export const _settings = {
         .from(storeSettings)
         .where(eq(storeSettings.id, SETTINGS_ID))
         .then(([row]) => row ?? null);
+    },
+
+    findOrderNotificationEmails: async () => {
+      return db
+        .select({ emails: storeSettings.orderNotificationEmails })
+        .from(storeSettings)
+        .where(eq(storeSettings.id, SETTINGS_ID))
+        .then(([row]) => row?.emails ?? []);
     },
   },
 

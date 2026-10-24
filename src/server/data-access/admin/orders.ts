@@ -274,8 +274,10 @@ export const _orders = {
           paymentMethod: orders.paymentMethod,
           status: orders.status,
           address: {
+            fullName: addresses.fullName,
             phoneNumber: addresses.phoneNumber,
             address: addresses.address,
+            buildingNameOrNumber: addresses.buildingNameOrNumber,
             city: addresses.city,
             governorate: addresses.governorate,
             latitude: addresses.latitude,

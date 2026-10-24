@@ -1,0 +1,1 @@
+ALTER TABLE "store_settings" ADD COLUMN "order_notification_emails" text[] DEFAULT '{}'::text[] NOT NULL;

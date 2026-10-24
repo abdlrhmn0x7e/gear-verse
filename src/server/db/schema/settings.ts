@@ -28,6 +28,12 @@ export const storeSettings = pgTable(
 
     lowStockThreshold: integer("low_stock_threshold").notNull().default(2),
 
+    /** Who gets an email for each order placed on the store. */
+    orderNotificationEmails: text("order_notification_emails")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
