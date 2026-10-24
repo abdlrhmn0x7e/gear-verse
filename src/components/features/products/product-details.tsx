@@ -11,6 +11,7 @@ import { Fragment, Suspense, type JSX, type ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Badge } from "~/components/ui/badge";
 import { ProductDescription } from "~/components/product-description";
 import {
   Accordion,
@@ -194,6 +195,12 @@ export async function ProductDetails({
               <h1 className="text-headline-sm text-balance md:text-[2.5rem] md:leading-[1.1]">
                 {product.title}
               </h1>
+              {/* Google wants a used or refurbished item's condition on the page too */}
+              {product.condition !== "NEW" && (
+                <Badge variant="secondary">
+                  {product.condition === "USED" ? "Used" : "Refurbished"}
+                </Badge>
+              )}
               {product.summary && (
                 <p className="text-muted-foreground text-body-lg text-pretty">
                   {product.summary}

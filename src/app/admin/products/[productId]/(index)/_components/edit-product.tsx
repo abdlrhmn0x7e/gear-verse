@@ -72,6 +72,7 @@ export function EditProduct({
       description: product.description,
 
       published: product.published,
+      condition: product.condition,
 
       price: product.price,
       strikeThroughPrice: product.strikeThroughPrice ?? 0,

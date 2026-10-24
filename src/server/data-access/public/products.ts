@@ -160,6 +160,7 @@ export const _products = {
           summary: products.summary,
           description: products.description,
           published: products.published,
+          condition: products.condition,
           categoryId: products.categoryId,
           stock: inventoryItems.quantity,
 
@@ -236,6 +237,7 @@ export const _products = {
           summary: products.summary,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
+          condition: products.condition,
           categoryId: products.categoryId,
           updatedAt: products.updatedAt,
           brand: {
