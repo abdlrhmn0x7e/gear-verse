@@ -24,7 +24,7 @@ import {
 import { OrderThumbnail } from "../../_components/order-details";
 import { SaveOrdersPrompt } from "../../_components/save-orders-prompt";
 import { useOrderDrawer } from "../_hooks/use-orders-search-params";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type OrderSummary =
   RouterOutput["public"]["orders"]["queries"]["getPage"]["data"][number];
@@ -74,6 +74,8 @@ export function OrderCards({ isGuest }: { isGuest: boolean }) {
 }
 
 function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
+  const t = useTranslations("orders.empty");
+
   return (
     <div className="bg-card flex flex-col items-center gap-5 rounded-3xl px-6 py-16 text-center">
       <PackageIcon
@@ -82,10 +84,9 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
         aria-hidden
       />
       <div className="max-w-sm space-y-1">
-        <h2 className="font-medium">No orders yet</h2>
+        <h2 className="font-medium">{t("title")}</h2>
         <p className="text-muted-foreground text-sm text-pretty">
-          When you place an order, you can follow it here, from our confirmation
-          message to your door.
+          {t("description")}
         </p>
       </div>
       <div className="flex flex-col items-center gap-3">
@@ -94,14 +95,14 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
           nativeButton={false}
           render={<Link href="/products" />}
         >
-          Browse the store
+          {t("browse")}
           <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
         {isGuest && (
           <LoginDrawerDialog callbackURL="/orders">
             <Button variant="ghost" size="lg">
               <LogInIcon data-icon="inline-start" />
-              Ordered with Google before? Sign in
+              {t("signIn")}
             </Button>
           </LoginDrawerDialog>
         )}
@@ -112,6 +113,7 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
 
 function OrderCard({ order }: { order: OrderSummary }) {
   const locale = useLocale();
+  const t = useTranslations("orders");
   const drawer = useOrderDrawer();
   const thumbnails = order.items.slice(0, MAX_THUMBNAILS);
   const hidden = order.items.length - thumbnails.length;
@@ -127,12 +129,12 @@ function OrderCard({ order }: { order: OrderSummary }) {
               onClick={() => drawer.open(order.id)}
               className="cursor-pointer text-start outline-none after:absolute after:inset-0 after:rounded-3xl"
             >
-              Order #{order.id}
-              <span className="sr-only">, view details</span>
+              {t("orderNumber", { id: String(order.id) })}
+              <span className="sr-only">{t("viewDetails")}</span>
             </button>
           </h2>
           <p className="text-muted-foreground text-sm">
-            Placed {formatDate(order.createdAt, locale)}
+            {t("placed", { date: formatDate(order.createdAt, locale) })}
           </p>
         </div>
         <ChevronRightIcon
@@ -142,7 +144,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
       </div>
 
       {thumbnails.length > 0 && (
-        <ul className="mt-4 flex gap-2" aria-label="Items">
+        <ul className="mt-4 flex gap-2" aria-label={t("items")}>
           {thumbnails.map((item, index) => (
             <li key={`${item.title}-${index}`}>
               <OrderThumbnail
@@ -155,7 +157,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
           {hidden > 0 && (
             <li className="bg-input-background text-muted-foreground flex size-14 items-center justify-center rounded-xl text-sm font-medium tabular-nums">
               +{hidden}
-              <span className="sr-only"> more</span>
+              <span className="sr-only"> {t("more")}</span>
             </li>
           )}
         </ul>
@@ -164,20 +166,20 @@ function OrderCard({ order }: { order: OrderSummary }) {
       <div className="mt-4 space-y-1">
         <OrderStatusLabel status={order.status} />
         <p className="text-muted-foreground text-sm text-pretty">
-          {orderNextStep(order.status, order.paymentMethod)}
+          {t(`nextStep.${orderNextStep(order.status, order.paymentMethod)}`)}
         </p>
       </div>
 
       <div className="mt-4 flex items-baseline justify-between gap-4 border-t pt-4 text-sm">
         <p className="text-muted-foreground tabular-nums">
-          {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+          {t("itemCount", { count: order.itemCount })}
         </p>
         <p className="text-end">
           <span className="text-base font-medium tabular-nums">
             {formatCurrency(order.totalPrice, locale)}
           </span>
           {order.status !== "CANCELLED" && (
-            <span className="text-muted-foreground"> + shipping</span>
+            <span className="text-muted-foreground"> {t("plusShipping")}</span>
           )}
         </p>
       </div>
