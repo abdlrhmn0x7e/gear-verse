@@ -11,10 +11,8 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import type { ForwardedRef } from "react";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
-import { LoadMore } from "~/components/load-more";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +36,7 @@ import { EditCategory } from "./edit-category";
 import { CategoryProductList } from "./products-grid";
 
 type CategoryProduct =
-  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["products"]["queries"]["getByCategory"][number];
 
 /** The selected category: what it is, where it sits, and what is filed under it. */
 export function CategoryDetails({
@@ -46,16 +44,12 @@ export function CategoryDetails({
   parent,
   products,
   isLoadingProducts,
-  hasNextPage,
-  loadMoreRef,
   activeId,
 }: {
   category: CategoryTree;
   parent: CategoryTree | undefined;
   products: CategoryProduct[] | undefined;
   isLoadingProducts: boolean;
-  hasNextPage: boolean;
-  loadMoreRef: ForwardedRef<HTMLDivElement>;
   activeId: UniqueIdentifier | null;
 }) {
   const [mode, setMode] = useState<"view" | "edit" | "add">("view");
@@ -64,9 +58,7 @@ export function CategoryDetails({
   );
 
   const children = category.children ?? [];
-  const productCount = products
-    ? `${products.length}${hasNextPage ? "+" : ""}`
-    : undefined;
+  const productCount = products?.length;
 
   return (
     <div className="flex min-w-0 flex-col gap-8">
@@ -216,7 +208,8 @@ export function CategoryDetails({
               Products
             </h3>
             <p className="text-muted-foreground mt-0.5 text-sm">
-              Drag a product onto a category in the tree to move it there.
+              Drag to set the order customers see on this category&apos;s page,
+              or onto a category in the tree to move it there.
             </p>
           </div>
         </div>
@@ -226,7 +219,6 @@ export function CategoryDetails({
           products={products}
           isLoadingProducts={isLoadingProducts}
         />
-        <LoadMore hasNextPage={hasNextPage} ref={loadMoreRef} />
       </section>
     </div>
   );

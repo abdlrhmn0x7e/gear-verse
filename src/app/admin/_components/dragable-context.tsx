@@ -10,8 +10,8 @@ import {
   type UniqueIdentifier,
   KeyboardSensor,
   pointerWithin,
+  closestCorners,
   DragOverlay,
-  useDraggable,
   useDroppable,
 } from "@dnd-kit/core";
 import {
@@ -65,7 +65,10 @@ export function DragableContext({
     <DndContext
       id={id}
       sensors={sensors}
-      collisionDetection={pointerWithin}
+      // a keyboard drag has no pointer, so it targets the nearest item instead
+      collisionDetection={(args) =>
+        args.pointerCoordinates ? pointerWithin(args) : closestCorners(args)
+      }
       {...props}
     >
       {children}
@@ -100,9 +103,8 @@ export function DragableItem({
   handleClassName?: string;
   withHandle?: boolean;
 }>) {
-  const { attributes, listeners, setNodeRef } = useDraggable({
-    id,
-  });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
 
   const divProps = !withHandle
     ? {
@@ -118,10 +120,12 @@ export function DragableItem({
         "group relative h-fit focus-within:outline-none",
         className,
       )}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       {...divProps}
     >
       {withHandle && (
         <button
+          type="button"
           aria-label="Drag to reorder"
           className={cn(
             "cursor-grab focus-within:outline-none active:cursor-grabbing",

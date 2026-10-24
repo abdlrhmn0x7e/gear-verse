@@ -1,6 +1,7 @@
 "use client";
 
 import { type UniqueIdentifier } from "@dnd-kit/core";
+import { rectSortingStrategy } from "@dnd-kit/sortable";
 import { IconShoppingBagX } from "@tabler/icons-react";
 import { GripIcon } from "lucide-react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
@@ -14,11 +15,14 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { type RouterOutput } from "~/trpc/client";
-import { DragableItem } from "~/app/admin/_components/dragable-context";
+import {
+  DragableItem,
+  DragableSortableContext,
+} from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
 
 type CategoryProductListItem =
-  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["products"]["queries"]["getByCategory"][number];
 
 export function CategoryProductList({
   activeId,
@@ -56,22 +60,27 @@ export function CategoryProductList({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-      {products.map((product) => (
-        <DragableItem
-          id={`product:${product.id}`}
-          key={`product-${product.id}`}
-          className={cn(
-            "bg-card text-card-foreground [&>button]:text-muted-foreground relative flex h-full items-center gap-3 rounded-2xl py-2 pr-3 pl-3 transition-all",
-            activeId === `product:${product.id}` &&
-              "ring-primary/40 scale-[0.98] opacity-40 ring-2",
-          )}
-          withHandle
-        >
-          <ProductListItem product={product} />
-        </DragableItem>
-      ))}
-    </div>
+    <DragableSortableContext
+      items={products.map((product) => `product:${product.id}`)}
+      strategy={rectSortingStrategy}
+    >
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+        {products.map((product) => (
+          <DragableItem
+            id={`product:${product.id}`}
+            key={`product-${product.id}`}
+            className={cn(
+              "bg-card text-card-foreground [&>button]:text-muted-foreground relative flex h-full items-center gap-3 rounded-2xl py-2 pr-3 pl-3 transition-all",
+              activeId === `product:${product.id}` &&
+                "ring-primary/40 opacity-40 ring-2",
+            )}
+            withHandle
+          >
+            <ProductListItem product={product} />
+          </DragableItem>
+        ))}
+      </div>
+    </DragableSortableContext>
   );
 }
 
@@ -94,7 +103,7 @@ function ProductsEmptyState() {
 }
 
 type ProductListItem =
-  RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
+  RouterOutput["admin"]["products"]["queries"]["getByCategory"][number];
 
 export function ProductListItem({
   product,

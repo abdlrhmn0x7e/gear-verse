@@ -5,9 +5,9 @@ import {
   type DragStartEvent,
   type UniqueIdentifier,
 } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useInView } from "react-intersection-observer";
 import { toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import {
@@ -33,7 +33,7 @@ import { ProductListItem } from "./products-grid";
 import { cn } from "~/lib/utils";
 import { useTRPC } from "~/trpc/client";
 import {
-  useInfiniteQuery,
+  skipToken,
   useMutation,
   useQuery,
   useQueryClient,
@@ -50,7 +50,8 @@ import {
 /**
  * The category tree on a fixed rail beside the selected category's details.
  * Dragging a category onto another nests it there (or onto "Move to the root"
- * to lift it out); dragging a product onto a category moves the product.
+ * to lift it out); dragging a product onto a category moves the product, and
+ * onto another product sets the order the category's page shows.
  */
 export function CategoriesViewer() {
   const trpc = useTRPC();
@@ -92,44 +93,13 @@ export function CategoriesViewer() {
   );
 
   const selectedId = selectedCategory?.id;
-  const queryParams = useMemo(() => {
-    return {
-      filters: {
-        categories: selectedId ? [selectedId] : undefined,
-      },
-      pageSize: 10,
-    };
-  }, [selectedId]);
-  const { data: pinned, isPending: isLoadingPinned } = useQuery(
-    trpc.admin.products.queries.getPinned.queryOptions(
-      { filters: queryParams.filters },
-      { enabled: selectedId !== undefined },
+  const getByCategory = trpc.admin.products.queries.getByCategory;
+  // in the order the category's page shows them by default
+  const { data: products, isPending: isLoadingProducts } = useQuery(
+    getByCategory.queryOptions(
+      selectedId === undefined ? skipToken : { categoryId: selectedId },
     ),
   );
-  const {
-    data,
-    isPending: isLoadingProducts,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteQuery(
-    trpc.admin.products.queries.getPage.infiniteQueryOptions(queryParams, {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enabled: selectedId !== undefined,
-    }),
-  );
-
-  const { ref, inView } = useInView();
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, fetchNextPage, hasNextPage]);
-
-  // getPage skips pinned products, so they lead the list as on the products page
-  const products = useMemo(() => {
-    if (!pinned || !data) return undefined;
-    return [...pinned, ...data.pages.flatMap((page) => page.data)];
-  }, [pinned, data]);
   const activeProduct = useMemo(() => {
     if (!activeId || typeof activeId !== "string") return undefined;
     const [type, raw] = activeId.split(":");
@@ -159,6 +129,35 @@ export function CategoriesViewer() {
           trpc.admin.products.queries.pathFilter(),
         );
       },
+    }),
+  );
+
+  const { mutate: reorderCategory } = useMutation(
+    trpc.admin.products.mutations.reorderCategory.mutationOptions({
+      // one at a time, so a quick second drag can't land before the first
+      scope: { id: "category-order" },
+      onMutate: async ({ categoryId, ids }) => {
+        const query = getByCategory.queryOptions({ categoryId });
+        await queryClient.cancelQueries(query);
+        const previous = queryClient.getQueryData(query.queryKey);
+        queryClient.setQueryData(
+          query.queryKey,
+          (rows) =>
+            rows && ids.flatMap((id) => rows.find((r) => r.id === id) ?? []),
+        );
+        return { previous };
+      },
+      onError: (_error, { categoryId }, context) => {
+        queryClient.setQueryData(
+          getByCategory.queryKey({ categoryId }),
+          context?.previous,
+        );
+        toast.error("Couldn't save the new order");
+      },
+      onSettled: (_data, _error, { categoryId }) =>
+        queryClient.invalidateQueries(
+          getByCategory.queryFilter({ categoryId }),
+        ),
     }),
   );
 
@@ -213,6 +212,26 @@ export function CategoriesViewer() {
         data: { categoryId: overInfo.id },
       });
       setTimeout(() => setActiveId(null), 180);
+      return;
+    }
+
+    // Product -> Product: put the dragged product where the target was
+    if (
+      activeInfo.type === "product" &&
+      overInfo.type === "product" &&
+      products &&
+      selectedId !== undefined
+    ) {
+      const ids = products.map((product) => product.id);
+      const from = ids.indexOf(activeInfo.id);
+      const to = ids.indexOf(overInfo.id);
+      if (from !== -1 && to !== -1) {
+        reorderCategory({
+          categoryId: selectedId,
+          ids: arrayMove(ids, from, to),
+        });
+      }
+      setActiveId(null);
       return;
     }
 
@@ -341,9 +360,7 @@ export function CategoriesViewer() {
               category={selectedCategory}
               parent={parentCategory}
               products={products}
-              isLoadingProducts={isLoadingProducts || isLoadingPinned}
-              hasNextPage={hasNextPage}
-              loadMoreRef={ref}
+              isLoadingProducts={isLoadingProducts}
               activeId={activeId}
             />
           ) : (
