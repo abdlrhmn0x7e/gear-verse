@@ -31,7 +31,7 @@ import { useProductSearchParams } from "../../../_hooks/use-product-search-param
 import { productColumns } from "./columns";
 import { ProductsTableSkeleton } from "./skeleton";
 import { useProductPins } from "./pin";
-import { ListGrid, useListTable } from "../list-grid";
+import { ListGrid, ListStat, useListTable } from "../list-grid";
 import { useTRPC } from "~/trpc/client";
 import { BulkDeleteProductsDialog } from "../../dialogs/bulk-delete-products";
 
@@ -153,59 +153,65 @@ export function ProductsTable() {
   }
 
   return (
-    <div className="space-y-4">
-      {selectedProductIds.length > 0 && (
-        <div className="flex justify-end">
-          <BulkDeleteProductsDialog
-            ids={selectedProductIds}
-            onDeleteSuccess={handleBulkDeleteSuccess}
-            Trigger={
-              <Button variant="destructive" className="w-full sm:w-auto">
-                <Trash2Icon data-icon="inline-start" />
-                Delete selected ({selectedProductIds.length})
-              </Button>
+    <ListGrid
+      table={table}
+      isFetching={isFetching || isFetchingPinned}
+      onRowClick={(product) =>
+        setParams(
+          () => ({
+            id: product.id,
+            slug: product.slug,
+          }),
+          { shallow: false },
+        )
+      }
+      hasNextPage={hasNextPage}
+      loadMoreRef={ref}
+      noun={["product", "products"]}
+      stats={
+        <>
+          <ListStat value={pinned.length} label="pinned to the home page" />
+          {selectedProductIds.length > 0 && (
+            <ListStat value={selectedProductIds.length} label="selected">
+              <BulkDeleteProductsDialog
+                ids={selectedProductIds}
+                onDeleteSuccess={handleBulkDeleteSuccess}
+                Trigger={
+                  <Button
+                    variant="destructive-ghost"
+                    size="xs"
+                    className="ms-auto"
+                  >
+                    <Trash2Icon data-icon="inline-start" />
+                    Delete
+                  </Button>
+                }
+              />
+            </ListStat>
+          )}
+        </>
+      }
+      // a filtered list shows only some products, so there's no whole order to drag
+      sortable={
+        filtered
+          ? undefined
+          : {
+              ids: [...pinnedIds, ...unpinnedIds].map(String),
+              onDragEnd: handleDragEnd,
+              collisionDetection,
             }
-          />
-        </div>
-      )}
-
-      <ListGrid
-        table={table}
-        isFetching={isFetching || isFetchingPinned}
-        onRowClick={(product) =>
-          setParams(
-            () => ({
-              id: product.id,
-              slug: product.slug,
-            }),
-            { shallow: false },
-          )
-        }
-        hasNextPage={hasNextPage}
-        loadMoreRef={ref}
-        // a filtered list shows only some products, so there's no whole order to drag
-        sortable={
-          filtered
-            ? undefined
-            : {
-                ids: [...pinnedIds, ...unpinnedIds].map(String),
-                onDragEnd: handleDragEnd,
-                collisionDetection,
-              }
-        }
-        empty={
-          filtered
-            ? {
-                title: "No products match these filters",
-                description: "Try a different title, brand or category.",
-              }
-            : {
-                title: "No Products Found.",
-                description:
-                  "What a shame get your ass to work and create some",
-              }
-        }
-      />
-    </div>
+      }
+      empty={
+        filtered
+          ? {
+              title: "No products match these filters",
+              description: "Try a different title, brand or category.",
+            }
+          : {
+              title: "No Products Found.",
+              description: "What a shame get your ass to work and create some",
+            }
+      }
+    />
   );
 }

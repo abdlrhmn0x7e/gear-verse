@@ -37,7 +37,7 @@ export default async function AdminOrdersPage({
     <PageLayout
       title="Orders"
       description="View all orders placed in your store."
-      contentWidth="full"
+      contentWidth="table"
       actions={<CreateOrderDrawer />}
       toolbar={<OrdersFilters />}
     >

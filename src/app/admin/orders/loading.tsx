@@ -11,7 +11,7 @@ export default function AdminOrdersLoading() {
     <PageLayout
       title="Orders"
       description="View all orders placed in your store."
-      contentWidth="full"
+      contentWidth="table"
       actions={
         <Button disabled>
           <PlusIcon data-icon="inline-start" />

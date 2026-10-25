@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { Spinner } from "~/components/spinner";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 /**
  * Pinned to the bottom of the page while a form has something to save, so
@@ -20,6 +21,7 @@ export function SaveBar({
   label = "Unsaved changes",
   saveLabel = "Save",
   onDiscard,
+  className,
 }: {
   /** The id of the form the save button submits. */
   form: string;
@@ -29,6 +31,8 @@ export function SaveBar({
   label?: string;
   saveLabel?: string;
   onDiscard?: () => void;
+  /** Where the bar sits, when not pinned to the bottom of a scrolling page. */
+  className?: string;
 }) {
   return (
     <AnimatePresence>
@@ -37,7 +41,10 @@ export function SaveBar({
           data-slot="save-bar"
           // In a flex column taller than its content (a short list), mt-auto
           // keeps the bar at the bottom of the page instead of under the last row.
-          className="sticky bottom-4 z-20 mt-auto flex justify-center"
+          className={cn(
+            "sticky bottom-4 z-20 mt-auto flex justify-center",
+            className,
+          )}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}

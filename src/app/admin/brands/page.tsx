@@ -20,7 +20,7 @@ export default async function AdminBrandsPage() {
     <PageLayout
       title="Brands"
       description="Manage brand names, logos and the products that use them."
-      contentWidth="full"
+      contentWidth="table"
       actions={<AddBrandDrawer variant="default" />}
     >
       <HydrateClient>

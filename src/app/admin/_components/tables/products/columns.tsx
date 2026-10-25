@@ -68,7 +68,8 @@ export const productColumns: ListColumn<ProductRow>[] = [
   {
     accessorKey: "title",
     header: "Product",
-    meta: { headerClassName: "w-full" },
+    // max-w-0 lets the title truncate instead of widening the table
+    meta: { headerClassName: "w-full", cellClassName: "max-w-0 min-w-64" },
     cell: ({ row }) => {
       const ParentIcon = row.original.category.parent
         ? iconsMap.get(row.original.category.parent.icon)
@@ -79,27 +80,27 @@ export const productColumns: ListColumn<ProductRow>[] = [
           <ImageWithFallback
             src={row.original.thumbnail?.url}
             alt={row.original.title ?? "Product Thumbnail"}
-            className="shrink-0 bg-white"
-            width={40}
-            height={40}
+            className="size-8 shrink-0 bg-white"
+            width={32}
+            height={32}
           />
 
-          <div className="text-muted-foreground text-sm">
-            <p className="text-foreground font-medium whitespace-normal">
+          <div className="text-muted-foreground min-w-0 text-xs [&_svg]:size-3.5 [&_svg]:shrink-0">
+            <p className="text-foreground truncate text-sm font-medium">
               {row.original.title}
             </p>
             <div className="flex items-center gap-1">
               {row.original.category.parent && (
                 <>
-                  {ParentIcon ? <ParentIcon className="size-4" /> : null}
-                  <p className="text-muted-foreground text-sm">
+                  {ParentIcon ? <ParentIcon /> : null}
+                  <p className="text-muted-foreground">
                     {row.original.category.parent.name}
                   </p>
-                  <ChevronRightIcon className="size-4" />
+                  <ChevronRightIcon />
                 </>
               )}
-              {CategoryIcon ? <CategoryIcon className="size-4" /> : null}
-              <p className="text-muted-foreground text-sm">
+              {CategoryIcon ? <CategoryIcon /> : null}
+              <p className="text-muted-foreground">
                 {row.original.category.name}
               </p>
             </div>

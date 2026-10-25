@@ -68,10 +68,13 @@ export function useListTable<Row extends object>(
 }
 
 /**
- * The admin list look: quiet column labels, cells on one line unless a
- * column's own content wraps, and an empty state in place of the grid when
- * there is nothing to show. More rows load as the sentinel under the grid
- * scrolls into view.
+ * The admin list look, after the reference CRM: on a page the grid takes the
+ * whole content region edge to edge and scrolls inside it under a pinned
+ * header row, with a stats bar pinned below it. Quiet 12px column labels,
+ * 42px rows on hairlines, cells on one line unless a column's own content
+ * wraps, and an empty state in place of the grid when there is nothing to
+ * show. More rows load as the sentinel under the grid scrolls into view.
+ * "inline" drops the scroller and the stats bar, for a list inside a dialog.
  */
 export function ListGrid<Row extends object>({
   table,
@@ -83,6 +86,9 @@ export function ListGrid<Row extends object>({
   empty,
   sortable,
   dense = false,
+  variant = "page",
+  noun = ["row", "rows"],
+  stats,
   className,
 }: {
   table: DataGridTableInstance<Row>;
@@ -103,32 +109,34 @@ export function ListGrid<Row extends object>({
     collisionDetection?: CollisionDetection;
   };
   dense?: boolean;
+  variant?: "page" | "inline";
+  /** What a top-level row is, singular and plural, for the stats bar's "N in view". */
+  noun?: [one: string, other: string];
+  /** More stats bar cells after the count, each a `ListStat` or an action. Only numbers the loaded rows already give. */
+  stats?: ReactNode;
   className?: string;
 }) {
   const rows = table.options.data;
+  const page = variant === "page";
+  const isEmpty = !isLoading && rows.length === 0;
 
-  if (!isLoading && rows.length === 0) {
-    return (
-      <Empty className={cn("border py-16", className)}>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            {empty.icon ?? <PackageOpenIcon />}
-          </EmptyMedia>
-          <EmptyTitle>{empty.title}</EmptyTitle>
-          {empty.description && (
-            <EmptyDescription>{empty.description}</EmptyDescription>
-          )}
-        </EmptyHeader>
-      </Empty>
-    );
-  }
-
-  return (
+  const content = isEmpty ? (
+    <Empty className={cn(page ? "min-h-full py-16" : "border py-16")}>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          {empty.icon ?? <PackageOpenIcon />}
+        </EmptyMedia>
+        <EmptyTitle>{empty.title}</EmptyTitle>
+        {empty.description && (
+          <EmptyDescription>{empty.description}</EmptyDescription>
+        )}
+      </EmptyHeader>
+    </Empty>
+  ) : (
     <div
       className={cn(
         "transition-opacity",
         isFetching && !isLoading && "opacity-60",
-        className,
       )}
     >
       <DataGrid
@@ -139,12 +147,22 @@ export function ListGrid<Row extends object>({
         onRowClick={onRowClick}
         tableLayout={{ width: "auto", headerBorder: true, dense }}
         tableClassNames={{
-          header:
-            "[&_th]:font-medium [&_th]:whitespace-nowrap [&_th]:text-muted-foreground",
-          body: "[&_td]:whitespace-nowrap",
+          // pinned to the top of the scroller, opaque so rows pass under it
+          header: cn(
+            "[&_th]:text-muted-foreground [&_th]:h-[38px] [&_th]:text-xs [&_th]:font-normal [&_th]:whitespace-nowrap",
+            page &&
+              "[&_th]:bg-background [&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:border-t",
+          ),
+          body: "[&_td]:h-[42px] [&_td]:py-1 [&_td]:whitespace-nowrap [&>tr:last-child>td]:border-b",
+          bodyRow:
+            "hover:bg-card/60 data-[state=selected]:bg-card transition-[background-color,color] duration-150 ease-out",
         }}
       >
-        <DataGridContainer className="overflow-x-auto">
+        {/* On a page the scroller below clips and scrolls both ways, so the container mustn't: a clipping box
+            between them would also be what the pinned header row sticks to. */}
+        <DataGridContainer
+          className={page ? "overflow-visible" : "overflow-x-auto"}
+        >
           {sortable ? (
             <DataGridTableDndRows
               dataIds={sortable.ids}
@@ -158,6 +176,59 @@ export function ListGrid<Row extends object>({
       </DataGrid>
 
       {loadMoreRef && <LoadMore ref={loadMoreRef} hasNextPage={hasNextPage} />}
+    </div>
+  );
+
+  if (!page) return <div className={className}>{content}</div>;
+
+  return (
+    <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
+      <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
+        {content}
+      </div>
+      <ListStats>
+        {isLoading ? (
+          <ListStat>
+            <Skeleton className="h-3 w-24" />
+          </ListStat>
+        ) : (
+          <ListStat
+            value={`${rows.length}${hasNextPage ? "+" : ""}`}
+            label={`${rows.length === 1 && !hasNextPage ? noun[0] : noun[1]} in view`}
+          />
+        )}
+        {!isLoading && stats}
+      </ListStats>
+    </div>
+  );
+}
+
+/** The stats bar under a page's list: equal cells split by hairlines. */
+function ListStats({ children }: { children: ReactNode }) {
+  return (
+    <div className="bg-border grid shrink-0 auto-cols-fr grid-flow-col gap-px border-t">
+      {children}
+    </div>
+  );
+}
+
+/** One stats bar cell: a figure and what it counts, or anything else (an action) as children. */
+export function ListStat({
+  value,
+  label,
+  children,
+}: {
+  value?: ReactNode;
+  label?: ReactNode;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="bg-background text-muted-foreground flex h-9 min-w-0 items-center gap-1.5 px-3 text-xs">
+      {value !== undefined && (
+        <span className="text-foreground tabular-nums">{value}</span>
+      )}
+      {label && <span className="truncate">{label}</span>}
+      {children}
     </div>
   );
 }

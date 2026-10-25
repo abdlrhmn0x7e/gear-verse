@@ -1,8 +1,8 @@
 "use client";
 
 import type { ForwardedRef } from "react";
-import { inventoryColumns, type InventoryNode } from "./columns";
-import { ListGrid, useListTable } from "../list-grid";
+import { inventoryColumns, stockStatus, type InventoryNode } from "./columns";
+import { ListGrid, ListStat, useListTable } from "../list-grid";
 
 /**
  * The stock grid, a row per product with its variants nested under it. It
@@ -30,12 +30,31 @@ export function InventoryTable({
     autoResetExpanded: false,
   });
 
+  // every stock row loaded, by its saved quantity
+  const stock = data
+    .flatMap((node) => (node.kind === "group" ? node.variants : [node]))
+    .map((node) => stockStatus(node.item.quantity).variant);
+
   return (
     <ListGrid
       table={table}
       isFetching={isFetching}
       hasNextPage={hasNextPage}
       loadMoreRef={loadMoreRef}
+      noun={["product", "products"]}
+      stats={
+        <>
+          <ListStat value={stock.length} label="stock rows" />
+          <ListStat
+            value={stock.filter((status) => status === "error").length}
+            label="out of stock"
+          />
+          <ListStat
+            value={stock.filter((status) => status === "warning").length}
+            label="low stock"
+          />
+        </>
+      }
       onRowClick={(node) => {
         if (node.kind === "group") table.getRow(node.key).toggleExpanded();
       }}

@@ -118,6 +118,7 @@ export function MediaTable({
       <ListGrid
         table={table}
         onRowClick={handleRowClick}
+        variant="inline"
         className={cn("select-none", className)}
         empty={{ title: "No media found." }}
       />
