@@ -35,7 +35,7 @@ export async function Brands() {
                     width={320}
                     height={320}
                     sizes="(min-width: 1024px) 18vw, 50vw"
-                    className="size-full rounded-none border-none bg-transparent p-[22%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.04] [&_img]:object-contain"
+                    className="size-full rounded-none border-none bg-transparent transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.04]"
                   />
                 </div>
                 <bdi className="text-sm font-medium">{brand.name}</bdi>
