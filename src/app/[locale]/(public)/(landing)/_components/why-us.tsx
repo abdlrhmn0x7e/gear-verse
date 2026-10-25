@@ -107,7 +107,7 @@ export async function WhyUs() {
                   width={960}
                   height={960}
                   sizes="(min-width: 1024px) 55vw, 100vw"
-                  className="absolute inset-0 size-full rounded-none border-none bg-transparent p-[8%] [&_img]:object-contain"
+                  className="absolute inset-0 size-full rounded-none border-none bg-transparent"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export async function WhyUs() {
                         width={240}
                         height={240}
                         sizes="(min-width: 1024px) 10vw, 30vw"
-                        className="absolute inset-0 size-full rounded-none border-none bg-transparent p-3 [&_img]:object-contain"
+                        className="absolute inset-0 size-full rounded-none border-none bg-transparent"
                       />
                     </div>
                     <p className="truncate text-sm opacity-80">

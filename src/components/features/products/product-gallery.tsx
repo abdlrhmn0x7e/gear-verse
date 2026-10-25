@@ -89,7 +89,7 @@ export function ProductGallery({
               height={1200}
               sizes="(min-width: 1024px) 55vw, 100vw"
               preload={index === 0}
-              className="size-full rounded-none border-none bg-transparent p-[8%] [&_img]:object-contain"
+              className="size-full rounded-none border-none bg-transparent"
             />
           </li>
         ))}
@@ -123,7 +123,7 @@ export function ProductGallery({
                   alt=""
                   width={192}
                   height={192}
-                  className="size-full rounded-none border-none bg-transparent p-2 [&_img]:object-contain"
+                  className="size-full rounded-none border-none bg-transparent"
                 />
               </button>
             </li>

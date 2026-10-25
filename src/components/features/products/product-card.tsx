@@ -53,7 +53,7 @@ export function ProductCard({
           height={640}
           sizes={sizes}
           {...(eager && { loading: "eager", fetchPriority: "high" })}
-          className="size-full rounded-none border-none bg-transparent p-[12%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
+          className="size-full rounded-none border-none bg-transparent transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
         />
       </div>
 

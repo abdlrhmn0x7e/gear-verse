@@ -198,7 +198,7 @@ function PrimaryOptionValueButton({
                   ?.thumbnailUrl ?? ""
               }
               alt=""
-              className="size-full rounded-none border-none bg-transparent p-1.5 [&_img]:object-contain"
+              className="size-full rounded-none border-none bg-transparent"
               width={128}
               height={128}
             />
