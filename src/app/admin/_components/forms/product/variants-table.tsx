@@ -387,7 +387,7 @@ function VariantMediaDialog({ index }: { index: number }) {
           type="button"
           aria-label="Choose variant thumbnail"
           className={cn(
-            "group hover:bg-muted flex size-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed transition-all hover:opacity-80",
+            "group hover:bg-muted flex size-12 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed transition-[opacity,background-color] hover:opacity-80",
             form.formState.errors.variants?.[index]?.thumbnail &&
               "border-destructive",
           )}

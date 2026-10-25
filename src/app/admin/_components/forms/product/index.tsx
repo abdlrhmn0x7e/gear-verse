@@ -30,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { Input, NumberInput } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import {
   createProductInputSchema,
@@ -64,11 +64,12 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "~/components/ui/input-group";
-import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
 import { toast } from "~/components/ui/toast";
+import { generateSlug } from "~/lib/utils/slugs";
+import { Badge } from "~/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -111,7 +112,7 @@ const fieldLabels: Record<keyof ProductFormValues, string> = {
   summaryAr: "Summary (Arabic)",
   descriptionAr: "Description (Arabic)",
   media: "Media",
-  inventory: "Inventory",
+  inventory: "Stock",
   options: "Variants",
   variants: "Variants",
   published: "Status",
@@ -183,10 +184,10 @@ export function ProductForm({
     },
   });
 
-  const inventory = useWatch({
+  const title = useWatch({
     control: form.control,
-    name: "inventory",
-    defaultValue: defaultValues?.inventory,
+    name: "title",
+    defaultValue: defaultValues?.title,
   });
   const variants = useWatch({
     control: form.control,
@@ -258,7 +259,7 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="e.g. SIMGOT EW300 IEM" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,7 +273,11 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Summary</FormLabel>
                     <FormControl>
-                      <Textarea className="h-24" {...field} />
+                      <Textarea
+                        className="h-24"
+                        placeholder="One or two lines shoppers see under the title"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -309,6 +314,7 @@ export function ProductForm({
                         <FormControl>
                           <FileDropzone
                             onChange={(media) => insertMedia(0, media)}
+                            uploadButtonVariant="outline"
                           />
                         </FormControl>
                         <FormMessage />
@@ -326,7 +332,11 @@ export function ProductForm({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>Arabic</CardTitle>
-                <ArabicStatusBadge status={saved?.arabicStatus ?? "missing"} />
+                {saved ? (
+                  <ArabicStatusBadge status={saved.arabicStatus} />
+                ) : (
+                  <Badge variant="outline">Optional</Badge>
+                )}
               </div>
               <CardDescription>
                 Shown on the Arabic site. Empty fields show the English instead.
@@ -404,17 +414,6 @@ export function ProductForm({
               />
             </CardContent>
           </Card>
-
-          {!variants?.length && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Inventory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <InventoryTableInput data={[inventory ?? { quantity: 0 }]} />
-              </CardContent>
-            </Card>
-          )}
 
           <Card
             className={cn(
@@ -581,6 +580,27 @@ export function ProductForm({
                   </FormItem>
                 )}
               />
+
+              {/* with variants, each variant carries its own stock */}
+              {!variants?.length && (
+                <FormField
+                  control={form.control}
+                  name="inventory.quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock</FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="0"
+                          onValueChange={field.onChange}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -688,7 +708,10 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Page title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Sus product" {...field} />
+                      <Input
+                        placeholder={title || "Product title"}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -708,7 +731,11 @@ export function ProductForm({
                           </InputGroupText>
                         </InputGroupAddon>
                         <InputGroupInput
-                          placeholder="sussy-product"
+                          // an empty handler keeps a saved slug, and a new product gets one from its title
+                          placeholder={
+                            saved?.slug ??
+                            (generateSlug(title ?? "") || "product-url")
+                          }
                           className="pl-0.5"
                           {...field}
                         />

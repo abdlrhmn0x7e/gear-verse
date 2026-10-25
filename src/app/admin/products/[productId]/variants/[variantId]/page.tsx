@@ -50,12 +50,14 @@ export default async function AdminVariantPage({
         title: product.title,
         href: `/admin/products/${parsedProductId}`,
       }}
+      contentWidth="full"
+      contentClassName="max-w-7xl"
     >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
           <TriangleAlertIcon className="text-primary-foreground size-4 shrink-0" />
           <p className="text-primary-foreground text-sm">
-            this page is not meant to be used on mobile devices.
+            This page works best on a larger screen.
           </p>
         </div>
       </div>

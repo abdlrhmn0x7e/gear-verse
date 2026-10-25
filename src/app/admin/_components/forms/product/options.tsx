@@ -29,6 +29,8 @@ import {
 import type { ProductFormValues } from ".";
 import { generateRandomId } from "~/lib/utils/generate-random-id";
 
+const crossfade = { duration: 0.15, ease: [0.23, 1, 0.32, 1] } as const;
+
 export function Options() {
   const form = useFormContext<ProductFormValues>();
   const {
@@ -98,17 +100,20 @@ export function Options() {
 
   if (options.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
-          <InfoIcon className="size-8" />
-          <p className="max-w-sm text-sm text-pretty">
-            Options are used to group variants. For example, color, size,
-            connectivity, etc.
-          </p>
-        </div>
-        <Button type="button" variant="ghost" onClick={handleAddOption}>
+      <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
+        <InfoIcon className="size-8" />
+        <p className="max-w-sm text-sm text-pretty">
+          Options are used to group variants. For example, color, size,
+          connectivity, etc.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-4"
+          onClick={handleAddOption}
+        >
           <PlusIcon data-icon="inline-start" />
-          Add Options like color, connectivity, etc.
+          Add options
         </Button>
       </div>
     );
@@ -194,15 +199,16 @@ function Option({
   }
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    // popLayout takes the leaving state out of the flow, so the two fade across each other
+    <AnimatePresence mode="popLayout" initial={false}>
       {open ? (
         <motion.div
           key={`option-open-${optionId}`}
           className="space-y-4"
-          initial={{ opacity: 0, y: 16, height: 100 }}
-          animate={{ opacity: 1, y: 0, height: "auto" }}
-          exit={{ opacity: 0, y: -16, height: "auto" }}
-          transition={{ duration: 0.1, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={crossfade}
         >
           <OptionFields index={index} />
 
@@ -234,10 +240,10 @@ function Option({
           type="button"
           onClick={toggleOpen}
           className="hover:bg-foreground/6 dark:hover:bg-foreground/8 -mt-4 flex min-h-16 w-full flex-col items-start rounded-lg px-3 py-2 transition-colors"
-          initial={{ opacity: 0, y: 16, height: 100 }}
-          animate={{ opacity: 1, y: 0, height: "auto" }}
-          exit={{ opacity: 0, y: -16, height: "auto" }}
-          transition={{ duration: 0.1, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={crossfade}
         >
           <p className="font-medium">{optionName}</p>
           {previewValues.length > 0 ? (

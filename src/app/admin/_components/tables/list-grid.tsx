@@ -183,7 +183,8 @@ export function ListGrid<Row extends object>({
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
-      <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
+      {/* a form's save bar floats over the list's end; the padding lets the last rows scroll clear of it */}
+      <div className="min-h-0 flex-1 overflow-auto overscroll-contain [form:has([data-slot=save-bar])_&]:pb-20">
         {content}
       </div>
       <ListStats>

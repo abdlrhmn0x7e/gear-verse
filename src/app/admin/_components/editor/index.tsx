@@ -42,7 +42,7 @@ export function Editor({
   // one per editor, or expanding one animates every editor on the page
   const layoutId = useId();
 
-  if (!editor) return <Skeleton className="h-[24rem] w-full" />;
+  if (!editor) return <Skeleton className="h-60 w-full" />;
 
   function handleExpand() {
     setIsExpanded((prev) => !prev);
@@ -72,7 +72,7 @@ export function Editor({
 
             <ScrollArea
               onClick={() => editor.chain().focus().run()}
-              className="h-[20rem] p-4"
+              className="min-h-50 p-4 *:data-[slot=scroll-area-viewport]:max-h-[32rem]"
             >
               <EditorContent editor={editor} className="size-full" />
             </ScrollArea>

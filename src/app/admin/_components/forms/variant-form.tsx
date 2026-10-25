@@ -17,7 +17,6 @@ import { Field, FieldError, FieldLabel } from "~/components/ui/field";
 import { Input, NumberInput } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { MediaStoreProvider } from "../../_stores/media/provider";
-import { InventoryTableInput } from "../inputs/inventory-table-input";
 import { MediaDialog } from "../dialogs/media";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 
@@ -192,12 +191,17 @@ export function VariantForm({
             </CardHeader>
             <CardContent className="space-y-4">
               <Controller
-                name="inventory"
+                name="inventory.quantity"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <InventoryTableInput
-                      data={field.value ? [field.value] : []}
+                    <FieldLabel htmlFor={field.name}>Stock</FieldLabel>
+                    <NumberInput
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="0"
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

@@ -80,7 +80,7 @@ export function DraftSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" size="sm" suppressHydrationWarning />}
+        render={<Button variant="outline" size="sm" suppressHydrationWarning />}
       >
         <FileTextIcon data-icon="inline-start" />
         Drafts
