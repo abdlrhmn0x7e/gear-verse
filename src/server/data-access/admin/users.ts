@@ -125,6 +125,7 @@ export const _users = {
           name: users.name,
           email: users.email,
           role: users.role,
+          banned: users.banned,
         })
         .from(users)
         .where(and(eq(users.id, id), isRegistered))
