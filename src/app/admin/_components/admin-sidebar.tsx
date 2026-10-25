@@ -7,6 +7,7 @@ import {
   Layers01Icon,
   Settings01Icon,
   ShoppingCart01Icon,
+  Store01Icon,
   Tag01Icon,
   TradeMarkIcon,
   UserMultipleIcon,
@@ -15,7 +16,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Logo } from "~/components/logo";
+import { Button } from "~/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -29,8 +30,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { AccountMenu } from "./account-menu";
+import { env } from "~/env";
 import { LogoMark } from "./logo-mark";
+
+/** The store's address without the scheme, for the footer block. */
+const storeHost = new URL(env.NEXT_PUBLIC_APP_URL).host;
 
 type NavItem = {
   title: string;
@@ -103,18 +107,15 @@ export function AdminSidebar() {
     );
 
   return (
-    <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader>
+    <Sidebar collapsible="icon">
+      {/* 57px with its hairline: the brand tile and name, linking back to the store. Folded, the tile alone stays,
+          centred across the rail. */}
+      <SidebarHeader className="h-[57px] shrink-0 flex-row items-center border-b p-3 group-data-[collapsible=icon]:px-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* A 48px row, the height of the card's top bar, so the logo sits on
-                that bar's centre line, centred across the rail like the folded
-                mark. Folded, the 32px icon button keeps the same line with 8px
-                above and below. */}
             <SidebarMenuButton
-              size="lg"
               tooltip="Back to the store"
-              className="focus-visible:bg-sidebar-accent group-data-[collapsible=icon]:hover:bg-sidebar-accent/50 justify-center px-2 group-data-[collapsible=icon]:my-2 group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
+              className="h-8 gap-2 p-0! group-data-[collapsible=icon]:p-0! hover:bg-transparent focus-visible:ring-0"
               render={
                 <Link
                   href="/"
@@ -123,24 +124,34 @@ export function AdminSidebar() {
                 />
               }
             >
-              <LogoMark className="hidden h-6 group-data-[collapsible=icon]:block" />
-              <Logo className="h-10 w-auto group-data-[collapsible=icon]:hidden" />
+              <span className="bg-secondary flex size-8 shrink-0 items-center justify-center rounded-lg shadow-(--control-shadow)">
+                <LogoMark className="h-5" />
+              </span>
+              <span className="flex min-w-0 flex-col leading-tight">
+                <span className="text-foreground truncate text-sm font-medium">
+                  Gear Verse
+                </span>
+                <span className="text-muted-foreground truncate text-xs font-normal">
+                  Store admin
+                </span>
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* Groups sit close: a short heading is enough to separate them. */}
+      {/* Each group is its own bordered band with a faint eyebrow above its items. */}
       <SidebarContent className="gap-0">
         {navGroups.map((group) => (
-          <SidebarGroup key={group.label ?? "start"} className="py-1.5">
+          <SidebarGroup
+            key={group.label ?? "start"}
+            className="gap-1 border-b p-3 group-data-[collapsible=icon]:px-2"
+          >
             {group.label && (
-              <SidebarGroupLabel className="h-7 group-data-[collapsible=icon]:-mt-7">
-                {group.label}
-              </SidebarGroupLabel>
+              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             )}
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-0.5">
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
@@ -148,7 +159,7 @@ export function AdminSidebar() {
                       tooltip={item.title}
                       render={<Link href={item.href} onClick={closeMobile} />}
                     >
-                      <HugeiconsIcon icon={item.icon} strokeWidth={1.5} />
+                      <HugeiconsIcon icon={item.icon} strokeWidth={1.75} />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -159,10 +170,29 @@ export function AdminSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          <AccountMenu />
-        </SidebarMenu>
+      {/* The reference's footer block, here the live store it manages. Folded, only the store button stays. */}
+      <SidebarFooter className="flex-row items-center justify-between gap-2 border-t p-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
+        <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
+          <p className="text-foreground text-sm font-medium">Storefront</p>
+          <p className="text-muted-foreground truncate text-xs">{storeHost}</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-[30px] px-[9px] text-xs group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:px-0"
+          nativeButton={false}
+          render={<Link href="/" onClick={closeMobile} />}
+        >
+          <HugeiconsIcon
+            icon={Store01Icon}
+            strokeWidth={1.75}
+            data-icon="inline-start"
+            className="size-3.5"
+          />
+          <span className="group-data-[collapsible=icon]:sr-only">
+            Open store
+          </span>
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );

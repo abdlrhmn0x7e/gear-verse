@@ -408,12 +408,11 @@
   --background: #161616;
   --foreground: #f9fbff;
   --card: #1b1d20;
-  /* a hair above the page so a menu over it still has a surface of its own under the hairline */
-  --popover: #1a1a1a;
-  /* white on plum-600 measures 5.3:1; hover goes a step deeper (7.3:1) rather than paler */
+  --popover: #161616;
+  /* white on plum-600 measures 5.3:1; hover lifts it a touch, as the reference's primary does (4.8:1) */
   --primary: var(--plum-600);
   --primary-foreground: oklch(1 0 0);
-  --primary-hover: var(--plum-700);
+  --primary-hover: oklch(0.56 0.19 325);
   --secondary: #1e1e1e;
   --secondary-foreground: var(--foreground);
   --muted: #2a2a2a;
@@ -422,7 +421,8 @@
   --accent: #2a2a2a;
   --destructive: #f97373;
   --border: #232323;
-  --floating-border: oklch(1 0 0 / 8%);
+  /* menus and drawers sit on the page's own colour, edged by the strong line and a deep shadow */
+  --floating-border: #393939;
   --input: #393939;
   --input-background: #1e1e1e;
   --floating-field: #1e1e1e;
@@ -453,6 +453,10 @@
     inset 0 4px 6px rgb(255 255 255 / 0.2),
     inset 0 0 0 1px rgb(255 255 255 / 0.15),
     inset 0 -8px 14px rgb(0 0 0 / 0.15);
+
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
+  --shadow-xl: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
+  --shadow-2xl: 0 24px 64px rgb(0 0 0 / 0.6), 0 0 0 1px #0e0e0e;
 
   --radius: 0.5rem;
   /* the reference's one curve, so every duration-150 ease-out transition in the admin moves alike */
@@ -754,6 +758,40 @@
         border-color: var(--primary-hover);
         background-color: var(--primary-hover);
       }
+    }
+  }
+}
+
+/* The admin's header and toolbar controls at the reference's size: 30px tall, 12px labels, 9px padding, 14px icons. */
+@utility admin-controls {
+  & [data-slot="button"]:not([data-size^="icon"]) {
+    height: 30px;
+    gap: 6px;
+    padding-inline: 9px;
+    font-size: 0.75rem;
+  }
+
+  & [data-slot="button"][data-size^="icon"] {
+    width: 30px;
+    height: 30px;
+  }
+
+  & [data-slot="button"] svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  & [data-slot="input-group"] {
+    height: 30px;
+    font-size: 0.75rem;
+
+    & input {
+      font-size: inherit;
+    }
+
+    & svg {
+      width: 14px;
+      height: 14px;
     }
   }
 }

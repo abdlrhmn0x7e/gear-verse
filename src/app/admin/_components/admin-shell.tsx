@@ -14,13 +14,13 @@ import { AdminSidebar } from "./admin-sidebar";
  */
 const COLLAPSE_SIDEBAR_ROUTES = [/^\/admin\/products\/[^/]+/];
 
-/** A page at its full reading width: 80rem less its 0.5rem trim, with 2.25rem padding each side. */
+/** A page at its full reading width: 80rem with 2rem padding each side (PageLayout's "reading"). */
 const READING_WIDTH_REM = 84;
 
-/** The open navigation's width (`--sidebar-width`). */
-const OPEN_SIDEBAR_REM = 16;
+/** The open navigation's width in px (`--sidebar-width`). */
+const OPEN_SIDEBAR_PX = 254;
 
-/** The admin chrome: the inset navigation beside the content card that every page fills with a `PageLayout`. */
+/** The admin chrome: the navigation beside the flat page that every page fills with a `PageLayout`. */
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const inset = useRef<HTMLElement>(null);
   const sidebar = useRouteSidebarOpen(inset);
@@ -57,8 +57,7 @@ function useRoomForOpenSidebar(inset: RefObject<HTMLElement | null>) {
       const rem = Number.parseFloat(
         getComputedStyle(document.documentElement).fontSize,
       );
-      const ifOpen =
-        page.offsetWidth + gap.offsetWidth - OPEN_SIDEBAR_REM * rem;
+      const ifOpen = page.offsetWidth + gap.offsetWidth - OPEN_SIDEBAR_PX;
 
       setRoomy(ifOpen >= READING_WIDTH_REM * rem);
     };
