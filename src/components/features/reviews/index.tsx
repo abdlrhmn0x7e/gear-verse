@@ -1,5 +1,5 @@
 import { CheckCircleIcon } from "lucide-react";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -10,12 +10,22 @@ import { AddReview } from "./add-review";
 import { DeleteReviewDialog } from "./delete-review";
 import { EditReview } from "./edit-reviews";
 import { StarRating } from "./star-rating";
+import { getLocale } from "next-intl/server";
+import type { Locale } from "~/i18n/routing";
 
-const dateFormat = new Intl.DateTimeFormat("en", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
+// Arabic keeps Western digits, as format-currency does
+const dateFormats = {
+  en: new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }),
+  ar: new Intl.DateTimeFormat("ar-EG-u-nu-latn", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }),
+} satisfies Record<Locale, Intl.DateTimeFormat>;
 
 // a snap row on phones so the next card peeks (like the home hero), three columns from tablets up
 const cardRowClassName =
@@ -24,6 +34,7 @@ const cardClassName =
   "bg-card flex min-h-72 w-[80vw] shrink-0 snap-start flex-col gap-6 rounded-3xl p-6 md:w-auto md:p-8";
 
 export async function Reviews({ productId }: { productId: number }) {
+  const locale = await getLocale();
   const reviews = await app.public.reviews.queries.findAll(productId);
   const data = await getSession();
   const userHasReviewed = reviews.some(
@@ -97,7 +108,7 @@ export async function Reviews({ productId }: { productId: number }) {
                   dateTime={new Date(review.createdAt).toISOString()}
                   className="text-muted-foreground text-sm"
                 >
-                  {dateFormat.format(review.createdAt)}
+                  {dateFormats[locale].format(review.createdAt)}
                 </time>
               </div>
             </li>

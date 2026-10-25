@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "~/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { SearchIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -30,6 +31,7 @@ import {
 } from "./product-search-dialog";
 
 export function SearchDrawer() {
+  const t = useTranslations("nav");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
@@ -60,7 +62,7 @@ export function SearchDrawer() {
         render={<Button variant="ghost" size="icon-lg" className="lg:hidden" />}
       >
         <SearchIcon />
-        <span className="sr-only">Search products</span>
+        <span className="sr-only">{t("searchProducts")}</span>
       </DrawerTrigger>
       {/* a fixed height rather than a min-height: the drawer caps itself above the keyboard when it opens, and a
           min-height would win and push its top off screen */}

@@ -17,7 +17,7 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
 import { Spinner } from "~/components/spinner";
-import { useRouter } from "next/navigation";
+import { useRouter } from "~/i18n/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function EditReview({

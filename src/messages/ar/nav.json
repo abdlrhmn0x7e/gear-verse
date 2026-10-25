@@ -1,0 +1,33 @@
+{
+  "store": "المتجر",
+  "categories": "الأقسام",
+  "faq": "أسئلة شائعة",
+  "searchProducts": "دوّر على منتج",
+  "cart": "السلة",
+  "cartWithCount": "السلة، {count, plural, =0 {فاضية} one {منتج واحد} two {منتجين} few {# منتجات} other {# منتج}}",
+  "shopEverything": "شوف كل المنتجات",
+  "admin": "لوحة التحكم",
+  "openMenu": "افتح القائمة",
+  "closeMenu": "اقفل القائمة",
+  "siteNavigation": "تصفّح الموقع",
+  "menu": "القائمة",
+  "shop": "تسوّق",
+  "allProducts": "كل المنتجات",
+  "shopByCategory": "تسوّق حسب القسم",
+  "requestItem": "اطلب منتج",
+  "appearance": "الشكل",
+  "language": "اللغة",
+  "contact": "كلّمنا",
+  "whatsapp": "واتساب",
+  "myOrders": "طلباتي",
+  "signInPrompt": "سجّل دخولك عشان تشوف طلباتك من أي جهاز.",
+  "signIn": "سجّل دخول",
+  "signOut": "اخرج من حسابك",
+  "theme": {
+    "label": "المظهر",
+    "toggle": "بدّل الوضع الغامق",
+    "light": "فاتح",
+    "dark": "غامق",
+    "system": "زي الجهاز"
+  }
+}

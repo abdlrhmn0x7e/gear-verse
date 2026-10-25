@@ -11,8 +11,7 @@ import {
   SunIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "~/i18n/navigation";
 import { useEffect } from "react";
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
@@ -32,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
+import { useTranslations } from "next-intl";
 
 /** Signs out, then lands on the home page, where the anonymous session takes over again. */
 export function useSignOut() {
@@ -156,10 +156,12 @@ export function ProfileDropdown({ className }: { className?: string }) {
 }
 
 function SignInButtonShape(props: React.ComponentProps<typeof Button>) {
+  const t = useTranslations("nav");
+
   return (
     <Button variant="outline" {...props}>
       <LogInIcon data-icon="inline-start" />
-      Sign in
+      {t("signIn")}
     </Button>
   );
 }

@@ -2,12 +2,9 @@
 
 import * as React from "react";
 import { cn } from "~/lib/utils";
+import { navTextClassName } from "./nav-text";
 import { NavigationMenu } from "@base-ui/react/navigation-menu";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-const navTextClassName =
-  "text-muted-foreground hover:text-foreground active:text-foreground aria-[current=page]:text-foreground data-popup-open:text-foreground inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+import { Link, usePathname } from "~/i18n/navigation";
 
 function NavTextLink({
   href,

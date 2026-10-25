@@ -1,5 +1,5 @@
 import { cacheTag } from "next/cache";
-import Link from "next/link";
+import { Link } from "~/i18n/navigation";
 import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 

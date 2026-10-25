@@ -201,13 +201,13 @@ export async function ProductSummary({ slug }: { slug: string }) {
         <section aria-label="Pricing" className="flex flex-col gap-2">
           <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular-nums">
             <span className="text-3xl font-medium tracking-tight">
-              {formatCurrency(product.price)}
+              {formatCurrency(product.price, "en")}
             </span>
             {discount > 0 && (
               <>
                 <s className="text-muted-foreground text-lg">
                   <span className="sr-only">Was </span>
-                  {formatCurrency(product.strikeThroughPrice!)}
+                  {formatCurrency(product.strikeThroughPrice!, "en")}
                 </s>
                 <Badge variant="brand" className="self-center">
                   Save {discount}%
@@ -217,8 +217,8 @@ export async function ProductSummary({ slug }: { slug: string }) {
           </p>
           {minPrice !== maxPrice && (
             <p className="text-muted-foreground text-sm tabular-nums">
-              Variants sell for {formatCurrency(minPrice)} to{" "}
-              {formatCurrency(maxPrice)}
+              Variants sell for {formatCurrency(minPrice, "en")} to{" "}
+              {formatCurrency(maxPrice, "en")}
             </p>
           )}
           {product.summary && (
@@ -234,7 +234,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
         >
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Units sold" value={stats.unitsSold.toLocaleString()} />
-            <Stat label="Revenue" value={formatCurrency(stats.revenue)} />
+            <Stat label="Revenue" value={formatCurrency(stats.revenue, "en")} />
             <Stat label="Orders" value={stats.orders.toLocaleString()} />
             <Stat
               label="Rating"
@@ -303,7 +303,7 @@ export async function ProductSummary({ slug }: { slug: string }) {
                     <span className="truncate font-medium">{row.label}</span>
                     {row.price !== null && row.price !== product.price && (
                       <span className="text-muted-foreground text-sm tabular-nums">
-                        {formatCurrency(row.price)}
+                        {formatCurrency(row.price, "en")}
                       </span>
                     )}
                   </div>

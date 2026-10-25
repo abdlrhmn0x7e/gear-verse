@@ -1,0 +1,33 @@
+{
+  "store": "Store",
+  "categories": "Categories",
+  "faq": "FAQ",
+  "searchProducts": "Search products",
+  "cart": "Cart",
+  "cartWithCount": "Cart, {count, plural, one {# item} other {# items}}",
+  "shopEverything": "Shop everything",
+  "admin": "Admin",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "siteNavigation": "Site navigation",
+  "menu": "Menu",
+  "shop": "Shop",
+  "allProducts": "All products",
+  "shopByCategory": "Shop by category",
+  "requestItem": "Request an item",
+  "appearance": "Appearance",
+  "language": "Language",
+  "contact": "Contact",
+  "whatsapp": "WhatsApp",
+  "myOrders": "My orders",
+  "signInPrompt": "Sign in to see your orders on any device.",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
+  "theme": {
+    "label": "Theme",
+    "toggle": "Toggle dark mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}

@@ -1,6 +1,7 @@
 import { cacheTag } from "next/cache";
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "~/i18n/navigation";
 import { Suspense } from "react";
 import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
@@ -12,18 +13,21 @@ import { SocialLinks } from "./social-links";
 import { WhatsAppNumberLink } from "./whatsapp-number-link";
 
 const HELP_LINKS = [
-  { title: "Request an item", href: "/#request" },
-  { title: "FAQ", href: "/#faq" },
-  { title: "My orders", href: "/orders" },
-  { title: "Returns & refunds", href: "/returns" },
-];
+  { key: "requestItem", href: "/#request" },
+  { key: "faq", href: "/#faq" },
+  { key: "myOrders", href: "/orders" },
+  { key: "returns", href: "/returns" },
+] as const;
 
 // phones get a 44px row per link; the columns keep their spacing on desktop
 const linkClassName =
   "text-muted-foreground hover:text-foreground active:text-foreground pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:min-w-11 pointer-coarse:items-center rounded-sm transition-[color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export async function Footer() {
-  const settings = await getStoreSettings();
+  const [settings, t] = await Promise.all([
+    getStoreSettings(),
+    getTranslations("footer"),
+  ]);
   const { whatsappNumber } = settings;
 
   return (
@@ -50,18 +54,17 @@ export async function Footer() {
             <Logo className="h-14" />
           </Link>
           <p className="text-muted-foreground max-w-xs text-pretty">
-            Gear worth the money, in stock in Egypt. If it&apos;s not on the
-            shelf, we&apos;ll get it.
+            {t("tagline")}
           </p>
           <SocialLinks links={settings} />
         </div>
 
-        <nav aria-label="Shop" className="space-y-4">
-          <h2 className="text-sm font-medium">Shop</h2>
+        <nav aria-label={t("shop")} className="space-y-4">
+          <h2 className="text-sm font-medium">{t("shop")}</h2>
           <ul className="space-y-3 text-sm pointer-coarse:space-y-0">
             <li>
               <Link href="/products" className={linkClassName}>
-                All products
+                {t("allProducts")}
               </Link>
             </li>
             <Suspense>
@@ -70,13 +73,13 @@ export async function Footer() {
           </ul>
         </nav>
 
-        <nav aria-label="Help" className="space-y-4">
-          <h2 className="text-sm font-medium">Help</h2>
+        <nav aria-label={t("help")} className="space-y-4">
+          <h2 className="text-sm font-medium">{t("help")}</h2>
           <ul className="space-y-3 text-sm pointer-coarse:space-y-0">
             {HELP_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClassName}>
-                  {link.title}
+                  {t(link.key)}
                 </Link>
               </li>
             ))}
@@ -86,7 +89,7 @@ export async function Footer() {
         {whatsappNumber && (
           <section aria-labelledby="footer-contact" className="space-y-4">
             <h2 id="footer-contact" className="text-sm font-medium">
-              Contact
+              {t("contact")}
             </h2>
             <div className="space-y-1.5 text-sm">
               <WhatsAppNumberLink
@@ -99,12 +102,14 @@ export async function Footer() {
                   aria-hidden
                 />
               </WhatsAppNumberLink>
-              <p className="text-muted-foreground">Chat with us on WhatsApp</p>
+              <p className="text-muted-foreground">{t("chatOnWhatsApp")}</p>
             </div>
           </section>
         )}
 
         <PayOnDelivery
+          label={t("waysToPay")}
+          note={t("paymentNote")}
           className={cn(
             "border-t pt-8 md:col-span-3",
             whatsappNumber && "lg:col-span-4",
@@ -113,11 +118,17 @@ export async function Footer() {
       </div>
 
       <p className="text-muted-foreground px-2 pt-6 text-sm">
-        ©{" "}
-        <Suspense>
-          <CurrentYear />
-        </Suspense>{" "}
-        Gear Verse. All rights reserved.
+        {/* the year and the Latin brand name are isolated, or an Arabic line would order them left to right */}
+        {t.rich("copyright", {
+          year: () => (
+            <bdi>
+              <Suspense>
+                <CurrentYear />
+              </Suspense>
+            </bdi>
+          ),
+          brand: (chunks) => <bdi>{chunks}</bdi>,
+        })}
       </p>
     </footer>
   );
@@ -133,7 +144,7 @@ async function CategoryLinks() {
   return categories.map((category) => (
     <li key={category.slug}>
       <Link href={`/categories/${category.slug}`} className={linkClassName}>
-        {category.name}
+        <bdi>{category.name}</bdi>
       </Link>
     </li>
   ));

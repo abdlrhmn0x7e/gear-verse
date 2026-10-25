@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "check": "eslint . && tsc --noEmit",
+    "check": "eslint . && tsc --noEmit && bun run check:messages",
+    "check:messages": "bun scripts/check-messages.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -77,6 +78,7 @@
     "maplibre-gl": "^6.15.0",
     "motion": "^14.3.0",
     "next": "^16.4.2",
+    "next-intl": "4.14.9",
     "next-themes": "^0.4.6",
     "nuqs": "^2.10.2",
     "postgres": "^3.4.9",

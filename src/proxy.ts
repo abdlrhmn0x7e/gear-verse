@@ -1,10 +1,12 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import createMiddleware from "next-intl/middleware";
 import { headers } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "./server/auth";
 import { env } from "./env";
+import { routing } from "./i18n/routing";
 import { isFacetedSearch, isListingPath } from "./lib/seo/faceted";
 
 /**
@@ -26,6 +28,8 @@ function createAuthRatelimit() {
 
 const authRatelimit = createAuthRatelimit();
 
+const handleI18nRouting = createMiddleware(routing);
+
 /**
  * Get client IP address from request headers.
  */
@@ -39,20 +43,6 @@ function getClientIp(request: NextRequest): string {
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-
-  /**
-   * Filtered and sorted listings copy the clean page, so they stay out of the
-   * index while their links are still followed. A header rather than page
-   * metadata: reading searchParams in generateMetadata would make every
-   * listing's metadata dynamic and stream it into the body.
-   */
-  if (isListingPath(path)) {
-    const response = NextResponse.next();
-    if (isFacetedSearch(req.nextUrl.searchParams)) {
-      response.headers.set("X-Robots-Tag", "noindex, follow");
-    }
-    return response;
-  }
 
   // Rate limit auth routes: 30 requests per minute
   if (path.startsWith("/api/auth")) {
@@ -81,18 +71,66 @@ export async function proxy(req: NextRequest) {
     });
 
     if (session?.user.role !== "admin") {
-      return NextResponse.rewrite(new URL("/not-found", req.url));
+      // the storefront's 404, with its navbar; the admin itself stays outside locale routing
+      return NextResponse.rewrite(new URL("/en/not-found", req.url));
     }
+
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  // Sentry's tunnel route has a random path, so it can't be left out of the matcher by name
+  if (
+    req.method === "POST" &&
+    req.nextUrl.searchParams.has("o") &&
+    req.nextUrl.searchParams.has("p")
+  ) {
+    return NextResponse.next();
+  }
+
+  const response = localize(req);
+
+  /**
+   * Filtered and sorted listings copy the clean page, so they stay out of the
+   * index while their links are still followed. A header rather than page
+   * metadata: reading searchParams in generateMetadata would make every
+   * listing's metadata dynamic and stream it into the body.
+   */
+  if (isListingPath(path) && isFacetedSearch(req.nextUrl.searchParams)) {
+    response.headers.set("X-Robots-Tag", "noindex, follow");
+  }
+
+  return response;
+}
+
+/**
+ * English stays at unprefixed URLs and Arabic under /ar. Only the locale cookie, set when someone picks Arabic, sends an
+ * unprefixed URL to its /ar twin (a temporary redirect); a first visit is never redirected by Accept-Language, so
+ * crawlers and new visitors always get the English page there. /en/... is a permanent redirect to the unprefixed URL.
+ */
+function localize(req: NextRequest) {
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.delete("accept-language");
+  const response = handleI18nRouting(
+    new NextRequest(req, { headers: requestHeaders }),
+  );
+  // the switch writes the cookie in the browser, so visiting a page in a language never pins it, and pages stay
+  // cacheable without a Set-Cookie
+  response.headers.delete("set-cookie");
+  response.headers.delete("x-middleware-set-cookie");
+
+  const location = response.headers.get("location");
+  if (!location || !/^\/en(\/|$)/.test(req.nextUrl.pathname)) {
+    return response;
+  }
+
+  return NextResponse.redirect(location, 308);
 }
 
 export const config = {
   matcher: [
+    // everything but API routes, Next internals, the admin and files (paths with a dot)
+    "/((?!api/|_next/|_vercel/|admin(?:/|$)|.*\\..*).*)",
     "/admin/:path*",
     "/api/auth/:path*",
-    "/products",
-    "/categories/:slug",
   ],
 };

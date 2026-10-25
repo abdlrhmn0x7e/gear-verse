@@ -1,12 +1,11 @@
 "use client";
 
 import { ArrowRightIcon, LockIcon, ShoppingBagIcon, XIcon } from "lucide-react";
-import Link from "next/link";
+import { Link, useRouter } from "~/i18n/navigation";
 import { useTRPC } from "~/trpc/client";
 import { Button } from "./ui/button";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { toast } from "~/components/ui/toast";
 import type { JSX } from "react/jsx-dev-runtime";
 import { useState } from "react";
@@ -30,6 +29,7 @@ import {
   DrawerTrigger,
 } from "./ui/drawer";
 import { Skeleton } from "./ui/skeleton";
+import { useLocale, useTranslations } from "next-intl";
 
 export function CartDrawer({
   open,
@@ -41,6 +41,8 @@ export function CartDrawer({
   /** defaults to the navbar cart button with the item count */
   Trigger?: JSX.Element;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("nav");
   const trpc = useTRPC();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -104,8 +106,8 @@ export function CartDrawer({
               size="icon-lg"
               aria-label={
                 isPendingCart
-                  ? "Cart"
-                  : `Cart, ${itemCount} ${itemCount === 1 ? "item" : "items"}`
+                  ? t("cart")
+                  : t("cartWithCount", { count: itemCount })
               }
             />
           }
@@ -214,7 +216,10 @@ export function CartDrawer({
                         }
                       />
                       <p className="text-sm font-medium tabular-nums">
-                        {formatCurrency((item.price ?? 0) * item.quantity)}
+                        {formatCurrency(
+                          (item.price ?? 0) * item.quantity,
+                          locale,
+                        )}
                       </p>
                     </div>
                   </div>
@@ -251,7 +256,7 @@ export function CartDrawer({
             <div className="flex items-baseline justify-between">
               <span className="text-muted-foreground text-sm">Subtotal</span>
               <span className="text-lg font-medium tabular-nums">
-                {formatCurrency(subtotal)}
+                {formatCurrency(subtotal, locale)}
               </span>
             </div>
 

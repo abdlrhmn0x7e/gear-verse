@@ -88,7 +88,7 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
   const customer = order.address?.fullName ?? order.user?.name ?? "A customer";
   const payment =
     order.paymentMethod === "COD" ? "Cash on delivery" : "Online payment";
-  const summary = `${customer} ordered ${itemCount} ${itemCount === 1 ? "item" : "items"} for ${formatCurrency(subtotal)}.`;
+  const summary = `${customer} ordered ${itemCount} ${itemCount === 1 ? "item" : "items"} for ${formatCurrency(subtotal, "en")}.`;
 
   const addressLines = order.address
     ? [
@@ -99,7 +99,7 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
       ]
     : [];
 
-  const subject = `New order #${order.id} · ${formatCurrency(subtotal)}`;
+  const subject = `New order #${order.id} · ${formatCurrency(subtotal, "en")}`;
 
   const e = escapeHtml;
   const itemRows = order.items
@@ -117,7 +117,7 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
             ${options ? `<div style="font-size:13px;line-height:18px;color:${COLORS.muted};padding-top:2px;">${e(options)}</div>` : ""}
             <div style="font-size:13px;line-height:18px;color:${COLORS.muted};padding-top:2px;">Qty ${item.quantity}</div>
           </td>
-          <td valign="top" align="right" style="padding:16px 0;font-size:15px;line-height:20px;color:${COLORS.text};white-space:nowrap;">${formatCurrency(item.price * item.quantity)}</td>
+          <td valign="top" align="right" style="padding:16px 0;font-size:15px;line-height:20px;color:${COLORS.text};white-space:nowrap;">${formatCurrency(item.price * item.quantity, "en")}</td>
         </tr>`;
     })
     .join(
@@ -176,7 +176,7 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${COLORS.hairline};">
               <tr>
                 <td style="padding:16px 0 4px;font-size:15px;line-height:20px;color:${COLORS.muted};">Subtotal</td>
-                <td align="right" style="padding:16px 0 4px;font-size:15px;line-height:20px;font-weight:600;color:${COLORS.text};white-space:nowrap;">${formatCurrency(subtotal)}</td>
+                <td align="right" style="padding:16px 0 4px;font-size:15px;line-height:20px;font-weight:600;color:${COLORS.text};white-space:nowrap;">${formatCurrency(subtotal, "en")}</td>
               </tr>
               <tr>
                 <td style="padding:4px 0 0;font-size:13px;line-height:18px;color:${COLORS.muted};">Shipping</td>
@@ -210,10 +210,10 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
     "",
     ...order.items.map((item) => {
       const options = item.values?.length ? ` (${item.values.join(", ")})` : "";
-      return `${item.quantity} × ${item.title}${options}  ${formatCurrency(item.price * item.quantity)}`;
+      return `${item.quantity} × ${item.title}${options}  ${formatCurrency(item.price * item.quantity, "en")}`;
     }),
     "",
-    `Subtotal: ${formatCurrency(subtotal)}`,
+    `Subtotal: ${formatCurrency(subtotal, "en")}`,
     "Shipping: set when you confirm",
     "",
     ...(addressLines.length ? ["Deliver to:", ...addressLines, ""] : []),
