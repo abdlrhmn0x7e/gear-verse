@@ -752,6 +752,8 @@
     gap: 6px;
     padding-inline: 9px;
     font-size: 0.75rem;
+    /* the reference's 12px/12px, so the label centres on its icon rather than riding above it */
+    line-height: 1;
   }
 
   & [data-variant][data-size^="icon"] {
@@ -762,6 +764,22 @@
   & [data-variant][data-size] svg {
     width: 14px;
     height: 14px;
+  }
+
+  /* a segmented switch (Today / 7 days / 30 days) at the buttons' height and fill, its segments at their label size */
+  & [data-slot="tabs-list"] {
+    height: 30px;
+    padding: 2px;
+    background-color: var(--control-fill);
+    box-shadow: var(--control-shadow);
+  }
+
+  & [data-slot="tabs-trigger"] {
+    height: 100%;
+    padding-block: 0;
+    padding-inline: 9px;
+    font-size: 0.75rem;
+    line-height: 1;
   }
 
   /* the filter builder's chips as one segmented pill: quiet label, hairline dividers, the value in full weight */

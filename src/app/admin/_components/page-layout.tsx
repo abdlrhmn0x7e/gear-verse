@@ -22,8 +22,8 @@ const contentWidthClasses: Record<
   string
 > = {
   reading: "mx-auto w-full max-w-7xl px-4 py-6 md:px-8",
-  full: "w-full px-4 py-6 md:px-6",
-  fill: "min-h-0 px-4 py-6 md:px-6",
+  full: "w-full px-4 py-6",
+  fill: "min-h-0 px-4 py-6",
 };
 
 /**
@@ -91,7 +91,7 @@ export function PageLayout({
           !table && "border-b",
         )}
       >
-        <SidebarTrigger className="-ms-1.5 size-[30px] shrink-0 rounded-full" />
+        <SidebarTrigger className="-ms-2 size-[30px] shrink-0 rounded-full" />
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {parent && (
             <nav
