@@ -2,8 +2,6 @@
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { domAnimation, LazyMotion, useReducedMotion } from "motion/react";
-import * as m from "motion/react-m";
 import { cn } from "~/lib/utils";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
@@ -312,71 +310,7 @@ function SidebarTrigger({
   );
 }
 
-/**
- * The grab handle on the content card's edge. A short vertical stroke at
- * rest; on hover its midpoint springs sideways so it becomes a chevron
- * pointing the way the sidebar will move, with a tooltip beside it. One path
- * with round joins, so the fold never shows a seam. The chevron reads the
- * sidebar state directly, so it flips the moment the sidebar is toggled
- * rather than when the width transition finishes. Only the handle itself is
- * the target: the rest of the edge is left alone.
- */
-const RAIL_SPRING = { type: "spring", stiffness: 520, damping: 32 } as const;
-
-function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
-  const { toggleSidebar, open } = useSidebar();
-  const [hovered, setHovered] = React.useState(false);
-  const collapsed = !open;
-  // Midpoint x within the 16px box: centred at rest, pushed toward the
-  // sidebar for "<" (collapse) and away from it for ">" (expand).
-  const tip = hovered ? (collapsed ? 12 : 4) : 8;
-  // MotionConfig's reduced motion only stills transforms, and this morphs a path.
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <button
-      data-sidebar="rail"
-      data-slot="sidebar-rail"
-      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      tabIndex={-1}
-      onClick={toggleSidebar}
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
-      className={cn(
-        "group/rail absolute start-0 top-1/2 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
-        className,
-      )}
-      {...props}
-    >
-      <svg
-        aria-hidden="true"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        className={cn(
-          "text-border transition-colors duration-150",
-          hovered && "text-foreground/60",
-        )}
-      >
-        <LazyMotion features={domAnimation} strict>
-          {/* Starts at its target, so no frame renders before `d` has a value. */}
-          <m.path
-            initial={false}
-            animate={{ d: `M8 2 L${tip} 8 L8 14` }}
-            transition={reduceMotion ? { duration: 0 } : RAIL_SPRING}
-            stroke="currentColor"
-            strokeWidth={3}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </LazyMotion>
-      </svg>
-    </button>
-  );
-}
-
-/** The content card. On desktop the inset variant floats it beside the sidebar with the rail on its left edge. */
+/** The content card. On desktop the inset variant floats it beside the sidebar. */
 function SidebarInset({
   className,
   children,
@@ -391,7 +325,6 @@ function SidebarInset({
       )}
       {...props}
     >
-      <SidebarRail />
       {children}
     </main>
   );
@@ -848,7 +781,6 @@ export {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarProvider,
-  SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
