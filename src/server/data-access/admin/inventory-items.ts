@@ -1,4 +1,14 @@
-import { and, desc, eq, ilike, isNull, lt, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  lt,
+  sql,
+} from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db, type Tx } from "~/server/db";
 import { withTx } from "../common/transaction";
@@ -16,6 +26,21 @@ import type { Pagination } from "../common/types";
 
 type NewInventoryItem = typeof inventoryItems.$inferInsert;
 type UpdateInventoryItem = Partial<NewInventoryItem> & { id: number };
+
+type InventoryItemRow = {
+  id: number;
+  productVariantId: number | null;
+  quantity: number;
+  values: string[];
+  thumbnailUrl: string | null;
+};
+/** A product and its stock rows: one without variants, one per variant. */
+type InventoryProductRow = {
+  id: number;
+  title: string;
+  thumbnailUrl: string | null;
+  items: InventoryItemRow[];
+};
 
 export const _inventoryItems = {
   queries: {
@@ -59,7 +84,6 @@ export const _inventoryItems = {
           .select({
             id: productVariants.id,
             productId: productVariants.productId,
-            title: products.title,
             thumbnailUrl: variantMedia.url,
             values: variantValuesCTE.values,
             variantArchived:
@@ -81,62 +105,101 @@ export const _inventoryItems = {
 
       // hide inventory of archived products and archived variants
       // (product-level rows join `products`, variant rows join the variants CTE)
-      const whereClause = [
-        sql`coalesce(${products.archived}, ${variantsCTE.variantArchived}, false) = false`,
-      ];
-
-      if (cursor) {
-        whereClause.push(lt(inventoryItems.id, cursor));
-      }
-
-      if (filters?.inventorySearch) {
-        whereClause.push(
-          ilike(
-            sql<string>`coalesce(${products.title}, ${variantsCTE.title})`,
-            `%${filters.inventorySearch}%`,
+      const itemMedia = alias(media, "item_media");
+      const visibleItemsCTE = db.$with("visible_items").as(
+        db
+          .with(variantsCTE)
+          .select({
+            id: inventoryItems.id,
+            productId: inventoryItems.productId,
+            productVariantId: inventoryItems.productVariantId,
+            quantity: inventoryItems.quantity,
+            thumbnailUrl: sql<
+              string | null
+            >`coalesce(${itemMedia.url}, ${variantsCTE.thumbnailUrl})`.as(
+              "thumbnail_url",
+            ),
+            values: sql<
+              string[]
+            >`coalesce(${variantsCTE.values}, '[]'::jsonb)`.as("values"),
+          })
+          .from(inventoryItems)
+          .leftJoin(
+            products,
+            and(
+              eq(inventoryItems.productId, products.id),
+              isNull(inventoryItems.productVariantId),
+            ),
+          )
+          .leftJoin(
+            variantsCTE,
+            and(
+              eq(inventoryItems.productId, variantsCTE.productId),
+              eq(inventoryItems.productVariantId, variantsCTE.id),
+            ),
+          )
+          .leftJoin(itemMedia, eq(products.thumbnailMediaId, itemMedia.id))
+          .where(
+            sql`coalesce(${products.archived}, ${variantsCTE.variantArchived}, false) = false`,
           ),
-        );
+      );
+
+      // Paged by product, and only products with a visible item, so every
+      // product on a page has rows and the pageSize + 1 overflow check holds.
+      const whereClause = [];
+      if (cursor) {
+        whereClause.push(lt(visibleItemsCTE.productId, cursor));
+      }
+      if (filters?.inventorySearch) {
+        whereClause.push(ilike(products.title, `%${filters.inventorySearch}%`));
       }
 
       const productMedia = alias(media, "product_media");
-      return db
-        .with(variantsCTE)
-        .select({
-          id: inventoryItems.id,
-          productId: inventoryItems.productId,
-          productVariantId: inventoryItems.productVariantId,
-          title:
-            sql<string>`coalesce(${products.title}, ${variantsCTE.title})`.as(
-              "title",
-            ),
-          quantity: inventoryItems.quantity,
-          thumbnailUrl:
-            sql<string>`coalesce(${productMedia.url}, ${variantsCTE.thumbnailUrl})`.as(
-              "thumbnailUrl",
-            ),
-          values: sql<
-            string[]
-          >`coalesce(${variantsCTE.values}, '[]'::jsonb)`.as("variants"),
+      const pageProducts = await db
+        .with(visibleItemsCTE)
+        .selectDistinct({
+          id: visibleItemsCTE.productId,
+          title: products.title,
+          thumbnailUrl: productMedia.url,
         })
-        .from(inventoryItems)
-        .leftJoin(
-          products,
-          and(
-            eq(inventoryItems.productId, products.id),
-            isNull(inventoryItems.productVariantId),
-          ),
-        )
-        .leftJoin(
-          variantsCTE,
-          and(
-            eq(inventoryItems.productId, variantsCTE.productId),
-            eq(inventoryItems.productVariantId, variantsCTE.id),
-          ),
-        )
+        .from(visibleItemsCTE)
+        .innerJoin(products, eq(visibleItemsCTE.productId, products.id))
         .leftJoin(productMedia, eq(products.thumbnailMediaId, productMedia.id))
         .where(and(...whereClause))
-        .limit(pageSize + 1)
-        .orderBy(desc(inventoryItems.id));
+        .orderBy(desc(visibleItemsCTE.productId))
+        .limit(pageSize + 1);
+
+      if (pageProducts.length === 0) {
+        return [];
+      }
+
+      const items = await db
+        .with(visibleItemsCTE)
+        .select({
+          id: visibleItemsCTE.id,
+          productId: visibleItemsCTE.productId,
+          productVariantId: visibleItemsCTE.productVariantId,
+          quantity: visibleItemsCTE.quantity,
+          values: visibleItemsCTE.values,
+          thumbnailUrl: visibleItemsCTE.thumbnailUrl,
+        })
+        .from(visibleItemsCTE)
+        .where(
+          inArray(
+            visibleItemsCTE.productId,
+            pageProducts.map((product) => product.id),
+          ),
+        )
+        .orderBy(desc(visibleItemsCTE.productId), asc(visibleItemsCTE.id));
+
+      const byProduct = new Map<number, InventoryProductRow>(
+        pageProducts.map((product) => [product.id, { ...product, items: [] }]),
+      );
+      for (const { productId, ...item } of items) {
+        byProduct.get(productId)?.items.push(item);
+      }
+
+      return [...byProduct.values()];
     },
   },
 
