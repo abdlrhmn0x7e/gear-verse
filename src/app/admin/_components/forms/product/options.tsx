@@ -98,17 +98,20 @@ export function Options() {
 
   if (options.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
-          <InfoIcon className="size-8" />
-          <p className="max-w-sm text-sm text-pretty">
-            Options are used to group variants. For example, color, size,
-            connectivity, etc.
-          </p>
-        </div>
-        <Button type="button" variant="ghost" onClick={handleAddOption}>
+      <div className="text-muted-foreground flex flex-col items-center gap-2 text-center">
+        <InfoIcon className="size-8" />
+        <p className="max-w-sm text-sm text-pretty">
+          Options are used to group variants. For example, color, size,
+          connectivity, etc.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-4"
+          onClick={handleAddOption}
+        >
           <PlusIcon data-icon="inline-start" />
-          Add Options like color, connectivity, etc.
+          Add options
         </Button>
       </div>
     );
