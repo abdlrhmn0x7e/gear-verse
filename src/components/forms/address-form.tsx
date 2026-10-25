@@ -22,17 +22,29 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import {
+  ADDRESS_ERRORS,
   addressGovernoratesEnum,
   createAddressInputSchema,
 } from "~/lib/schemas/entities";
+import { PHONE_NUMBER_ERRORS } from "~/lib/schemas/phone-number";
 import { cn } from "~/lib/utils";
 import type { ReverseGeocodeResult } from "~/lib/schemas/contracts/public/geocoding";
-import { humanizeString } from "~/lib/utils/humanize-string";
+import { useLocale, useTranslations } from "next-intl";
 import { LocationField } from "./address-location/location-field";
 import type { Coordinates } from "./address-location/types";
 
 const addressFormSchema = createAddressInputSchema;
 export type AddressFormValues = z.infer<typeof addressFormSchema>;
+const resolveAddress = zodResolver(addressFormSchema);
+
+// the schema keeps the server's English messages; each maps back to the key the customer reads it under
+const ERRORS = { ...ADDRESS_ERRORS, ...PHONE_NUMBER_ERRORS };
+const ERROR_KEYS = new Map(
+  Object.entries(ERRORS).map(([key, message]) => [
+    message as string,
+    key as keyof typeof ERRORS,
+  ]),
+);
 
 // fields reach the 44px touch minimum on phones and keep the compact height with a mouse
 const touchField = "pointer-coarse:h-11";
@@ -47,8 +59,18 @@ export function AddressForm({
   onSubmit: (values: AddressFormValues) => void;
   className?: string;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("checkout.addressForm");
+  const tGovernorates = useTranslations("checkout.governorates");
   const form = useForm<AddressFormValues>({
-    resolver: zodResolver(addressFormSchema),
+    resolver: async (...args) => {
+      const result = await resolveAddress(...args);
+      for (const error of Object.values(result.errors)) {
+        const key = ERROR_KEYS.get(String(error?.message));
+        if (error && key) error.message = t(`errors.${key}`);
+      }
+      return result;
+    },
     defaultValues: {
       fullName: "",
       phoneNumber: "",
@@ -115,11 +137,14 @@ export function AddressForm({
 
   const governorates = useMemo(
     () =>
-      addressGovernoratesEnum.options.map((governorate) => ({
-        label: humanizeString(governorate, "snake"),
-        value: governorate,
-      })),
-    [],
+      addressGovernoratesEnum.options
+        .map((governorate) => ({
+          label: tGovernorates(governorate),
+          value: governorate,
+        }))
+        // alphabetical in the visitor's language; English keeps the enum's order
+        .sort((a, b) => a.label.localeCompare(b.label, locale)),
+    [tGovernorates, locale],
   );
 
   return (
@@ -130,7 +155,7 @@ export function AddressForm({
         className={cn("space-y-4", className)}
       >
         <p className="text-muted-foreground text-sm text-pretty">
-          Write it in Arabic or English, whichever is easier.
+          {t("languageHint")}
         </p>
 
         <FormField
@@ -138,12 +163,12 @@ export function AddressForm({
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full name</FormLabel>
+              <FormLabel>{t("fullName")}</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="name"
                   dir="auto"
-                  placeholder="e.g. Ahmed Mostafa"
+                  placeholder={t("fullNamePlaceholder")}
                   className={touchField}
                   {...field}
                 />
@@ -158,11 +183,12 @@ export function AddressForm({
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mobile number</FormLabel>
-              <div className="flex items-center gap-2">
+              <FormLabel>{t("phone")}</FormLabel>
+              {/* a phone number reads left to right, country code first, in Arabic too */}
+              <div className="flex items-center gap-2" dir="ltr">
                 <Input
                   value="🇪🇬 +20"
-                  aria-label="Country code"
+                  aria-label={t("countryCode")}
                   className={cn("w-24 shrink-0", touchField)}
                   disabled
                 />
@@ -171,15 +197,13 @@ export function AddressForm({
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel-national"
-                    placeholder="e.g. 010 1234 5678"
+                    placeholder={t("phonePlaceholder")}
                     className={touchField}
                     {...field}
                   />
                 </FormControl>
               </div>
-              <FormDescription>
-                We&apos;ll call or WhatsApp you on it to confirm your order.
-              </FormDescription>
+              <FormDescription>{t("phoneHint")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -196,7 +220,7 @@ export function AddressForm({
           name="governorate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Governorate</FormLabel>
+              <FormLabel>{t("governorate")}</FormLabel>
               {/* starts empty: a preset governorate is easy to miss, and it decides the shipping fee */}
               <Select
                 items={governorates}
@@ -208,7 +232,7 @@ export function AddressForm({
                     className="w-full pointer-coarse:data-[size=default]:h-11"
                     onBlur={field.onBlur}
                   >
-                    <SelectValue placeholder="Select a governorate" />
+                    <SelectValue placeholder={t("governoratePlaceholder")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -232,12 +256,12 @@ export function AddressForm({
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>City or area</FormLabel>
+              <FormLabel>{t("city")}</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="address-level2"
                   dir="auto"
-                  placeholder="e.g. Nasr City"
+                  placeholder={t("cityPlaceholder")}
                   className={touchField}
                   {...field}
                 />
@@ -252,12 +276,12 @@ export function AddressForm({
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Street address</FormLabel>
+              <FormLabel>{t("street")}</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="address-line1"
                   dir="auto"
-                  placeholder="e.g. 15 Abbas El Akkad St"
+                  placeholder={t("streetPlaceholder")}
                   className={touchField}
                   {...field}
                 />
@@ -272,12 +296,12 @@ export function AddressForm({
           name="buildingNameOrNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Building, floor and apartment</FormLabel>
+              <FormLabel>{t("building")}</FormLabel>
               <FormControl>
                 <Input
                   autoComplete="address-line2"
                   dir="auto"
-                  placeholder="e.g. Building 12, floor 3, apt 5"
+                  placeholder={t("buildingPlaceholder")}
                   className={touchField}
                   {...field}
                 />

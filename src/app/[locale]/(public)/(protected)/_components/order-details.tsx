@@ -14,11 +14,10 @@ import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { formatDate } from "~/lib/utils/format-date";
-import { humanizeString } from "~/lib/utils/humanize-string";
 import { whatsAppLink } from "~/lib/whatsapp";
 import type { RouterOutput } from "~/trpc/client";
 import { orderTimeline, type TimelineStep } from "./order-status";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Order = RouterOutput["public"]["orders"]["queries"]["findById"];
 
@@ -42,16 +41,20 @@ export function OrderDetails({
   headingLevel?: 2 | 3;
   className?: string;
 }) {
+  const t = useTranslations("orders");
+  const tGovernorates = useTranslations("checkout.governorates");
+  const tWhatsApp = useTranslations("common.whatsapp");
+  const { address } = order;
   const Heading = `h${headingLevel}` as const;
   const Subheading = headingLevel === 2 ? "h3" : "h4";
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
-      <OrderSection title="Status" as={Heading}>
+      <OrderSection title={t("details.status")} as={Heading}>
         <OrderTimeline order={order} />
       </OrderSection>
 
-      <OrderSection title="What's next" as={Heading}>
+      <OrderSection title={t("details.whatsNext")} as={Heading}>
         <OrderNextSteps order={order} />
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {whatsappNumber && (
@@ -63,7 +66,9 @@ export function OrderDetails({
                 <a
                   href={whatsAppLink(
                     whatsappNumber,
-                    `Hi Gear Verse, I have a question about my order #${order.id}.`,
+                    tWhatsApp("orderQuestionNumbered", {
+                      id: String(order.id),
+                    }),
                   )}
                   target="_blank"
                   rel="noopener"
@@ -71,7 +76,7 @@ export function OrderDetails({
               }
             >
               <IconBrandWhatsapp data-icon="inline-start" />
-              Contact us on WhatsApp
+              {t("details.contactWhatsApp")}
             </Button>
           )}
           <Button
@@ -80,7 +85,7 @@ export function OrderDetails({
             nativeButton={false}
             render={<Link href="/returns" />}
           >
-            Returns policy
+            {t("details.returnsPolicy")}
             <ArrowRightIcon
               data-icon="inline-end"
               className="rtl:-scale-x-100"
@@ -89,52 +94,59 @@ export function OrderDetails({
         </div>
       </OrderSection>
 
-      <OrderSection title="Items" as={Heading}>
+      <OrderSection title={t("details.items")} as={Heading}>
         <OrderItems order={order} />
       </OrderSection>
 
       <OrderSection>
         <div className="grid gap-6 sm:grid-cols-2">
-          {order.address && (
+          {address && (
             <div className="min-w-0">
               <Subheading className="mb-2 font-medium">
-                Delivery address
+                {t("details.deliveryAddress")}
               </Subheading>
               <address className="text-muted-foreground text-sm not-italic">
+                {/* typed in Arabic or English, so each part is isolated from the punctuation around it */}
                 <span className="text-foreground block">
-                  {order.address.fullName}
+                  <bdi>{address.fullName}</bdi>
                 </span>
                 <span className="block">
-                  {order.address.buildingNameOrNumber}, {order.address.address}
+                  {t.rich("details.addressParts", {
+                    first: () => <bdi>{address.buildingNameOrNumber}</bdi>,
+                    second: () => <bdi>{address.address}</bdi>,
+                  })}
                 </span>
                 <span className="block">
-                  {order.address.city},{" "}
-                  {humanizeString(order.address.governorate, "snake")}
+                  {t.rich("details.addressParts", {
+                    first: () => <bdi>{address.city}</bdi>,
+                    second: () => tGovernorates(address.governorate),
+                  })}
                 </span>
                 <span className="block tabular-nums" dir="ltr">
-                  {order.address.phoneNumber}
+                  {address.phoneNumber}
                 </span>
               </address>
             </div>
           )}
 
           <div className="min-w-0">
-            <Subheading className="mb-2 font-medium">Payment</Subheading>
+            <Subheading className="mb-2 font-medium">
+              {t("details.payment")}
+            </Subheading>
             {order.paymentMethod === "COD" ? (
               <>
                 <p className="flex items-center gap-2 text-sm">
                   <HandCoinsIcon className="size-4 shrink-0" aria-hidden />
-                  Cash on delivery
+                  {t("details.cashOnDelivery")}
                 </p>
                 <p className="text-muted-foreground mt-1 text-sm text-pretty">
-                  Shipping is prepaid by InstaPay or mobile wallet. The rest is
-                  paid in cash to the courier.
+                  {t("details.codNote")}
                 </p>
               </>
             ) : (
               <p className="flex items-center gap-2 text-sm">
                 <CreditCardIcon className="size-4 shrink-0" aria-hidden />
-                Online payment
+                {t("details.onlinePayment")}
               </p>
             )}
           </div>
@@ -161,18 +173,13 @@ function OrderSection({
   );
 }
 
-const STEP_STATE_LABEL: Record<TimelineStep["state"], string> = {
-  done: "Done",
-  current: "In progress",
-  upcoming: "Not yet",
-  stopped: "Stopped",
-};
-
 export function OrderTimeline({ order }: { order: Order }) {
   const locale = useLocale();
+  const t = useTranslations("orders.timeline");
   const steps = orderTimeline({
     ...order,
     formatDate: (date) => formatDate(date, locale),
+    t,
   });
 
   return (
@@ -203,9 +210,7 @@ export function OrderTimeline({ order }: { order: Order }) {
                 )}
               >
                 {step.title}
-                <span className="sr-only">
-                  , {STEP_STATE_LABEL[step.state]}
-                </span>
+                <span className="sr-only">, {t(`state.${step.state}`)}</span>
               </p>
               {step.detail && (
                 <p className="text-muted-foreground text-sm text-pretty">
@@ -241,68 +246,42 @@ function StepMarker({ state }: { state: TimelineStep["state"] }) {
   );
 }
 
-type NextStep = { title: string; body: string };
+/** keys under orders.steps, each with a title and a body */
+type NextStep =
+  "whatsapp" | "prepay" | "payRest" | "payRestShipped" | "checkGear";
 
-const CHECK_YOUR_GEAR: NextStep = {
-  title: "Check your gear",
-  body: "We accept returns only for defects or damage reported within 24 hours of opening, with photos or a video.",
-};
-
-function nextSteps(order: Order): NextStep[] | string {
+/** the numbered steps, or the key of the one sentence an order that's over gets */
+function nextSteps(order: Order): NextStep[] | "cancelled" | "refunded" {
   const cod = order.paymentMethod === "COD";
 
   switch (order.status) {
     case "PENDING":
-      return [
-        {
-          title: "We'll WhatsApp you",
-          body: "Our team confirms your order and the shipping fee, which depends on your area.",
-        },
-        ...(cod
-          ? [
-              {
-                title: "Prepay the shipping fee",
-                body: "By InstaPay or mobile wallet: Vodafone Cash, Orange Cash or e& cash.",
-              },
-              {
-                title: "Pay the rest on delivery",
-                body: "In cash to the courier when your order arrives.",
-              },
-            ]
-          : []),
-      ];
+      return ["whatsapp", ...(cod ? (["prepay", "payRest"] as const) : [])];
     case "SHIPPED":
-      return [
-        ...(cod
-          ? [
-              {
-                title: "Pay the rest on delivery",
-                body: "In cash to the courier when your order arrives, usually within 1–2 business days.",
-              },
-            ]
-          : []),
-        CHECK_YOUR_GEAR,
-      ];
+      return [...(cod ? (["payRestShipped"] as const) : []), "checkGear"];
     case "DELIVERED":
-      return [CHECK_YOUR_GEAR];
+      return ["checkGear"];
     case "CANCELLED":
-      return "This order was cancelled and won't ship. If you have a question about it, message us.";
+      return "cancelled";
     case "REFUNDED":
-      return "This order was refunded. If you have a question about it, message us.";
+      return "refunded";
   }
 }
 
 function OrderNextSteps({ order }: { order: Order }) {
+  const t = useTranslations("orders.steps");
   const steps = nextSteps(order);
 
   if (typeof steps === "string") {
-    return <p className="text-muted-foreground text-sm text-pretty">{steps}</p>;
+    return (
+      <p className="text-muted-foreground text-sm text-pretty">{t(steps)}</p>
+    );
   }
 
   return (
     <ol className="flex flex-col gap-4">
       {steps.map((step, index) => (
-        <li key={step.title} className="flex gap-3">
+        <li key={step} className="flex gap-3">
           <span
             aria-hidden
             className="bg-brand-subtle text-brand-text flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium tabular-nums"
@@ -310,9 +289,9 @@ function OrderNextSteps({ order }: { order: Order }) {
             {index + 1}
           </span>
           <div className="min-w-0 pt-0.5">
-            <p className="font-medium">{step.title}</p>
+            <p className="font-medium">{t(`${step}.title`)}</p>
             <p className="text-muted-foreground text-sm text-pretty">
-              {step.body}
+              {t(`${step}.body`)}
             </p>
           </div>
         </li>
@@ -332,6 +311,8 @@ export function OrderThumbnail({
   /** the rendered size in CSS pixels */
   size: 56 | 64;
 }) {
+  const t = useTranslations("common");
+
   return (
     <div
       className={cn(
@@ -343,6 +324,7 @@ export function OrderThumbnail({
         <ImageWithFallback
           src={src}
           alt={alt}
+          errorLabel={t("imageError")}
           className="size-full rounded-none border-none object-contain"
           width={size * 2}
           height={size * 2}
@@ -362,6 +344,7 @@ export function OrderThumbnail({
 
 function OrderItems({ order }: { order: Order }) {
   const locale = useLocale();
+  const t = useTranslations("orders");
   const items = order.items ?? [];
   const subtotal = items.reduce(
     (acc, item) => acc + item.quantity * item.price,
@@ -375,17 +358,22 @@ function OrderItems({ order }: { order: Order }) {
           <li key={item.id} className="flex gap-4">
             <OrderThumbnail src={item.thumbnailUrl} alt="" size={64} />
             <div className="min-w-0 flex-1">
-              <p className="line-clamp-2 text-sm font-medium">{item.title}</p>
+              <p className="line-clamp-2 text-sm font-medium">
+                <bdi>{item.title}</bdi>
+              </p>
               {item.values && item.values.length > 0 && (
                 <p className="text-muted-foreground text-sm">
-                  {item.values.join(", ")}
+                  <bdi>{item.values.join(", ")}</bdi>
                 </p>
               )}
               {item.backorderedQuantity > 0 && (
                 <Badge variant="warning" className="mt-1">
                   {item.backorderedQuantity === item.quantity
-                    ? "Backorder"
-                    : `${item.backorderedQuantity} of ${item.quantity} on backorder`}
+                    ? t("details.backorder")
+                    : t("details.partialBackorder", {
+                        backordered: item.backorderedQuantity,
+                        quantity: item.quantity,
+                      })}
                 </Badge>
               )}
               <div className="mt-1 flex items-baseline justify-between gap-4 text-sm tabular-nums">
@@ -403,27 +391,27 @@ function OrderItems({ order }: { order: Order }) {
 
       <dl className="mt-5 flex flex-col gap-2 border-t pt-4 text-sm">
         <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Subtotal</dt>
+          <dt className="text-muted-foreground">{t("subtotal")}</dt>
           <dd className="tabular-nums">{formatCurrency(subtotal, locale)}</dd>
         </div>
         {order.status !== "CANCELLED" && (
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Shipping</dt>
+            <dt className="text-muted-foreground">{t("shipping")}</dt>
             <dd className="text-end">
               {order.status === "PENDING"
-                ? "Confirmed on WhatsApp"
-                : "Paid separately"}
+                ? t("details.shippingPending")
+                : t("details.shippingPaid")}
             </dd>
           </div>
         )}
         <div className="flex items-baseline justify-between gap-4 pt-1">
-          <dt className="font-medium">Total</dt>
+          <dt className="font-medium">{t("total")}</dt>
           <dd className="text-base font-medium tabular-nums">
             {formatCurrency(subtotal, locale)}
             {order.status !== "CANCELLED" && (
               <span className="text-muted-foreground text-sm font-normal">
                 {" "}
-                + shipping
+                {t("plusShipping")}
               </span>
             )}
           </dd>

@@ -20,9 +20,12 @@ import { useState, type ReactElement } from "react";
 import { Spinner } from "~/components/spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
-import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useTranslations } from "next-intl";
 
 function useAddAddress(onSuccess: (id: number) => void) {
+  const t = useTranslations("checkout.addAddress");
+  const getErrorMessage = useCustomerErrorMessage();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -35,18 +38,15 @@ function useAddAddress(onSuccess: (id: number) => void) {
         onSuccess(data.id);
       },
       onError: (error) => {
-        toast.error(
-          getCustomerErrorMessage(
-            error,
-            "Couldn't save your address. Check your connection and try again.",
-          ),
-        );
+        toast.error(getErrorMessage(error, t("error")));
       },
     }),
   );
 }
 
 function SaveAddressButton({ pending }: { pending: boolean }) {
+  const t = useTranslations("checkout.addAddress");
+
   return (
     <Button type="submit" form="address-form" disabled={pending}>
       {pending ? (
@@ -54,7 +54,7 @@ function SaveAddressButton({ pending }: { pending: boolean }) {
       ) : (
         <IconHomePlus data-icon="inline-start" />
       )}
-      Save address
+      {t("save")}
     </Button>
   );
 }
@@ -68,11 +68,12 @@ export function AddAddressDrawerDialog({
   className?: string;
   onSuccess?: (id: number) => void;
 }) {
+  const t = useTranslations("checkout.addAddress");
   const [open, setOpen] = useState(false);
   const { mutate: addAddress, isPending } = useAddAddress((id) => {
     onSuccess?.(id);
     setOpen(false);
-    toast.success("Address added");
+    toast.success(t("added"));
   });
 
   function onSubmit(values: AddressFormValues) {
@@ -87,7 +88,7 @@ export function AddAddressDrawerDialog({
           scrolls its body between a fixed header and footer */}
       <DrawerDialogContent className="md:max-h-[calc(100dvh-2rem)] md:grid-rows-[auto_minmax(0,1fr)_auto]">
         <DrawerDialogHeader>
-          <DrawerDialogTitle>Add address</DrawerDialogTitle>
+          <DrawerDialogTitle>{t("title")}</DrawerDialogTitle>
         </DrawerDialogHeader>
 
         <DrawerDialogBody className="md:-mx-6 md:-my-1 md:min-h-0 md:overflow-y-auto md:px-6 md:py-1">

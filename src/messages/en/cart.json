@@ -1,1 +1,41 @@
-{}
+{
+  "title": "Your cart",
+  "close": "Close cart",
+  "loading": "Loading your cart…",
+  "count": "{count, plural, =0 {Nothing here yet.} one {# item} other {# items}}",
+  "itemFallback": "this item",
+  "empty": {
+    "title": "Your cart is empty",
+    "description": "Hand-imported gear, delivered in Egypt in 1–2 business days.",
+    "browse": "Browse the store"
+  },
+  "subtotal": "Subtotal",
+  "fixToCheckout": "Update the items marked above to check out.",
+  "checkout": "Check out",
+  "updateError": "Couldn't update your cart. Try again.",
+  "stock": {
+    "backorderPartial": "<strong>{stock} in stock, {backorder} on backorder</strong>. About {days} days on average after we confirm on WhatsApp.",
+    "backorderAll": "<strong>On backorder</strong>. About {days} days on average after we confirm on WhatsApp.",
+    "out": "Out of stock",
+    "short": "Only {stock} left",
+    "remove": "Remove",
+    "changeTo": "Change to {stock}",
+    "fixError": "We couldn't update your cart. Please try again."
+  },
+  "quantity": {
+    "group": "Quantity of {item}",
+    "remove": "Remove {item}",
+    "decrease": "Decrease quantity of {item}",
+    "increase": "Increase quantity of {item}"
+  },
+  "serverErrors": {
+    "productUnavailable": "This product is no longer available",
+    "productOutOfStock": "This product is out of stock",
+    "cartHasAll": "Only {stock} left in stock, and your cart already has them all",
+    "chooseSavedAddress": "Please choose one of your saved addresses",
+    "cartEmpty": "Cart is empty",
+    "itemUnavailable": "{title} is no longer available, please remove it from your cart",
+    "itemShort": "Insufficient stock for {title}: only {stock} left",
+    "itemOut": "Insufficient stock for {title}: it is out of stock"
+  }
+}

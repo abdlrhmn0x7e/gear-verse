@@ -4,5 +4,30 @@
     "description": "Hard-to-find gaming peripherals from international brands, hand-imported, customs cleared and delivered to your door anywhere in Egypt. Prices in EGP, cash on delivery.",
     "siteImageAlt": "Gear Verse: imported gaming gear in Egypt"
   },
-  "skipToContent": "Skip to content"
+  "skipToContent": "Skip to content",
+  "imageError": "Failed to load image",
+  "trust": {
+    "label": "Our promises",
+    "delivery": {
+      "title": "1–2 day delivery",
+      "description": "To most areas in Egypt"
+    },
+    "originals": {
+      "title": "Originals only",
+      "panelTitle": "Verified products",
+      "description": "Most with the brand's warranty"
+    },
+    "cod": {
+      "title": "Cash on delivery",
+      "description": "Only shipping is paid up front"
+    }
+  },
+  "whatsapp": {
+    "question": "Hi Gear Verse, I have a question.",
+    "orderQuestion": "Hi Gear Verse, I have a question about my order.",
+    "orderQuestionNumbered": "Hi Gear Verse, I have a question about my order #{id}.",
+    "reportIssue": "Hi Gear Verse, I'd like to report a problem with a product from my order.",
+    "requestItem": "Hi Gear Verse, can you get me this? {item}",
+    "requestAnything": "Hi Gear Verse, I'm looking for something that isn't on the shelf."
+  }
 }

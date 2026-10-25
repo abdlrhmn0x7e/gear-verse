@@ -5,7 +5,7 @@ import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 /** The newest pick with the biggest saving, so the "worth the money" tile shows a real price rather than a claim. */
 async function getFeaturedPick() {
@@ -29,8 +29,9 @@ const inset = "px-5 sm:px-8";
  * right-hand column it introduces. Plum carries the story, so nothing on it is a button.
  */
 export async function WhyUs() {
-  const locale = await getLocale();
-  const [pick, covers] = await Promise.all([
+  const [locale, t, pick, covers] = await Promise.all([
+    getLocale(),
+    getTranslations("landing.whyUs"),
     getFeaturedPick(),
     getCategoryCovers(),
   ]);
@@ -50,7 +51,7 @@ export async function WhyUs() {
               "text-headline-sm md:text-headline lg:text-display-sm pt-7 text-balance md:col-span-2 md:pt-10 lg:col-span-7 lg:self-end lg:pt-12 lg:pb-8",
             )}
           >
-            We pick, so you don&apos;t have to dig.
+            {t("title")}
           </h2>
           <p
             className={cn(
@@ -58,9 +59,7 @@ export async function WhyUs() {
               "text-body-lg pb-4 text-pretty opacity-80 md:col-span-2 md:max-w-xl lg:col-span-5 lg:self-end lg:pt-12 lg:pb-9",
             )}
           >
-            Most stores here either stock everything at a markup or carry the
-            same thin selection. We keep a short list of gear we&apos;d stand
-            behind.
+            {t("description")}
           </p>
 
           {pick && (
@@ -74,10 +73,9 @@ export async function WhyUs() {
                 )}
               >
                 <div className="max-w-xs space-y-2">
-                  <h3 className="text-title">Worth the money</h3>
+                  <h3 className="text-title">{t("worthTitle")}</h3>
                   <p className="text-pretty opacity-80">
-                    If a product doesn&apos;t earn its price, it doesn&apos;t
-                    make the shelf.
+                    {t("worthDescription")}
                   </p>
                 </div>
                 <p className="min-w-0 space-y-1 sm:max-w-72 sm:text-end">
@@ -85,7 +83,7 @@ export async function WhyUs() {
                     {pick.strikeThroughPrice &&
                       pick.strikeThroughPrice > pick.price && (
                         <s className="text-sm opacity-70">
-                          <span className="sr-only">Was </span>
+                          <span className="sr-only">{`${t("was")} `}</span>
                           {formatCurrency(pick.strikeThroughPrice, locale)}
                         </s>
                       )}
@@ -93,7 +91,11 @@ export async function WhyUs() {
                       {formatCurrency(pick.price, locale)}
                     </span>
                   </span>
-                  <span className="block truncate text-sm opacity-75">
+                  {/* dir="auto" so a Latin title truncates at its own end on the Arabic page; the rtl: classes keep it on the price's side */}
+                  <span
+                    dir="auto"
+                    className="block truncate text-sm opacity-75 rtl:text-right sm:rtl:text-left"
+                  >
                     {pick.title}
                   </span>
                 </p>
@@ -119,13 +121,15 @@ export async function WhyUs() {
             )}
           >
             <div className="space-y-2">
-              <h3 className="text-title">We&apos;ve got you</h3>
-              <p className="text-pretty opacity-80">
-                From stock in Egypt, and replaced if it arrives defective.
-              </p>
+              <h3 className="text-title">{t("gotYouTitle")}</h3>
+              <p className="text-pretty opacity-80">{t("gotYouDescription")}</p>
             </div>
             <p className="text-display-sm tabular-nums">
-              1–2 <span className="text-headline-sm opacity-75">days</span>
+              {t.rich("days", {
+                unit: (chunks) => (
+                  <span className="text-headline-sm opacity-75">{chunks}</span>
+                ),
+              })}
             </p>
           </div>
 
@@ -137,15 +141,13 @@ export async function WhyUs() {
             )}
           >
             <div className="space-y-2">
-              <h3 className="text-title">Picked, not piled</h3>
-              <p className="text-pretty opacity-80">
-                A few good options per category, so you choose in minutes.
-              </p>
+              <h3 className="text-title">{t("pickedTitle")}</h3>
+              <p className="text-pretty opacity-80">{t("pickedDescription")}</p>
             </div>
             {covers.length > 0 && (
               <ul
                 className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-3"
-                aria-label="Categories"
+                aria-label={t("categoriesLabel")}
               >
                 {covers.slice(0, 3).map(({ category, product }) => (
                   <li key={category.slug} className="min-w-0 space-y-2">
@@ -159,11 +161,12 @@ export async function WhyUs() {
                         className="absolute inset-0 size-full rounded-none border-none bg-transparent p-3 [&_img]:object-contain"
                       />
                     </div>
-                    <p
-                      className="truncate text-sm opacity-80"
-                      {...localizedCopyProps(locale, category.fallback.name)}
-                    >
-                      {category.name}
+                    <p className="truncate text-sm opacity-80">
+                      <bdi
+                        {...localizedCopyProps(locale, category.fallback.name)}
+                      >
+                        {category.name}
+                      </bdi>
                     </p>
                   </li>
                 ))}

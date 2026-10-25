@@ -1,1 +1,102 @@
-{}
+{
+  "title": "Your orders",
+  "description": "Follow each order from our confirmation message to your door.",
+  "questions": "Questions? WhatsApp us at <number></number>.",
+  "orderNumber": "Order #{id}",
+  "viewDetails": ", view details",
+  "placed": "Placed {date}",
+  "items": "Items",
+  "more": "more",
+  "itemCount": "{count, plural, one {# item} other {# items}}",
+  "subtotal": "Subtotal",
+  "shipping": "Shipping",
+  "total": "Total",
+  "plusShipping": "+ shipping",
+  "empty": {
+    "title": "No orders yet",
+    "description": "When you place an order, you can follow it here, from our confirmation message to your door.",
+    "browse": "Browse the store",
+    "signIn": "Ordered with Google before? Sign in"
+  },
+  "status": {
+    "PENDING": "Awaiting confirmation",
+    "SHIPPED": "On its way",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled",
+    "REFUNDED": "Refunded"
+  },
+  "nextStep": {
+    "PENDING": "We'll WhatsApp you to confirm the order and the shipping fee.",
+    "SHIPPED_COD": "With the courier. Pay the rest when it arrives, by cash, InstaPay or mobile wallet.",
+    "SHIPPED": "With the courier and on its way to you.",
+    "DELIVERED": "Delivered. Enjoy your gear.",
+    "CANCELLED": "This order was cancelled and won't ship.",
+    "REFUNDED": "This order was refunded."
+  },
+  "timeline": {
+    "placed": "Order placed",
+    "confirmed": "Confirmed by our team",
+    "confirmedDetail": "We'll WhatsApp you to confirm the order and the shipping fee.",
+    "shipped": "Shipped",
+    "shippedDetail": "With the courier. Delivery takes 1–2 business days.",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "state": {
+      "done": "Done",
+      "current": "In progress",
+      "upcoming": "Not yet",
+      "stopped": "Stopped"
+    }
+  },
+  "details": {
+    "status": "Status",
+    "whatsNext": "What's next",
+    "contactWhatsApp": "Contact us on WhatsApp",
+    "returnsPolicy": "Returns policy",
+    "items": "Items",
+    "deliveryAddress": "Delivery address",
+    "payment": "Payment",
+    "cashOnDelivery": "Cash on delivery",
+    "codNote": "Shipping is prepaid by InstaPay or mobile wallet. The rest is paid to the courier on delivery, by cash, InstaPay or mobile wallet.",
+    "onlinePayment": "Online payment",
+    "backorder": "Backorder",
+    "partialBackorder": "{backordered} of {quantity} on backorder",
+    "shippingPending": "Confirmed on WhatsApp",
+    "shippingPaid": "Paid separately",
+    "addressParts": "<first></first>, <second></second>"
+  },
+  "steps": {
+    "whatsapp": {
+      "title": "We'll WhatsApp you",
+      "body": "Our team confirms your order and the shipping fee, which depends on your area."
+    },
+    "prepay": {
+      "title": "Prepay the shipping fee",
+      "body": "By InstaPay or mobile wallet: Vodafone Cash, Orange Cash or e& cash."
+    },
+    "payRest": {
+      "title": "Pay the rest on delivery",
+      "body": "To the courier by cash, InstaPay or mobile wallet when your order arrives."
+    },
+    "payRestShipped": {
+      "title": "Pay the rest on delivery",
+      "body": "To the courier by cash, InstaPay or mobile wallet when your order arrives, usually within 1–2 business days."
+    },
+    "checkGear": {
+      "title": "Check your gear",
+      "body": "We accept returns only for defects or damage reported within 24 hours of opening, with photos or a video."
+    },
+    "cancelled": "This order was cancelled and won't ship. If you have a question about it, message us.",
+    "refunded": "This order was refunded. If you have a question about it, message us."
+  },
+  "totals": {
+    "estimate": "Estimated delivery: 1–2 business days",
+    "confirmedByTeam": "Confirmed by our team"
+  },
+  "drawer": {
+    "loadError": "We couldn't load this order.",
+    "loadErrorHint": "It may belong to another account, or the link is out of date. Close this and pick an order from your list.",
+    "loading": "Loading the order…"
+  }
+}

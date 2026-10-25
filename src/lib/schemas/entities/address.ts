@@ -32,6 +32,15 @@ export const addressGovernoratesEnum = z.enum([
 ]);
 export type AddressGovernoratesEnum = z.infer<typeof addressGovernoratesEnum>;
 
+/** What the server answers in; the storefront form shows each one translated under its key (checkout.addressForm.errors). */
+export const ADDRESS_ERRORS = {
+  fullNameRequired: "Full name is required",
+  addressRequired: "Address is required",
+  buildingRequired: "Building name or number is required",
+  cityRequired: "City is required",
+  governorateRequired: "Select a governorate",
+} as const;
+
 export const latitudeSchema = z
   .number("Latitude must be a number")
   .min(-90, "Latitude must be between -90 and 90")
@@ -44,14 +53,15 @@ export const longitudeSchema = z
 export const addressEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),
 
-  fullName: z.string().min(1, "Full name is required"),
+  fullName: z.string().min(1, ADDRESS_ERRORS.fullNameRequired),
   phoneNumber: phoneNumberSchema,
-  address: z.string().min(1, "Address is required"),
-  buildingNameOrNumber: z
-    .string()
-    .min(1, "Building name or number is required"),
-  city: z.string().min(1, "City is required"),
-  governorate: z.enum(addressGovernoratesEnum.options, "Select a governorate"),
+  address: z.string().min(1, ADDRESS_ERRORS.addressRequired),
+  buildingNameOrNumber: z.string().min(1, ADDRESS_ERRORS.buildingRequired),
+  city: z.string().min(1, ADDRESS_ERRORS.cityRequired),
+  governorate: z.enum(
+    addressGovernoratesEnum.options,
+    ADDRESS_ERRORS.governorateRequired,
+  ),
   latitude: latitudeSchema.nullable(),
   longitude: longitudeSchema.nullable(),
 

@@ -138,7 +138,11 @@ export default async function ProductPage({
         slug={slug}
         Reviews={({ productId }) => (
           <Suspense
-            fallback={<p className="text-muted-foreground">Loading reviews…</p>}
+            fallback={
+              <p className="text-muted-foreground">
+                {t("details.loadingReviews")}
+              </p>
+            }
           >
             <Reviews productId={productId} />
           </Suspense>

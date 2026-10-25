@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 import type { RouterOutput } from "~/trpc/client";
 
@@ -6,15 +7,13 @@ export type OrderStatusValue =
 export type OrderPaymentMethod =
   RouterOutput["public"]["orders"]["queries"]["findById"]["paymentMethod"];
 
-export const ORDER_STATUS: Record<
-  OrderStatusValue,
-  { label: string; dot: string }
-> = {
-  PENDING: { label: "Awaiting confirmation", dot: "bg-amber-500" },
-  SHIPPED: { label: "On its way", dot: "bg-blue-500" },
-  DELIVERED: { label: "Delivered", dot: "bg-green-600" },
-  CANCELLED: { label: "Cancelled", dot: "bg-muted-foreground" },
-  REFUNDED: { label: "Refunded", dot: "bg-muted-foreground" },
+/** each status's dot; its label is orders.status.<status> */
+export const ORDER_STATUS: Record<OrderStatusValue, { dot: string }> = {
+  PENDING: { dot: "bg-amber-500" },
+  SHIPPED: { dot: "bg-blue-500" },
+  DELIVERED: { dot: "bg-green-600" },
+  CANCELLED: { dot: "bg-muted-foreground" },
+  REFUNDED: { dot: "bg-muted-foreground" },
 };
 
 export function OrderStatusLabel({
@@ -24,7 +23,8 @@ export function OrderStatusLabel({
   status: OrderStatusValue;
   className?: string;
 }) {
-  const { label, dot } = ORDER_STATUS[status];
+  const t = useTranslations("orders.status");
+  const { dot } = ORDER_STATUS[status];
 
   return (
     <span
@@ -34,31 +34,30 @@ export function OrderStatusLabel({
       )}
     >
       <span aria-hidden className={cn("size-2 shrink-0 rounded-full", dot)} />
-      {label}
+      {t(status)}
     </span>
   );
 }
 
-/** One plain sentence on what happens next, for the order list. */
+/** One plain sentence on what happens next, for the order list: its key under orders.nextStep. */
 export function orderNextStep(
   status: OrderStatusValue,
   paymentMethod: OrderPaymentMethod,
 ) {
-  switch (status) {
-    case "PENDING":
-      return "We'll WhatsApp you to confirm the order and the shipping fee.";
-    case "SHIPPED":
-      return paymentMethod === "COD"
-        ? "With the courier. Pay the rest in cash when it arrives."
-        : "With the courier and on its way to you.";
-    case "DELIVERED":
-      return "Delivered. Enjoy your gear.";
-    case "CANCELLED":
-      return "This order was cancelled and won't ship.";
-    case "REFUNDED":
-      return "This order was refunded.";
-  }
+  return status === "SHIPPED" && paymentMethod === "COD"
+    ? "SHIPPED_COD"
+    : status;
 }
+
+type TimelineText =
+  | "placed"
+  | "confirmed"
+  | "confirmedDetail"
+  | "shipped"
+  | "shippedDetail"
+  | "delivered"
+  | "cancelled"
+  | "refunded";
 
 export type TimelineStep = {
   title: string;
@@ -80,21 +79,27 @@ export function orderTimeline({
   createdAt,
   updatedAt,
   formatDate,
+  t,
 }: {
   status: OrderStatusValue;
   createdAt: Date;
   updatedAt: Date;
   formatDate: (date: Date) => string;
+  /** orders.timeline */
+  t: (key: TimelineText) => string;
 }): TimelineStep[] {
   const placed: TimelineStep = {
-    title: "Order placed",
+    title: t("placed"),
     state: "done",
     detail: formatDate(createdAt),
   };
   const updated = formatDate(updatedAt);
 
   if (status === "CANCELLED") {
-    return [placed, { title: "Cancelled", state: "stopped", detail: updated }];
+    return [
+      placed,
+      { title: t("cancelled"), state: "stopped", detail: updated },
+    ];
   }
 
   const reached =
@@ -103,30 +108,24 @@ export function orderTimeline({
   const steps: TimelineStep[] = [
     placed,
     {
-      title: "Confirmed by our team",
+      title: t("confirmed"),
       state: reached === 0 ? "current" : "done",
-      detail:
-        reached === 0
-          ? "We'll WhatsApp you to confirm the order and the shipping fee."
-          : undefined,
+      detail: reached === 0 ? t("confirmedDetail") : undefined,
     },
     {
-      title: "Shipped",
+      title: t("shipped"),
       state: reached === 1 ? "current" : reached > 1 ? "done" : "upcoming",
-      detail:
-        reached === 1
-          ? "With the courier. Delivery takes 1–2 business days."
-          : undefined,
+      detail: reached === 1 ? t("shippedDetail") : undefined,
     },
     {
-      title: "Delivered",
+      title: t("delivered"),
       state: reached === 2 ? "done" : "upcoming",
       detail: status === "DELIVERED" ? updated : undefined,
     },
   ];
 
   if (status === "REFUNDED") {
-    steps.push({ title: "Refunded", state: "done", detail: updated });
+    steps.push({ title: t("refunded"), state: "done", detail: updated });
   }
 
   return steps;

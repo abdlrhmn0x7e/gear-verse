@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 import type { TrustPromise } from "./trust-promises";
 
@@ -9,15 +10,22 @@ export function TrustPromiseItem({
   promise: TrustPromise;
   className?: string;
 }) {
+  const t = useTranslations("common.trust");
+
   return (
     <li className={cn("flex items-center gap-4", className)}>
       <span className="bg-raised flex size-12 shrink-0 items-center justify-center rounded-lg">
         <promise.icon className="size-5" strokeWidth={1.5} aria-hidden />
       </span>
       <div className="min-w-0 space-y-0.5">
-        <p className="font-medium">{promise.title}</p>
+        <p className="font-medium">
+          {/* the panels say "Verified products"; the cart's compact list keeps "Originals only" */}
+          {promise.id === "originals"
+            ? t("originals.panelTitle")
+            : t(`${promise.id}.title`)}
+        </p>
         <p className="text-muted-foreground text-sm text-pretty">
-          {promise.description}
+          {t(`${promise.id}.description`)}
         </p>
       </div>
     </li>

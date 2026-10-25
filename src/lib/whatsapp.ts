@@ -13,19 +13,12 @@ export function formatWhatsAppNumber(number: string) {
   return `+20 ${network} ${first} ${second}`;
 }
 
-/** Typed into the chat when a customer reports a defective or damaged product. */
-export const REPORT_ISSUE_MESSAGE =
-  "Hi Gear Verse, I'd like to report a problem with a product from my order.";
-
 /** Longest item text carried into a request chat, so a pasted page can't build an unwieldy link. */
 const REQUEST_ITEM_MAX_LENGTH = 300;
 
-/** Typed into the chat when a customer asks for something that isn't on the shelf. */
-export function requestItemMessage(item?: string | null) {
-  const wanted = item?.trim().slice(0, REQUEST_ITEM_MAX_LENGTH);
-  return wanted
-    ? `Hi Gear Verse, can you get me this? ${wanted}`
-    : "Hi Gear Verse, I'm looking for something that isn't on the shelf.";
+/** What a customer asked for, trimmed for the request chat; empty when they typed nothing. */
+export function requestedItem(item?: string | null) {
+  return item?.trim().slice(0, REQUEST_ITEM_MAX_LENGTH);
 }
 
 /**

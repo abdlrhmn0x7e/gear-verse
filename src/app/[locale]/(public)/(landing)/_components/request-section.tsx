@@ -1,17 +1,20 @@
 import { IconBrandWhatsapp } from "@tabler/icons-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Bubble, BubbleContent } from "~/components/ui/bubble";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Message, MessageContent, MessageGroup } from "~/components/ui/message";
+import { localizedPath } from "~/lib/seo/metadata";
 import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
 import { ChatReveal } from "./chat-reveal";
 
 type Message = {
   from: "you" | "store";
-  text: string;
+  /** under `landing.request.chat` */
+  text: "ask" | "quote" | "confirm" | "done";
   time: string;
   /** dropped on phones, where four bubbles run to two screens */
   phoneHidden?: boolean;
@@ -21,18 +24,18 @@ type Message = {
 const CHAT: Message[] = [
   {
     from: "you",
-    text: "Hi Gear Verse, can you get me this? Logitech G Pro X Superlight 2 in white",
+    text: "ask",
     time: "21:04",
   },
   {
     from: "store",
-    text: "We can. It's EGP 7,850 to your door, arriving in about 2 weeks. Want us to order it?",
+    text: "quote",
     time: "21:11",
   },
-  { from: "you", text: "Yes, go ahead", time: "21:12" },
+  { from: "you", text: "confirm", time: "21:12" },
   {
     from: "store",
-    text: "Done. We'll handle customs and message you when it's on its way.",
+    text: "done",
     time: "21:13",
     phoneHidden: true,
   },
@@ -43,7 +46,12 @@ const CHAT: Message[] = [
  * /request, which opens WhatsApp with the item already typed.
  */
 export async function RequestSection() {
-  const { whatsappNumber } = await getStoreSettings();
+  const [{ whatsappNumber }, locale, t, tNav] = await Promise.all([
+    getStoreSettings(),
+    getLocale(),
+    getTranslations("landing.request"),
+    getTranslations("nav"),
+  ]);
   if (!whatsappNumber) return null;
 
   return (
@@ -55,48 +63,50 @@ export async function RequestSection() {
       <MaxWidthWrapper className="grid items-center gap-10 lg:grid-cols-2 lg:gap-x-16">
         <div className="space-y-8">
           <div className="space-y-4">
-            <p
-              lang="ar"
-              dir="rtl"
-              className="text-muted-foreground w-fit font-medium"
-            >
-              مش لاقي اللي بتدور عليه؟
-            </p>
+            {/* an Arabic aside for English readers; the Arabic page already says it in the heading */}
+            {locale === "en" && (
+              <p
+                lang="ar"
+                dir="rtl"
+                className="text-muted-foreground w-fit font-medium"
+              >
+                مش لاقي اللي بتدور عليه؟
+              </p>
+            )}
             <h2
               id="request-heading"
               className="text-headline-sm md:text-headline text-balance"
             >
-              Not on the shelf? We&apos;ll get it.
+              {t("title")}
             </h2>
             <p className="text-muted-foreground text-body-lg max-w-lg text-pretty">
-              Send us the model or a link on WhatsApp. We&apos;ll reply with the
-              price and delivery time before you commit to anything.
+              {t("description")}
             </p>
           </div>
 
           <form
-            action="/request"
+            action={localizedPath("/request", locale)}
             method="get"
             target="_blank"
             className="max-w-lg space-y-3"
           >
-            <Label htmlFor="request-item">What do you want?</Label>
+            <Label htmlFor="request-item">{t("label")}</Label>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Input
                 id="request-item"
                 name="item"
                 maxLength={300}
                 autoComplete="off"
-                placeholder="A model name or a link"
+                placeholder={t("placeholder")}
                 className="h-12 px-5 sm:flex-1 pointer-coarse:h-12"
               />
               <Button type="submit" size="xl">
                 <IconBrandWhatsapp data-icon="inline-start" stroke={1.75} />
-                Ask on WhatsApp
+                {t("submit")}
               </Button>
             </div>
             <p className="text-muted-foreground text-sm text-pretty">
-              Free to ask. You only pay if you go ahead.
+              {t("note")}
             </p>
           </form>
         </div>
@@ -111,12 +121,12 @@ export async function RequestSection() {
                 <p className="font-medium">Gear Verse</p>
                 <p className="text-muted-foreground flex items-center gap-1 text-sm">
                   <IconBrandWhatsapp className="size-3.5" aria-hidden />
-                  WhatsApp
+                  {tNav("whatsapp")}
                 </p>
               </div>
             </div>
             <ChatReveal className="bg-background rounded-[1.5rem] p-4 sm:p-5">
-              <MessageGroup role="list" aria-label="An example request">
+              <MessageGroup role="list" aria-label={t("chatLabel")}>
                 {CHAT.map((message, index) => {
                   const fromYou = message.from === "you";
                   return (
@@ -128,7 +138,9 @@ export async function RequestSection() {
                       className={cn(
                         message.phoneHidden && "max-sm:hidden",
                         "transition-[opacity,translate,scale] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:translate-y-2 motion-safe:scale-[0.97] motion-safe:opacity-0 motion-safe:group-data-shown/chat:translate-y-0 motion-safe:group-data-shown/chat:scale-100 motion-safe:group-data-shown/chat:opacity-100",
-                        fromYou ? "origin-bottom-right" : "origin-bottom-left",
+                        fromYou
+                          ? "origin-bottom-right rtl:origin-bottom-left"
+                          : "origin-bottom-left rtl:origin-bottom-right",
                       )}
                     >
                       <MessageContent>
@@ -144,9 +156,11 @@ export async function RequestSection() {
                             )}
                           >
                             <span className="sr-only">
-                              {fromYou ? "You: " : "Gear Verse: "}
+                              {`${fromYou ? t("you") : "Gear Verse"}: `}
                             </span>
-                            {message.text}
+                            {t.rich(`chat.${message.text}`, {
+                              bdi: (chunks) => <bdi>{chunks}</bdi>,
+                            })}
                             <span
                               className="ms-3 inline-block translate-y-0.5 text-xs tabular-nums opacity-60"
                               aria-hidden
@@ -163,7 +177,7 @@ export async function RequestSection() {
             </ChatReveal>
           </div>
           <figcaption className="text-muted-foreground px-3 text-sm">
-            An example request. Every quote is priced per item.
+            {t("caption")}
           </figcaption>
         </figure>
       </MaxWidthWrapper>

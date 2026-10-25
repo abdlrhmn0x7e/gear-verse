@@ -27,6 +27,7 @@ import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
 import { DeleteAddressDialog } from "./delete-address-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddressForm } from "~/components/forms/address-form";
+import { useTranslations } from "next-intl";
 
 const checkoutFormSchema = checkoutInputSchema;
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -36,6 +37,7 @@ export function CheckoutForm({
 }: {
   onSubmit: (data: CompleteCheckoutInput) => void;
 }) {
+  const t = useTranslations("checkout");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -79,7 +81,7 @@ export function CheckoutForm({
           id="checkout-address-heading"
           className="text-lg font-medium md:text-xl"
         >
-          Delivery address
+          {t("deliveryAddress")}
         </h2>
 
         {addresses?.length === 0 ? (
@@ -149,8 +151,9 @@ export function CheckoutForm({
                         </div>
                       ))}
                     </RadioGroup>
+                    {/* the one way to get here is no address picked; the schema's English stays the server's */}
                     {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                      <FieldError>{t("selectAddress")}</FieldError>
                     )}
                   </FieldSet>
                 )}
@@ -165,7 +168,7 @@ export function CheckoutForm({
                 className="pointer-coarse:h-11"
               >
                 <IconHomePlus data-icon="inline-start" />
-                Add another address
+                {t("addAnotherAddress")}
               </Button>
             </AddAddressDrawerDialog>
           </>
@@ -177,12 +180,9 @@ export function CheckoutForm({
           id="checkout-payment-heading"
           className="text-lg font-medium md:text-xl"
         >
-          Payment
+          {t("payment")}
         </h2>
-        <PayOnDelivery
-          label="Cash on delivery"
-          note="We'll confirm your shipping fee on WhatsApp; you prepay it by InstaPay or wallet, and the rest on delivery."
-        />
+        <PayOnDelivery label={t("cashOnDelivery")} note={t("paymentNote")} />
       </section>
     </div>
   );

@@ -1,9 +1,9 @@
-import { getLocale } from "next-intl/server";
-import { localizedCopyProps } from "~/lib/arabic";
 import { ArrowRightIcon } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { localizedCopyProps } from "~/lib/arabic";
 import { cn } from "~/lib/utils";
 import { getCategoryCovers } from "../_lib/queries";
 import { SectionHeader } from "./section-header";
@@ -25,8 +25,12 @@ const tileClassName: Record<TileLayout, string> = {
 };
 
 export async function CategoryBento() {
-  const locale = await getLocale();
-  const covers = await getCategoryCovers();
+  const [locale, covers, t, tCommon] = await Promise.all([
+    getLocale(),
+    getCategoryCovers(),
+    getTranslations("landing.categories"),
+    getTranslations("common"),
+  ]);
   if (covers.length === 0) return null;
 
   return (
@@ -34,8 +38,8 @@ export async function CategoryBento() {
       <MaxWidthWrapper className="space-y-12">
         <SectionHeader
           id="categories-heading"
-          title="Shop by category"
-          description="Each one is a short list, so picking takes minutes."
+          title={t("title")}
+          description={t("description")}
         />
 
         <ul
@@ -67,9 +71,12 @@ export async function CategoryBento() {
                         "text-balance",
                         layout === "lead" ? "text-headline-sm" : "text-title",
                       )}
-                      {...localizedCopyProps(locale, category.fallback.name)}
                     >
-                      {category.name}
+                      <bdi
+                        {...localizedCopyProps(locale, category.fallback.name)}
+                      >
+                        {category.name}
+                      </bdi>
                     </h3>
                     <span className="surface-control flex size-10 shrink-0 items-center justify-center rounded-full">
                       <ArrowRightIcon
@@ -90,6 +97,7 @@ export async function CategoryBento() {
                     <ImageWithFallback
                       src={product.thumbnailUrl}
                       alt=""
+                      errorLabel={tCommon("imageError")}
                       width={800}
                       height={800}
                       sizes={

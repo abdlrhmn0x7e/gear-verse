@@ -1,6 +1,7 @@
 "use client";
 
 import { CloudIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { GoogleLogo } from "~/components/google-logo";
 import { LoginDrawerDialog } from "~/components/login-drawer-dialog";
 import { Button } from "~/components/ui/button";
@@ -18,6 +19,8 @@ export function SaveOrdersPrompt({
   callbackURL: string;
   className?: string;
 }) {
+  const t = useTranslations("auth");
+
   return (
     <section
       aria-labelledby="save-orders-title"
@@ -34,11 +37,10 @@ export function SaveOrdersPrompt({
         />
         <div className="min-w-0">
           <h2 id="save-orders-title" className="font-medium">
-            Save your orders
+            {t("saveOrders.title")}
           </h2>
           <p className="text-muted-foreground text-sm text-pretty">
-            You&apos;re shopping as a guest, so your orders are saved in this
-            browser only. Continue with Google to keep them on your account.
+            {t("saveOrders.description")}
           </p>
         </div>
       </div>
@@ -46,7 +48,7 @@ export function SaveOrdersPrompt({
       <LoginDrawerDialog callbackURL={callbackURL}>
         <Button variant="outline" size="lg" className="shrink-0">
           <GoogleLogo data-icon="inline-start" className="size-[18px]" />
-          Continue with Google
+          {t("continueWithGoogle")}
         </Button>
       </LoginDrawerDialog>
     </section>

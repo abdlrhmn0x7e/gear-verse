@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useCloseOnBack } from "~/hooks/use-close-on-back";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { blocksCheckout } from "~/lib/utils/cart-stock";
-import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { TRUST_PROMISES } from "./features/trust/trust-promises";
 import { CartStockNotice } from "./cart-stock-notice";
@@ -43,6 +43,9 @@ export function CartDrawer({
 }) {
   const locale = useLocale();
   const t = useTranslations("nav");
+  const tCart = useTranslations("cart");
+  const tCommon = useTranslations("common");
+  const getErrorMessage = useCustomerErrorMessage();
   const trpc = useTRPC();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -66,10 +69,8 @@ export function CartDrawer({
     });
     router.refresh();
   };
-  const onError = (error: Parameters<typeof getCustomerErrorMessage>[0]) => {
-    toast.error(
-      getCustomerErrorMessage(error, "Couldn't update your cart. Try again."),
-    );
+  const onError = (error: Parameters<typeof getErrorMessage>[0]) => {
+    toast.error(getErrorMessage(error, tCart("updateError")));
   };
   const { mutate: removeItem, isPending: removingItem } = useMutation(
     trpc.public.carts.mutations.removeItem.mutationOptions({
@@ -114,7 +115,7 @@ export function CartDrawer({
         >
           <ShoppingBagIcon />
           {itemCount > 0 && (
-            <span className="bg-primary text-primary-foreground absolute top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
+            <span className="bg-primary text-primary-foreground absolute end-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
               {itemCount}
             </span>
           )}
@@ -130,21 +131,19 @@ export function CartDrawer({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Close cart"
-                  className="absolute top-1 end-0"
+                  aria-label={tCart("close")}
+                  className="absolute end-0 top-1"
                 />
               }
             >
               <XIcon />
             </DrawerClose>
           )}
-          <DrawerTitle className="text-title">Your cart</DrawerTitle>
+          <DrawerTitle className="text-title">{tCart("title")}</DrawerTitle>
           <DrawerDescription>
             {isPendingCart
-              ? "Loading your cart…"
-              : itemCount === 0
-                ? "Nothing here yet."
-                : `${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+              ? tCart("loading")
+              : tCart("count", { count: itemCount })}
           </DrawerDescription>
         </DrawerHeader>
 
@@ -163,7 +162,7 @@ export function CartDrawer({
         ) : items.length > 0 ? (
           <ul className="scroll-fade min-h-0 flex-1 divide-y overflow-y-auto px-2">
             {items.map((item) => {
-              const name = item.title ?? "this item";
+              const name = item.title ?? tCart("itemFallback");
               return (
                 <li
                   key={`${item.productId}-${item.productVariantId}`}
@@ -183,11 +182,11 @@ export function CartDrawer({
                   <div className="flex min-w-0 flex-1 flex-col gap-3">
                     <div className="min-w-0">
                       <p className="line-clamp-2 text-sm font-medium">
-                        {item.title}
+                        <bdi>{item.title}</bdi>
                       </p>
                       {item.values && item.values.length > 0 && (
                         <p className="text-muted-foreground text-sm capitalize">
-                          {item.values.join(", ")}
+                          <bdi>{item.values.join(", ")}</bdi>
                         </p>
                       )}
                       <CartStockNotice item={item} className="mt-1" />
@@ -235,9 +234,9 @@ export function CartDrawer({
               aria-hidden
             />
             <div className="space-y-1">
-              <p className="font-medium">Your cart is empty</p>
+              <p className="font-medium">{tCart("empty.title")}</p>
               <p className="text-muted-foreground text-sm text-pretty">
-                Hand-imported gear, delivered in Egypt in 1–2 business days.
+                {tCart("empty.description")}
               </p>
             </div>
             <Button
@@ -245,8 +244,11 @@ export function CartDrawer({
               nativeButton={false}
               render={<Link href="/products" onClick={() => setOpen(false)} />}
             >
-              Browse the store
-              <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
+              {tCart("empty.browse")}
+              <ArrowRightIcon
+                data-icon="inline-end"
+                className="rtl:-scale-x-100"
+              />
             </Button>
           </div>
         )}
@@ -254,7 +256,9 @@ export function CartDrawer({
         {items.length > 0 && (
           <DrawerFooter className="mx-2 gap-4 border-t px-0 pt-5 pb-2">
             <div className="flex items-baseline justify-between">
-              <span className="text-muted-foreground text-sm">Subtotal</span>
+              <span className="text-muted-foreground text-sm">
+                {tCart("subtotal")}
+              </span>
               <span className="text-lg font-medium tabular-nums">
                 {formatCurrency(subtotal, locale)}
               </span>
@@ -263,11 +267,11 @@ export function CartDrawer({
             {hasStockIssues ? (
               <>
                 <p className="text-muted-foreground text-sm text-pretty">
-                  Update the items marked above to check out.
+                  {tCart("fixToCheckout")}
                 </p>
                 <Button size="xl" className="w-full" disabled>
                   <LockIcon data-icon="inline-start" />
-                  Check out
+                  {tCart("checkout")}
                 </Button>
               </>
             ) : (
@@ -280,19 +284,19 @@ export function CartDrawer({
                 }
               >
                 <LockIcon data-icon="inline-start" />
-                Check out
+                {tCart("checkout")}
               </Button>
             )}
 
             <ul className="text-muted-foreground flex flex-col gap-2 text-sm">
               {TRUST_PROMISES.map((promise) => (
-                <li key={promise.title} className="flex items-center gap-2">
+                <li key={promise.id} className="flex items-center gap-2">
                   <promise.icon
                     className="size-4 shrink-0"
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  {promise.title}
+                  {tCommon(`trust.${promise.id}.title`)}
                 </li>
               ))}
             </ul>

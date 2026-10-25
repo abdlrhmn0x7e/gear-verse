@@ -1,9 +1,10 @@
 import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { NextRequest } from "next/server";
 import { routing } from "~/i18n/routing";
 import { localizedPath } from "~/lib/seo/metadata";
 import { getStoreSettings } from "~/lib/store-settings";
-import { requestItemMessage, whatsAppLink } from "~/lib/whatsapp";
+import { requestedItem, whatsAppLink } from "~/lib/whatsapp";
 
 /**
  * Every "Request an item" entry point links here, with what the customer typed or searched for in `?item=`,
@@ -15,19 +16,26 @@ export async function GET(
   request: NextRequest,
   { params }: RouteContext<"/[locale]/request">,
 ) {
-  const { whatsappNumber } = await getStoreSettings();
+  const [{ whatsappNumber }, { locale: requested }] = await Promise.all([
+    getStoreSettings(),
+    params,
+  ]);
+  const locale = hasLocale(routing.locales, requested)
+    ? requested
+    : routing.defaultLocale;
   if (!whatsappNumber) {
-    const { locale } = await params;
-    const home = localizedPath(
-      "/",
-      hasLocale(routing.locales, locale) ? locale : routing.defaultLocale,
-    );
+    const home = localizedPath("/", locale);
     return Response.redirect(new URL(`${home}#faq`, request.url), 307);
   }
 
-  const item = request.nextUrl.searchParams.get("item");
+  // the chat opens in the visitor's language
+  const t = await getTranslations({ locale, namespace: "common.whatsapp" });
+  const item = requestedItem(request.nextUrl.searchParams.get("item"));
   return Response.redirect(
-    whatsAppLink(whatsappNumber, requestItemMessage(item)),
+    whatsAppLink(
+      whatsappNumber,
+      item ? t("requestItem", { item }) : t("requestAnything"),
+    ),
     307,
   );
 }

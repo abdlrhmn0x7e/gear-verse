@@ -13,7 +13,7 @@ import { CartStockNotice } from "~/components/cart-stock-notice";
 import { blocksCheckout, getStockIssue } from "~/lib/utils/cart-stock";
 import { OrderTotals } from "../../_components/order-totals";
 import { getStoreSettings } from "~/lib/store-settings";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export default async function CheckoutPage() {
   await requireAuth();
@@ -61,19 +61,20 @@ function OrderSummary({
   isMobile?: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("checkout");
   const subtotal = cart.items.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
 
   const empty = cart.items.length === 0 && (
-    <p className="text-muted-foreground">Your cart is empty.</p>
+    <p className="text-muted-foreground">{t("cartEmpty")}</p>
   );
 
   if (isMobile) {
     return (
       <div className="space-y-3">
-        <Heading level={4}>Order summary</Heading>
+        <Heading level={4}>{t("orderSummary")}</Heading>
         {empty}
 
         {cart.items.map((item, index) => (
@@ -91,10 +92,17 @@ function OrderSummary({
             <div className="flex flex-1 flex-col justify-between">
               <div>
                 <p>
-                  {item.quantity} x {item.title}
+                  {t.rich("lineItem", {
+                    quantity: item.quantity,
+                    title: () => <bdi>{item.title}</bdi>,
+                  })}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {item.values && `- ${item.values.join(", ")}`}
+                  {item.values && (
+                    <>
+                      - <bdi>{item.values.join(", ")}</bdi>
+                    </>
+                  )}
                 </p>
                 <CartStockNotice item={item} className="mt-1" />
               </div>
@@ -115,7 +123,7 @@ function OrderSummary({
   return (
     <Card className="h-fit space-y-3">
       <CardHeader>
-        <CardTitle className="text-xl">Order summary</CardTitle>
+        <CardTitle className="text-xl">{t("orderSummary")}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-8">
@@ -150,10 +158,17 @@ function OrderSummary({
             >
               <div>
                 <p>
-                  {item.quantity} x {item.title}
+                  {t.rich("lineItem", {
+                    quantity: item.quantity,
+                    title: () => <bdi>{item.title}</bdi>,
+                  })}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {item.values && `- ${item.values.join(", ")}`}
+                  {item.values && (
+                    <>
+                      - <bdi>{item.values.join(", ")}</bdi>
+                    </>
+                  )}
                 </p>
                 <CartStockNotice item={item} className="mt-1" />
               </div>

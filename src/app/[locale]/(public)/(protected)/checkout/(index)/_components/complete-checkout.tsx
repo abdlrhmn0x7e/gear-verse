@@ -19,6 +19,8 @@ import { Spinner } from "~/components/spinner";
 import { cn } from "~/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
+import { useLocale, useTranslations } from "next-intl";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
 
 export function CompleteCheckout({
   children,
@@ -37,6 +39,9 @@ export function CompleteCheckout({
   whatsappNumber: string | null;
   className?: string;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("checkout");
+  const getErrorMessage = useCustomerErrorMessage();
   const trpc = useTRPC();
   const router = useRouter();
   const { mutate: checkout, isPending: checkoutPending } = useMutation(
@@ -46,12 +51,7 @@ export function CompleteCheckout({
       },
 
       onError: (error) => {
-        // bad requests carry a message meant for the customer (e.g. stock)
-        toast.error(
-          error.data?.code === "BAD_REQUEST" && !error.data.zodError
-            ? error.message
-            : "Unable to place your order. Check that the items in your cart are still in stock, then try again.",
-        );
+        toast.error(getErrorMessage(error, t("placeOrderError")));
       },
     }),
   );
@@ -63,7 +63,7 @@ export function CompleteCheckout({
   return (
     <div className={cn("relative flex flex-col gap-4", className)}>
       <h1 className="text-headline-sm md:text-display-sm text-balance">
-        Checkout
+        {t("title")}
       </h1>
 
       <div className="flex flex-1 flex-col gap-4">
@@ -82,21 +82,22 @@ export function CompleteCheckout({
         {/* the button below stays disabled without items, so say why and point back to the store */}
         {!hasCartItems && (
           <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-end">
-            Your cart is empty.{" "}
-            <Link
-              href="/products"
-              className="text-foreground underline decoration-from-font underline-offset-4"
-            >
-              Browse the store
-            </Link>{" "}
-            to add something.
+            {t.rich("emptyCart", {
+              link: (chunks) => (
+                <Link
+                  href="/products"
+                  className="text-foreground underline decoration-from-font underline-offset-4"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         )}
 
         {hasStockIssues && (
           <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-end">
-            Some items are out of stock or short. Update them in your order
-            summary to place your order.
+            {t("stockIssues")}
           </p>
         )}
 
@@ -107,39 +108,57 @@ export function CompleteCheckout({
             </ItemMedia>
             <ItemContent>
               <ItemTitle>
-                {new Intl.ListFormat("en").format(backorderTitles)}{" "}
-                {backorderTitles.length === 1 ? "is" : "are"} on backorder
+                {/* one flex item, as the plain sentence was, so the title's gap doesn't split the names */}
+                <span>
+                  {t.rich("backorder.title", {
+                    count: backorderTitles.length,
+                    // each product name isolated, so a Latin title keeps its place in an Arabic list
+                    list: () =>
+                      new Intl.ListFormat(locale)
+                        .formatToParts(backorderTitles)
+                        .map((part, index) =>
+                          part.type === "element" ? (
+                            <bdi key={index}>{part.value}</bdi>
+                          ) : (
+                            part.value
+                          ),
+                        ),
+                  })}
+                </span>
               </ItemTitle>
               <ItemDescription className="line-clamp-none text-pretty">
-                We source {backorderTitles.length === 1 ? "it" : "them"} in
-                about {BACKORDER_LEAD_DAYS} days on average, counted from when
-                we confirm your order on{" "}
-                {whatsappNumber ? (
-                  <a
-                    href={whatsAppLink(whatsappNumber)}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    WhatsApp
-                  </a>
-                ) : (
-                  "WhatsApp"
-                )}
-                .
+                {t.rich("backorder.description", {
+                  count: backorderTitles.length,
+                  days: BACKORDER_LEAD_DAYS,
+                  whatsapp: (chunks) =>
+                    whatsappNumber ? (
+                      <a
+                        href={whatsAppLink(whatsappNumber)}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        {chunks}
+                      </a>
+                    ) : (
+                      chunks
+                    ),
+                })}
               </ItemDescription>
             </ItemContent>
           </Item>
         )}
 
         <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-end">
-          By placing your order, you agree to our{" "}
-          <Link
-            href="/returns"
-            className="text-foreground underline decoration-from-font underline-offset-4"
-          >
-            Returns &amp; Refunds Policy
-          </Link>
-          .
+          {t.rich("agreeToReturns", {
+            link: (chunks) => (
+              <Link
+                href="/returns"
+                className="text-foreground underline decoration-from-font underline-offset-4"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
 
         {/* pinned to the bottom on phones, but in flow at the end, so it never hides what's after it */}
@@ -159,7 +178,7 @@ export function CompleteCheckout({
             ) : (
               <LockIcon data-icon="inline-start" />
             )}
-            Place order
+            {t("placeOrder")}
           </Button>
         </div>
       </div>

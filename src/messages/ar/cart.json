@@ -1,1 +1,41 @@
-{}
+{
+  "title": "سلتك",
+  "close": "اقفل السلة",
+  "loading": "بنحمّل سلتك…",
+  "count": "{count, plural, =0 {لسه مفيش حاجة هنا.} one {منتج واحد} two {منتجين} few {# منتجات} many {# منتج} other {# منتج}}",
+  "itemFallback": "المنتج ده",
+  "empty": {
+    "title": "سلتك فاضية",
+    "description": "جير مستورد مخصوص، وبيوصلك في مصر في يوم أو اتنين شغل.",
+    "browse": "اتفرّج على المتجر"
+  },
+  "subtotal": "المجموع",
+  "fixToCheckout": "عدّل المنتجات اللي متعلّم عليها فوق عشان تكمّل طلبك.",
+  "checkout": "كمّل الطلب",
+  "updateError": "معرفناش نعدّل سلتك. جرّب تاني.",
+  "stock": {
+    "backorderPartial": "<strong>متاح {stock}، و{backorder} بالطلب</strong>. بياخد حوالي {days, plural, one {يوم} two {يومين} few {# أيام} many {# يوم} other {# يوم}} في المتوسط من بعد ما نأكد معاك على واتساب.",
+    "backorderAll": "<strong>متاح بالطلب</strong>. بياخد حوالي {days, plural, one {يوم} two {يومين} few {# أيام} many {# يوم} other {# يوم}} في المتوسط من بعد ما نأكد معاك على واتساب.",
+    "out": "خلصان",
+    "short": "فاضل {stock} بس",
+    "remove": "شيله",
+    "changeTo": "خليه {stock}",
+    "fixError": "معرفناش نعدّل سلتك. جرّب تاني لو سمحت."
+  },
+  "quantity": {
+    "group": "كمية {item}",
+    "remove": "شيل {item}",
+    "decrease": "قلّل كمية {item}",
+    "increase": "زوّد كمية {item}"
+  },
+  "serverErrors": {
+    "productUnavailable": "المنتج ده مبقاش متاح",
+    "productOutOfStock": "المنتج ده خلصان",
+    "cartHasAll": "فاضل {stock} بس، وكلهم في سلتك خلاص",
+    "chooseSavedAddress": "اختار عنوان من عناوينك المحفوظة",
+    "cartEmpty": "سلتك فاضية",
+    "itemUnavailable": "{title} مبقاش متاح، شيله من سلتك لو سمحت",
+    "itemShort": "الكمية مش كفاية من {title}: فاضل {stock} بس",
+    "itemOut": "{title} خلصان"
+  }
+}

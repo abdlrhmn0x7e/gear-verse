@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { cn } from "~/lib/utils";
@@ -14,6 +15,7 @@ export function ProductGallery({
   title: string;
   variantCount: number;
 }) {
+  const t = useTranslations("products.gallery");
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
@@ -64,7 +66,7 @@ export function ProductGallery({
       <ul
         ref={scrollerRef}
         onScroll={handleScroll}
-        aria-label={photos.length > 1 ? `${title} photos` : undefined}
+        aria-label={photos.length > 1 ? t("photos", { title }) : undefined}
         className="no-scrollbar flex aspect-square snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-[2rem]"
       >
         {photos.map((photo, index) => (
@@ -76,7 +78,11 @@ export function ProductGallery({
               src={photo}
               alt={
                 photos.length > 1
-                  ? `${title}, photo ${index + 1} of ${photos.length}`
+                  ? t("photoAlt", {
+                      title,
+                      index: index + 1,
+                      total: photos.length,
+                    })
                   : title
               }
               width={1200}
@@ -91,14 +97,17 @@ export function ProductGallery({
 
       {photos.length > 1 && (
         <ul
-          aria-label="Product photos"
+          aria-label={t("thumbnails")}
           className="no-scrollbar -mx-1.5 flex gap-3 overflow-x-auto p-1.5"
         >
           {photos.map((photo, index) => (
             <li key={`${photo}-${index}`} className="shrink-0">
               <button
                 type="button"
-                aria-label={`Show photo ${index + 1} of ${photos.length}`}
+                aria-label={t("showPhoto", {
+                  index: index + 1,
+                  total: photos.length,
+                })}
                 aria-current={index === activeIndex}
                 onClick={() => showPhoto(index)}
                 className={cn(

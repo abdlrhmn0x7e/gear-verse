@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "~/i18n/navigation";
 import { cn } from "~/lib/utils";
 
@@ -41,19 +42,18 @@ export function ProductRowItem({
 
 /** Ends a short product row with a way to the full store, so the row never looks unfinished. */
 export function StoreTile({ className }: { className?: string }) {
+  const t = useTranslations("products.storeTile");
   return (
     <Link
       href="/products"
       className={cn(
-        "bg-card hover:bg-accent group flex aspect-square flex-col justify-between gap-8 rounded-3xl p-6 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus md:p-8",
+        "bg-card hover:bg-accent group focus-visible:outline-focus flex aspect-square flex-col justify-between gap-8 rounded-3xl p-6 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 md:p-8",
         className,
       )}
     >
-      <p className="text-title max-w-xs text-balance">
-        A short list, and every pick on it is worth the money.
-      </p>
+      <p className="text-title max-w-xs text-balance">{t("pitch")}</p>
       <span className="inline-flex items-center gap-2 text-sm font-medium">
-        See the whole store
+        {t("cta")}
         <ArrowRightIcon
           className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
           aria-hidden

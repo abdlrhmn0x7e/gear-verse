@@ -10,7 +10,7 @@ import { AddReview } from "./add-review";
 import { DeleteReviewDialog } from "./delete-review";
 import { EditReview } from "./edit-reviews";
 import { StarRating } from "./star-rating";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "~/i18n/routing";
 
 // Arabic keeps Western digits, as format-currency does
@@ -34,7 +34,10 @@ const cardClassName =
   "bg-card flex min-h-72 w-[80vw] shrink-0 snap-start flex-col gap-6 rounded-3xl p-6 md:w-auto md:p-8";
 
 export async function Reviews({ productId }: { productId: number }) {
-  const locale = await getLocale();
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations("products.reviews"),
+  ]);
   const reviews = await app.public.reviews.queries.findAll(productId);
   const data = await getSession();
   const userHasReviewed = reviews.some(
@@ -52,7 +55,7 @@ export async function Reviews({ productId }: { productId: number }) {
     >
       <div className="flex flex-col items-center gap-3 text-center">
         <h2 id="reviews-heading" className="text-headline-sm text-balance">
-          What customers are saying
+          {t("heading")}
         </h2>
         {reviews.length > 0 ? (
           <div className="flex items-center gap-3">
@@ -61,14 +64,12 @@ export async function Reviews({ productId }: { productId: number }) {
             </span>
             <StarRating rating={Math.round(average)} />
             <span className="text-muted-foreground text-sm">
-              {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+              {t("count", { count: reviews.length })}
             </span>
           </div>
         ) : (
           <p className="text-muted-foreground text-pretty">
-            {otherReviews.length > 0
-              ? "No reviews for this product yet. Here's what customers said about other gear from us."
-              : "No reviews for this product yet."}
+            {otherReviews.length > 0 ? t("noneWithOthers") : t("none")}
           </p>
         )}
       </div>
@@ -100,7 +101,7 @@ export async function Reviews({ productId }: { productId: number }) {
                   {review.user?.verifiedPurchaser && (
                     <Badge variant="success">
                       <CheckCircleIcon />
-                      Verified purchase
+                      {t("verified")}
                     </Badge>
                   )}
                 </p>
@@ -129,13 +130,17 @@ export async function Reviews({ productId }: { productId: number }) {
                 <p className="mt-auto font-medium">
                   {shortReviewerName(review.name)}{" "}
                   <span className="text-muted-foreground font-normal">
-                    on{" "}
-                    <Link
-                      href={`/products/${review.product.slug}`}
-                      className="text-foreground underline decoration-from-font underline-offset-4"
-                    >
-                      {review.product.title}
-                    </Link>
+                    {t.rich("onProduct", {
+                      title: review.product.title,
+                      link: (chunks) => (
+                        <Link
+                          href={`/products/${review.product.slug}`}
+                          className="text-foreground underline decoration-from-font underline-offset-4"
+                        >
+                          <bdi>{chunks}</bdi>
+                        </Link>
+                      ),
+                    })}
                   </span>
                 </p>
               </li>
@@ -152,15 +157,18 @@ export async function Reviews({ productId }: { productId: number }) {
 
       {!data && (
         <p className="text-muted-foreground self-center text-sm">
-          <LoginDrawerDialog>
-            <Button
-              variant="link"
-              className="text-foreground h-auto border-0 p-0 align-baseline underline"
-            >
-              Sign in
-            </Button>
-          </LoginDrawerDialog>{" "}
-          to review this product.
+          {t.rich("signInPrompt", {
+            signIn: (chunks) => (
+              <LoginDrawerDialog>
+                <Button
+                  variant="link"
+                  className="text-foreground h-auto border-0 p-0 align-baseline underline"
+                >
+                  {chunks}
+                </Button>
+              </LoginDrawerDialog>
+            ),
+          })}
         </p>
       )}
     </section>

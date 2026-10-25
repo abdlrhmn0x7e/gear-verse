@@ -1,5 +1,6 @@
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { Link } from "~/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Button } from "~/components/ui/button";
@@ -24,9 +25,10 @@ export default async function SuccessPage({
     return notFound();
   }
 
-  const [order, { whatsappNumber }] = await Promise.all([
+  const [order, { whatsappNumber }, t] = await Promise.all([
     api.public.orders.queries.findById({ id: parsedOrderId }),
     getStoreSettings(),
+    getTranslations("checkout.success"),
   ]);
   if (!order) {
     return notFound();
@@ -41,14 +43,18 @@ export default async function SuccessPage({
           </span>
           <div className="space-y-2">
             <h1 className="text-headline-sm md:text-display-sm text-balance">
-              Order placed
+              {t("title")}
             </h1>
             <p className="text-muted-foreground mx-auto max-w-md text-pretty">
-              Thank you! Your order number is{" "}
-              <span className="text-foreground font-medium tabular-nums">
-                #{order.id}
-              </span>
-              . We&apos;ll WhatsApp you to confirm it and the shipping fee.
+              {t.rich("description", {
+                // a string, so the number isn't grouped like a price
+                id: String(order.id),
+                number: (chunks) => (
+                  <span className="text-foreground font-medium tabular-nums">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </p>
           </div>
         </header>
@@ -66,7 +72,7 @@ export default async function SuccessPage({
             nativeButton={false}
             render={<Link href={`/orders?orderId=${order.id}`} />}
           >
-            Track your order
+            {t("track")}
             <ArrowRightIcon
               data-icon="inline-end"
               className="rtl:-scale-x-100"
@@ -78,7 +84,7 @@ export default async function SuccessPage({
             nativeButton={false}
             render={<Link href="/products" />}
           >
-            Continue shopping
+            {t("continue")}
             <ArrowRightIcon
               data-icon="inline-end"
               className="rtl:-scale-x-100"

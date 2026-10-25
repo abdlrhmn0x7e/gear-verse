@@ -15,7 +15,8 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/toast";
-import { getCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useCustomerErrorMessage } from "~/lib/utils/customer-error-message";
+import { useTranslations } from "next-intl";
 import { useTRPC } from "~/trpc/client";
 
 export function DeleteAddressDialog({
@@ -27,6 +28,8 @@ export function DeleteAddressDialog({
   onDeleted: (id: number) => void;
   className?: string;
 }) {
+  const t = useTranslations("checkout.deleteAddress");
+  const getErrorMessage = useCustomerErrorMessage();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutate: deleteAddress, isPending } = useMutation(
@@ -40,15 +43,10 @@ export function DeleteAddressDialog({
         void queryClient.invalidateQueries(
           trpc.public.checkout.queries.getAddresses.queryFilter(),
         );
-        toast.success("Address deleted");
+        toast.success(t("deleted"));
       },
       onError: (error) => {
-        toast.error(
-          getCustomerErrorMessage(
-            error,
-            "Couldn't delete your address. Check your connection and try again.",
-          ),
-        );
+        toast.error(getErrorMessage(error, t("error")));
       },
     }),
   );
@@ -63,7 +61,7 @@ export function DeleteAddressDialog({
             variant="destructive-ghost"
             size="icon-sm"
             className={className}
-            aria-label={`Delete address for ${address.fullName}`}
+            aria-label={t("label", { name: address.fullName })}
           />
         }
       >
@@ -71,17 +69,18 @@ export function DeleteAddressDialog({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete this address?</AlertDialogTitle>
+          <AlertDialogTitle>{t("title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            <bdi>{address.fullName}</bdi>, <bdi>{address.address}</bdi>{" "}
-            won&apos;t show at checkout anymore. Orders you&apos;ve already
-            placed keep it.
+            {t.rich("description", {
+              name: () => <bdi>{address.fullName}</bdi>,
+              address: () => <bdi>{address.address}</bdi>,
+            })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
             <XIcon data-icon="inline-start" />
-            Cancel
+            {t("cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
@@ -89,7 +88,7 @@ export function DeleteAddressDialog({
             onClick={() => deleteAddress({ id: address.id })}
           >
             <Trash2Icon data-icon="inline-start" />
-            Delete address
+            {t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

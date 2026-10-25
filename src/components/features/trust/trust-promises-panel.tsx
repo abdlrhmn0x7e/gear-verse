@@ -1,27 +1,23 @@
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 import { TrustPromiseItem } from "./trust-promise-item";
 import { TRUST_PROMISES } from "./trust-promises";
 
-/** The panel says "Verified products"; the cart's compact list keeps "Originals only". */
-const PANEL_PROMISES = TRUST_PROMISES.map((promise) =>
-  promise.title === "Originals only"
-    ? { ...promise, title: "Verified products" }
-    : promise,
-);
-
 /** The three promises in one grey panel, on the home and product pages. From lg they share a row:
  * justify-between makes both inner gaps equal and leaves the panel's own padding as the gap at each end. */
 export function TrustPromisesPanel({ className }: { className?: string }) {
+  const t = useTranslations("common.trust");
+
   return (
     <ul
-      aria-label="Our promises"
+      aria-label={t("label")}
       className={cn(
         "bg-card flex flex-col gap-6 rounded-3xl p-6 md:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:p-10 xl:px-24",
         className,
       )}
     >
-      {PANEL_PROMISES.map((promise) => (
-        <TrustPromiseItem key={promise.title} promise={promise} />
+      {TRUST_PROMISES.map((promise) => (
+        <TrustPromiseItem key={promise.id} promise={promise} />
       ))}
     </ul>
   );

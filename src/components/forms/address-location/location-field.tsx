@@ -9,6 +9,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { Spinner } from "~/components/spinner";
@@ -35,17 +36,6 @@ type LocateState =
       reason: "denied" | "timeout" | "unavailable" | "unsupported";
     };
 
-const LOCATE_ERRORS = {
-  denied:
-    "Location access is turned off for this site. Allow it in your browser settings, or tap the map to drop the pin yourself.",
-  timeout:
-    "Finding your location took too long. Try again, or tap the map to drop the pin.",
-  unavailable:
-    "Your location isn't available right now. Check that location services are on, or tap the map to drop the pin.",
-  unsupported:
-    "This browser can't share your location. Tap the map to drop the pin instead.",
-} as const;
-
 function locateError(error: GeolocationPositionError) {
   if (error.code === error.PERMISSION_DENIED) return "denied";
   if (error.code === error.TIMEOUT) return "timeout";
@@ -69,6 +59,7 @@ export function LocationField({
   /** Called with what the address lookup found at the pin; never on failure. */
   onAddressFound: (result: ReverseGeocodeResult) => void;
 }) {
+  const t = useTranslations("checkout.location");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [locate, setLocate] = useState<LocateState>({ status: "idle" });
@@ -208,10 +199,8 @@ export function LocationField({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <div className="space-y-0.5">
-          <p className="text-sm font-medium">Delivery location</p>
-          <p className="text-muted-foreground text-xs">
-            Optional. Helps the courier find your door.
-          </p>
+          <p className="text-sm font-medium">{t("title")}</p>
+          <p className="text-muted-foreground text-xs">{t("hint")}</p>
         </div>
         <Button
           type="button"
@@ -224,9 +213,7 @@ export function LocationField({
           ) : (
             <IconCurrentLocation data-icon="inline-start" />
           )}
-          {locate.status === "locating"
-            ? "Finding you…"
-            : "Use my current location"}
+          {locate.status === "locating" ? t("locating") : t("locate")}
         </Button>
       </div>
 
@@ -236,7 +223,7 @@ export function LocationField({
           className="text-muted-foreground flex gap-2 text-sm text-pretty"
         >
           <IconLocationOff className="text-foreground mt-0.5 size-4 shrink-0" />
-          {LOCATE_ERRORS[locate.reason]}
+          {t(`errors.${locate.reason}`)}
         </p>
       )}
 
@@ -255,13 +242,13 @@ export function LocationField({
         />
         {!value && (
           <p className="bg-popover/90 text-foreground surface-floating pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap shadow-sm">
-            Tap the map to drop a pin
+            {t("tapToPin")}
           </p>
         )}
       </div>
 
       {value && mapsUrl && (
-        <div className="bg-input-background border-input flex items-center gap-3 rounded-2xl border py-1.5 pe-1.5 ps-3.5">
+        <div className="bg-input-background border-input flex items-center gap-3 rounded-2xl border py-1.5 ps-3.5 pe-1.5">
           {isLookingUp ? (
             <Spinner size="small" className="text-muted-foreground shrink-0" />
           ) : (
@@ -270,9 +257,12 @@ export function LocationField({
           <div className="flex min-w-0 flex-1 flex-col items-start">
             <p className="flex max-w-full min-w-0 items-baseline gap-2 text-sm">
               <span className="font-medium whitespace-nowrap">
-                Pinned location
+                {t("pinned")}
               </span>
-              <span className="text-muted-foreground truncate text-xs tabular-nums">
+              <span
+                className="text-muted-foreground truncate text-xs tabular-nums"
+                dir="ltr"
+              >
                 {value.latitude.toFixed(5)}, {value.longitude.toFixed(5)}
               </span>
             </p>
@@ -285,14 +275,14 @@ export function LocationField({
               render={<a href={mapsUrl} target="_blank" rel="noreferrer" />}
             >
               <IconExternalLink data-icon="inline-start" />
-              Open in Google Maps
+              {t("openInMaps")}
             </Button>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Remove pin"
+            aria-label={t("removePin")}
             onClick={handleClear}
           >
             <IconX />
@@ -304,10 +294,12 @@ export function LocationField({
 }
 
 function MapPlaceholder() {
+  const t = useTranslations("checkout.location");
+
   return (
     <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 text-sm">
       <IconMap className="size-6 opacity-60" />
-      Loading map…
+      {t("loadingMap")}
     </div>
   );
 }
