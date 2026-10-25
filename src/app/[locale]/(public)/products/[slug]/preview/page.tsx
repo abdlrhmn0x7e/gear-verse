@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// a blocking route, so the admin check finishes before anything streams and everyone else gets a real 404
+// a blocking route: the session read gates the page instead of streaming behind a boundary, so a draft only renders for admins
 export const instant = false;
 
 export default async function ProductPreviewPage({
