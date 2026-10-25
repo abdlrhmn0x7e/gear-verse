@@ -138,9 +138,10 @@ export const _products = {
           thumbnailMediaId: v.thumbnail.id,
         })),
         newSeo: seo,
-        newInventoryItem: {
-          quantity: product.inventory?.quantity ?? 0,
-        },
+        // a product with variants keeps its stock on the variants' rows only
+        newInventoryItem: variants?.length
+          ? undefined
+          : { quantity: product.inventory?.quantity ?? 0 },
       });
 
       await invalidateCache("recent-products");
