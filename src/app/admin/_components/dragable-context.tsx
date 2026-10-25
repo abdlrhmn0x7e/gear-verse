@@ -248,7 +248,7 @@ export function DragableOverlay({
           </button>
         )}
 
-        <div className="flex-1">{children}</div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </DragOverlay>
   );
@@ -259,13 +259,16 @@ export function Droppable({
   id,
   className,
   classNameWhenOver = "bg-accent",
+  disabled,
 }: React.PropsWithChildren<{
   id: string;
   className?: string;
   classNameWhenOver?: string;
+  disabled?: boolean;
 }>) {
   const { setNodeRef, isOver } = useDroppable({
     id,
+    disabled,
   });
 
   return (

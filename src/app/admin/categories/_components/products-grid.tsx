@@ -65,17 +65,21 @@ export function CategoryProductList({
       strategy={rectSortingStrategy}
     >
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-        {products.map((product) => (
+        {products.map((product, index) => (
           <DragableItem
             id={`product:${product.id}`}
             key={`product-${product.id}`}
             className={cn(
-              "bg-card text-card-foreground [&>button]:text-muted-foreground relative flex h-full items-center gap-3 rounded-2xl py-2 pr-3 pl-3 transition-all",
+              "bg-card text-card-foreground [&>button]:text-muted-foreground relative flex h-full items-center gap-3 rounded-2xl py-2 pr-3 pl-3 transition-[opacity,box-shadow]",
               activeId === `product:${product.id}` &&
                 "ring-primary/40 opacity-40 ring-2",
             )}
             withHandle
           >
+            {/* the grid wraps into rows, so the number says where the product sits in the page's order */}
+            <span className="text-muted-foreground min-w-4 text-center text-xs tabular-nums">
+              {index + 1}
+            </span>
             <ProductListItem product={product} />
           </DragableItem>
         ))}

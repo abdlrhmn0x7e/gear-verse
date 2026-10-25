@@ -30,9 +30,9 @@ import { Skeleton } from "~/components/ui/skeleton";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useCategoryStore } from "../_store/provider";
-import { AddCategory } from "./add-category";
+import { AddCategoryDrawer } from "~/app/admin/_components/drawers/add-category";
+import { EditCategoryDrawer } from "~/app/admin/_components/drawers/edit-category";
 import { CategoryIcon, categoryArabicStatus } from "./category-tree";
-import { EditCategory } from "./edit-category";
 import { CategoryProductList } from "./products-grid";
 
 type CategoryProduct =
@@ -79,21 +79,11 @@ export function CategoryDetails({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMode("add")}
-              disabled={mode === "add"}
-            >
+            <Button variant="outline" size="sm" onClick={() => setMode("add")}>
               <PlusIcon data-icon="inline-start" />
               Add sub-category
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMode("edit")}
-              disabled={mode === "edit"}
-            >
+            <Button variant="outline" size="sm" onClick={() => setMode("edit")}>
               <PencilIcon data-icon="inline-start" />
               Edit
             </Button>
@@ -105,43 +95,21 @@ export function CategoryDetails({
           </div>
         </div>
 
-        {mode !== "view" && (
-          <div className="bg-card max-w-md rounded-2xl p-4">
-            <p className="mb-3 text-sm font-medium">
-              {mode === "edit"
-                ? "Edit category"
-                : `New sub-category of ${category.name}`}
-            </p>
-            {mode === "edit" ? (
-              <EditCategory
-                key={category.id}
-                id={category.id}
-                defaultValues={{
-                  icon: category.icon,
-                  name: category.name,
-                  parent_id: parent?.id,
-                  description: category.description,
-                  name_ar: category.name_ar,
-                  description_ar: category.description_ar,
-                }}
-                arabicStatus={categoryArabicStatus(category)}
-                onSuccess={() => setMode("view")}
-                cancel={() => setMode("view")}
-              />
-            ) : (
-              <AddCategory
-                parentCategoryId={category.id}
-                onSuccess={() => setMode("view")}
-                cancel={() => setMode("view")}
-              />
-            )}
-          </div>
-        )}
+        <AddCategoryDrawer
+          parent={category}
+          open={mode === "add"}
+          onOpenChange={(open) => setMode(open ? "add" : "view")}
+        />
+        <EditCategoryDrawer
+          category={category}
+          parentId={parent?.id}
+          arabicStatus={categoryArabicStatus(category)}
+          open={mode === "edit"}
+          onOpenChange={(open) => setMode(open ? "edit" : "view")}
+        />
 
         <dl className="bg-card grid gap-x-8 gap-y-4 rounded-2xl p-5 text-sm sm:grid-cols-2 xl:grid-cols-4">
-          <Detail label="Slug">
-            <span className="font-mono text-xs">{category.slug}</span>
-          </Detail>
+          <Detail label="Slug">{category.slug}</Detail>
           <Detail label="Icon">
             <span className="flex items-center gap-1.5 capitalize">
               <CategoryIcon

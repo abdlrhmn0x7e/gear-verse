@@ -6,6 +6,11 @@ import { Spinner } from "~/components/spinner";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import type { ArabicStatus } from "~/lib/arabic";
 import { useTRPC } from "~/trpc/client";
 
@@ -30,6 +35,34 @@ export function ArabicStatusBadge({
       <span className="sr-only">Arabic </span>
       {badge.label}
     </Badge>
+  );
+}
+
+const markerLabels = {
+  missing: "Arabic missing",
+  draft: "Arabic draft, not reviewed yet",
+  reviewed: "Arabic reviewed",
+} as const;
+
+/** The status as a one-letter chip, for rows too narrow for the badge; the tooltip spells it out. */
+export function ArabicStatusMarker({ status }: { status: ArabicStatus }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Badge
+            variant={badges[status].variant}
+            className="size-4 rounded-md p-0 leading-none"
+          />
+        }
+      >
+        <span aria-hidden lang="ar">
+          ع
+        </span>
+        <span className="sr-only">{markerLabels[status]}</span>
+      </TooltipTrigger>
+      <TooltipContent>{markerLabels[status]}</TooltipContent>
+    </Tooltip>
   );
 }
 
