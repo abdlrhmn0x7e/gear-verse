@@ -22,7 +22,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RootDocument locale="en">
+    <RootDocument locale="en" admin>
       <Suspense>
         <AdminShell>{children}</AdminShell>
       </Suspense>

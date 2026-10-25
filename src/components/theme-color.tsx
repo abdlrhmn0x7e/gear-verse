@@ -5,9 +5,11 @@ import { useEffect } from "react";
 
 // --background in globals.css (white, and the dark theme's neutral-900) as hex
 const THEME_COLORS = { light: "#ffffff", dark: "#1b151b" } as const;
+// the admin is the dark theme whatever the saved theme
+const ADMIN_COLOR = THEME_COLORS.dark;
 
 // next-themes' storage key and default; the site stays light until someone picks dark or system
-const themeColorScript = `(function(){try{var t=localStorage.getItem("theme")||"light";if(t==="system")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var m=document.createElement("meta");m.name="theme-color";m.content=t==="dark"?"${THEME_COLORS.dark}":"${THEME_COLORS.light}";document.head.appendChild(m)}catch(e){}})()`;
+const themeColorScript = `(function(){try{var t=localStorage.getItem("theme")||"light";var a=document.documentElement.classList.contains("admin");if(t==="system")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var m=document.createElement("meta");m.name="theme-color";m.content=a?"${ADMIN_COLOR}":t==="dark"?"${THEME_COLORS.dark}":"${THEME_COLORS.light}";document.head.appendChild(m)}catch(e){}})()`;
 
 /**
  * The browser toolbar colour, following the site's theme rather than the phone's. The meta is created by a script
@@ -31,7 +33,9 @@ export function ThemeColorSync() {
       meta.name = "theme-color";
       document.head.appendChild(meta);
     }
-    meta.content = THEME_COLORS[resolvedTheme];
+    meta.content = document.documentElement.classList.contains("admin")
+      ? ADMIN_COLOR
+      : THEME_COLORS[resolvedTheme];
   }, [resolvedTheme]);
 
   return null;

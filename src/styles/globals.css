@@ -382,6 +382,69 @@
   --info-foreground: oklch(0.82 0.09 255);
 }
 
+/* The admin's own palette, after sales-crm-kargulstudio: the storefront's dark surfaces with the plum brand kept as
+   the accent. The admin's root layout sets .admin on <html> next to next-themes' forced .dark, so dark: variants still
+   apply and portalled layers (menus, drawers, toasts) take it from :root; :root.admin outranks .dark. Leaving the admin
+   crosses root layouts, a full page load, so the class never reaches the storefront. */
+:root.admin {
+  /* the storefront's dark surfaces (.dark's aubergine ramp), laid out the reference's way: the sidebar sits on the
+     page colour behind a hairline, controls and cards one step up */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-75);
+  --card: var(--neutral-850);
+  --popover: var(--neutral-900);
+  /* white on plum-600 measures 5.3:1; hover lifts it a touch, as the reference's primary does (4.8:1) */
+  --primary: var(--plum-600);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.56 0.19 325);
+  --secondary: var(--neutral-850);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--neutral-800);
+  --destructive: #f97373;
+  --border: var(--neutral-800);
+  /* menus and drawers sit on the page's own colour, edged by the strong line and a deep shadow */
+  --floating-border: var(--neutral-750);
+  --input: var(--neutral-750);
+  --input-background: var(--neutral-850);
+  --floating-field: var(--neutral-850);
+  --ring: var(--neutral-500);
+  --focus: var(--neutral-300);
+  --tile: var(--neutral-850);
+  --tile-hover: var(--neutral-800);
+  --raised: var(--neutral-800);
+
+  --sidebar: var(--neutral-900);
+  --sidebar-foreground: var(--muted-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--neutral-800);
+  --sidebar-ring: var(--ring);
+
+  /* controls carry no border: a dark outer ring and a faint inset highlight edge them (surface-control) */
+  --control-border: transparent;
+  --control-fill: var(--neutral-850);
+  --control-fill-hover: var(--neutral-800);
+  --control-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --solid-shadow:
+    0 4px 4px rgb(42 42 42 / 0.32), 0 0 0 1px #0e0e0e,
+    inset 0 4px 6px rgb(255 255 255 / 0.2),
+    inset 0 0 0 1px rgb(255 255 255 / 0.15), inset 0 -8px 14px rgb(0 0 0 / 0.15);
+
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
+  --shadow-xl: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
+  --shadow-2xl: 0 24px 64px rgb(0 0 0 / 0.6), 0 0 0 1px #0e0e0e;
+
+  --radius: 0.5rem;
+  /* the reference's one curve, so every duration-150 ease-out transition in the admin moves alike */
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 @theme inline {
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -571,10 +634,11 @@
 
 @utility surface-control {
   position: relative;
-  border: 1px solid var(--surface-border, var(--input));
+  border: 1px solid var(--surface-border, var(--control-border, var(--input)));
   background-color: var(--surface-fill, var(--background));
   background-clip: padding-box;
-  box-shadow: var(--surface-shadow, none);
+  /* --control-* are only set in the admin (:root.admin); the storefront's controls stay flat */
+  box-shadow: var(--surface-shadow, var(--control-shadow, none));
 
   /* A tap leaves :hover on the element until the next tap elsewhere, so hover only paints with a real pointer */
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
@@ -597,13 +661,19 @@
   @variant dark {
     background-color: var(
       --surface-fill,
-      color-mix(in oklab, var(--input) 32%, var(--background))
+      var(
+        --control-fill,
+        color-mix(in oklab, var(--input) 32%, var(--background))
+      )
     );
 
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
       --surface-control-hover: var(
         --surface-fill-hover,
-        color-mix(in oklab, var(--input) 64%, var(--background))
+        var(
+          --control-fill-hover,
+          color-mix(in oklab, var(--input) 64%, var(--background))
+        )
       );
     }
   }
@@ -656,6 +726,8 @@
   border: 1px solid var(--primary);
   background-color: var(--primary);
   color: var(--primary-foreground);
+  /* the admin's raised primary; unset, so flat, on the storefront */
+  box-shadow: var(--solid-shadow, none);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:active {
@@ -668,6 +740,74 @@
         border-color: var(--primary-hover);
         background-color: var(--primary-hover);
       }
+    }
+  }
+}
+
+/* The admin's header and toolbar controls at the reference's size: 30px tall, 12px labels, 9px padding, 14px icons. */
+/* Buttons are found by their variant and size attributes, which survive a trigger's own data-slot. */
+@utility admin-controls {
+  & [data-variant][data-size]:not([data-size^="icon"]) {
+    height: 30px;
+    gap: 6px;
+    padding-inline: 9px;
+    font-size: 0.75rem;
+  }
+
+  & [data-variant][data-size^="icon"] {
+    width: 30px;
+    height: 30px;
+  }
+
+  & [data-variant][data-size] svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* the filter builder's chips as one segmented pill: quiet label, hairline dividers, the value in full weight */
+  & [data-slot="filter-chip"][role="group"] {
+    height: 30px;
+    border-radius: 9999px;
+    background-color: var(--control-fill);
+    box-shadow: var(--control-shadow);
+    font-size: 0.75rem;
+
+    & > * {
+      height: auto;
+      border: 0;
+      border-radius: 0;
+      background-color: transparent;
+      padding-inline: 9px;
+      font-size: inherit;
+    }
+
+    & > * + * {
+      border-inline-start: 1px solid rgb(255 255 255 / 0.08);
+    }
+
+    & > :first-child {
+      color: var(--muted-foreground);
+      font-weight: 400;
+    }
+
+    & > :last-child {
+      width: 30px;
+      padding-inline: 0;
+      border-radius: 0 9999px 9999px 0;
+    }
+  }
+
+  & [data-slot="input-group"] {
+    height: 30px;
+    font-size: 0.75rem;
+
+    & input {
+      font-size: inherit;
+    }
+
+    & svg {
+      width: 14px;
+      height: 14px;
     }
   }
 }
@@ -784,4 +924,38 @@ input:-webkit-autofill:active {
 
   /* Revert background color */
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* The admin's menus and pickers at the reference's density: 10px corners, 6px rows, 12px text. Unlayered, so it
+   outranks the components' own rounding and padding, and :root.admin keeps it out of the storefront. */
+:root.admin
+  :is(
+    [data-slot="dropdown-menu-content"],
+    [data-slot="dropdown-menu-sub-content"],
+    [data-slot="context-menu-content"],
+    [data-slot="context-menu-sub-content"],
+    [data-slot="select-content"],
+    [data-slot="combobox-content"]
+  ) {
+  border-radius: calc(var(--radius) + 2px);
+  padding: 4px;
+}
+
+:root.admin
+  :is(
+    [data-slot^="dropdown-menu-"]:is(
+      [data-slot$="-item"],
+      [data-slot$="-sub-trigger"]
+    ),
+    [data-slot^="context-menu-"]:is(
+      [data-slot$="-item"],
+      [data-slot$="-sub-trigger"]
+    ),
+    [data-slot="select-item"],
+    [data-slot="combobox-item"],
+    [data-slot="command-item"]
+  ) {
+  border-radius: calc(var(--radius) - 2px);
+  padding-block: 6px;
+  font-size: 0.75rem;
 }

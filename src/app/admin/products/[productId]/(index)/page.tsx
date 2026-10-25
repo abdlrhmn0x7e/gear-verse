@@ -36,6 +36,20 @@ export default async function EditProductPage({
   return (
     <PageLayout
       title={`Edit ${product.title}`}
+      titleContent={
+        // the saved state, the reference's status pill beside the title
+        <span className="bg-secondary inline-flex h-5 shrink-0 items-center gap-1.5 rounded-full px-2 text-xs shadow-(--control-shadow)">
+          <span
+            aria-hidden
+            className={
+              product.published
+                ? "bg-success size-1.5 rounded-full"
+                : "bg-muted-foreground size-1.5 rounded-full"
+            }
+          />
+          {product.published ? "Published" : "Draft"}
+        </span>
+      }
       description="Let's get this product looking good alright?"
       parent={{ title: "Products", href: "/admin/products" }}
     >

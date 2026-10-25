@@ -31,7 +31,7 @@ export default async function AdminInventoryPage({
     <PageLayout
       title="Inventory"
       description="Easily view, update, and organize your product inventory"
-      contentWidth="full"
+      contentWidth="table"
       toolbar={<InventoryFilters />}
     >
       <HydrateClient>

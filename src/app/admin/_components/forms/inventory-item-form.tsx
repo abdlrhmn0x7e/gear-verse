@@ -120,7 +120,7 @@ export function InventoryItemForm({
     <FormProvider {...form}>
       <form
         id={FORM_ID}
-        className="flex flex-1 flex-col"
+        className="flex min-h-0 flex-1 flex-col"
         onSubmit={(event) => {
           event.preventDefault();
           // Enter in a quantity field submits too; one save at a time.
@@ -170,6 +170,8 @@ function InventorySaveBar({
             : "Unsaved changes"
       }
       onDiscard={onDiscard}
+      // floats over the list's last rows, clear of its stats bar, as the list scrolls itself
+      className="absolute inset-x-0 bottom-12 px-4"
     />
   );
 }

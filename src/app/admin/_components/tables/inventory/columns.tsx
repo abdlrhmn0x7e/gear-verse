@@ -46,7 +46,7 @@ export type InventoryNode =
 // The storefront starts saying "only N left" under this many.
 const LOW_STOCK_BELOW = 4;
 
-function stockStatus(quantity: number | undefined) {
+export function stockStatus(quantity: number | undefined) {
   if (!quantity || quantity <= 0) {
     return {
       label: "Out of stock",
@@ -71,7 +71,7 @@ function stockStatus(quantity: number | undefined) {
 }
 
 // Per depth, so a variant's thumbnail lines up under its product's title.
-const VARIANT_INDENT = 72;
+const VARIANT_INDENT = 64;
 
 function quantityName(node: InventoryItemNode) {
   return `inventory.${node.item.formIndex}.quantity` as const;
@@ -138,10 +138,10 @@ export const inventoryColumns: ListColumn<InventoryNode>[] = [
             alt={node.title}
             className={cn(
               "text-muted-foreground shrink-0 [&>svg]:size-1/2",
-              isVariant ? "size-8" : "size-10",
+              isVariant ? "size-7" : "size-8",
             )}
-            width={isVariant ? 32 : 40}
-            height={isVariant ? 32 : 40}
+            width={isVariant ? 28 : 32}
+            height={isVariant ? 28 : 32}
           />
           <div className="min-w-0 text-sm">
             <Link
@@ -153,7 +153,7 @@ export const inventoryColumns: ListColumn<InventoryNode>[] = [
               {node.title}
             </Link>
             {!isVariant && (
-              <p className="text-muted-foreground truncate">
+              <p className="text-muted-foreground truncate text-xs">
                 {node.kind === "group"
                   ? pluralVariants(
                       node.variants.filter((v) => v.item.productVariantId)
@@ -230,7 +230,7 @@ function QuantityInput({
             aria-label={`Available stock of ${label}`}
             aria-invalid={fieldState.invalid}
             placeholder="0"
-            className="w-32"
+            className="w-32 [&_input]:h-8 [&_input]:tabular-nums"
             value={field.value ?? ""}
             // unlike onChange, this also fires for the stepper arrows
             onValueChange={field.onChange}

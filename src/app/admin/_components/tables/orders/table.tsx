@@ -17,7 +17,8 @@ import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
 // Table logic & components
 import { useTRPC } from "~/trpc/client";
 import { ordersColumns } from "./columns";
-import { ListGrid, useListTable } from "../list-grid";
+import { formatCurrency } from "~/lib/utils/format-currency";
+import { ListGrid, ListStat, useListTable } from "../list-grid";
 
 export function OrdersTable() {
   const trpc = useTRPC();
@@ -75,6 +76,24 @@ export function OrdersTable() {
       onRowClick={(order) => setParams({ ...params, orderId: order.id })}
       hasNextPage={hasNextPage}
       loadMoreRef={ref}
+      noun={["order", "orders"]}
+      stats={
+        <>
+          <ListStat
+            value={formatCurrency(
+              ordersData.reduce((sum, order) => sum + order.totalValue, 0),
+              "en",
+            )}
+            label="total in view"
+          />
+          <ListStat
+            value={
+              ordersData.filter((order) => order.status === "PENDING").length
+            }
+            label="pending"
+          />
+        </>
+      }
       empty={
         filtered
           ? {

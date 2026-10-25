@@ -35,7 +35,7 @@ export default async function AdminUsersPage({
     <PageLayout
       title="Users"
       description="Everyone with an account. Guest checkouts aren't listed."
-      contentWidth="full"
+      contentWidth="table"
       toolbar={<UsersFilters />}
     >
       <HydrateClient>

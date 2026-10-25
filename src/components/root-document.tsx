@@ -73,9 +73,12 @@ export const siteViewport: Viewport = {
 /** The `<html>` document and app-wide providers, shared by the storefront's and the admin's root layouts. */
 export function RootDocument({
   locale,
+  admin = false,
   children,
 }: {
   locale: Locale;
+  /** The admin's own palette (`:root.admin` in globals.css), always dark. Its root layout is separate, so leaving it reloads the page and the class never reaches the storefront. */
+  admin?: boolean;
   children: React.ReactNode;
 }) {
   const dir = locale === "ar" ? "rtl" : "ltr";
@@ -87,7 +90,7 @@ export function RootDocument({
       // globals.css scrolls smoothly; this lets Next jump instantly on navigation
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className="font-sans"
+      className={cn("font-sans", admin && "admin")}
       style={{ "--font-sans": fontSans } as React.CSSProperties}
     >
       {/* eslint-disable-next-line @next/next/no-head-element -- the rule reads this file as a pages/ document; it is an App Router root */}
@@ -114,6 +117,8 @@ export function RootDocument({
               attribute="class"
               defaultTheme="light"
               enableSystem
+              // forced, so the admin never writes the storefront's saved theme
+              forcedTheme={admin ? "dark" : undefined}
               disableTransitionOnChange
             >
               <ThemeColorSync />

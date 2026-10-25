@@ -11,7 +11,7 @@ import { useInView } from "react-intersection-observer";
 import { useDebounce } from "~/hooks/use-debounce";
 import { useTRPC } from "~/trpc/client";
 import { useUserSearchParams } from "../../../_hooks/use-user-search-params";
-import { ListGrid, useListTable } from "../list-grid";
+import { ListGrid, ListStat, useListTable } from "../list-grid";
 import { usersColumns } from "./columns";
 
 export function UsersTable() {
@@ -68,6 +68,19 @@ export function UsersTable() {
       onRowClick={(user) => void setParams({ ordersOf: user.id })}
       hasNextPage={hasNextPage}
       loadMoreRef={ref}
+      noun={["user", "users"]}
+      stats={
+        <>
+          <ListStat
+            value={usersData.filter((user) => user.role === "admin").length}
+            label="admins"
+          />
+          <ListStat
+            value={usersData.filter((user) => user.banned).length}
+            label="banned"
+          />
+        </>
+      }
       empty={
         filtered
           ? {

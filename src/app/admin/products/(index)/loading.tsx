@@ -13,7 +13,7 @@ export default function AdminProductsLoading() {
     <PageLayout
       title="Products Overview"
       description="Manage your products and their information"
-      contentWidth="full"
+      contentWidth="table"
       actions={
         <Button
           nativeButton={false}

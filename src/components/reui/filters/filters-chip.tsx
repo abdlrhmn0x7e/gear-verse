@@ -1023,27 +1023,31 @@ function FilterChipImpl<V, O>({ rule, index }: FilterChipProps<V>) {
         <span className="flex items-center">{pathLabel}</span>
       </ButtonGroupText>
 
-      <FilterOperatorPopover
-        rule={rule}
-        field={field}
-        trigger={
-          <ButtonGroupText
-            /* ONE element that is both the group text and the trigger: an
-               extra wrapper here is the direct child the group would fuse. */
-            render={<button type="button" />}
-            className={cn(
-              "hover:bg-accent bg-background dark:bg-input/30 cursor-default",
-              /* The operator is connective tissue between the field and the
-                 value, so it reads quieter than either - unless it is still
-                 the prompt "Select condition", the one thing to act on. */
-              incomplete ? "text-foreground" : "text-muted-foreground",
-            )}
-            onPointerDown={() => focusSegment("operator")}
-          >
-            {operatorLabel}
-          </ButtonGroupText>
-        }
-      />
+      {/* A field with one condition has nothing to choose there, so the chip reads "Label | Value" like the
+          admin's other filter pills; an unfinished rule keeps it as the prompt. */}
+      {(operators.length > 1 || incomplete) && (
+        <FilterOperatorPopover
+          rule={rule}
+          field={field}
+          trigger={
+            <ButtonGroupText
+              /* ONE element that is both the group text and the trigger: an
+                 extra wrapper here is the direct child the group would fuse. */
+              render={<button type="button" />}
+              className={cn(
+                "hover:bg-accent bg-background dark:bg-input/30 cursor-default",
+                /* The operator is connective tissue between the field and the
+                   value, so it reads quieter than either - unless it is still
+                   the prompt "Select condition", the one thing to act on. */
+                incomplete ? "text-foreground" : "text-muted-foreground",
+              )}
+              onPointerDown={() => focusSegment("operator")}
+            >
+              {operatorLabel}
+            </ButtonGroupText>
+          }
+        />
+      )}
 
       {/* No condition, no value: `getFilterArity(undefined)` defaults to "one",
           so testing the operator alone renders a stray value segment. */}

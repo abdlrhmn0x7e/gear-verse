@@ -6,7 +6,7 @@ import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { useTRPC } from "~/trpc/client";
-import { ListGrid, useListTable } from "../list-grid";
+import { ListGrid, ListStat, useListTable } from "../list-grid";
 import { brandsColumns } from "./columns";
 
 export function BrandsTable() {
@@ -38,6 +38,13 @@ export function BrandsTable() {
       isFetching={isFetching}
       hasNextPage={hasNextPage}
       loadMoreRef={ref}
+      noun={["brand", "brands"]}
+      stats={
+        <ListStat
+          value={brands.reduce((sum, brand) => sum + brand.productCount, 0)}
+          label="products across them"
+        />
+      }
       empty={{
         title: "No brands yet",
         description: "Add a brand to use it when creating products.",

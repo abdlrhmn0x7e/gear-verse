@@ -6,12 +6,10 @@ import { PageLayout } from "../../_components/page-layout";
 export default async function AdminProductsAddPage() {
   await requireAdmin();
 
-  // The form brings its own heading with the draft controls, so the title lives in the breadcrumb.
   return (
     <PageLayout
       title="Add Product"
       parent={{ title: "Products", href: "/admin/products" }}
-      compact
     >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">

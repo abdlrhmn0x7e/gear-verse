@@ -32,7 +32,7 @@ import {
   LayoutAlignRightIcon,
 } from "@hugeicons/core-free-icons";
 
-const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH = "254px";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
@@ -211,7 +211,10 @@ function Sidebar({
             <DrawerTitle>Sidebar</DrawerTitle>
             <DrawerDescription>Displays the mobile sidebar.</DrawerDescription>
           </DrawerHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          {/* clipped to the panel's rounding, so the sections' full-width hairlines end at its edge */}
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-[27px] [&_[data-sidebar=header]]:px-4 [&_[data-sidebar=header]]:pt-4">
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -498,7 +501,7 @@ function SidebarGroupLabel({
     props: mergeProps<"div">(
       {
         className: cn(
-          "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-xl px-3 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+          "text-sidebar-foreground/75 ring-sidebar-ring flex h-5 shrink-0 items-center rounded-lg px-0 text-xs font-medium tracking-wider uppercase outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-6 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
           className,
         ),
       },
@@ -573,7 +576,9 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-start text-sm text-sidebar-foreground/75 ring-sidebar-ring outline-hidden transition-[width,height,padding,color,background-color] duration-150 group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+  // Idle items are muted text with bright icons; hover only brightens the text, and the active item is filled with the
+  // control shadow, as in the reference.
+  "peer/menu-button group/menu-button flex w-full items-center gap-1.5 overflow-hidden rounded-lg px-2 py-1.5 text-start text-sm font-medium text-sidebar-foreground ring-sidebar-ring outline-hidden transition-[width,height,padding,color,background-color,box-shadow] duration-150 ease-out group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:text-sidebar-accent-foreground focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:shadow-(--control-shadow) [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-foreground/80 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {
@@ -582,8 +587,8 @@ const sidebarMenuButtonVariants = cva(
           "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
       size: {
-        default: "h-9 md:h-8",
-        sm: "h-8 text-xs",
+        default: "h-[30px] data-active:h-8",
+        sm: "h-7 text-xs",
         lg: "h-12 group-data-[collapsible=icon]:p-0!",
       },
     },
