@@ -25,11 +25,10 @@ const tileClassName: Record<TileLayout, string> = {
 };
 
 export async function CategoryBento() {
-  const [locale, covers, t, tCommon] = await Promise.all([
+  const [locale, covers, t] = await Promise.all([
     getLocale(),
     getCategoryCovers(),
     getTranslations("landing.categories"),
-    getTranslations("common"),
   ]);
   if (covers.length === 0) return null;
 
@@ -97,7 +96,6 @@ export async function CategoryBento() {
                     <ImageWithFallback
                       src={product.thumbnailUrl}
                       alt=""
-                      errorLabel={tCommon("imageError")}
                       width={800}
                       height={800}
                       sizes={

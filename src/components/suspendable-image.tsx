@@ -5,18 +5,17 @@ import { cn } from "~/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import Image from "next/image";
 import { ImageOffIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function SuspendableImage({
   src,
   alt,
-  errorLabel = "Failed to load image",
   ...props
 }: {
   src: string;
   alt: string;
-  /** the admin has no intl provider, so storefront callers pass common.imageError */
-  errorLabel?: string;
 } & React.ComponentProps<typeof Image>) {
+  const t = useTranslations("common");
   // A preloaded or eager image is above the fold, often the LCP element: it
   // shows from the server HTML instead of waiting for hydration to fade it in.
   const isEager =
@@ -44,7 +43,7 @@ export function SuspendableImage({
       <div className="bg-muted flex size-full flex-col items-center justify-center gap-3 rounded-lg">
         <ImageOffIcon className="size-8" />
         <div className="text-muted-foreground text-center">
-          <div className="text-sm">{errorLabel}</div>
+          <div className="text-sm">{t("imageError")}</div>
         </div>
       </div>
     );
