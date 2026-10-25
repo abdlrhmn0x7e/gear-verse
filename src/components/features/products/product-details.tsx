@@ -145,7 +145,8 @@ export async function ProductDetails({
         className={cn("@container flex flex-col gap-8", className)}
       >
         {preview && (
-          <Alert role="note">
+          // admin-only copy, English on Arabic pages too
+          <Alert role="note" dir="ltr">
             <EyeIcon />
             <AlertTitle>Preview. Only admins can see this page.</AlertTitle>
             {!product.published && (
