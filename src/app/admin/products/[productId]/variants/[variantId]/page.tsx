@@ -50,6 +50,8 @@ export default async function AdminVariantPage({
         title: product.title,
         href: `/admin/products/${parsedProductId}`,
       }}
+      contentWidth="full"
+      contentClassName="max-w-7xl"
     >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
