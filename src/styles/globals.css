@@ -382,69 +382,52 @@
   --info-foreground: oklch(0.82 0.09 255);
 }
 
-/* The admin's own palette, after sales-crm-kargulstudio: neutral near-black surfaces with the plum brand kept as the
-   accent. The admin's root layout sets .admin on <html> next to next-themes' forced .dark, so dark: variants still
+/* The admin's own palette, after sales-crm-kargulstudio: the storefront's dark surfaces with the plum brand kept as
+   the accent. The admin's root layout sets .admin on <html> next to next-themes' forced .dark, so dark: variants still
    apply and portalled layers (menus, drawers, toasts) take it from :root; :root.admin outranks .dark. Leaving the admin
    crosses root layouts, a full page load, so the class never reaches the storefront. */
 :root.admin {
-  /* the light ramp's steps without the aubergine tint */
-  --neutral-50: oklch(0.99 0 0);
-  --neutral-75: oklch(0.97 0 0);
-  --neutral-100: oklch(0.965 0 0);
-  --neutral-200: oklch(0.925 0 0);
-  --neutral-250: oklch(0.88 0 0);
-  --neutral-300: oklch(0.87 0 0);
-  --neutral-350: oklch(0.74 0 0);
-  --neutral-400: oklch(0.71 0 0);
-  --neutral-500: oklch(0.51 0 0);
-  --neutral-600: oklch(0.45 0 0);
-  --neutral-700: oklch(0.37 0 0);
-  --neutral-750: oklch(0.34 0 0);
-  --neutral-800: oklch(0.29 0 0);
-  --neutral-850: oklch(0.25 0 0);
-  --neutral-900: oklch(0.205 0 0);
-  --neutral-950: oklch(0.145 0 0);
-
-  --background: #161616;
-  --foreground: #f9fbff;
-  --card: #1b1d20;
-  --popover: #161616;
+  /* the storefront's dark surfaces (.dark's aubergine ramp), laid out the reference's way: the sidebar sits on the
+     page colour behind a hairline, controls and cards one step up */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-75);
+  --card: var(--neutral-850);
+  --popover: var(--neutral-900);
   /* white on plum-600 measures 5.3:1; hover lifts it a touch, as the reference's primary does (4.8:1) */
   --primary: var(--plum-600);
   --primary-foreground: oklch(1 0 0);
   --primary-hover: oklch(0.56 0.19 325);
-  --secondary: #1e1e1e;
+  --secondary: var(--neutral-850);
   --secondary-foreground: var(--foreground);
-  --muted: #2a2a2a;
-  /* 4.6:1 on the page, 4.3:1 on a card */
-  --muted-foreground: #7f7f7f;
-  --accent: #2a2a2a;
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--neutral-800);
   --destructive: #f97373;
-  --border: #232323;
+  --border: var(--neutral-800);
   /* menus and drawers sit on the page's own colour, edged by the strong line and a deep shadow */
-  --floating-border: #393939;
-  --input: #393939;
-  --input-background: #1e1e1e;
-  --floating-field: #1e1e1e;
-  --ring: #676767;
-  --focus: #d0d4dd;
-  --tile: #1e1e1e;
-  --tile-hover: #262626;
-  --raised: #232427;
+  --floating-border: var(--neutral-750);
+  --input: var(--neutral-750);
+  --input-background: var(--neutral-850);
+  --floating-field: var(--neutral-850);
+  --ring: var(--neutral-500);
+  --focus: var(--neutral-300);
+  --tile: var(--neutral-850);
+  --tile-hover: var(--neutral-800);
+  --raised: var(--neutral-800);
 
-  --sidebar: #171717;
-  --sidebar-foreground: #7f7f7f;
+  --sidebar: var(--neutral-900);
+  --sidebar-foreground: var(--muted-foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: #2a2a2a;
+  --sidebar-accent: var(--neutral-800);
   --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: #232323;
+  --sidebar-border: var(--neutral-800);
   --sidebar-ring: var(--ring);
 
   /* controls carry no border: a dark outer ring and a faint inset highlight edge them (surface-control) */
   --control-border: transparent;
-  --control-fill: #1e1e1e;
-  --control-fill-hover: #252525;
+  --control-fill: var(--neutral-850);
+  --control-fill-hover: var(--neutral-800);
   --control-shadow:
     0 0 0 1px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.1),
     inset 0 0 0 1px rgb(255 255 255 / 0.06);
