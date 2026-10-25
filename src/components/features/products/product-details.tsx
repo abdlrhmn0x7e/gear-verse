@@ -178,8 +178,13 @@ export async function ProductDetails({
         <div className="grid gap-10 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @4xl:gap-16">
           <ProductGallery
             media={[product.thumbnailUrl, ...product.media]}
+            // a single variant is the product itself, so its photo adds nothing
+            variantPhotos={
+              product.variants.length > 1
+                ? product.variants.map((variant) => variant.thumbnailUrl ?? "")
+                : []
+            }
             title={product.title}
-            variantCount={product.variants.length}
           />
 
           <div className="flex flex-col gap-8">
