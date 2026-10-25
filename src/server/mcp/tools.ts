@@ -178,7 +178,7 @@ export const tools: McpTool[] = [
     name: "update_product",
     title: "Update a product",
     description:
-      "Changes a product's fields; leave out what stays the same. media replaces every image (the first is the thumbnail). Variants and options are edited together, in the shape get_product returns them. Publishing and unpublishing go through publish_product, and stock alone through set_stock. Returns the product as saved.",
+      "Changes a product's fields; leave out what stays the same. media replaces every image (the first is the thumbnail). Variants and options are edited together, in the shape get_product returns them. Publishing goes through publish_product and stock alone through set_stock; unpublishing is done in the admin. Returns the product as saved.",
     input: z.object({ id: productId, data: productFields }),
     annotations: write,
     handler: async ({ id, data: { description, descriptionAr, ...data } }) => {
