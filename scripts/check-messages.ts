@@ -1,12 +1,17 @@
 /**
  * Fails when a locale's message files drift from English, the source of the key types: a missing or extra namespace
- * file, a missing or extra key, or an empty string. Run with `bun run check:messages`.
+ * file, a missing or extra key, an empty string, or a word the Arabic copy avoids. Run with `bun run check:messages`.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const MESSAGES_DIR = join(import.meta.dirname, "../src/messages");
 const SOURCE = "en";
+// جير reads as something else in Arabic, and الرف doesn't land as "the shelf" the way it does in English.
+const AVOIDED_WORDS: [RegExp, string][] = [
+  [/(?<!\p{L})(?:ال|بال|لل)?جير(?!\p{L})/u, "منتجات"],
+  [/(?<!\p{L})(?:ال|بال|لل|عال)?رف(?!\p{L})/u, "التشكيلة"],
+];
 
 type Tree = { [key: string]: string | Tree };
 
@@ -58,13 +63,20 @@ for (const locale of locales) {
       if (!source.has(key)) problems.push(`${locale}/${file}: extra "${key}"`);
       else if (!value.trim())
         problems.push(`${locale}/${file}: empty "${key}"`);
+      for (const [word, instead] of AVOIDED_WORDS) {
+        const found = word.exec(value)?.[0];
+        if (found)
+          problems.push(
+            `${locale}/${file}: "${key}" says ${found}, write ${instead}`,
+          );
+      }
     }
   }
 }
 
 if (problems.length > 0) {
   console.error(
-    `Message files out of sync with ${SOURCE}:\n${problems.map((p) => `  ${p}`).join("\n")}`,
+    `Message files need fixing:\n${problems.map((p) => `  ${p}`).join("\n")}`,
   );
   process.exit(1);
 }
