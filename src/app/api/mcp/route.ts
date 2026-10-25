@@ -22,6 +22,7 @@ const mcp = createMcpHandler(() => {
         description: tool.description,
         inputSchema: tool.input,
         annotations: tool.annotations,
+        _meta: tool._meta,
       },
       async (args) => {
         try {
