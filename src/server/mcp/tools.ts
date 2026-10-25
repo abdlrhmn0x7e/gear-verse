@@ -1,5 +1,6 @@
 import type { ToolAnnotations } from "@modelcontextprotocol/server";
 import type { JSONContent } from "@tiptap/react";
+import { MarkdownManager } from "@tiptap/markdown";
 import z from "zod";
 import {
   createProductInputSchema,
@@ -14,6 +15,7 @@ import { AppError } from "~/lib/errors/app-error";
 import { createBrandInputSchema } from "~/lib/schemas/entities/brand";
 import { createCategoryInputSchema } from "~/lib/schemas/entities/category";
 import { deleteCategoryInputSchema } from "~/lib/schemas/contracts/admin/categories";
+import { contentExtensions } from "~/lib/editor/content-extensions";
 import { _admin } from "~/server/application/admin";
 
 export interface McpTool {
@@ -51,30 +53,68 @@ const write = {
   openWorldHint: false,
 } satisfies ToolAnnotations;
 
-/** Descriptions are rich text (tiptap JSON), which has no JSON Schema, so models send plain text: blank lines split paragraphs. */
+/**
+ * Descriptions are rich text (tiptap JSON), which has no JSON Schema, so models write Markdown. It's parsed with the
+ * editor's own extensions, so only what the editor can show survives; anything else (tables, code, HTML) is dropped or
+ * kept as plain text.
+ */
+const markdown = new MarkdownManager({ extensions: contentExtensions });
+
 const descriptionText = z
   .string()
   .describe(
-    "Plain text. Separate paragraphs with a blank line; no markdown or HTML.",
+    "Markdown: ## and ### headings, **bold**, *italic*, ~~strikethrough~~, [links](https://...), - bulleted and 1. numbered lists, and images on their own line as ![what it shows](url), using a url from upload_images so the image stays in the store's storage. Tables, code, quotes and HTML aren't supported.",
   );
 
+const isUrl = (value: unknown, protocols: string[]) =>
+  typeof value === "string" &&
+  URL.canParse(value) &&
+  protocols.includes(new URL(value).protocol);
+
+/** Images load on the storefront and links open from it, so only web links are kept. */
+function assertWebLinks({ type, attrs, marks, content }: JSONContent) {
+  if (type === "image" && !isUrl(attrs?.src, ["https:"])) {
+    throw new AppError(
+      `Images need an https link, not ${String(attrs?.src)}`,
+      "BAD_REQUEST",
+    );
+  }
+  for (const mark of marks ?? []) {
+    if (mark.type === "link" && !isUrl(mark.attrs?.href, ["https:", "http:"])) {
+      throw new AppError(
+        `Links need a web address, not ${String(mark.attrs?.href)}`,
+        "BAD_REQUEST",
+      );
+    }
+  }
+  content?.forEach(assertWebLinks);
+}
+
 function toDoc(text: string): JSONContent {
-  return {
-    type: "doc",
-    content: text
-      .split(/\n\s*\n/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean)
-      .map((paragraph) => ({
-        type: "paragraph",
-        content: [{ type: "text", text: paragraph }],
-      })),
-  };
+  const doc = markdown.parse(text);
+  assertWebLinks(doc);
+  return doc;
 }
 
 /** An emptied Arabic description saves null, so the Arabic site shows the English one. */
 function toArabicDoc(text: string | null | undefined) {
   return text?.trim() ? toDoc(text) : null;
+}
+
+/** The model reads descriptions in the Markdown it writes them in. */
+function withMarkdown<
+  Product extends {
+    description: JSONContent;
+    descriptionAr: JSONContent | null;
+  },
+>(product: Product) {
+  return {
+    ...product,
+    description: markdown.serialize(product.description),
+    descriptionAr: product.descriptionAr
+      ? markdown.serialize(product.descriptionAr)
+      : null,
+  };
 }
 
 const productId = z
@@ -114,7 +154,8 @@ export const tools: McpTool[] = [
       "Gets one product with everything the admin edits: copy, prices, category and brand, media (the first is the thumbnail), SEO, options, variants and stock. inventory.id is the stock row of a product without variants, for set_stock; a product with variants keeps its stock per variant (use list_inventory for those rows).",
     input: z.object({ id: productId }),
     annotations: read,
-    handler: ({ id }) => _admin.products.queries.findById(id),
+    handler: ({ id }) =>
+      _admin.products.queries.findById(id).then(withMarkdown),
   }),
 
   defineTool({
@@ -222,7 +263,7 @@ export const tools: McpTool[] = [
     name: "update_product",
     title: "Update a product",
     description:
-      "Changes a product's fields; leave out what stays the same. media replaces every image (the first is the thumbnail). Variants and options are edited together, in the shape get_product returns them. Publishing goes through publish_product and stock alone through set_stock; unpublishing is done in the admin. Returns the product as saved.",
+      "Changes a product's fields; leave out what stays the same. media replaces every image (the first is the thumbnail). description replaces the whole description; get_product returns it in Markdown, and centering set in the admin isn't kept, so only rewrite it when the admin asks. Variants and options are edited together, in the shape get_product returns them. Publishing goes through publish_product and stock alone through set_stock; unpublishing is done in the admin. Returns the product as saved.",
     input: z.object({ id: productId, data: productFields }),
     annotations: write,
     handler: async ({ id, data: { description, descriptionAr, ...data } }) => {
@@ -233,7 +274,7 @@ export const tools: McpTool[] = [
           descriptionAr: toArabicDoc(descriptionAr),
         }),
       });
-      return _admin.products.queries.findById(id);
+      return _admin.products.queries.findById(id).then(withMarkdown);
     },
   }),
 
