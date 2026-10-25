@@ -156,7 +156,7 @@ export function MediaFields({
                   <SortableItem id={m.mediaId} className="size-32 rounded-lg">
                     <MediaItem
                       media={m}
-                      className="transition-opacity duration-1000 group-active:opacity-20"
+                      className="transition-opacity duration-150 group-active:opacity-20"
                     />
 
                     <Checkbox
