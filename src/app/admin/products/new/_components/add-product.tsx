@@ -62,8 +62,7 @@ export function AddProduct() {
     <PageLayout
       title="Add Product"
       parent={{ title: "Products", href: "/admin/products" }}
-      contentWidth="full"
-      contentClassName="max-w-7xl"
+      contentWidth="reading"
       headerContent={
         <>
           <DraftStatus

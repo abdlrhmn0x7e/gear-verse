@@ -15,8 +15,7 @@ export default function Loading() {
       title="Edit Product"
       description="Let's get this product looking good alright?"
       parent={{ title: "Products", href: "/admin/products" }}
-      contentWidth="full"
-      contentClassName="max-w-7xl"
+      contentWidth="reading"
     >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
         <div className="flex items-center justify-center gap-2">
