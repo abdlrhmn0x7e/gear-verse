@@ -30,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { Input, NumberInput } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import {
   createProductInputSchema,
@@ -64,7 +64,6 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "~/components/ui/input-group";
-import { InventoryTableInput } from "../../inputs/inventory-table-input";
 import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
@@ -111,7 +110,7 @@ const fieldLabels: Record<keyof ProductFormValues, string> = {
   summaryAr: "Summary (Arabic)",
   descriptionAr: "Description (Arabic)",
   media: "Media",
-  inventory: "Inventory",
+  inventory: "Stock",
   options: "Variants",
   variants: "Variants",
   published: "Status",
@@ -183,11 +182,6 @@ export function ProductForm({
     },
   });
 
-  const inventory = useWatch({
-    control: form.control,
-    name: "inventory",
-    defaultValue: defaultValues?.inventory,
-  });
   const variants = useWatch({
     control: form.control,
     name: "variants",
@@ -406,17 +400,6 @@ export function ProductForm({
             </CardContent>
           </Card>
 
-          {!variants?.length && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Inventory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <InventoryTableInput data={[inventory ?? { quantity: 0 }]} />
-              </CardContent>
-            </Card>
-          )}
-
           <Card
             className={cn(
               "gap-0 overflow-hidden pb-0",
@@ -582,6 +565,27 @@ export function ProductForm({
                   </FormItem>
                 )}
               />
+
+              {/* with variants, each variant carries its own stock */}
+              {!variants?.length && (
+                <FormField
+                  control={form.control}
+                  name="inventory.quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock</FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="0"
+                          onValueChange={field.onChange}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
 
