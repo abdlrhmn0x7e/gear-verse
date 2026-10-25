@@ -325,7 +325,7 @@ function WhatsAppField() {
 }
 
 /** A settings group: its heading on the left, its fields in a card on the right. */
-function Section({
+export function Section({
   title,
   description,
   children,

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { requireAdmin } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { PageLayout } from "../_components/page-layout";
+import { ConnectAiCard } from "./_components/connect-ai-card";
 import {
   StoreSettingsForm,
   StoreSettingsFormSkeleton,
@@ -16,9 +17,12 @@ export default async function AdminSettingsPage() {
       title="Store settings"
       description="Contact details and social links shown on the store, and who gets order emails."
     >
-      <Suspense fallback={<StoreSettingsFormSkeleton />}>
-        <StoreSettings />
-      </Suspense>
+      <div className="flex flex-col gap-10">
+        <Suspense fallback={<StoreSettingsFormSkeleton />}>
+          <StoreSettings />
+        </Suspense>
+        <ConnectAiCard />
+      </div>
     </PageLayout>
   );
 }
