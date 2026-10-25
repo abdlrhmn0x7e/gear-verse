@@ -26,7 +26,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export function ProductSearchDialog({
   children,
@@ -39,6 +39,7 @@ export function ProductSearchDialog({
   children: React.ReactNode;
   withOverlay?: boolean;
 }) {
+  const t = useTranslations("products.search");
   const [open, setOpen] = useState(false);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
@@ -107,7 +108,7 @@ export function ProductSearchDialog({
               "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           )}
         >
-          <Dialog.Title className="sr-only">Search products</Dialog.Title>
+          <Dialog.Title className="sr-only">{t("title")}</Dialog.Title>
 
           <div
             className={cn("h-[350px] rounded-lg", className)}
@@ -125,7 +126,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "surface-control surface-floating absolute -inset-y-2 -end-2 start-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
+                "surface-control surface-floating absolute -inset-y-2 start-0 -end-2 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -166,6 +167,7 @@ export function ProductSearchPlaceholder({
 }
 
 function Content({ close }: { close: () => void }) {
+  const t = useTranslations("products.search");
   const trpc = useTRPC();
   const route = useRouter();
   const [search, setSearch] = useState("");
@@ -240,9 +242,9 @@ function Content({ close }: { close: () => void }) {
         <input
           type="search"
           enterKeyHint="search"
-          aria-label="Search products"
-          placeholder="Search products"
-          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 rtl:group-data-[state=closed]:translate-x-4 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+          aria-label={t("title")}
+          placeholder={t("title")}
+          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none rtl:group-data-[state=closed]:translate-x-4 [&::-webkit-search-cancel-button]:appearance-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -251,7 +253,7 @@ function Content({ close }: { close: () => void }) {
         {isFetching ? (
           <Spinner />
         ) : (
-          <KbdGroup className="absolute top-1/2 end-3 z-10 -translate-y-1/2 pt-1">
+          <KbdGroup className="absolute end-3 top-1/2 z-10 -translate-y-1/2 pt-1">
             <Kbd>Esc</Kbd>
           </KbdGroup>
         )}
@@ -296,16 +298,15 @@ export function ProductSearchLoading() {
 }
 
 export function ProductSearchError() {
+  const t = useTranslations("products.search");
   return (
     <Empty className="gap-0">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <IconShoppingBagX />
         </EmptyMedia>
-        <EmptyTitle>Unable to load products</EmptyTitle>
-        <EmptyDescription>
-          Check your connection and search again.
-        </EmptyDescription>
+        <EmptyTitle>{t("errorTitle")}</EmptyTitle>
+        <EmptyDescription>{t("errorBody")}</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );
@@ -313,6 +314,7 @@ export function ProductSearchError() {
 
 /** No match still ends in a way forward: request what was searched for on WhatsApp. */
 export function ProductSearchEmpty({ query }: { query: string }) {
+  const t = useTranslations("products.search");
   const item = query.trim();
 
   return (
@@ -322,8 +324,8 @@ export function ProductSearchEmpty({ query }: { query: string }) {
           <IconShoppingBagX />
         </EmptyMedia>
       </EmptyHeader>
-      <EmptyTitle>Not on the shelf</EmptyTitle>
-      <EmptyDescription>We can still get it for you.</EmptyDescription>
+      <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+      <EmptyDescription>{t("emptyBody")}</EmptyDescription>
       <Button
         variant="outline"
         className="mt-6 max-w-full"
@@ -337,7 +339,9 @@ export function ProductSearchEmpty({ query }: { query: string }) {
         }
       >
         <IconBrandWhatsapp data-icon="inline-start" stroke={1.75} />
-        <span className="truncate">Request &ldquo;{item}&rdquo;</span>
+        <span className="truncate">
+          {t.rich("request", { item, bdi: (chunks) => <bdi>{chunks}</bdi> })}
+        </span>
       </Button>
     </Empty>
   );
@@ -380,15 +384,19 @@ export function ProductSearchItem({
 
         <div className="flex size-full min-w-0 flex-1 flex-col">
           <div className="flex items-baseline justify-between gap-3">
+            {/* titles are stored in English; isolated so their punctuation stays put in Arabic */}
             <p className="text-foreground text-sm font-medium">
-              {product.title}
+              <bdi>{product.title}</bdi>
             </p>
             <p className="shrink-0 text-sm font-medium tabular-nums">
               {formatCurrency(product.price, locale)}
             </p>
           </div>
 
-          <p className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm">
+          <p
+            dir="auto"
+            className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm"
+          >
             {product.summary}
           </p>
         </div>

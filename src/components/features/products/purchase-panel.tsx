@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/utils";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -27,6 +28,7 @@ export function PurchasePanel({
   strikeThroughPrice: number | null;
   showActions: boolean;
 }) {
+  const t = useTranslations("products.purchase");
   const stock = useSelectedStock({
     productStock,
     hasVariants,
@@ -34,7 +36,7 @@ export function PurchasePanel({
   });
   const purchasable = canPurchase(stock);
   const disabledLabel =
-    stock.kind === "unselected" ? "Unavailable" : "Out of stock";
+    stock.kind === "unselected" ? t("unavailable") : t("outOfStock");
 
   const actionsRef = useRef<HTMLDivElement>(null);
   const [actionsOffScreen, setActionsOffScreen] = useState(false);
@@ -97,7 +99,10 @@ export function PurchasePanel({
         >
           <div className="mx-auto flex max-w-xl items-center gap-4">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm">{productTitle}</p>
+              {/* an English title truncates at its own end, not its start, on Arabic pages */}
+              <p dir="auto" className="truncate text-sm">
+                {productTitle}
+              </p>
               <ProductPrice
                 originalPrice={price}
                 strikeThroughPrice={strikeThroughPrice}

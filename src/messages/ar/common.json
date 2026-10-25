@@ -4,6 +4,7 @@
     "description": "إكسسوارات جيمنج صعب تلاقيها، من براندات عالمية. بنستوردها ونخلّص جماركها ونوصّلها لحد باب بيتك في أي حتة في مصر. الأسعار بالجنيه والدفع عند الاستلام.",
     "siteImageAlt": "Gear Verse: جيمنج جير مستورد في مصر"
   },
+  "imageError": "معرفناش نحمّل الصورة",
   "skipToContent": "اتخطّى للمحتوى",
   "trust": {
     "label": "وعودنا",
@@ -24,7 +25,7 @@
   "whatsapp": {
     "question": "أهلًا Gear Verse، عندي سؤال.",
     "orderQuestion": "أهلًا Gear Verse، عندي سؤال عن طلبي.",
-    "orderQuestionNumbered": "أهلًا Gear Verse، عندي سؤال عن طلبي رقم #{id}.",
+    "orderQuestionNumbered": "أهلًا Gear Verse، عندي سؤال عن طلبي رقم {id}.",
     "reportIssue": "أهلًا Gear Verse، فيه مشكلة في منتج من طلبي.",
     "requestItem": "أهلًا Gear Verse، ممكن تجيبولي ده؟ {item}",
     "requestAnything": "أهلًا Gear Verse، بدوّر على حاجة مش موجودة على الرف."

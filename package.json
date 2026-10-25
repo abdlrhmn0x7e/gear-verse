@@ -7,6 +7,7 @@
     "build": "next build",
     "check": "eslint . && tsc --noEmit && bun run check:messages",
     "check:messages": "bun scripts/check-messages.ts",
+    "i18n:scan": "bun scripts/find-untranslated.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

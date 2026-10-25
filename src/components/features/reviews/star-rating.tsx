@@ -1,4 +1,5 @@
 import { StarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 
 export function StarRating({
@@ -8,11 +9,12 @@ export function StarRating({
   rating: number;
   size?: "sm" | "default";
 }) {
+  const t = useTranslations("products.reviews");
   return (
     <div
       className="flex items-center gap-0.5"
       role="img"
-      aria-label={`${rating} out of 5 stars`}
+      aria-label={t("stars", { rating })}
     >
       {[1, 2, 3, 4, 5].map((star) => (
         <StarIcon

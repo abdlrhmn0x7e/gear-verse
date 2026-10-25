@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { app } from "~/server/application";
 import {
   BrandFilterItem,
@@ -15,14 +16,15 @@ export async function Filters() {
   // the brands and the price range only count live products, which product edits change
   cacheTag("filters", "recent-products");
 
-  const [brands, priceRange] = await Promise.all([
+  const [brands, priceRange, t] = await Promise.all([
     app.public.brands.queries.findAll(),
     app.public.products.queries.getPriceRange(),
+    getTranslations("products.filters"),
   ]);
 
   return (
     <div className="flex flex-col gap-10">
-      <FilterSection title="Brand">
+      <FilterSection title={t("brand")}>
         {brands.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {brands.map((brand) => (
@@ -34,7 +36,7 @@ export async function Filters() {
         )}
       </FilterSection>
 
-      <FilterSection title="Price">
+      <FilterSection title={t("price")}>
         <PriceFilter range={priceRange} />
       </FilterSection>
 

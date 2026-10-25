@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { MobileFiltersDrawer } from "~/components/features/products/mobile-filters-drawer";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
@@ -18,6 +19,7 @@ export async function Products({
   /** the filter panel, rendered again inside the mobile sheet */
   filtersPanel: React.ReactNode;
 }) {
+  const t = await getTranslations("products.listing");
   const attributeFilters = Array.from(Object.entries(filters)).reduce(
     (acc, [key, value]) => {
       if (value === null || value === undefined) return acc;
@@ -63,7 +65,7 @@ export async function Products({
   return (
     <section aria-labelledby="products-heading" className="min-w-0 space-y-8">
       <h2 id="products-heading" className="sr-only">
-        Products
+        {t("heading")}
       </h2>
       <div className="lg:hidden">
         <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
@@ -78,9 +80,10 @@ export async function Products({
   );
 }
 
-export function ProductsSkeleton() {
+export async function ProductsSkeleton() {
+  const t = await getTranslations("products.listing");
   return (
-    <section aria-label="Products">
+    <section aria-label={t("heading")}>
       <ProductListSkeleton />
     </section>
   );

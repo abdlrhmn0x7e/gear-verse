@@ -4,6 +4,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "~/components/ui/button";
 import {
   toProductsPageInput,
@@ -20,6 +21,7 @@ import { useDebounce } from "~/hooks/use-debounce";
 import { useTRPC } from "~/trpc/client";
 
 export function ProductList() {
+  const t = useTranslations("products.listing");
   const [filters, setFilters] = useAllProductSearchParams();
   const debouncedFilters = useDebounce(filters);
   const trpc = useTRPC();
@@ -43,10 +45,14 @@ export function ProductList() {
   const searchSummary = filters.title && (
     <div className="mb-6 flex items-center justify-between gap-3">
       <p className="text-muted-foreground min-w-0 truncate text-sm">
-        Results for{" "}
-        <span className="text-foreground font-medium">
-          &ldquo;{filters.title}&rdquo;
-        </span>
+        {t.rich("resultsFor", {
+          query: filters.title,
+          q: (chunks) => (
+            <span className="text-foreground font-medium">{chunks}</span>
+          ),
+          // a Latin query keeps its order inside an Arabic sentence
+          bdi: (chunks) => <bdi>{chunks}</bdi>,
+        })}
       </p>
       <Button
         variant="ghost"
@@ -54,7 +60,7 @@ export function ProductList() {
         onClick={() => void setFilters({ title: null })}
       >
         <XIcon data-icon="inline-start" />
-        Clear search
+        {t("clearSearch")}
       </Button>
     </div>
   );

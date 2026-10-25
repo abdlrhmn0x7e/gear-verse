@@ -6,6 +6,7 @@ import {
   MessageSquarePlusIcon,
   PackageSearchIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "~/i18n/navigation";
 import { Button } from "~/components/ui/button";
 
@@ -17,6 +18,7 @@ export function ProductsEmptyState({
   hasFilters: boolean;
   onClearFilters: () => void;
 }) {
+  const t = useTranslations("products");
   return (
     <div className="bg-card flex flex-col items-center gap-6 rounded-3xl px-6 py-20 text-center">
       <PackageSearchIcon
@@ -26,21 +28,17 @@ export function ProductsEmptyState({
       />
       <div className="max-w-sm space-y-2">
         <h2 className="text-title text-balance">
-          {hasFilters
-            ? "Nothing matches these filters"
-            : "Nothing on this shelf yet"}
+          {hasFilters ? t("empty.filteredTitle") : t("empty.emptyTitle")}
         </h2>
         <p className="text-muted-foreground text-pretty">
-          {hasFilters
-            ? "Try removing a filter, or browse everything in the store."
-            : "Tell us what you're after and we'll get it for you."}
+          {hasFilters ? t("empty.filteredBody") : t("empty.emptyBody")}
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         {hasFilters ? (
           <Button onClick={onClearFilters}>
             <FunnelXIcon data-icon="inline-start" />
-            Clear filters
+            {t("filters.clear")}
           </Button>
         ) : (
           // a route that opens WhatsApp with the request typed, so a plain link and a new tab
@@ -49,7 +47,7 @@ export function ProductsEmptyState({
             render={<a href="/request" target="_blank" rel="noopener" />}
           >
             <MessageSquarePlusIcon data-icon="inline-start" />
-            Request an item
+            {t("empty.requestItem")}
           </Button>
         )}
         <Button
@@ -57,7 +55,7 @@ export function ProductsEmptyState({
           nativeButton={false}
           render={<Link href="/products" />}
         >
-          Browse all products
+          {t("empty.browseAll")}
           <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
       </div>

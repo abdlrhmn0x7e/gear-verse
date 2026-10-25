@@ -311,6 +311,8 @@ export function OrderThumbnail({
   /** the rendered size in CSS pixels */
   size: 56 | 64;
 }) {
+  const t = useTranslations("common");
+
   return (
     <div
       className={cn(
@@ -322,6 +324,7 @@ export function OrderThumbnail({
         <ImageWithFallback
           src={src}
           alt={alt}
+          errorLabel={t("imageError")}
           className="size-full rounded-none border-none object-contain"
           width={size * 2}
           height={size * 2}

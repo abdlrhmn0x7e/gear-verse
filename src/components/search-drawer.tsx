@@ -32,6 +32,7 @@ import {
 
 export function SearchDrawer() {
   const t = useTranslations("nav");
+  const tSearch = useTranslations("products.search");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
@@ -72,7 +73,7 @@ export function SearchDrawer() {
         initialFocus={inputRef}
       >
         <DrawerHeader>
-          <DrawerTitle>Search products</DrawerTitle>
+          <DrawerTitle>{tSearch("title")}</DrawerTitle>
         </DrawerHeader>
         <div className="space-y-4 px-4 pb-4">
           <InputGroup className="pointer-coarse:h-11">
@@ -80,8 +81,8 @@ export function SearchDrawer() {
               ref={inputRef}
               type="search"
               enterKeyHint="search"
-              aria-label="Search products"
-              placeholder="Keyboards, mice, IEMs…"
+              aria-label={tSearch("title")}
+              placeholder={tSearch("drawerPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
