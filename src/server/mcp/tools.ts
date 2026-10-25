@@ -12,27 +12,24 @@ import { mediaGetPageInputSchema } from "~/lib/schemas/contracts/admin/media";
 import { inventoryItemsGetPageInputSchema } from "~/lib/schemas/contracts/admin/inventory-items";
 import { _admin } from "~/server/application/admin";
 
-/** A tool the store's MCP server offers to an admin's ChatGPT or Claude. */
 export interface McpTool {
   name: string;
   title: string;
-  /** Written for the model: what the tool does and where the ids it takes come from. */
   description: string;
   input: z.ZodObject;
   annotations: ToolAnnotations;
-  handler: (input: never) => Promise<unknown>;
+  run: (args: unknown) => Promise<unknown>;
 }
 
-/** Keeps a tool's handler typed by its input schema. */
-function defineTool<Input extends z.ZodObject>(tool: {
-  name: string;
-  title: string;
-  description: string;
+/** Keeps a tool's handler typed by its input schema; the MCP server has already parsed args with it. */
+function defineTool<Input extends z.ZodObject>({
+  handler,
+  ...tool
+}: Omit<McpTool, "input" | "run"> & {
   input: Input;
-  annotations: ToolAnnotations;
   handler: (input: z.output<Input>) => Promise<unknown>;
 }): McpTool {
-  return tool;
+  return { ...tool, run: (args) => handler(args as z.output<Input>) };
 }
 
 const read = {

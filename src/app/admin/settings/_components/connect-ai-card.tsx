@@ -24,7 +24,7 @@ const steps = {
   ],
   claude: [
     "In Claude, open Settings → Connectors.",
-    "Choose “Add custom connector” and paste the URL.",
+    'Choose "Add custom connector" and paste the URL.',
     "Sign in with your Google admin account when asked.",
   ],
 };

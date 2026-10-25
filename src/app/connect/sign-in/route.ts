@@ -2,10 +2,6 @@ import { verifyOAuthQueryParams } from "@better-auth/oauth-provider";
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "~/server/auth";
 
-/**
- * The OAuth login page: starts Google sign-in right away with the signed authorization query, so once Google
- * returns, better-auth resumes the authorization where it left off.
- */
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.search.slice(1);
   const { secret } = await auth.$context;

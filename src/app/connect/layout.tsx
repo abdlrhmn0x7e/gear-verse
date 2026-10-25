@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 
 export const viewport = siteViewport;
 
-/** A root layout of its own: connecting ChatGPT or Claude happens in English, outside the storefront's [locale] segment. */
 export default function ConnectLayout({
   children,
 }: {

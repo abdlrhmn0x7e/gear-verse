@@ -25,7 +25,6 @@ function isTrustedRedirect(redirectUri: string | null) {
   );
 }
 
-/** The OAuth consent page: admins connecting ChatGPT or Claude skip the consent screen, everyone else is refused. */
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.search.slice(1);
   const { secret } = await auth.$context;

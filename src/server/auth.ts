@@ -16,7 +16,6 @@ import { invalidateCache } from "./actions/cache";
 /** The MCP endpoint admins paste into ChatGPT or Claude; access tokens are issued for this audience only. */
 export const mcpResource = `${env.NEXT_PUBLIC_APP_URL}/api/mcp`;
 
-/** Only an admin who isn't banned can connect an AI client to the store. */
 export function isActiveAdmin(user: Record<string, unknown>) {
   return user.role === "admin" && user.banned !== true;
 }
