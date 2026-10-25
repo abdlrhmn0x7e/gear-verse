@@ -309,6 +309,7 @@ export function ProductForm({
                         <FormControl>
                           <FileDropzone
                             onChange={(media) => insertMedia(0, media)}
+                            uploadButtonVariant="outline"
                           />
                         </FormControl>
                         <FormMessage />
