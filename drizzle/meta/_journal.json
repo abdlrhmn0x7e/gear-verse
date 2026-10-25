@@ -64,6 +64,13 @@
       "when": 1792878591531,
       "tag": "0008_catalog_arabic",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792955094144,
+      "tag": "0009_oauth_provider",
+      "breakpoints": true
     }
   ]
 }

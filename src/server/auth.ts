@@ -2,7 +2,10 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "~/env";
 import { db } from "~/server/db";
-import { admin, anonymous } from "better-auth/plugins";
+import { admin, anonymous, jwt } from "better-auth/plugins";
+import { mcp } from "@better-auth/mcp";
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { nextCookies } from "better-auth/next-js";
 import { data } from "./data-access";
 import { headers } from "next/headers";
@@ -10,8 +13,18 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { invalidateCache } from "./actions/cache";
 
+/** The MCP endpoint admins paste into ChatGPT or Claude; access tokens are issued for this audience only. */
+export const mcpResource = `${env.NEXT_PUBLIC_APP_URL}/api/mcp`;
+
+/** Only an admin who isn't banned can connect an AI client to the store. */
+export function isActiveAdmin(user: Record<string, unknown>) {
+  return user.role === "admin" && user.banned !== true;
+}
+
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
+  // the jwt plugin's /token hands out a JWT for any session cookie; OAuth clients get theirs from /oauth2/token
+  disabledPaths: ["/token"],
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -91,6 +104,39 @@ export const auth = betterAuth({
 
       disableDeleteAnonymousUser: true,
     }),
+    jwt(),
+    mcp({
+      resource: mcpResource,
+      scopes: ["openid", "profile", "email", "offline_access", "catalog"],
+      // no client_credentials: every token acts for a signed in admin
+      grantTypes: ["authorization_code", "refresh_token"],
+      accessTokenExpiresIn: 15 * 60,
+      // for clients without Client ID Metadata Documents; native ones (localhost callbacks) are inferred
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      clientRegistrationDefaultApplicationType: "infer",
+      loginPage: "/connect/sign-in",
+      consentPage: "/connect/consent",
+      schema: {
+        oauthClient: { modelName: "oauthClients" },
+        oauthResource: { modelName: "oauthResources" },
+        oauthClientResource: { modelName: "oauthClientResources" },
+        oauthRefreshToken: { modelName: "oauthRefreshTokens" },
+        oauthAccessToken: { modelName: "oauthAccessTokens" },
+        oauthConsent: { modelName: "oauthConsents" },
+        oauthClientAssertion: { modelName: "oauthClientAssertions" },
+      },
+      // guests browse with anonymous sessions, which have to sign in for real
+      selectAccount: {
+        shouldRedirect: ({ user }) => user.isAnonymous === true,
+      },
+      postLogin: {
+        page: "/connect/denied",
+        shouldRedirect: ({ user }) => !isActiveAdmin(user),
+        consentReferenceId: () => undefined,
+      },
+    }),
+    cimd({ fetchClientMetadataResource, metadataProfile: "mcp-2026-07-28" }),
     // last, so cookies set by the other plugins' after hooks reach Next's cookie store
     nextCookies(),
   ],

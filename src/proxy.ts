@@ -128,8 +128,8 @@ function localize(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // everything but API routes, Next internals, the admin and files (paths with a dot)
-    "/((?!api/|_next/|_vercel/|admin(?:/|$)|.*\\..*).*)",
+    // everything but API routes, Next internals, the admin, the AI client connect pages and files (paths with a dot)
+    "/((?!api/|_next/|_vercel/|admin(?:/|$)|connect(?:/|$)|.*\\..*).*)",
     "/admin/:path*",
     "/api/auth/:path*",
   ],
