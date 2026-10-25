@@ -31,7 +31,11 @@ export async function CategoriesMenu() {
         href="/products"
         className="hover:bg-accent flex flex-col justify-between gap-6 rounded-2xl border p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
-        <IconArrowRight className="size-5" stroke={1.75} aria-hidden />
+        <IconArrowRight
+          className="size-5 rtl:-scale-x-100"
+          stroke={1.75}
+          aria-hidden
+        />
         <span className="text-sm font-medium">Shop everything</span>
       </NavLink>
     </div>

@@ -38,7 +38,8 @@ export function ProductGallery({
   function handleScroll(event: React.UIEvent<HTMLUListElement>) {
     const { scrollLeft, clientWidth } = event.currentTarget;
     if (!clientWidth) return;
-    const index = Math.round(scrollLeft / clientWidth);
+    // RTL scrolls from 0 into negative scrollLeft
+    const index = Math.round(Math.abs(scrollLeft) / clientWidth);
     if (index !== activeIndex && index >= 0 && index < photos.length) {
       setSelection({ key: photosKey, index });
     }
@@ -51,8 +52,9 @@ export function ProductGallery({
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const inline = getComputedStyle(scroller).direction === "rtl" ? -1 : 1;
     scroller.scrollTo({
-      left: index * scroller.clientWidth,
+      left: inline * index * scroller.clientWidth,
       behavior: reduceMotion ? "instant" : "smooth",
     });
   }

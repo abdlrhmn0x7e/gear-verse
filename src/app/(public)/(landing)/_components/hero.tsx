@@ -38,7 +38,10 @@ export async function Hero() {
                 render={<Link href="/products" />}
               >
                 Shop the shelf
-                <ArrowRightIcon data-icon="inline-end" />
+                <ArrowRightIcon
+                  data-icon="inline-end"
+                  className="rtl:-scale-x-100"
+                />
               </Button>
               {/* a plain fragment link scrolls again when the URL already ends in #request; Link treats that as no navigation */}
               <Button

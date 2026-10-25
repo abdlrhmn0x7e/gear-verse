@@ -49,7 +49,7 @@ function ComboboxAnchor({
     <ComboboxPrimitive.Anchor
       data-slot="combobox-anchor"
       className={cn(
-        "relative flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-[inherit] py-1 pr-10 pl-4 has-data-[slot=combobox-badge-item]:pl-1.5",
+        "relative flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-[inherit] py-1 pe-10 ps-4 has-data-[slot=combobox-badge-item]:ps-1.5",
         className,
       )}
       {...props}
@@ -82,7 +82,7 @@ function ComboboxTrigger({
     <ComboboxPrimitive.Trigger
       data-slot="combobox-trigger"
       className={cn(
-        "text-muted-foreground hover:text-foreground absolute top-2.5 right-4 flex shrink-0 items-center justify-center transition-colors focus-visible:outline-hidden disabled:cursor-not-allowed",
+        "text-muted-foreground hover:text-foreground absolute top-2.5 end-4 flex shrink-0 items-center justify-center transition-colors focus-visible:outline-hidden disabled:cursor-not-allowed",
         className,
       )}
       {...props}
@@ -106,7 +106,7 @@ function ComboboxCancel({
     <ComboboxPrimitive.Cancel
       data-slot="combobox-cancel"
       className={cn(
-        "bg-background ring-offset-background focus:ring-ring absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none",
+        "bg-background ring-offset-background focus:ring-ring absolute top-1/2 end-1 flex size-6 -translate-y-1/2 items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none",
         className,
       )}
       {...props}
@@ -252,12 +252,12 @@ function ComboboxItem({
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
       className={cn(
-        "data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex w-full cursor-default items-center gap-2.5 rounded-[14px] py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50",
+        "data-highlighted:bg-accent data-highlighted:text-accent-foreground relative flex w-full cursor-default items-center gap-2.5 rounded-[14px] py-2 pe-8 ps-3 text-sm font-medium outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50",
         className,
       )}
       {...props}
     >
-      <ComboboxPrimitive.ItemIndicator className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
+      <ComboboxPrimitive.ItemIndicator className="pointer-events-none absolute end-2 flex size-4 items-center justify-center">
         <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-4" />
       </ComboboxPrimitive.ItemIndicator>
       <ComboboxPrimitive.ItemText>{children}</ComboboxPrimitive.ItemText>

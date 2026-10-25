@@ -55,7 +55,7 @@ export function StoreTile({ className }: { className?: string }) {
       <span className="inline-flex items-center gap-2 text-sm font-medium">
         See the whole store
         <ArrowRightIcon
-          className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5"
+          className="size-4 transition-[translate] duration-150 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
           aria-hidden
         />
       </span>

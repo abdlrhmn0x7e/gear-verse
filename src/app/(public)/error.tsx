@@ -38,7 +38,7 @@ export default function PublicError({
           render={<Link href="/products" />}
         >
           Browse the store
-          <ArrowRightIcon data-icon="inline-end" />
+          <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
       </div>
     </div>

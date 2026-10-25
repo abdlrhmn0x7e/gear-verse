@@ -94,7 +94,7 @@ function OrdersEmpty({ isGuest }: { isGuest: boolean }) {
           render={<Link href="/products" />}
         >
           Browse the store
-          <ArrowRightIcon data-icon="inline-end" />
+          <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
         </Button>
         {isGuest && (
           <LoginDrawerDialog callbackURL="/orders">
@@ -134,7 +134,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
           </p>
         </div>
         <ChevronRightIcon
-          className="text-muted-foreground mt-0.5 size-5 shrink-0"
+          className="text-muted-foreground mt-0.5 size-5 shrink-0 rtl:-scale-x-100"
           aria-hidden
         />
       </div>

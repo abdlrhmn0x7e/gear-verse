@@ -1102,7 +1102,7 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
           : undefined
       }
       className={cn(
-        "text-foreground caption-bottom text-left align-middle text-sm font-normal rtl:text-right",
+        "text-foreground caption-bottom text-start align-middle text-sm font-normal rtl:text-end",
         /* Opaque surfaces (pinned cells, the footer band, their premixed
            tints) read --data-grid-surface and fall back to --background;
            inside a Card that is the wrong token, so they follow --card. The
@@ -1462,7 +1462,7 @@ function DataGridTableHeadRowCell<TData extends object>({
         isLastStartPinned ? "start" : isFirstEndPinned ? "end" : undefined
       }
       className={cn(
-        "text-foreground relative h-10 text-left align-middle font-medium rtl:text-right [&:has([role=checkbox])]:pe-0",
+        "text-foreground relative h-10 text-start align-middle font-medium rtl:text-end [&:has([role=checkbox])]:pe-0",
         headerCellSpacing,
         isBanded && "align-bottom",
         props.tableLayout?.headerBackground && "bg-muted",
@@ -1866,10 +1866,10 @@ function DataGridTableResizeIndicator({
       data-slot="data-grid-table-resize-indicator"
       className="pointer-events-none absolute inset-y-0 z-50"
     >
-      <div className="bg-primary/85 absolute inset-y-0 left-0 w-px -translate-x-1/2" />
+      <div className="bg-primary/85 absolute inset-y-0 start-0 w-px -translate-x-1/2 rtl:translate-x-1/2" />
       <div
         ref={indicatorHeadRef}
-        className="bg-primary absolute top-0 left-0 -translate-x-1/2 rounded-b-lg shadow-xs"
+        className="bg-primary absolute top-0 start-0 -translate-x-1/2 rounded-b-lg rtl:translate-x-1/2 shadow-xs"
         style={{ width: 5 }}
       />
     </div>
@@ -1893,8 +1893,8 @@ function DataGridTableBody({ children }: { children: ReactNode }) {
     <tbody
       data-slot="data-grid-table-body"
       className={cn(
-        props.tableLayout?.rowRounded && "[&_td:first-child]:rounded-l-3xl",
-        props.tableLayout?.rowRounded && "[&_td:last-child]:rounded-r-3xl",
+        props.tableLayout?.rowRounded && "[&_td:first-child]:rounded-s-3xl",
+        props.tableLayout?.rowRounded && "[&_td:last-child]:rounded-e-3xl",
         props.tableClassNames?.body,
       )}
     >
@@ -2857,7 +2857,7 @@ function DataGridTableBodyRows<TData extends object>({
         >
           <div className="flex items-center justify-center">
             <svg
-              className="text-muted-foreground mr-3 -ml-1 h-5 w-5 animate-spin"
+              className="text-muted-foreground me-3 -ms-1 h-5 w-5 animate-spin"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"

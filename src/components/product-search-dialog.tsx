@@ -73,7 +73,7 @@ export function ProductSearchDialog({
         <Dialog.Trigger
           type="button"
           aria-keyshortcuts="Control+K"
-          className="group focus-visible:outline-focus relative flex w-full cursor-text rounded-full text-left first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="group focus-visible:outline-focus relative flex w-full cursor-text rounded-full text-start first:relative first:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
           data-state={open ? "open" : "closed"}
         >
           {children}
@@ -125,7 +125,7 @@ export function ProductSearchDialog({
 
             <div
               className={cn(
-                "surface-control surface-floating absolute -inset-y-2 -right-2 left-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
+                "surface-control surface-floating absolute -inset-y-2 -end-2 start-0 origin-top-left rounded-[24px] [--surface-shadow:var(--shadow-xl)]",
                 shouldAnimate &&
                   "group-data-[state=open]:animate-search-dialog-in group-data-[state=closed]:animate-search-dialog-out",
                 "origin-top-left",
@@ -142,7 +142,7 @@ export function ProductSearchIcon({ className }: { className?: string }) {
   return (
     <SearchIcon
       className={cn(
-        "transition-all duration-200 group-data-[state=open]:-translate-x-2 group-data-[state=open]:opacity-0",
+        "transition-all duration-200 group-data-[state=open]:-translate-x-2 group-data-[state=open]:opacity-0 rtl:group-data-[state=open]:translate-x-2",
         className,
       )}
     />
@@ -233,7 +233,7 @@ function Content({ close }: { close: () => void }) {
   }
 
   return (
-    <div className="relative z-10 flex h-full flex-col gap-2 pl-2">
+    <div className="relative z-10 flex h-full flex-col gap-2 ps-2">
       <div className="relative z-10 flex w-full origin-top-left items-center gap-4 px-4 py-2">
         <SearchIcon className="group-data-[state=closed]:animate-search-icon-out group-data-[state=open]:animate-search-icon-in size-[17px] transition-transform" />
 
@@ -242,7 +242,7 @@ function Content({ close }: { close: () => void }) {
           enterKeyHint="search"
           aria-label="Search products"
           placeholder="Search products"
-          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+          className="w-full transition-all duration-200 group-data-[state=closed]:-translate-x-4 group-data-[state=open]:translate-x-0 rtl:group-data-[state=closed]:translate-x-4 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -251,7 +251,7 @@ function Content({ close }: { close: () => void }) {
         {isFetching ? (
           <Spinner />
         ) : (
-          <KbdGroup className="absolute top-1/2 right-3 z-10 -translate-y-1/2 pt-1">
+          <KbdGroup className="absolute top-1/2 end-3 z-10 -translate-y-1/2 pt-1">
             <Kbd>Esc</Kbd>
           </KbdGroup>
         )}

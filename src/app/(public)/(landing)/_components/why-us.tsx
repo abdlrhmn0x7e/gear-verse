@@ -77,7 +77,7 @@ export async function WhyUs() {
                     make the shelf.
                   </p>
                 </div>
-                <p className="min-w-0 space-y-1 sm:max-w-72 sm:text-right">
+                <p className="min-w-0 space-y-1 sm:max-w-72 sm:text-end">
                   <span className="flex flex-row-reverse items-baseline justify-end gap-2 tabular-nums sm:flex-row">
                     {pick.strikeThroughPrice &&
                       pick.strikeThroughPrice > pick.price && (

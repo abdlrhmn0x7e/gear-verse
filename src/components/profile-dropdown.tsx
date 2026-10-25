@@ -105,12 +105,12 @@ export function ProfileDropdown({ className }: { className?: string }) {
       <DropdownMenuContent className="min-w-56" align="end" sideOffset={8}>
         <DropdownMenuGroup>
           <DropdownMenuLabel className="p-0 font-normal">
-            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <div className="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
               <Avatar>
                 <AvatarImage src={user.image ?? undefined} alt={user.name} />
                 <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-start text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="text-muted-foreground truncate text-xs">
                   {user.email}
@@ -123,8 +123,8 @@ export function ProfileDropdown({ className }: { className?: string }) {
 
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <SunIcon className="text-muted-foreground mr-1 size-4 h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-            <MoonIcon className="text-muted-foreground absolute mr-1 size-4 h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            <SunIcon className="text-muted-foreground me-1 size-4 h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <MoonIcon className="text-muted-foreground absolute me-1 size-4 h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
             Theme
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>

@@ -24,7 +24,7 @@ function NumberInputStepper({
   onDecrement: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <div className="absolute top-1.5 right-3 bottom-1.5 flex flex-col gap-0.5 overflow-hidden rounded-lg opacity-0 transition-opacity group-hover:opacity-100">
+    <div className="absolute top-1.5 end-3 bottom-1.5 flex flex-col gap-0.5 overflow-hidden rounded-lg opacity-0 transition-opacity group-hover:opacity-100">
       <button
         type="button"
         className="bg-muted text-muted-foreground hover:bg-accent flex h-full w-5 cursor-pointer items-center justify-center transition-colors outline-none [&_svg]:size-2.5"
@@ -45,7 +45,7 @@ function NumberInputStepper({
 }
 
 const numberInputClassName =
-  "pr-9 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
+  "pe-9 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
 function NumberInput({
   className,

@@ -91,7 +91,7 @@ function CommandTrigger({
       className={cn(fieldTriggerClassName, "w-full min-w-0", className)}
       {...props}
     >
-      <span className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-left">
+      <span className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-start">
         {children}
       </span>
       <HugeiconsIcon
@@ -203,13 +203,13 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        "group/command-item data-selected:bg-accent data-selected:text-accent-foreground relative flex cursor-default items-center gap-2.5 rounded-[14px] py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none has-data-[slot=command-shortcut]:pr-3 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "group/command-item data-selected:bg-accent data-selected:text-accent-foreground relative flex cursor-default items-center gap-2.5 rounded-[14px] py-2 pe-8 ps-3 text-sm font-medium outline-hidden select-none has-data-[slot=command-shortcut]:pe-3 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
     >
       {children}
-      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center group-has-data-[slot=command-shortcut]/command-item:hidden">
+      <span className="pointer-events-none absolute end-2 flex size-4 items-center justify-center group-has-data-[slot=command-shortcut]/command-item:hidden">
         <HugeiconsIcon
           icon={Tick02Icon}
           strokeWidth={2}
@@ -228,7 +228,7 @@ function CommandShortcut({
     <span
       data-slot="command-shortcut"
       className={cn(
-        "text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest",
+        "text-muted-foreground group-data-selected/command-item:text-foreground ms-auto text-xs tracking-widest",
         className,
       )}
       {...props}

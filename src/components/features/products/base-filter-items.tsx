@@ -55,7 +55,7 @@ export function BrandFilterItem({
     <FilterChip
       pressed={pressed}
       onPressedChange={() => handleBrandChange(brand.slug)}
-      className="pl-1.5"
+      className="ps-1.5"
     >
       <ImageWithFallback
         src={brand.logo}

@@ -261,7 +261,7 @@ export function LocationField({
       </div>
 
       {value && mapsUrl && (
-        <div className="bg-input-background border-input flex items-center gap-3 rounded-2xl border py-1.5 pr-1.5 pl-3.5">
+        <div className="bg-input-background border-input flex items-center gap-3 rounded-2xl border py-1.5 pe-1.5 ps-3.5">
           {isLookingUp ? (
             <Spinner size="small" className="text-muted-foreground shrink-0" />
           ) : (
@@ -280,7 +280,7 @@ export function LocationField({
               type="button"
               variant="ghost"
               size="sm"
-              className="-ml-2.5"
+              className="-ms-2.5"
               nativeButton={false}
               render={<a href={mapsUrl} target="_blank" rel="noreferrer" />}
             >

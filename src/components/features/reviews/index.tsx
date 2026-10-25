@@ -69,7 +69,7 @@ export async function Reviews({ productId }: { productId: number }) {
               <div className="flex items-center justify-between gap-2">
                 <StarRating rating={review.rating} size="sm" />
                 {review.user?.id === Number(data?.user.id) && (
-                  <div className="-my-2 -mr-2 flex items-center">
+                  <div className="-my-2 -me-2 flex items-center">
                     <EditReview review={review} productId={productId} />
                     <DeleteReviewDialog id={review.id} />
                   </div>

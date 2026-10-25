@@ -972,7 +972,7 @@ export function FilterMenu({
             data-slot="filter-menu-check"
             /* The gutter every style already reserves, on the cascader's own
                logical inset. `end-*` rather than `right-2`, so RTL mirrors. */
-            className="pointer-events-none absolute end-[var(--cascader-row-inset,8px)]! flex size-4 items-center justify-center rtl:right-auto!"
+            className="pointer-events-none absolute end-[var(--cascader-row-inset,8px)]! flex size-4 items-center justify-center rtl:end-auto!"
           >
             <HugeiconsIcon
               icon={Tick02Icon}

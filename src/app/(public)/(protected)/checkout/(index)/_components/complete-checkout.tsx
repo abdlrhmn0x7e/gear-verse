@@ -82,7 +82,7 @@ export function CompleteCheckout({
 
         {/* the button below stays disabled without items, so say why and point back to the store */}
         {!hasCartItems && (
-          <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
+          <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-end">
             Your cart is empty.{" "}
             <Link
               href="/products"
@@ -95,7 +95,7 @@ export function CompleteCheckout({
         )}
 
         {hasStockIssues && (
-          <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-right">
+          <p className="text-destructive text-sm font-medium text-pretty lg:self-end lg:text-end">
             Some items are out of stock or short. Update them in your order
             summary to place your order.
           </p>
@@ -132,7 +132,7 @@ export function CompleteCheckout({
           </Item>
         )}
 
-        <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-right">
+        <p className="text-muted-foreground text-sm text-pretty lg:self-end lg:text-end">
           By placing your order, you agree to our{" "}
           <Link
             href="/returns"

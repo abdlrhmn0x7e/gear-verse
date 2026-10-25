@@ -59,7 +59,7 @@ const ROW_GUTTER_CLASS =
 // mirrors under RTL nor tracks the style's inset; `right-auto` comes with the
 // logical `end-*`, because width + `left` + `right` is over-constrained.
 const INDICATOR_CLASS =
-  "pointer-events-none absolute flex items-center justify-center size-4 end-[var(--cascader-row-inset,8px)]! rtl:right-auto!";
+  "pointer-events-none absolute flex items-center justify-center size-4 end-[var(--cascader-row-inset,8px)]! rtl:end-auto!";
 
 // The row's type, gap, radius and icon size per style. No horizontal padding:
 // every row pairs this with `ROW_FLUSH_CLASS` or `ROW_GUTTER_CLASS`.

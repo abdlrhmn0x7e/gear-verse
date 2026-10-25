@@ -27,9 +27,11 @@ export function ProductCarousel({
 
     function update() {
       if (!list) return;
+      // RTL scrolls from 0 into negative scrollLeft
+      const offset = Math.abs(list.scrollLeft);
       setEdges({
-        atStart: list.scrollLeft <= 1,
-        atEnd: list.scrollLeft + list.clientWidth >= list.scrollWidth - 1,
+        atStart: offset <= 1,
+        atEnd: offset + list.clientWidth >= list.scrollWidth - 1,
       });
     }
 
@@ -48,10 +50,12 @@ export function ProductCarousel({
     const card = list?.firstElementChild;
     if (!list || !card) return;
 
-    const gap = Number.parseFloat(getComputedStyle(list).columnGap) || 0;
+    const style = getComputedStyle(list);
+    const gap = Number.parseFloat(style.columnGap) || 0;
+    const inline = style.direction === "rtl" ? -1 : 1;
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     list.scrollBy({
-      left: direction * (card.getBoundingClientRect().width + gap),
+      left: inline * direction * (card.getBoundingClientRect().width + gap),
       behavior: reduceMotion ? "auto" : "smooth",
     });
   }
@@ -79,7 +83,7 @@ export function ProductCarousel({
           disabled={edges.atStart}
           onClick={() => scrollByCard(-1)}
         >
-          <ChevronLeftIcon />
+          <ChevronLeftIcon className="rtl:-scale-x-100" />
         </Button>
         <Button
           variant="outline"
@@ -89,7 +93,7 @@ export function ProductCarousel({
           disabled={edges.atEnd}
           onClick={() => scrollByCard(1)}
         >
-          <ChevronRightIcon />
+          <ChevronRightIcon className="rtl:-scale-x-100" />
         </Button>
       </div>
     </div>

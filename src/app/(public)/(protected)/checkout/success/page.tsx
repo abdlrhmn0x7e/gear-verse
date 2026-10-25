@@ -67,7 +67,10 @@ export default async function SuccessPage({
             render={<Link href={`/orders?orderId=${order.id}`} />}
           >
             Track your order
-            <ArrowRightIcon data-icon="inline-end" />
+            <ArrowRightIcon
+              data-icon="inline-end"
+              className="rtl:-scale-x-100"
+            />
           </Button>
           <Button
             size="xl"
@@ -76,7 +79,10 @@ export default async function SuccessPage({
             render={<Link href="/products" />}
           >
             Continue shopping
-            <ArrowRightIcon data-icon="inline-end" />
+            <ArrowRightIcon
+              data-icon="inline-end"
+              className="rtl:-scale-x-100"
+            />
           </Button>
         </div>
 

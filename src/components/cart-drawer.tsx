@@ -112,7 +112,7 @@ export function CartDrawer({
         >
           <ShoppingBagIcon />
           {itemCount > 0 && (
-            <span className="bg-primary text-primary-foreground absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
+            <span className="bg-primary text-primary-foreground absolute top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6875rem] font-medium tabular-nums">
               {itemCount}
             </span>
           )}
@@ -120,7 +120,7 @@ export function CartDrawer({
       )}
 
       <DrawerContent className="p-6">
-        <DrawerHeader className="relative px-2 pt-2 md:text-left">
+        <DrawerHeader className="relative px-2 pt-2 md:text-start">
           {/* a side drawer has no handle to swipe, so it needs a visible way out */}
           {!isMobile && (
             <DrawerClose
@@ -129,7 +129,7 @@ export function CartDrawer({
                   variant="ghost"
                   size="icon"
                   aria-label="Close cart"
-                  className="absolute top-1 right-0"
+                  className="absolute top-1 end-0"
                 />
               }
             >
@@ -241,7 +241,7 @@ export function CartDrawer({
               render={<Link href="/products" onClick={() => setOpen(false)} />}
             >
               Browse the store
-              <ArrowRightIcon data-icon="inline-end" />
+              <ArrowRightIcon data-icon="inline-end" className="rtl:-scale-x-100" />
             </Button>
           </div>
         )}
