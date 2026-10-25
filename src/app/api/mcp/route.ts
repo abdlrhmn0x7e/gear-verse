@@ -6,7 +6,7 @@ import { auth, isActiveAdmin, mcpResource } from "~/server/auth";
 import { data } from "~/server/data-access";
 import { tools } from "~/server/mcp/tools";
 
-/** Stateless, one server per request; 2025-era clients are served too, since ChatGPT and Claude may still speak it. */
+// keeps the default legacy: "stateless" rather than the "reject" better-auth's docs show, since clients still speak the 2025 protocol
 const mcp = createMcpHandler(() => {
   const server = new McpServer({
     name: "gear-verse",
@@ -25,7 +25,7 @@ const mcp = createMcpHandler(() => {
       },
       async (args) => {
         try {
-          const result = await tool.handler(args as never);
+          const result = await tool.run(args);
           return {
             content: [{ type: "text", text: JSON.stringify(result ?? null) }],
           };

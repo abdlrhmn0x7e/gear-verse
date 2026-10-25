@@ -12,7 +12,6 @@ import { getSession } from "~/server/auth";
 
 export const metadata = { title: "Can't connect" };
 
-/** Where the OAuth flow sends anyone it refuses: a signed in non-admin, or a client the store doesn't trust. */
 export default function DeniedPage({
   searchParams,
 }: PageProps<"/connect/denied">) {
