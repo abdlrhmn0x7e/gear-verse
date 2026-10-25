@@ -103,7 +103,7 @@ export async function CategoryBento() {
                           ? "(min-width: 1024px) 25vw, 50vw"
                           : "(min-width: 1024px) 40vw, 100vw"
                       }
-                      className="absolute inset-0 size-full rounded-none border-none bg-transparent p-6 transition-[scale] duration-500 ease-out motion-safe:group-hover:scale-[1.04] md:p-10 [&_img]:object-contain"
+                      className="absolute inset-0 size-full rounded-none border-none bg-transparent transition-[scale] duration-500 ease-out motion-safe:group-hover:scale-[1.04]"
                     />
                   </div>
                 </Link>
