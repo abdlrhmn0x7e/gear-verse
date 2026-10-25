@@ -7,7 +7,6 @@ import {
   Layers01Icon,
   Settings01Icon,
   ShoppingCart01Icon,
-  Store01Icon,
   Tag01Icon,
   TradeMarkIcon,
   UserMultipleIcon,
@@ -16,11 +15,9 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Button } from "~/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -30,11 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { env } from "~/env";
 import { LogoMark } from "./logo-mark";
-
-/** The store's address without the scheme, for the footer block. */
-const storeHost = new URL(env.NEXT_PUBLIC_APP_URL).host;
 
 type NavItem = {
   title: string;
@@ -169,31 +162,6 @@ export function AdminSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-
-      {/* The reference's footer block, here the live store it manages. Folded, only the store button stays. */}
-      <SidebarFooter className="flex-row items-center justify-between gap-2 border-t p-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
-        <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-          <p className="text-foreground text-sm font-medium">Storefront</p>
-          <p className="text-muted-foreground truncate text-xs">{storeHost}</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-[30px] px-[9px] text-xs group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:px-0"
-          nativeButton={false}
-          render={<Link href="/" onClick={closeMobile} />}
-        >
-          <HugeiconsIcon
-            icon={Store01Icon}
-            strokeWidth={1.75}
-            data-icon="inline-start"
-            className="size-3.5"
-          />
-          <span className="group-data-[collapsible=icon]:sr-only">
-            Open store
-          </span>
-        </Button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
