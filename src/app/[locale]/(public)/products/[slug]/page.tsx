@@ -27,7 +27,7 @@ async function findProductMetadata(slug: string) {
   "use cache";
 
   const { data: metadata, error } = await tryCatch(
-    app.public.products.queries.findMetadata(slug),
+    app.public.products.queries.findMetadata(slug, await getLocale()),
   );
   if (error) {
     if (isAppError(error) && error.kind === "NOT_FOUND") {

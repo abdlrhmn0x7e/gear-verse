@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { getLocale } from "next-intl/server";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { app } from "~/server/application";
 
@@ -7,7 +8,8 @@ export async function getCategoryTree() {
 
   cacheTag("categories-menu");
 
-  return app.public.categories.queries.findAll(undefined);
+  // the admin has no [locale] segment, so it reads English
+  return app.public.categories.queries.findAll(undefined, await getLocale());
 }
 
 /** Root-to-node path of the first category matching `match`, or an empty array. */

@@ -6,10 +6,9 @@ import { getBrands } from "../_lib/queries";
 import { SectionHeader } from "./section-header";
 
 export async function Brands() {
-  const [brands, t, tCommon] = await Promise.all([
+  const [brands, t] = await Promise.all([
     getBrands(),
     getTranslations("landing.brands"),
-    getTranslations("common"),
   ]);
   if (brands.length === 0) return null;
 
@@ -33,7 +32,6 @@ export async function Brands() {
                   <ImageWithFallback
                     src={brand.logo}
                     alt=""
-                    errorLabel={tCommon("imageError")}
                     width={320}
                     height={320}
                     sizes="(min-width: 1024px) 18vw, 50vw"

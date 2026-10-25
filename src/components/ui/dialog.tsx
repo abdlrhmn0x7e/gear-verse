@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button";
 import { isToastInteraction } from "~/components/ui/toast";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
+import { useTranslations } from "next-intl";
 
 function Dialog({ onOpenChange, ...props }: DialogPrimitive.Root.Props) {
   return (
@@ -65,6 +66,7 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
 }) {
+  const t = useTranslations("common");
   return (
     <DialogPortal>
       {/* Base UI leaves out the backdrop of a dialog opened from a drawer or another dialog, so the layer under it
@@ -91,7 +93,7 @@ function DialogContent({
             }
           >
             <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("close")}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Popup>

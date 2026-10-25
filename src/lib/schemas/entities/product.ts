@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
+import { hasContent } from "~/lib/arabic";
 import { inventoryItemSchema } from "./inventory-item";
 
 export const productEntitySchema = z.object({
@@ -15,6 +16,17 @@ export const productEntitySchema = z.object({
   slug: z.string("Slug is required").min(1, "Slug is too short"),
   summary: z.string("Summary is required").min(1, "Summary is too short"),
   description: z.custom<JSONContent>(),
+  // optional; an emptied field saves null, so the Arabic site shows the English
+  summaryAr: z
+    .string()
+    .trim()
+    .transform((val) => val || null)
+    .nullish(),
+  descriptionAr: z
+    .custom<JSONContent>()
+    .nullish()
+    .transform((doc) => doc && (hasContent(doc) ? doc : null))
+    .optional(),
   published: z.boolean("Published is required"),
   condition: z.enum(["NEW", "USED", "REFURBISHED"], "Condition is required"),
   allowBackorder: z.boolean("Allow backorders is required"),

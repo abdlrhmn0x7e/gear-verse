@@ -28,6 +28,15 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { IconFolderX } from "@tabler/icons-react";
+import { arabicStatus } from "~/lib/arabic";
+import { ArabicStatusBadge } from "~/app/admin/_components/arabic-status";
+
+export function categoryArabicStatus(category: CategoryTree) {
+  return arabicStatus(
+    [category.name_ar, category.description_ar],
+    category.ar_reviewed ?? false,
+  );
+}
 
 /** A category's icon, or a folder for an icon the map doesn't know. */
 export function CategoryIcon({
@@ -158,6 +167,7 @@ function CategoryTreeItem({
   const { children, ...category } = categories;
   const isActive = selectedCategoryId === category.id;
   const hasChildren = !!children && children.length > 0;
+  const arabic = categoryArabicStatus(category);
 
   if (showEditForm) {
     return (
@@ -169,7 +179,10 @@ function CategoryTreeItem({
             name: category.name,
             parent_id: parentCategory?.id,
             description: category.description,
+            name_ar: category.name_ar,
+            description_ar: category.description_ar,
           }}
+          arabicStatus={categoryArabicStatus(category)}
           onSuccess={() => setShowEditForm(false)}
           cancel={() => setShowEditForm(false)}
         />
@@ -218,6 +231,10 @@ function CategoryTreeItem({
               )}
             />
             <span className="truncate">{category.name}</span>
+            {/* reviewed shows nothing, so the tree stays quiet */}
+            {arabic !== "reviewed" && (
+              <ArabicStatusBadge status={arabic} className="h-4 px-1.5" />
+            )}
           </button>
 
           <CategoryTreeActions

@@ -1,8 +1,9 @@
 import { ArrowRightIcon } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
+import { localizedCopyProps } from "~/lib/arabic";
 import { cn } from "~/lib/utils";
 import { getCategoryCovers } from "../_lib/queries";
 import { SectionHeader } from "./section-header";
@@ -24,10 +25,10 @@ const tileClassName: Record<TileLayout, string> = {
 };
 
 export async function CategoryBento() {
-  const [covers, t, tCommon] = await Promise.all([
+  const [locale, covers, t] = await Promise.all([
+    getLocale(),
     getCategoryCovers(),
     getTranslations("landing.categories"),
-    getTranslations("common"),
   ]);
   if (covers.length === 0) return null;
 
@@ -70,7 +71,11 @@ export async function CategoryBento() {
                         layout === "lead" ? "text-headline-sm" : "text-title",
                       )}
                     >
-                      <bdi>{category.name}</bdi>
+                      <bdi
+                        {...localizedCopyProps(locale, category.fallback.name)}
+                      >
+                        {category.name}
+                      </bdi>
                     </h3>
                     <span className="surface-control flex size-10 shrink-0 items-center justify-center rounded-full">
                       <ArrowRightIcon
@@ -91,7 +96,6 @@ export async function CategoryBento() {
                     <ImageWithFallback
                       src={product.thumbnailUrl}
                       alt=""
-                      errorLabel={tCommon("imageError")}
                       width={800}
                       height={800}
                       sizes={

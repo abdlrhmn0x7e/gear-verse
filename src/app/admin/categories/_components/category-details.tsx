@@ -31,7 +31,7 @@ import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useCategoryStore } from "../_store/provider";
 import { AddCategory } from "./add-category";
-import { CategoryIcon } from "./category-tree";
+import { CategoryIcon, categoryArabicStatus } from "./category-tree";
 import { EditCategory } from "./edit-category";
 import { CategoryProductList } from "./products-grid";
 
@@ -121,7 +121,10 @@ export function CategoryDetails({
                   name: category.name,
                   parent_id: parent?.id,
                   description: category.description,
+                  name_ar: category.name_ar,
+                  description_ar: category.description_ar,
                 }}
+                arabicStatus={categoryArabicStatus(category)}
                 onSuccess={() => setMode("view")}
                 cancel={() => setMode("view")}
               />

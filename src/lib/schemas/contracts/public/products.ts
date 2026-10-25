@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { paginationSchema } from "../pagination";
+import { routing } from "~/i18n/routing";
+
+/** Route handlers can't read the [locale] segment, so storefront queries send it. */
+export const localeSchema = z
+  .enum(routing.locales)
+  .default(routing.defaultLocale);
 
 export const productsFilterSchema = z
   .object({
@@ -27,5 +33,6 @@ export type ProductSortBy = z.infer<typeof productSortBySchema>;
 export const productsGetPageInputSchema = paginationSchema.extend({
   filters: productsFilterSchema.optional(),
   sortBy: productSortBySchema.optional(),
+  locale: localeSchema,
 });
 export type ProductsGetPageInput = z.infer<typeof productsGetPageInputSchema>;

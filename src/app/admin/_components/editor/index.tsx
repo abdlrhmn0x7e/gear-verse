@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { EditorMenuBar } from "./editor-menu-bar";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   Dialog,
   DialogDescription,
@@ -23,12 +23,24 @@ const CustomDialogContent = motion.div;
 export function Editor({
   onUpdate,
   defaultContent,
+  arabic,
+  label,
 }: {
   onUpdate: (json: JSONContent) => void;
-  defaultContent?: JSONContent;
+  defaultContent?: JSONContent | null;
+  arabic?: boolean;
+  /** the field's name for screen readers, which can't follow a label to a contenteditable */
+  label?: string;
 }) {
-  const { editor } = useVerseEditor({ onUpdate, defaultContent });
+  const { editor } = useVerseEditor({
+    onUpdate,
+    defaultContent,
+    arabic,
+    label,
+  });
   const [isExpanded, setIsExpanded] = useState(false);
+  // one per editor, or expanding one animates every editor on the page
+  const layoutId = useId();
 
   if (!editor) return <Skeleton className="h-[24rem] w-full" />;
 
@@ -40,7 +52,7 @@ export function Editor({
     <AnimatePresence>
       <motion.div
         className="surface-control surface-field has-aria-invalid:border-destructive w-full rounded-lg text-base/5 transition-[color,background-color,box-shadow,border-color] has-disabled:opacity-64 sm:text-sm"
-        layoutId="editor-container"
+        layoutId={layoutId}
         key="editor-container-collapsed"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -77,7 +89,7 @@ export function Editor({
                 className={cn(
                   "bg-card fixed top-[50%] left-[50%] z-50 flex h-[95svh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] flex-col gap-1 rounded-lg border p-1 shadow-lg sm:max-w-[80svw]",
                 )}
-                layoutId="editor-container"
+                layoutId={layoutId}
                 key="editor-container-expanded"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}

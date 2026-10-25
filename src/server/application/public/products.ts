@@ -3,6 +3,7 @@ import { paginate } from "../helpers/pagination";
 import { data } from "~/server/data-access";
 import { AppError } from "~/lib/errors/app-error";
 import { tryCatch } from "~/lib/utils/try-catch";
+import type { Locale } from "~/i18n/routing";
 
 export const _products = {
   queries: {
@@ -10,9 +11,9 @@ export const _products = {
       return paginate({ input, getPage: data.public.products.queries.getPage });
     },
 
-    findBySlug: async (slug: string) => {
+    findBySlug: async (slug: string, locale: Locale) => {
       const { data: product, error } = await tryCatch(
-        data.public.products.queries.findBySlug(slug),
+        data.public.products.queries.findBySlug(slug, { locale }),
       );
       if (error) {
         console.error("Error getting product by slug:", error);
@@ -28,9 +29,9 @@ export const _products = {
       return product;
     },
 
-    findMetadata: async (slug: string) => {
+    findMetadata: async (slug: string, locale: Locale) => {
       const { data: product, error } = await tryCatch(
-        data.public.products.queries.findMetadata(slug),
+        data.public.products.queries.findMetadata(slug, locale),
       );
       if (error) {
         console.error("Error getting product by slug:", error);

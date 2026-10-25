@@ -10,6 +10,7 @@ import {
   type ProductFormValues,
 } from "~/app/admin/_components/forms/product";
 import { SaveBar } from "~/app/admin/_components/save-bar";
+import { arabicStatus } from "~/lib/arabic";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 
 export function EditProduct({
@@ -70,6 +71,8 @@ export function EditProduct({
       title: product.title,
       summary: product.summary,
       description: product.description,
+      summaryAr: product.summaryAr ?? "",
+      descriptionAr: product.descriptionAr,
 
       published: product.published,
       condition: product.condition,
@@ -111,6 +114,17 @@ export function EditProduct({
         onSubmitPartial={onSubmit}
         defaultValues={defaultValues}
         onFormReady={setForm}
+        saved={{
+          id: product.id,
+          slug: product.slug,
+          published: product.published,
+          arabicStatus: arabicStatus(
+            [product.summaryAr, product.descriptionAr],
+            product.arReviewed,
+          ),
+          // the page loads the product on the server
+          onArabicReviewed: () => router.refresh(),
+        }}
       />
 
       {form && (

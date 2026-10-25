@@ -11,15 +11,18 @@ import { Spinner } from "~/components/spinner";
 import { useEffect, useId } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
+import type { ArabicStatus } from "~/lib/arabic";
 
 export function EditCategory({
   id,
   defaultValues,
+  arabicStatus,
   onSuccess,
   cancel,
 }: {
   id: number;
   defaultValues: CategoryFormValues;
+  arabicStatus: ArabicStatus;
   onSuccess: () => void;
   cancel: () => void;
 }) {
@@ -68,6 +71,14 @@ export function EditCategory({
         onSubmit={onSubmit}
         showParentCombobox={false}
         formId={formId}
+        saved={{
+          id,
+          arabicStatus,
+          onArabicReviewed: () =>
+            void queryClient.invalidateQueries(
+              trpc.admin.categories.queries.findAll.queryFilter(),
+            ),
+        }}
       />
 
       <div className="flex items-center justify-between">

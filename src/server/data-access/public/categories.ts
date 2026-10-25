@@ -35,21 +35,48 @@ import {
   type ProductsSortBy,
 } from "../common/products-ordering";
 import { alias } from "drizzle-orm/pg-core";
+import type { Locale } from "~/i18n/routing";
+import { englishFallback, localized } from "../common/localized";
+
+/** A category's name and description in `locale`, and which of them fell back to English. */
+function localizedCopy(locale: Locale) {
+  return {
+    name: localized<string>(categories.name, categories.name_ar, locale),
+    description: localized<string | null>(
+      categories.description,
+      categories.description_ar,
+      locale,
+    ),
+    fallback: {
+      name: englishFallback(categories.name, categories.name_ar, locale),
+      description: englishFallback(
+        categories.description,
+        categories.description_ar,
+        locale,
+      ),
+    },
+  };
+}
 
 export const _categories = {
   queries: {
-    async findAll({
-      filters,
-    }: {
-      filters?: Partial<{
-        root: boolean;
-      }>;
-    } = {}) {
+    async findAll(
+      {
+        filters,
+      }: {
+        filters?: Partial<{
+          root: boolean;
+        }>;
+      } = {},
+      locale: Locale,
+    ) {
+      const copy = localizedCopy(locale);
       if (filters?.root) {
         return db
           .select({
             id: categories.id,
-            name: categories.name,
+            name: copy.name,
+            fallback: { name: copy.fallback.name },
             icon: categories.icon,
             slug: categories.slug,
             created_at: categories.created_at,
@@ -58,15 +85,28 @@ export const _categories = {
           .where(isNull(categories.parent_id));
       }
 
+      const columns = sql`
+        categories.id,
+        categories.parent_id,
+        categories.icon,
+        categories.slug,
+        categories.created_at,
+        ${copy.name} AS name,
+        ${copy.description} AS description,
+        jsonb_build_object(
+          'name', ${copy.fallback.name},
+          'description', ${copy.fallback.description}
+        ) AS fallback
+      `;
       const query = sql<{ tree: string }[]>`
         WITH RECURSIVE all_categories AS (
-          SELECT categories.*, 0 AS level
+          SELECT ${columns}, 0 AS level
           FROM categories
           WHERE parent_id IS NULL
 
           UNION ALL
 
-          SELECT categories.*, all_categories.level + 1
+          SELECT ${columns}, all_categories.level + 1
           FROM categories
           INNER JOIN all_categories
             ON all_categories.id = categories.parent_id
@@ -165,27 +205,31 @@ export const _categories = {
     /**
      * Direct sub-categories of the category identified by `slug`
      */
-    async findChildren(slug: string) {
+    async findChildren(slug: string, locale: Locale) {
       const parent = alias(categories, "parent_category");
+      const copy = localizedCopy(locale);
 
       return db
         .select({
           id: categories.id,
-          name: categories.name,
+          name: copy.name,
+          fallback: { name: copy.fallback.name },
           icon: categories.icon,
           slug: categories.slug,
         })
         .from(categories)
         .innerJoin(parent, eq(categories.parent_id, parent.id))
         .where(eq(parent.slug, slug))
-        .orderBy(asc(categories.name));
+        .orderBy(asc(copy.name));
     },
 
-    async getRoots() {
+    async getRoots(locale: Locale) {
+      const copy = localizedCopy(locale);
       return db
         .select({
           id: categories.id,
-          name: categories.name,
+          name: copy.name,
+          fallback: { name: copy.fallback.name },
           icon: categories.icon,
           slug: categories.slug,
           created_at: categories.created_at,
@@ -200,10 +244,13 @@ export const _categories = {
       filters,
       slug,
       sortBy,
+      locale,
     }: Pagination<Record<string, unknown>, ProductsSortBy> & {
       filters?: CategoryProductsFilters;
       slug: string;
+      locale: Locale;
     }) => {
+      const copy = localizedCopy(locale);
       const brandsMedia = alias(media, "brands_media");
 
       // this might need future refactoring I don't think this query is as optimal as it could be
@@ -260,13 +307,25 @@ export const _categories = {
           title: products.title,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
-          summary: products.summary,
+          summary: localized<string>(
+            products.summary,
+            products.summaryAr,
+            locale,
+          ),
           trending: sql<boolean>`${products.pinnedPosition} is not null`,
           thumbnailUrl: media.url,
           stock: inventoryItems.quantity,
           category: {
-            name: categories.name,
+            name: copy.name,
             slug: categories.slug,
+          },
+          fallback: {
+            summary: englishFallback(
+              products.summary,
+              products.summaryAr,
+              locale,
+            ),
+            category: copy.fallback.name,
           },
           brand: {
             name: brands.name,

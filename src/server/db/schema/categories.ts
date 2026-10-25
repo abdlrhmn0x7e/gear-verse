@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   foreignKey,
   index,
   pgEnum,
@@ -41,6 +42,11 @@ export const categories = pgTable(
     slug: text("slug").notNull(),
     // the category page's intro and meta description; null falls back to a shared line
     description: text("description"),
+    // Arabic twins; null shows the English on the Arabic site
+    name_ar: text("name_ar"),
+    description_ar: text("description_ar"),
+    // a person checked the Arabic against the current English
+    ar_reviewed: boolean("ar_reviewed").notNull().default(false),
 
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at")

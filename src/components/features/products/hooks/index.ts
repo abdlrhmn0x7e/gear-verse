@@ -1,4 +1,5 @@
 import { useQueryStates } from "nuqs";
+import type { Locale } from "~/i18n/routing";
 import type { ProductsGetPageInput } from "~/lib/schemas/contracts/public/products";
 import {
   createLoader,
@@ -30,6 +31,7 @@ type ProductsSearchParams = Awaited<
 /** One mapping from URL filters to the products query, shared by the server prefetch and the client list. */
 export function toProductsPageInput(
   filters: ProductsSearchParams,
+  locale: Locale,
 ): ProductsGetPageInput {
   const hasPrice = filters.minPrice !== null || filters.maxPrice !== null;
 
@@ -44,5 +46,6 @@ export function toProductsPageInput(
         : undefined,
     },
     sortBy: filters.sortBy ?? "trending",
+    locale,
   };
 }

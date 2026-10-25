@@ -34,6 +34,17 @@ export const categoryEntitySchema = z.object({
     .trim()
     .transform((val) => val || null)
     .nullish(),
+  // optional; an emptied field saves null, so the Arabic site shows the English
+  name_ar: z
+    .string()
+    .trim()
+    .transform((val) => val || null)
+    .nullish(),
+  description_ar: z
+    .string()
+    .trim()
+    .transform((val) => val || null)
+    .nullish(),
 
   parent_id: z.number("Parent ID must be a number").nullish(),
 
@@ -56,6 +67,13 @@ export const categoryTreeSchema = z.object({
   icon: categoryIconEnum,
   slug: z.string("Slug is required").min(1, "Slug is required"),
   description: z.string().nullish(),
+  name_ar: z.string().nullish(),
+  description_ar: z.string().nullish(),
+  ar_reviewed: z.boolean().optional(),
+  // the storefront's tree: which fields show in English on the Arabic site
+  fallback: z
+    .object({ name: z.boolean(), description: z.boolean().optional() })
+    .optional(),
   created_at: z.coerce.date<Date>("Created at must be a date"),
 
   get children() {

@@ -1,6 +1,7 @@
 import { cacheTag } from "next/cache";
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { localizedCopyProps } from "~/lib/arabic";
 import { Link } from "~/i18n/navigation";
 import { Suspense } from "react";
 import { getStoreSettings } from "~/lib/store-settings";
@@ -139,12 +140,15 @@ async function CategoryLinks() {
 
   cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findRoots();
+  const locale = await getLocale();
+  const categories = await app.public.categories.queries.findRoots(locale);
 
   return categories.map((category) => (
     <li key={category.slug}>
       <Link href={`/categories/${category.slug}`} className={linkClassName}>
-        <bdi>{category.name}</bdi>
+        <bdi {...localizedCopyProps(locale, category.fallback.name)}>
+          {category.name}
+        </bdi>
       </Link>
     </li>
   ));

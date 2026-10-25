@@ -11,6 +11,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import type { JSONContent } from "@tiptap/react";
 import { db } from "~/server/db";
 import {
   brands,
@@ -30,6 +31,13 @@ import {
   getProductsOrdering,
   type ProductsSortBy,
 } from "../common/products-ordering";
+import type { Locale } from "~/i18n/routing";
+import { englishFallback, localized } from "../common/localized";
+
+/** A product's summary in `locale`; titles, brands and options stay as entered. */
+function localizedSummary(locale: Locale) {
+  return localized<string>(products.summary, products.summaryAr, locale);
+}
 
 export const _products = {
   queries: {
@@ -38,6 +46,7 @@ export const _products = {
       pageSize,
       filters,
       sortBy,
+      locale,
     }: Pagination<
       {
         title: string;
@@ -49,7 +58,7 @@ export const _products = {
         };
       },
       ProductsSortBy
-    >) => {
+    > & { locale: Locale }) => {
       const { orderBy, cursorWhere } = getProductsOrdering(sortBy, cursor);
       const whereClause = [
         cursorWhere,
@@ -90,13 +99,29 @@ export const _products = {
           title: products.title,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
-          summary: products.summary,
+          summary: localizedSummary(locale),
           trending: sql<boolean>`${products.pinnedPosition} is not null`,
           thumbnailUrl: media.url,
           stock: inventoryItems.quantity,
           category: {
-            name: categories.name,
+            name: localized<string>(
+              categories.name,
+              categories.name_ar,
+              locale,
+            ),
             slug: categories.slug,
+          },
+          fallback: {
+            summary: englishFallback(
+              products.summary,
+              products.summaryAr,
+              locale,
+            ),
+            category: englishFallback(
+              categories.name,
+              categories.name_ar,
+              locale,
+            ),
           },
           brand: {
             name: brands.name,
@@ -135,8 +160,11 @@ export const _products = {
 
     findBySlug: async (
       slug: string,
-      // the admin's product summary also shows drafts
-      { includeDrafts = false }: { includeDrafts?: boolean } = {},
+      {
+        // the admin's product summary also shows drafts
+        includeDrafts = false,
+        locale,
+      }: { includeDrafts?: boolean; locale: Locale },
     ) => {
       const brandsMedia = alias(media, "brands_media");
 
@@ -159,8 +187,24 @@ export const _products = {
           title: products.title,
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
-          summary: products.summary,
-          description: products.description,
+          summary: localizedSummary(locale),
+          description: localized<JSONContent>(
+            products.description,
+            products.descriptionAr,
+            locale,
+          ),
+          fallback: {
+            summary: englishFallback(
+              products.summary,
+              products.summaryAr,
+              locale,
+            ),
+            description: englishFallback(
+              products.description,
+              products.descriptionAr,
+              locale,
+            ),
+          },
           published: products.published,
           condition: products.condition,
           categoryId: products.categoryId,
@@ -219,7 +263,7 @@ export const _products = {
      * Everything the product page's metadata and structured data need, without
      * the description or the variants.
      */
-    findMetadata: async (slug: string) => {
+    findMetadata: async (slug: string, locale: Locale) => {
       const productMedia = db
         .select({
           productId: productsMedia.productId,
@@ -237,7 +281,7 @@ export const _products = {
           id: products.id,
           slug: products.slug,
           title: products.title,
-          summary: products.summary,
+          summary: localizedSummary(locale),
           price: products.price,
           strikeThroughPrice: products.strikeThroughPrice,
           condition: products.condition,

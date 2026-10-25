@@ -1,6 +1,7 @@
 import { IconArrowRight, IconFolder } from "@tabler/icons-react";
 import { cacheTag } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { localizedCopyProps } from "~/lib/arabic";
 import { iconsMap } from "~/lib/icons-map";
 import { app } from "~/server/application";
 import { NavLink } from "./nav";
@@ -10,8 +11,9 @@ export async function CategoriesMenu() {
 
   cacheTag("categories-menu", "sitemap");
 
+  const locale = await getLocale();
   const [categories, t] = await Promise.all([
-    app.public.categories.queries.findRoots(),
+    app.public.categories.queries.findRoots(locale),
     getTranslations("nav"),
   ]);
 
@@ -23,12 +25,14 @@ export async function CategoriesMenu() {
           <NavLink
             key={category.id}
             href={`/categories/${category.slug}`}
-            className="bg-tile hover:bg-tile-hover group flex flex-col gap-6 rounded-2xl p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="bg-tile hover:bg-tile-hover group focus-visible:outline-focus flex flex-col gap-6 rounded-2xl p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <Icon className="size-5" stroke={1.75} aria-hidden />
-            {/* category names are stored in English; isolated so their punctuation stays put in Arabic */}
+            {/* isolated, so a name still in English keeps its punctuation in place in Arabic */}
             <span className="text-sm font-medium">
-              <bdi>{category.name}</bdi>
+              <bdi {...localizedCopyProps(locale, category.fallback.name)}>
+                {category.name}
+              </bdi>
             </span>
           </NavLink>
         );
@@ -36,7 +40,7 @@ export async function CategoriesMenu() {
 
       <NavLink
         href="/products"
-        className="hover:bg-accent flex flex-col justify-between gap-6 rounded-2xl border p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="hover:bg-accent focus-visible:outline-focus flex flex-col justify-between gap-6 rounded-2xl border p-4 transition-[background-color] duration-150 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <IconArrowRight
           className="size-5 rtl:-scale-x-100"

@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { paginationSchema } from "../pagination";
+import { arabicStatuses } from "~/lib/arabic";
 
 export const productsFilterSchema = z
   .object({
     title: z.string(),
     brands: z.array(z.number()),
     categories: z.array(z.number()),
+    arabic: z.array(z.enum(arabicStatuses)),
   })
   .partial()
   .optional();

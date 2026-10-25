@@ -1,6 +1,7 @@
 import { cacheTag } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
+import { localizedCopyProps } from "~/lib/arabic";
 import { cn } from "~/lib/utils";
 import { app } from "~/server/application";
 
@@ -31,14 +32,19 @@ export async function CategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
+  const locale = await getLocale();
   const [categories, t] = await Promise.all([
-    app.public.categories.queries.findRoots(),
+    app.public.categories.queries.findRoots(locale),
     getTranslations("products.chips"),
   ]);
   const chips = [
     { label: t("allProducts"), href: "/products", active: activeSlug === null },
     ...categories.map((category) => ({
-      label: <bdi>{category.name}</bdi>,
+      label: (
+        <bdi {...localizedCopyProps(locale, category.fallback.name)}>
+          {category.name}
+        </bdi>
+      ),
       href: `/categories/${category.slug}`,
       active: category.slug === activeSlug,
     })),
@@ -59,8 +65,9 @@ export async function SubCategoryChips({
 
   cacheTag("categories-menu", "sitemap");
 
+  const locale = await getLocale();
   const [children, t] = await Promise.all([
-    app.public.categories.queries.getChildren(parent.slug),
+    app.public.categories.queries.getChildren(parent.slug, locale),
     getTranslations("products.chips"),
   ]);
   if (children.length === 0) return null;
@@ -80,7 +87,11 @@ export async function SubCategoryChips({
       active: activeSlug === undefined,
     },
     ...children.map((child) => ({
-      label: <bdi>{child.name}</bdi>,
+      label: (
+        <bdi {...localizedCopyProps(locale, child.fallback.name)}>
+          {child.name}
+        </bdi>
+      ),
       href: `/categories/${child.slug}`,
       active: child.slug === activeSlug,
     })),
@@ -101,7 +112,7 @@ function ChipNav({
   level,
 }: {
   label: string;
-  /** category names are stored in English, so each arrives isolated for Arabic pages */
+  /** each name arrives isolated, marked English or pinned right to left on the Arabic site */
   chips: { label: React.ReactNode; href: string; active: boolean }[];
   level: keyof typeof chipLevels;
 }) {

@@ -45,6 +45,7 @@ export function ProductsTable() {
     title: debouncedFilters.title ?? undefined,
     brands: params.brands ?? undefined,
     categories: params.categories ?? undefined,
+    arabic: params.arabic ?? undefined,
   };
   const { data: pinned, isFetching: isFetchingPinned } = useSuspenseQuery(
     trpc.admin.products.queries.getPinned.queryOptions(
@@ -120,6 +121,7 @@ export function ProductsTable() {
     params.title,
     params.brands?.length,
     params.categories?.length,
+    params.arabic?.length,
   ].some(Boolean);
 
   const pinnedIds = pinned.map((product) => product.id);

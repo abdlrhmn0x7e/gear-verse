@@ -27,6 +27,7 @@ import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { type RouterOutput, useTRPC } from "~/trpc/client";
 import { useLocale, useTranslations } from "next-intl";
+import { localizedCopyProps } from "~/lib/arabic";
 
 export function ProductSearchDialog({
   children,
@@ -173,6 +174,7 @@ function Content({ close }: { close: () => void }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [hover, setHover] = useState<number | null>(null);
+  const locale = useLocale();
   const { data, isPending, isFetching, isError } = useQuery(
     trpc.public.products.queries.getPage.queryOptions(
       {
@@ -180,6 +182,7 @@ function Content({ close }: { close: () => void }) {
         filters: {
           title: debouncedSearch,
         },
+        locale,
       },
       {
         placeholderData: keepPreviousData,
@@ -396,6 +399,7 @@ export function ProductSearchItem({
           <p
             dir="auto"
             className="text-muted-foreground line-clamp-2 flex-1 overflow-hidden text-sm"
+            {...localizedCopyProps(locale, product.fallback.summary)}
           >
             {product.summary}
           </p>

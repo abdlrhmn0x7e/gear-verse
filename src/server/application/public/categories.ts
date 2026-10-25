@@ -6,6 +6,7 @@ import type {
 import { tryCatch } from "~/lib/utils/try-catch";
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
+import type { Locale } from "~/i18n/routing";
 
 /** Categories whose subtree has a product that can be bought, so the store never links to an empty one. */
 async function liveCategorySlugs() {
@@ -15,18 +16,18 @@ async function liveCategorySlugs() {
 
 export const _categories = {
   queries: {
-    findAll: async (input: CategoriesFindAllInput) => {
-      return data.public.categories.queries.findAll(input);
+    findAll: async (input: CategoriesFindAllInput, locale: Locale) => {
+      return data.public.categories.queries.findAll(input, locale);
     },
 
     findAllSlugs: async () => {
       return data.public.categories.queries.findAllSlugs();
     },
 
-    findRoots: async () => {
+    findRoots: async (locale: Locale) => {
       const { data: result, error } = await tryCatch(
         Promise.all([
-          data.public.categories.queries.getRoots(),
+          data.public.categories.queries.getRoots(locale),
           liveCategorySlugs(),
         ]),
       );
@@ -39,10 +40,10 @@ export const _categories = {
       return roots.filter((category) => live.has(category.slug));
     },
 
-    getChildren: async (slug: string) => {
+    getChildren: async (slug: string, locale: Locale) => {
       const { data: result, error } = await tryCatch(
         Promise.all([
-          data.public.categories.queries.findChildren(slug),
+          data.public.categories.queries.findChildren(slug, locale),
           liveCategorySlugs(),
         ]),
       );

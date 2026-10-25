@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { NavigationMenu } from "@base-ui/react/navigation-menu";
 import { cacheTag } from "next/cache";
@@ -152,6 +153,13 @@ async function getMenuCategories() {
 
   cacheTag("categories-menu", "sitemap");
 
-  const categories = await app.public.categories.queries.findRoots();
-  return categories.map(({ name, slug, icon }) => ({ name, slug, icon }));
+  const categories = await app.public.categories.queries.findRoots(
+    await getLocale(),
+  );
+  return categories.map(({ name, slug, icon, fallback }) => ({
+    name,
+    slug,
+    icon,
+    fallback,
+  }));
 }

@@ -1,3 +1,4 @@
+import z from "zod";
 import {
   categoryEntitySchema,
   updateCategoryInputSchema,
@@ -62,6 +63,18 @@ export const categoriesRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.categories.mutations.update(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
+    markArabicReviewed: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.categories.mutations.markArabicReviewed(input.id),
         );
         if (error) {
           throw errorMap(error);

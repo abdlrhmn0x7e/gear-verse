@@ -2,7 +2,10 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/init";
 import z from "zod";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { errorMap } from "../../error-map";
-import { productsGetPageInputSchema } from "~/lib/schemas/contracts/public/products";
+import {
+  localeSchema,
+  productsGetPageInputSchema,
+} from "~/lib/schemas/contracts/public/products";
 
 export const userProductsRouter = createTRPCRouter({
   queries: {
@@ -21,10 +24,10 @@ export const userProductsRouter = createTRPCRouter({
       }),
 
     findBySlug: publicProcedure
-      .input(z.object({ slug: z.string() }))
+      .input(z.object({ slug: z.string(), locale: localeSchema }))
       .query(async ({ ctx, input }) => {
         const { data: product, error: productError } = await tryCatch(
-          ctx.app.public.products.queries.findBySlug(input.slug),
+          ctx.app.public.products.queries.findBySlug(input.slug, input.locale),
         );
         if (productError) {
           throw errorMap(productError);

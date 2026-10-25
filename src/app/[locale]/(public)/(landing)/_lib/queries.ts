@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { getLocale } from "next-intl/server";
 import { app } from "~/server/application";
 
 export const HERO_PRODUCT_COUNT = 3;
@@ -19,6 +20,7 @@ export async function getHeroProducts() {
   const page = await app.public.products.queries.getPage({
     pageSize: PINNED_LIMIT,
     sortBy: "trending",
+    locale: await getLocale(),
   });
   const pinned = page.data.filter((product) => product.trending);
   if (pinned.length >= HERO_PRODUCT_COUNT) return pinned;
@@ -34,6 +36,7 @@ export async function getLatestProducts() {
 
   const page = await app.public.products.queries.getPage({
     pageSize: HERO_PRODUCT_COUNT + MORE_PRODUCT_COUNT,
+    locale: await getLocale(),
   });
   return page.data;
 }
@@ -44,12 +47,14 @@ export async function getCategoryCovers() {
 
   cacheTag("categories-menu", "recent-products");
 
-  const categories = await app.public.categories.queries.findRoots();
+  const locale = await getLocale();
+  const categories = await app.public.categories.queries.findRoots(locale);
   const covers = await Promise.all(
     categories.map(async (category) => {
       const page = await app.public.products.queries.getPage({
         pageSize: 1,
         filters: { categories: [category.slug] },
+        locale,
       });
       const product = page.data[0];
       return product ? { category, product } : null;

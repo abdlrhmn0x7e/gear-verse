@@ -16,6 +16,8 @@ import {
 } from "~/components/reui/data-grid/data-grid-table";
 import { DataGridTableDndRowHandle } from "~/components/reui/data-grid/data-grid-table-dnd-rows";
 import type { ListColumn } from "../list-grid";
+import { arabicStatus } from "~/lib/arabic";
+import { ArabicStatusBadge } from "../../arabic-status";
 
 export type ProductRow =
   RouterOutput["admin"]["products"]["queries"]["getPage"]["data"][number];
@@ -152,6 +154,19 @@ export const productColumns: ListColumn<ProductRow>[] = [
         </Badge>
       );
     },
+  },
+  {
+    id: "arabic",
+    header: "Arabic",
+    meta: {
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
+    },
+    cell: ({ row }) => (
+      <ArabicStatusBadge
+        status={arabicStatus([row.original.hasArabic], row.original.arReviewed)}
+      />
+    ),
   },
   {
     id: "actions",

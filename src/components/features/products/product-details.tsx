@@ -5,7 +5,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cacheTag } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "~/i18n/navigation";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense, type JSX, type ReactNode } from "react";
@@ -29,6 +29,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { env } from "~/env";
+import { localizedCopyProps } from "~/lib/arabic";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
 import { getStoreSettings } from "~/lib/store-settings";
 import { cn } from "~/lib/utils";
@@ -112,8 +113,9 @@ export async function ProductDetails({
 }) {
   "use cache";
 
+  const locale = await getLocale();
   const { data: product, error } = await tryCatch(
-    app.public.products.queries.findBySlug(slug),
+    app.public.products.queries.findBySlug(slug, locale),
   );
   if (error) {
     return notFound();
@@ -156,7 +158,9 @@ export async function ProductDetails({
                     <BreadcrumbLink
                       render={<Link href={`/categories/${node.slug}`} />}
                     >
-                      <bdi>{node.name}</bdi>
+                      <bdi {...localizedCopyProps(locale, node.fallback?.name)}>
+                        {node.name}
+                      </bdi>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                 </Fragment>
@@ -208,6 +212,7 @@ export async function ProductDetails({
                 <p
                   dir="auto"
                   className="text-muted-foreground text-body-lg text-pretty"
+                  {...localizedCopyProps(locale, product.fallback.summary)}
                 >
                   {product.summary}
                 </p>
@@ -298,7 +303,10 @@ export async function ProductDetails({
             {t("details.heading")}
           </h2>
           <Suspense>
-            <ProductDescription description={product.description} />
+            <ProductDescription
+              description={product.description}
+              english={product.fallback.description}
+            />
           </Suspense>
         </section>
 
@@ -337,14 +345,19 @@ async function RelatedProducts({
   categorySlug: string | undefined;
 }) {
   // same category first, then the newest from the rest of the store
+  const locale = await getLocale();
   const [sameCategory, newest] = await Promise.all([
     categorySlug
       ? app.public.products.queries.getPage({
           pageSize: RELATED_COUNT + 1,
           filters: { categories: [categorySlug] },
+          locale,
         })
       : null,
-    app.public.products.queries.getPage({ pageSize: RELATED_COUNT * 2 }),
+    app.public.products.queries.getPage({
+      pageSize: RELATED_COUNT * 2,
+      locale,
+    }),
   ]);
   const seen = new Set([productId]);
   const related: ProductCardItem[] = [];
