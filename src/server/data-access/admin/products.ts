@@ -87,7 +87,7 @@ async function getListWhere(filters?: Partial<ProductsFilter>) {
     whereClause.push(inArray(products.brandId, filters.brands));
   }
   // the SQL twin of arabicStatus(), so the list can filter before it pages
-  if (filters?.arabic) {
+  if (filters?.arabic?.length) {
     const hasArabic = sql`(${products.summaryAr} is not null or ${products.descriptionAr} is not null)`;
     const byStatus = {
       missing: sql`not ${hasArabic}`,

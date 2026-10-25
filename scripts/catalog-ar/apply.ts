@@ -7,7 +7,7 @@
  * Running it twice changes nothing the second time.
  */
 import type { JSONContent } from "@tiptap/react";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { isDeepStrictEqual } from "node:util";
 import { env } from "~/env";
 import { db } from "~/server/db";
@@ -84,23 +84,32 @@ await db.transaction(async (tx) => {
       continue;
     }
 
-    report("categories", draft, "filled", Object.keys(fill).join(", "));
     if (write) {
-      // coalesce, so an edit made since the read above still wins
-      await tx
+      // the English and the empty Arabic are checked again, so an edit made since the read above skips the row
+      // instead of getting a stale draft or losing its review
+      const updated = await tx
         .update(categories)
-        .set({
-          name_ar: sql`coalesce(${categories.name_ar}, ${fill.name_ar ?? null})`,
-          description_ar: sql`coalesce(${categories.description_ar}, ${fill.description_ar ?? null})`,
-          ar_reviewed: false,
-        })
+        .set({ ...fill, ar_reviewed: false })
         .where(
           and(
             eq(categories.id, draft.id),
             eq(categories.name, draft.english.name),
+            draft.english.description === null
+              ? isNull(categories.description)
+              : eq(categories.description, draft.english.description),
+            ...("name_ar" in fill ? [isNull(categories.name_ar)] : []),
+            ...("description_ar" in fill
+              ? [isNull(categories.description_ar)]
+              : []),
           ),
-        );
+        )
+        .returning({ id: categories.id });
+      if (updated.length === 0) {
+        report("categories", draft, "skipped", "edited during this run");
+        continue;
+      }
     }
+    report("categories", draft, "filled", Object.keys(fill).join(", "));
   }
 
   for (const draft of drafts.products as Draft<
@@ -141,24 +150,30 @@ await db.transaction(async (tx) => {
       continue;
     }
 
-    report("products", draft, "filled", Object.keys(fill).join(", "));
     if (write) {
-      // coalesce and the English check again, so an edit made since the read above still wins
-      await tx
+      // the English and the empty Arabic are checked again, so an edit made since the read above skips the row
+      // instead of getting a stale draft or losing its review
+      const updated = await tx
         .update(products)
-        .set({
-          summaryAr: sql`coalesce(${products.summaryAr}, ${fill.summaryAr ?? null})`,
-          descriptionAr: sql`coalesce(${products.descriptionAr}, ${fill.descriptionAr ? JSON.stringify(fill.descriptionAr) : null}::jsonb)`,
-          arReviewed: false,
-        })
+        .set({ ...fill, arReviewed: false })
         .where(
           and(
             eq(products.id, draft.id),
             eq(products.summary, draft.english.summary),
             sql`${products.description} = ${JSON.stringify(draft.english.description)}::jsonb`,
+            ...("summaryAr" in fill ? [isNull(products.summaryAr)] : []),
+            ...("descriptionAr" in fill
+              ? [isNull(products.descriptionAr)]
+              : []),
           ),
-        );
+        )
+        .returning({ id: products.id });
+      if (updated.length === 0) {
+        report("products", draft, "skipped", "edited during this run");
+        continue;
+      }
     }
+    report("products", draft, "filled", Object.keys(fill).join(", "));
   }
 });
 
