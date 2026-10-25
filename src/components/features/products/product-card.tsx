@@ -41,11 +41,6 @@ export function ProductCard({
       className="group focus-visible:outline-focus flex flex-col gap-4 rounded-3xl transition-[scale,opacity] duration-150 ease-out outline-none focus-visible:outline-2 focus-visible:outline-offset-4 motion-safe:active:scale-[0.98] motion-reduce:active:opacity-70"
     >
       <div className="image-well relative aspect-square overflow-hidden rounded-3xl">
-        {discount > 0 && (
-          <Badge variant="brand" className="absolute start-3 top-3 z-10">
-            {t("save", { discount })}
-          </Badge>
-        )}
         <ImageWithFallback
           src={product.thumbnailUrl}
           alt={product.title}
@@ -53,7 +48,7 @@ export function ProductCard({
           height={640}
           sizes={sizes}
           {...(eager && { loading: "eager", fetchPriority: "high" })}
-          className="size-full rounded-none border-none bg-transparent p-[12%] transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
+          className="size-full rounded-none border-none bg-transparent transition-[scale] duration-300 ease-out motion-safe:group-hover:scale-[1.03]"
         />
       </div>
 
@@ -75,10 +70,16 @@ export function ProductCard({
             {formatCurrency(product.price, locale)}
           </span>
           {discount > 0 && (
-            <s className="text-muted-foreground text-sm">
-              <span className="sr-only">{t("was")} </span>
-              {formatCurrency(product.strikeThroughPrice!, locale)}
-            </s>
+            <>
+              <s className="text-muted-foreground text-sm">
+                <span className="sr-only">{t("was")} </span>
+                {formatCurrency(product.strikeThroughPrice!, locale)}
+              </s>
+              {/* beside the price rather than over the photo, which now fills its well */}
+              <Badge variant="brand" className="self-center">
+                {t("save", { discount })}
+              </Badge>
+            </>
           )}
         </p>
         {optionCount > 1 && (
