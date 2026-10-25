@@ -6,10 +6,9 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { FolderIcon, PlusIcon } from "lucide-react";
+import { FolderIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "~/components/ui/toast";
-import { Button } from "~/components/ui/button";
 import {
   DragableContext,
   DragableOverlay,
@@ -17,7 +16,6 @@ import {
 } from "~/app/admin/_components/dragable-context";
 import { SearchInput } from "~/app/admin/_components/inputs/search-input";
 import { useCategoryStore } from "../_store/provider";
-import { AddCategory } from "./add-category";
 import {
   CategoryIcon,
   CategoryTree,
@@ -48,7 +46,7 @@ import {
 } from "~/components/ui/empty";
 
 /**
- * The category tree on a fixed rail beside the selected category's details.
+ * The category tree in a full-height pane beside the selected category's details.
  * Dragging a category onto another nests it there (or onto "Move to the root"
  * to lift it out); dragging a product onto a category moves the product, and
  * onto another product sets the order the category's page shows.
@@ -66,7 +64,6 @@ export function CategoriesViewer() {
   );
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [showAddCategory, setShowAddCategory] = useState(false);
   const [search, setSearch] = useState("");
 
   // Read from the latest tree, so an edit or a move shows straight away.
@@ -172,6 +169,8 @@ export function CategoriesViewer() {
     }),
   );
 
+  const isDraggingCategory = activeId?.toString().startsWith("category:");
+
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id);
   }
@@ -271,55 +270,37 @@ export function CategoriesViewer() {
   }
 
   return (
-    <DragableContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="grid items-start gap-6 md:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
-        {/* The rail stays put while the details scroll, and scrolls on its own
-            once the tree outgrows the page. */}
+    <DragableContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveId(null)}
+    >
+      <div className="flex min-h-0 flex-1 flex-col max-md:overflow-y-auto md:flex-row">
         <aside
           aria-label="Categories"
-          className="bg-card flex flex-col gap-3 rounded-3xl p-3 md:sticky md:top-(--page-sticky-top) md:max-h-(--page-sticky-height)"
+          className="relative flex shrink-0 flex-col max-md:border-b md:w-72 md:border-r"
         >
-          <div className="flex items-center justify-between gap-2 pl-2">
+          <div className="admin-controls flex flex-col gap-3 px-4 pt-4 pb-3">
             <h2 className="text-sm font-medium">
               Categories
               <span className="text-muted-foreground ml-1.5 font-normal tabular-nums">
                 {categories ? countCategories(categories) : null}
               </span>
             </h2>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Add category"
-              onClick={() => setShowAddCategory(true)}
-            >
-              <PlusIcon />
-            </Button>
+
+            <SearchInput
+              placeholder="Search categories"
+              aria-label="Search categories"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
 
-          <SearchInput
-            placeholder="Search categories"
-            aria-label="Search categories"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-
-          {showAddCategory && (
-            <div className="bg-background rounded-2xl p-2">
-              <AddCategory
-                parentCategoryId={null}
-                onSuccess={() => setShowAddCategory(false)}
-                cancel={() => setShowAddCategory(false)}
-              />
-            </div>
-          )}
-
-          <div className="-m-1 flex min-h-0 flex-1 flex-col gap-px overflow-y-auto p-1">
+          <div className="flex min-h-0 flex-1 flex-col gap-px overflow-y-auto px-2 pb-4">
             {isPendingCategories ? (
               <CategoryTreeSkeleton />
             ) : visibleCategories.length === 0 ? (
-              !showAddCategory && (
-                <CategoryTreeEmptyState searched={!!search.trim()} />
-              )
+              <CategoryTreeEmptyState searched={!!search.trim()} />
             ) : (
               // Searching unfolds every branch so the matches show.
               <div
@@ -337,13 +318,15 @@ export function CategoriesViewer() {
             )}
           </div>
 
+          {/* Laid over the bottom of the pane, so showing it moves no rows. */}
           <Droppable
             id="category:0"
+            disabled={!isDraggingCategory}
             className={cn(
-              "text-muted-foreground flex h-12 shrink-0 items-center justify-center rounded-2xl border border-dashed text-sm transition-opacity",
-              activeId?.toString().startsWith("category:")
+              "bg-background text-muted-foreground absolute inset-x-3 bottom-3 flex h-12 items-center justify-center rounded-2xl border border-dashed text-sm transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]",
+              isDraggingCategory
                 ? "opacity-100"
-                : "pointer-events-none hidden",
+                : "pointer-events-none opacity-0",
             )}
             classNameWhenOver="bg-accent text-foreground border-primary/40"
           >
@@ -351,7 +334,7 @@ export function CategoriesViewer() {
           </Droppable>
         </aside>
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1 px-4 py-6 md:overflow-y-auto md:px-6">
           {isPendingCategories ? (
             <CategoryDetailsSkeleton />
           ) : selectedCategory ? (
@@ -379,12 +362,12 @@ export function CategoriesViewer() {
         </div>
       </div>
 
+      {/* A copy of the dragged card or row, lifted slightly; the scale pivots on the handle so it stays under the pointer. */}
       <DragableOverlay
         className={cn(
-          "bg-secondary/95 border-accent/80 flex max-w-fit origin-top-left scale-70 gap-3 rounded-lg border px-3 py-1 shadow-xl shadow-black/10 backdrop-blur-sm transition-all select-none",
-          activeId &&
-            activeId.toString().startsWith("category:") &&
-            "bg-sidebar border-sidebar-accent origin-bottom-right translate-x-full scale-90",
+          "bg-card [&>button]:text-muted-foreground flex h-full origin-left scale-95 gap-3 rounded-2xl px-3 py-2 shadow-xl transition-[scale,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] select-none",
+          isDraggingCategory &&
+            "bg-accent h-8 origin-right gap-1 rounded-lg py-0 pr-8 pl-0.5 text-sm [&>button]:order-last",
         )}
         isDropping={!activeId}
         withHandle
@@ -394,13 +377,16 @@ export function CategoriesViewer() {
         )}
 
         {typeof activeId === "string" && activeId.startsWith("category:") && (
-          <div className="flex w-32 items-center gap-3">
+          <div className="flex items-center gap-2 pl-7 font-medium">
             {activeCategory ? (
-              <CategoryIcon icon={activeCategory.icon} />
+              <CategoryIcon
+                icon={activeCategory.icon}
+                className="size-4 shrink-0"
+              />
             ) : (
-              <FolderIcon />
+              <FolderIcon className="size-4 shrink-0" />
             )}
-            <span className="font-medium">
+            <span className="truncate">
               {activeCategory?.name ?? "Category"}
             </span>
           </div>

@@ -14,8 +14,8 @@ import {
   Droppable,
 } from "~/app/admin/_components/dragable-context";
 import { useCategoryStore } from "../_store/provider";
-import { AddCategory } from "./add-category";
-import { EditCategory } from "./edit-category";
+import { AddCategoryDrawer } from "~/app/admin/_components/drawers/add-category";
+import { EditCategoryDrawer } from "~/app/admin/_components/drawers/edit-category";
 import type { CategoryTree } from "~/lib/schemas/entities/category";
 import { CategoryTreeActions } from "./category-tree-actions";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -29,7 +29,7 @@ import {
 } from "~/components/ui/empty";
 import { IconFolderX } from "@tabler/icons-react";
 import { arabicStatus } from "~/lib/arabic";
-import { ArabicStatusBadge } from "~/app/admin/_components/arabic-status";
+import { ArabicStatusMarker } from "~/app/admin/_components/arabic-status";
 
 export function categoryArabicStatus(category: CategoryTree) {
   return arabicStatus(
@@ -169,27 +169,6 @@ function CategoryTreeItem({
   const hasChildren = !!children && children.length > 0;
   const arabic = categoryArabicStatus(category);
 
-  if (showEditForm) {
-    return (
-      <div className="py-1 pl-1">
-        <EditCategory
-          id={category.id}
-          defaultValues={{
-            icon: category.icon,
-            name: category.name,
-            parent_id: parentCategory?.id,
-            description: category.description,
-            name_ar: category.name_ar,
-            description_ar: category.description_ar,
-          }}
-          arabicStatus={categoryArabicStatus(category)}
-          onSuccess={() => setShowEditForm(false)}
-          cancel={() => setShowEditForm(false)}
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       <Droppable
@@ -232,9 +211,7 @@ function CategoryTreeItem({
             />
             <span className="truncate">{category.name}</span>
             {/* reviewed shows nothing, so the tree stays quiet */}
-            {arabic !== "reviewed" && (
-              <ArabicStatusBadge status={arabic} className="h-4 px-1.5" />
-            )}
+            {arabic !== "reviewed" && <ArabicStatusMarker status={arabic} />}
           </button>
 
           <CategoryTreeActions
@@ -245,15 +222,18 @@ function CategoryTreeItem({
         </DragableItem>
       </Droppable>
 
-      {showAddForm && (
-        <div className="py-1 pl-7">
-          <AddCategory
-            parentCategoryId={category.id}
-            onSuccess={() => setShowAddForm(false)}
-            cancel={() => setShowAddForm(false)}
-          />
-        </div>
-      )}
+      <AddCategoryDrawer
+        parent={category}
+        open={showAddForm}
+        onOpenChange={setShowAddForm}
+      />
+      <EditCategoryDrawer
+        category={category}
+        parentId={parentCategory?.id}
+        arabicStatus={arabic}
+        open={showEditForm}
+        onOpenChange={setShowEditForm}
+      />
     </>
   );
 }
