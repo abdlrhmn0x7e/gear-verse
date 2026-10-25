@@ -10,6 +10,7 @@ import { productsGetPageInputSchema } from "~/lib/schemas/contracts/admin/produc
 import { brandsGetPageInputSchema } from "~/lib/schemas/contracts/admin/brands";
 import { mediaGetPageInputSchema } from "~/lib/schemas/contracts/admin/media";
 import { inventoryItemsGetPageInputSchema } from "~/lib/schemas/contracts/admin/inventory-items";
+import { AppError } from "~/lib/errors/app-error";
 import { _admin } from "~/server/application/admin";
 
 export interface McpTool {
@@ -18,6 +19,7 @@ export interface McpTool {
   description: string;
   input: z.ZodObject;
   annotations: ToolAnnotations;
+  _meta?: Record<string, unknown>;
   run: (args: unknown) => Promise<unknown>;
 }
 
@@ -136,10 +138,52 @@ export const tools: McpTool[] = [
     name: "list_media",
     title: "List media",
     description:
-      "Lists the images in the store's media library with their id, name and URL, newest first. A product's images must already be in the library (upload them in the admin); pass their ids as media[].mediaId, the first one being the thumbnail. Filter by file name; pass the returned nextCursor as cursor to get the next page.",
+      "Lists the images in the store's media library with their id, name and URL, newest first. A product's images must be in the library (add new ones with upload_images); pass their ids as media[].mediaId, the first one being the thumbnail. Filter by file name; pass the returned nextCursor as cursor to get the next page.",
     input: mediaGetPageInputSchema,
     annotations: read,
     handler: (input) => _admin.media.queries.getPage(input),
+  }),
+
+  defineTool({
+    name: "upload_images",
+    title: "Upload images",
+    description:
+      "Adds images to the store's media library and returns their media ids, for media[].mediaId in create_product and update_product (the first is the thumbnail). Pass images the admin attached in this chat as files when the app offers them; otherwise pass public https links to the images as urls, such as the manufacturer's product photos. PNG, JPEG or WebP, up to 10 MB each and 10 per call.",
+    input: z.object({
+      files: z
+        .array(
+          z.object({
+            download_url: z.string(),
+            file_id: z.string(),
+            mime_type: z.string().optional(),
+            file_name: z.string().optional(),
+          }),
+        )
+        .optional()
+        .describe("Images the admin attached in the chat."),
+      urls: z
+        .array(z.url({ protocol: /^https$/ }))
+        .optional()
+        .describe("Public https links to images."),
+    }),
+    // ChatGPT fills `files` with the attachments; other clients only see a plain array
+    _meta: { "openai/fileParams": ["files"] },
+    annotations: { ...write, openWorldHint: true },
+    handler: ({ files = [], urls = [] }) => {
+      if (files.length + urls.length === 0) {
+        throw new AppError(
+          "Pass at least one image in files or urls",
+          "BAD_REQUEST",
+        );
+      }
+      return _admin.media.mutations.importImages([
+        ...files.map((file) => ({
+          url: file.download_url,
+          name: file.file_name,
+        })),
+        ...urls.map((url) => ({ url })),
+      ]);
+    },
   }),
 
   defineTool({
@@ -156,7 +200,7 @@ export const tools: McpTool[] = [
     name: "create_product",
     title: "Create a draft product",
     description:
-      "Creates a product as an unpublished draft; publish it with publish_product once the admin has checked it. Needs a categoryId (list_categories), a brandId (list_brands) and at least one media id from list_media. Prices are in EGP. Arabic copy (summaryAr, descriptionAr) is optional. For a product without variants set its stock with inventory.quantity. Returns the new product's id.",
+      "Creates a product as an unpublished draft; publish it with publish_product once the admin has checked it. Needs a categoryId (list_categories), a brandId (list_brands) and at least one media id from list_media or upload_images. Prices are in EGP. Arabic copy (summaryAr, descriptionAr) is optional. For a product without variants set its stock with inventory.quantity. Returns the new product's id.",
     input: createProductInputSchema.omit({ published: true }).extend({
       description: descriptionText.min(1, "Description is required"),
       descriptionAr: descriptionText.nullish(),

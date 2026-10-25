@@ -8,7 +8,12 @@ import {
 import z from "zod";
 import { allowedMimeTypesEnum } from "~/lib/schemas/contracts/admin/allowed-mime-types";
 import { AppError } from "~/lib/errors/app-error";
-import { s3IsPublicUrl } from "~/lib/s3";
+import { s3IsPublicUrl, s3PutObject } from "~/lib/s3";
+import cuid from "cuid";
+import { downloadImage } from "../helpers/download-image";
+
+/** How many images one import may fetch. */
+const MAX_IMPORT_IMAGES = 10;
 
 export const _media = {
   queries: {
@@ -42,6 +47,37 @@ export const _media = {
       }
 
       return data.admin.media.mutations.createMany(parsedInput.data);
+    },
+
+    /** Adds images from links to the library, for chat clients that can't upload through the admin's browser. */
+    importImages: async (sources: { url: string; name?: string }[]) => {
+      if (sources.length === 0 || sources.length > MAX_IMPORT_IMAGES) {
+        throw new AppError(
+          `Import between 1 and ${MAX_IMPORT_IMAGES} images at a time`,
+          "BAD_REQUEST",
+        );
+      }
+
+      // every download is checked before anything is stored
+      const images = await Promise.all(
+        sources.map(async ({ url, name }) => ({
+          ...(await downloadImage(url)),
+          // a blank name falls back too
+          name:
+            [name, new URL(url).pathname.split("/").pop()].find(Boolean) ??
+            "image",
+        })),
+      );
+
+      const media = await Promise.all(
+        images.map(async ({ bytes, mimeType, name }) => ({
+          name,
+          mimeType,
+          url: await s3PutObject({ key: cuid(), body: bytes, mimeType }),
+        })),
+      );
+
+      return _media.mutations.createMany(media);
     },
   },
 };
