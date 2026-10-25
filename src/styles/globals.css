@@ -382,6 +382,83 @@
   --info-foreground: oklch(0.82 0.09 255);
 }
 
+/* The admin's own palette, after sales-crm-kargulstudio: neutral near-black surfaces with the plum brand kept as the
+   accent. The admin's root layout sets .admin on <html> next to next-themes' forced .dark, so dark: variants still
+   apply and portalled layers (menus, drawers, toasts) take it from :root; :root.admin outranks .dark. Leaving the admin
+   crosses root layouts, a full page load, so the class never reaches the storefront. */
+:root.admin {
+  /* the light ramp's steps without the aubergine tint */
+  --neutral-50: oklch(0.99 0 0);
+  --neutral-75: oklch(0.97 0 0);
+  --neutral-100: oklch(0.965 0 0);
+  --neutral-200: oklch(0.925 0 0);
+  --neutral-250: oklch(0.88 0 0);
+  --neutral-300: oklch(0.87 0 0);
+  --neutral-350: oklch(0.74 0 0);
+  --neutral-400: oklch(0.71 0 0);
+  --neutral-500: oklch(0.51 0 0);
+  --neutral-600: oklch(0.45 0 0);
+  --neutral-700: oklch(0.37 0 0);
+  --neutral-750: oklch(0.34 0 0);
+  --neutral-800: oklch(0.29 0 0);
+  --neutral-850: oklch(0.25 0 0);
+  --neutral-900: oklch(0.205 0 0);
+  --neutral-950: oklch(0.145 0 0);
+
+  --background: #161616;
+  --foreground: #f9fbff;
+  --card: #1b1d20;
+  /* a hair above the page so a menu over it still has a surface of its own under the hairline */
+  --popover: #1a1a1a;
+  /* white on plum-600 measures 5.3:1; hover goes a step deeper (7.3:1) rather than paler */
+  --primary: var(--plum-600);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: var(--plum-700);
+  --secondary: #1e1e1e;
+  --secondary-foreground: var(--foreground);
+  --muted: #2a2a2a;
+  /* 4.6:1 on the page, 4.3:1 on a card */
+  --muted-foreground: #7f7f7f;
+  --accent: #2a2a2a;
+  --destructive: #f97373;
+  --border: #232323;
+  --floating-border: oklch(1 0 0 / 8%);
+  --input: #393939;
+  --input-background: #1e1e1e;
+  --floating-field: #1e1e1e;
+  --ring: #676767;
+  --focus: #d0d4dd;
+  --tile: #1e1e1e;
+  --tile-hover: #262626;
+  --raised: #232427;
+
+  --sidebar: #171717;
+  --sidebar-foreground: #7f7f7f;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: #2a2a2a;
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: #232323;
+  --sidebar-ring: var(--ring);
+
+  /* controls carry no border: a dark outer ring and a faint inset highlight edge them (surface-control) */
+  --control-border: transparent;
+  --control-fill: #1e1e1e;
+  --control-fill-hover: #252525;
+  --control-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --solid-shadow:
+    0 4px 4px rgb(42 42 42 / 0.32), 0 0 0 1px #0e0e0e,
+    inset 0 4px 6px rgb(255 255 255 / 0.2),
+    inset 0 0 0 1px rgb(255 255 255 / 0.15),
+    inset 0 -8px 14px rgb(0 0 0 / 0.15);
+
+  --radius: 0.5rem;
+  /* the reference's one curve, so every duration-150 ease-out transition in the admin moves alike */
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 @theme inline {
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -571,10 +648,11 @@
 
 @utility surface-control {
   position: relative;
-  border: 1px solid var(--surface-border, var(--input));
+  border: 1px solid var(--surface-border, var(--control-border, var(--input)));
   background-color: var(--surface-fill, var(--background));
   background-clip: padding-box;
-  box-shadow: var(--surface-shadow, none);
+  /* --control-* are only set in the admin (:root.admin); the storefront's controls stay flat */
+  box-shadow: var(--surface-shadow, var(--control-shadow, none));
 
   /* A tap leaves :hover on the element until the next tap elsewhere, so hover only paints with a real pointer */
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
@@ -597,13 +675,19 @@
   @variant dark {
     background-color: var(
       --surface-fill,
-      color-mix(in oklab, var(--input) 32%, var(--background))
+      var(
+        --control-fill,
+        color-mix(in oklab, var(--input) 32%, var(--background))
+      )
     );
 
     &:where(button, a):not(:disabled, [aria-disabled="true"]) {
       --surface-control-hover: var(
         --surface-fill-hover,
-        color-mix(in oklab, var(--input) 64%, var(--background))
+        var(
+          --control-fill-hover,
+          color-mix(in oklab, var(--input) 64%, var(--background))
+        )
       );
     }
   }
@@ -656,6 +740,8 @@
   border: 1px solid var(--primary);
   background-color: var(--primary);
   color: var(--primary-foreground);
+  /* the admin's raised primary; unset, so flat, on the storefront */
+  box-shadow: var(--solid-shadow, none);
 
   &:where(button, a):not(:disabled, [aria-disabled="true"]) {
     &:active {

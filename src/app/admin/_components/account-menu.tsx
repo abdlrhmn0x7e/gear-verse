@@ -1,15 +1,11 @@
 "use client";
 
 import {
-  ComputerIcon,
   Logout03Icon,
-  Moon02Icon,
   Store01Icon,
-  Sun03Icon,
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 
 import { useSignOut } from "~/components/profile-dropdown";
@@ -19,12 +15,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
@@ -35,21 +25,11 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { authClient } from "~/lib/auth-client";
 
-const themes = [
-  { value: "light", label: "Light", icon: Sun03Icon },
-  { value: "dark", label: "Dark", icon: Moon02Icon },
-  { value: "system", label: "System", icon: ComputerIcon },
-] as const;
-
-/** The signed-in account: theme, the way back to the store, and sign out. */
+/** The signed-in account: the way back to the store, and sign out. The admin is always dark, so it has no theme switch. */
 export function AccountMenu() {
   const { data, isPending } = authClient.useSession();
-  const { theme, setTheme } = useTheme();
   const { setOpenMobile } = useSidebar();
   const { mutate: signOut, isPending: isSigningOut } = useSignOut();
-  const themeIcon = (
-    themes.find((option) => option.value === theme) ?? themes[2]
-  ).icon;
 
   if (isPending) {
     return (
@@ -103,27 +83,6 @@ export function AccountMenu() {
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" className="min-w-56">
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <HugeiconsIcon icon={themeIcon} strokeWidth={2} />
-              Theme
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                {themes.map((option) => (
-                  <DropdownMenuRadioItem
-                    key={option.value}
-                    value={option.value}
-                    closeOnClick
-                  >
-                    <HugeiconsIcon icon={option.icon} strokeWidth={2} />
-                    {option.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem
               render={<Link href="/" onClick={() => setOpenMobile(false)} />}
