@@ -68,6 +68,7 @@ import { getDirtyFields } from "~/lib/utils/get-dirty-fields";
 import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
 import { toast } from "~/components/ui/toast";
+import { generateSlug } from "~/lib/utils/slugs";
 import {
   Select,
   SelectContent,
@@ -182,6 +183,11 @@ export function ProductForm({
     },
   });
 
+  const title = useWatch({
+    control: form.control,
+    name: "title",
+    defaultValue: defaultValues?.title,
+  });
   const variants = useWatch({
     control: form.control,
     name: "variants",
@@ -693,7 +699,10 @@ export function ProductForm({
                   <FormItem>
                     <FormLabel>Page title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Sus product" {...field} />
+                      <Input
+                        placeholder={title || "Product title"}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -713,7 +722,11 @@ export function ProductForm({
                           </InputGroupText>
                         </InputGroupAddon>
                         <InputGroupInput
-                          placeholder="sussy-product"
+                          // an empty handler keeps a saved slug, and a new product gets one from its title
+                          placeholder={
+                            saved?.slug ??
+                            (generateSlug(title ?? "") || "product-url")
+                          }
                           className="pl-0.5"
                           {...field}
                         />
