@@ -451,8 +451,7 @@
   --solid-shadow:
     0 4px 4px rgb(42 42 42 / 0.32), 0 0 0 1px #0e0e0e,
     inset 0 4px 6px rgb(255 255 255 / 0.2),
-    inset 0 0 0 1px rgb(255 255 255 / 0.15),
-    inset 0 -8px 14px rgb(0 0 0 / 0.15);
+    inset 0 0 0 1px rgb(255 255 255 / 0.15), inset 0 -8px 14px rgb(0 0 0 / 0.15);
 
   --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
   --shadow-xl: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
@@ -763,22 +762,56 @@
 }
 
 /* The admin's header and toolbar controls at the reference's size: 30px tall, 12px labels, 9px padding, 14px icons. */
+/* Buttons are found by their variant and size attributes, which survive a trigger's own data-slot. */
 @utility admin-controls {
-  & [data-slot="button"]:not([data-size^="icon"]) {
+  & [data-variant][data-size]:not([data-size^="icon"]) {
     height: 30px;
     gap: 6px;
     padding-inline: 9px;
     font-size: 0.75rem;
   }
 
-  & [data-slot="button"][data-size^="icon"] {
+  & [data-variant][data-size^="icon"] {
     width: 30px;
     height: 30px;
   }
 
-  & [data-slot="button"] svg {
+  & [data-variant][data-size] svg {
     width: 14px;
     height: 14px;
+  }
+
+  /* the filter builder's chips as one segmented pill: quiet label, hairline dividers, the value in full weight */
+  & [data-slot="filter-chip"][role="group"] {
+    height: 30px;
+    border-radius: 9999px;
+    background-color: var(--control-fill);
+    box-shadow: var(--control-shadow);
+    font-size: 0.75rem;
+
+    & > * {
+      height: auto;
+      border: 0;
+      border-radius: 0;
+      background-color: transparent;
+      padding-inline: 9px;
+      font-size: inherit;
+    }
+
+    & > * + * {
+      border-inline-start: 1px solid rgb(255 255 255 / 0.08);
+    }
+
+    & > :first-child {
+      color: var(--muted-foreground);
+      font-weight: 400;
+    }
+
+    & > :last-child {
+      width: 30px;
+      padding-inline: 0;
+      border-radius: 0 9999px 9999px 0;
+    }
   }
 
   & [data-slot="input-group"] {
@@ -908,4 +941,38 @@ input:-webkit-autofill:active {
 
   /* Revert background color */
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* The admin's menus and pickers at the reference's density: 10px corners, 6px rows, 12px text. Unlayered, so it
+   outranks the components' own rounding and padding, and :root.admin keeps it out of the storefront. */
+:root.admin
+  :is(
+    [data-slot="dropdown-menu-content"],
+    [data-slot="dropdown-menu-sub-content"],
+    [data-slot="context-menu-content"],
+    [data-slot="context-menu-sub-content"],
+    [data-slot="select-content"],
+    [data-slot="combobox-content"]
+  ) {
+  border-radius: calc(var(--radius) + 2px);
+  padding: 4px;
+}
+
+:root.admin
+  :is(
+    [data-slot^="dropdown-menu-"]:is(
+      [data-slot$="-item"],
+      [data-slot$="-sub-trigger"]
+    ),
+    [data-slot^="context-menu-"]:is(
+      [data-slot$="-item"],
+      [data-slot$="-sub-trigger"]
+    ),
+    [data-slot="select-item"],
+    [data-slot="combobox-item"],
+    [data-slot="command-item"]
+  ) {
+  border-radius: calc(var(--radius) - 2px);
+  padding-block: 6px;
+  font-size: 0.75rem;
 }
