@@ -125,7 +125,11 @@ export const _categories = {
 
   mutations: {
     create(data: NewCategory) {
-      return db.insert(categories).values(data);
+      return db
+        .insert(categories)
+        .values(data)
+        .returning({ id: categories.id })
+        .then((result) => result[0]);
     },
 
     async update(id: number, data: UpdateCategory) {

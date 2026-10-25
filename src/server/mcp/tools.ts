@@ -11,6 +11,9 @@ import { brandsGetPageInputSchema } from "~/lib/schemas/contracts/admin/brands";
 import { mediaGetPageInputSchema } from "~/lib/schemas/contracts/admin/media";
 import { inventoryItemsGetPageInputSchema } from "~/lib/schemas/contracts/admin/inventory-items";
 import { AppError } from "~/lib/errors/app-error";
+import { createBrandInputSchema } from "~/lib/schemas/entities/brand";
+import { createCategoryInputSchema } from "~/lib/schemas/entities/category";
+import { deleteCategoryInputSchema } from "~/lib/schemas/contracts/admin/categories";
 import { _admin } from "~/server/application/admin";
 
 export interface McpTool {
@@ -255,5 +258,47 @@ export const tools: McpTool[] = [
       await _admin.products.mutations.editDeep(id, { published: true });
       return { id, published: true };
     },
+  }),
+
+  defineTool({
+    name: "create_brand",
+    title: "Create a brand",
+    description:
+      "Creates a brand for products to use as their brandId. Check list_brands first so it isn't a duplicate. Needs a logo: an image id from list_media or upload_images (logoMediaId). Returns the new brand's id.",
+    input: createBrandInputSchema,
+    annotations: write,
+    handler: (input) => _admin.brands.mutations.create(input),
+  }),
+
+  defineTool({
+    name: "delete_brand",
+    title: "Delete a brand",
+    description:
+      "Deletes a brand, by its id from list_brands. It's refused while any product uses the brand; move those products to another brand with update_product first. Only call this when the admin has asked for the brand to be deleted.",
+    input: z.object({
+      id: z.number().int().positive().describe("A brand id, from list_brands."),
+    }),
+    annotations: { ...write, destructiveHint: true },
+    handler: ({ id }) => _admin.brands.mutations.delete(id),
+  }),
+
+  defineTool({
+    name: "create_category",
+    title: "Create a category",
+    description:
+      "Creates a category for products to use as their categoryId. Check list_categories first so it isn't a duplicate. Set parent_id to a category id from list_categories to make it a sub-category; leave it out for a top-level one. icon picks the category's icon. The descriptions and Arabic name are optional. Returns the new category's id.",
+    input: createCategoryInputSchema,
+    annotations: write,
+    handler: (input) => _admin.categories.mutations.create(input),
+  }),
+
+  defineTool({
+    name: "delete_category",
+    title: "Delete a category",
+    description:
+      "Deletes a category, by its id from list_categories, together with all its sub-categories. It fails while the category or any of its sub-categories still has products; move them to another category with update_product first. Only call this when the admin has asked for the category to be deleted.",
+    input: deleteCategoryInputSchema,
+    annotations: { ...write, destructiveHint: true },
+    handler: (input) => _admin.categories.mutations.delete(input),
   }),
 ];
