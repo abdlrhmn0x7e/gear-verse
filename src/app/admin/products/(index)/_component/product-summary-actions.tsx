@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useDialog } from "~/hooks/use-dialog";
-import { cn } from "~/lib/utils";
 
 export function ProductSummaryActions({
   id,
@@ -77,22 +76,26 @@ export function ProductSummaryActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* drafts 404 on the store, so there is nothing to view yet */}
-      {published && (
-        <Button
-          variant="outline"
-          className="ms-auto max-sm:flex-1"
-          nativeButton={false}
-          render={<Link href={storePath} target="_blank" rel="noopener" />}
-        >
-          View on store
-          <ArrowUpRightIcon data-icon="inline-end" />
-        </Button>
-      )}
+      {/* drafts 404 on the store, so they open the admin-only preview instead */}
+      <Button
+        variant="outline"
+        className="ms-auto max-sm:flex-1"
+        nativeButton={false}
+        render={
+          <Link
+            href={published ? storePath : `${storePath}/preview`}
+            target="_blank"
+            rel="noopener"
+          />
+        }
+      >
+        {published ? "View on store" : "Preview on store"}
+        <ArrowUpRightIcon data-icon="inline-end" />
+      </Button>
 
       {/* on a phone the three don't fit one row, so Edit wraps to a full-width row of its own */}
       <Button
-        className={cn("max-sm:flex-1", !published && "ms-auto")}
+        className="max-sm:flex-1"
         nativeButton={false}
         render={<Link href={`/admin/products/${id}`} />}
       >
