@@ -2,5 +2,33 @@
   "metadata": {
     "title": "Returns & Refunds Policy",
     "description": "We refund products that arrive defective or damaged when you report the issue within 24 hours of opening."
+  },
+  "accept": {
+    "heading": "When we accept returns",
+    "body": "We accept a return and refund only when the product arrives with a manufacturing defect, is damaged, or has a problem caused by us.",
+    "qualify": "To qualify:",
+    "report": "Report the issue within 24 hours of opening the product.",
+    "evidence": "Send photos or videos showing the problem. We may ask for these to confirm it.",
+    "inspect": "Our team will inspect the product and verify the issue before we approve anything."
+  },
+  "approved": {
+    "heading": "What happens once we approve",
+    "collect": "We'll arrange to collect the product from you.",
+    "refund": "Your refund will be processed within 7 days of approval."
+  },
+  "declined": {
+    "heading": "When we can't accept a return",
+    "intro": "We can't accept a return or refund if:",
+    "noDefect": "The product was opened and our inspection finds no defect or issue.",
+    "misuse": "The problem was caused by misuse, mishandling, or accidental damage after delivery.",
+    "late": "You reported the issue after the 24-hour window."
+  },
+  "note": {
+    "heading": "Good to know",
+    "body": "We may decline any return that doesn't meet the conditions above. By placing an order, you agree to this policy."
+  },
+  "report": {
+    "heading": "How to report an issue",
+    "body": "Report it on WhatsApp at <number></number> within 24 hours of opening the product, with photos or videos showing the problem."
   }
 }
