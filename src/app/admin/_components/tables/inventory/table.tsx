@@ -1,12 +1,12 @@
 "use client";
 
 import type { ForwardedRef } from "react";
-import { inventoryColumns, type InventoryRow } from "./columns";
+import { inventoryColumns, type InventoryNode } from "./columns";
 import { ListGrid, useListTable } from "../list-grid";
 
 /**
- * The stock grid. It edits through the surrounding inventory form, whose rows
- * are these rows in the same order.
+ * The stock grid, a row per product with its variants nested under it. It
+ * edits through the surrounding inventory form, whose rows are the item nodes.
  */
 export function InventoryTable({
   data,
@@ -15,7 +15,7 @@ export function InventoryTable({
   loadMoreRef,
   searched,
 }: {
-  data: InventoryRow[];
+  data: InventoryNode[];
   isFetching: boolean;
   hasNextPage: boolean;
   loadMoreRef: ForwardedRef<HTMLDivElement>;
@@ -24,7 +24,10 @@ export function InventoryTable({
   const table = useListTable({
     data,
     columns: inventoryColumns,
-    getRowId: (row) => row.id.toString(),
+    getRowId: (node) => node.key,
+    getSubRows: (node) => (node.kind === "group" ? node.variants : undefined),
+    // open groups stay open as pages load and after a save's refetch
+    autoResetExpanded: false,
   });
 
   return (
@@ -33,6 +36,11 @@ export function InventoryTable({
       isFetching={isFetching}
       hasNextPage={hasNextPage}
       loadMoreRef={loadMoreRef}
+      onRowClick={(node) => {
+        if (node.kind === "group") table.getRow(node.key).toggleExpanded();
+      }}
+      // only a group row does anything on click
+      className="[&_tbody_tr:not(:has(button[aria-expanded]))]:cursor-auto"
       empty={
         searched
           ? {
