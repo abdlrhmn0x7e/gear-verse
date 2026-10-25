@@ -63,7 +63,7 @@ export function BrandFilterItem({
         alt=""
         width={48}
         height={48}
-        className="size-6 rounded-full border-none bg-white [&_img]:object-contain"
+        className="size-6 rounded-full border-none bg-white"
       />
       <bdi>{brand.name}</bdi>
     </FilterChip>

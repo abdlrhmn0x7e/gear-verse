@@ -191,7 +191,7 @@ export async function ProductDetails({
                     alt=""
                     width={48}
                     height={48}
-                    className="size-6 rounded-full border-none bg-white [&_img]:object-contain"
+                    className="size-6 rounded-full border-none bg-white"
                   />
                   <bdi>{product.brand.name}</bdi>
                 </div>
