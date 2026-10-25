@@ -12,8 +12,8 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import ts from "typescript";
 
-const ROOTS = ["src/app/(public)", "src/components"];
-const FILES = ["src/app/global-error.tsx", "src/app/not-found.tsx"];
+const ROOTS = ["src/app/[locale]", "src/components"];
+const FILES = ["src/app/global-error.tsx", "src/app/global-not-found.tsx"];
 
 const SIDE: Record<string, string> = { l: "s", r: "e" };
 const CORNER: Record<string, string> = {
@@ -98,6 +98,8 @@ function rewriteToken(token: string, literal: string): [string, string] | null {
   const m = /^(!?)(-?)(.*?)(!?)$/.exec(token.slice(split + 1))!;
   const [, bang, neg, utility, trailingBang] = m;
   if (!utility || utility.includes("safe-area-inset")) return null; // device insets are physical
+  // a class already scoped to one direction is physical on purpose
+  if (/(^|:)(rtl|ltr):/.test(variants)) return null;
   if (CENTER_VALUE.test(utility) && CENTERING.test(literal)) return null;
   for (const rule of RULES) {
     const match = rule.pattern.exec(utility);
@@ -186,6 +188,10 @@ function selfCheck() {
     [
       `"pointer-coarse:after:left-1/2 pointer-coarse:after:-translate-1/2"`,
       `"pointer-coarse:after:left-1/2 pointer-coarse:after:-translate-1/2"`,
+    ],
+    [
+      `"rtl:text-right sm:rtl:text-left ltr:ml-2"`,
+      `"rtl:text-right sm:rtl:text-left ltr:ml-2"`,
     ],
     [
       `"pl-[env(safe-area-inset-left)] left-panel pl-PL right"`,
