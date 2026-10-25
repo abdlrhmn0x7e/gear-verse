@@ -23,7 +23,6 @@ import { Skeleton } from "~/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -335,60 +334,45 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <TooltipProvider delay={0}>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <button
-              data-sidebar="rail"
-              data-slot="sidebar-rail"
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              tabIndex={-1}
-              onClick={toggleSidebar}
-              onPointerEnter={() => setHovered(true)}
-              onPointerLeave={() => setHovered(false)}
-              className={cn(
-                "group/rail absolute start-0 top-1/2 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
-                className,
-              )}
-              {...props}
-            />
-          }
-        >
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            className={cn(
-              "text-border transition-colors duration-150",
-              hovered && "text-foreground/60",
-            )}
-          >
-            <LazyMotion features={domAnimation} strict>
-              {/* Starts at its target, so no frame renders before `d` has a value. */}
-              <m.path
-                initial={false}
-                animate={{ d: `M8 2 L${tip} 8 L8 14` }}
-                transition={reduceMotion ? { duration: 0 } : RAIL_SPRING}
-                stroke="currentColor"
-                strokeWidth={3}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </LazyMotion>
-          </svg>
-        </TooltipTrigger>
-        <TooltipContent
-          side="right"
-          sideOffset={2}
-          className="rounded-lg px-2 py-1"
-        >
-          {collapsed ? "Expand" : "Collapse"}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <button
+      data-sidebar="rail"
+      data-slot="sidebar-rail"
+      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      tabIndex={-1}
+      onClick={toggleSidebar}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      className={cn(
+        "group/rail absolute start-0 top-1/2 z-20 hidden h-10 w-4 -translate-y-1/2 cursor-pointer items-center justify-center outline-none md:flex",
+        className,
+      )}
+      {...props}
+    >
+      <svg
+        aria-hidden="true"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        className={cn(
+          "text-border transition-colors duration-150",
+          hovered && "text-foreground/60",
+        )}
+      >
+        <LazyMotion features={domAnimation} strict>
+          {/* Starts at its target, so no frame renders before `d` has a value. */}
+          <m.path
+            initial={false}
+            animate={{ d: `M8 2 L${tip} 8 L8 14` }}
+            transition={reduceMotion ? { duration: 0 } : RAIL_SPRING}
+            stroke="currentColor"
+            strokeWidth={3}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </LazyMotion>
+      </svg>
+    </button>
   );
 }
 
