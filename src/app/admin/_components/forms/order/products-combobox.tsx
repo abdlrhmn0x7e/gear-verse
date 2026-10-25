@@ -20,16 +20,13 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { useDebounce } from "~/hooks/use-debounce";
-import { useTRPC, type RouterOutput } from "~/trpc/client";
+import { useTRPC } from "~/trpc/client";
 import { Badge } from "~/components/ui/badge";
 
 type ProductComboboxValue = {
   id: number;
   variantId: number | null;
 };
-
-type InventoryItem =
-  RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"][number];
 
 /** What the trigger shows for an item */
 export type ProductOption = {
@@ -39,6 +36,8 @@ export type ProductOption = {
   thumbnailUrl: string | null;
   values: string[];
 };
+
+type InventoryItem = ProductOption & { id: number; quantity: number };
 
 export function ProductsCombobox({
   value,
@@ -87,8 +86,18 @@ export function ProductsCombobox({
       },
     ),
   );
-  const inventoryItemsData = useMemo(
-    () => items?.pages.flatMap((page) => page.data) ?? [],
+  // the inventory pages by product; an order line is one of its items
+  const inventoryItemsData = useMemo<InventoryItem[]>(
+    () =>
+      items?.pages.flatMap((page) =>
+        page.data.flatMap((product) =>
+          product.items.map((item) => ({
+            ...item,
+            productId: product.id,
+            title: product.title,
+          })),
+        ),
+      ) ?? [],
     [items],
   );
 
@@ -147,7 +156,7 @@ export function ProductsCombobox({
   }
 
   function handleValueChange(value: ProductComboboxValue, item: InventoryItem) {
-    setPicked({ ...item, productVariantId: item.productVariantId ?? null });
+    setPicked(item);
     onValueChange(value);
 
     setOpen(false);
@@ -196,7 +205,7 @@ export function ProductsCommand({
   value,
   ref,
 }: {
-  items: RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"];
+  items: InventoryItem[];
   search: string;
   setSearch: (search: string) => void;
   value: ProductComboboxValue;

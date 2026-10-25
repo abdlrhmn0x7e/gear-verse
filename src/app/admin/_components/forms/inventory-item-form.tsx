@@ -10,7 +10,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateManyInventoryItemsInputSchema } from "~/lib/schemas/entities/inventory-item";
 import type z from "zod";
-import type { RouterOutput } from "~/trpc/client";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { SaveBar } from "../save-bar";
 
@@ -19,8 +18,7 @@ const FORM_ID = "inventory-form";
 const inventoryItemFormSchema = updateManyInventoryItemsInputSchema;
 export type InventoryItemFormValues = z.infer<typeof inventoryItemFormSchema>;
 
-type InventoryRows =
-  RouterOutput["admin"]["inventoryItems"]["queries"]["getPage"]["data"];
+type InventoryRows = { id: number; quantity: number }[];
 
 function toFormValues(rows: InventoryRows): InventoryItemFormValues {
   return {
@@ -32,10 +30,11 @@ function toFormValues(rows: InventoryRows): InventoryItemFormValues {
 }
 
 /**
- * Stock edits for the loaded inventory rows. Its rows follow `values` in order,
- * so the grid inside (`children`) can address a row by its index. Saving sends
- * only the rows that changed, so stock moved by an order in the meantime is
- * left alone everywhere else.
+ * Stock edits for the loaded inventory items. Its rows follow `values` in
+ * order, so the grid inside (`children`) can address an item by its index in
+ * `values`, however the grid nests them. Saving sends only the rows that
+ * changed, so stock moved by an order in the meantime is left alone
+ * everywhere else.
  */
 export function InventoryItemForm({
   onSubmit,
@@ -65,7 +64,10 @@ export function InventoryItemForm({
     const saved = savedRef.current;
     const edits = new Map<number, number | undefined>();
 
+    // The new rows' cells register before this runs; an item with no cell on
+    // screen (inside a collapsed group) leaves a hole in the array until then.
     for (const row of form.getValues("inventory") ?? []) {
+      if (!row) continue;
       if (saved.has(row.id) && row.quantity !== saved.get(row.id)) {
         edits.set(row.id, row.quantity);
       }
