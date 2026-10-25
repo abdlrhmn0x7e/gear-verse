@@ -127,7 +127,7 @@ export function ProductVariantSelector({
         <span className="font-medium">{optionName}</span>
         <span className="text-muted-foreground">
           {" "}
-          · {selectedValues[index]}
+          · <span dir="auto">{selectedValues[index]}</span>
         </span>
       </legend>
       {index === 0 ? (
@@ -151,7 +151,7 @@ export function ProductVariantSelector({
               onClick={() => handleOptionValueSelect(optionName, value)}
               key={`value-button-${value}`}
             >
-              {value}
+              <span dir="auto">{value}</span>
             </Button>
           ))}
         </div>
@@ -178,8 +178,9 @@ function PrimaryOptionValueButton({
   return (
     <div className="flex flex-wrap gap-3">
       {parsedValues.map((value) => (
+        // a fixed width, so a long value wraps under its own tile instead of widening it
         <div
-          className="flex flex-col items-center gap-1.5"
+          className="flex w-20 flex-col items-center gap-1.5"
           key={`option-value-fragment-${value}`}
         >
           <button
@@ -203,7 +204,12 @@ function PrimaryOptionValueButton({
               height={128}
             />
           </button>
-          <span aria-hidden className="text-muted-foreground text-xs">
+          {/* dir="auto" keeps a Latin value like "4 Pairs SS" in its own order on the Arabic page */}
+          <span
+            aria-hidden
+            dir="auto"
+            className="text-muted-foreground line-clamp-2 w-full text-center text-xs"
+          >
             {value}
           </span>
         </div>
