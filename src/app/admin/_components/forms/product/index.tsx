@@ -258,7 +258,7 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="e.g. SIMGOT EW300 IEM" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,7 +272,11 @@ export function ProductForm({
                   <FormItem className="space-y-2">
                     <FormLabel>Summary</FormLabel>
                     <FormControl>
-                      <Textarea className="h-24" {...field} />
+                      <Textarea
+                        className="h-24"
+                        placeholder="One or two lines shoppers see under the title"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
