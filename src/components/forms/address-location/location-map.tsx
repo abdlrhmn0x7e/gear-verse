@@ -2,6 +2,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { STREET_ZOOM, type Coordinates, type MapFocus } from "./types";
@@ -49,6 +50,7 @@ export default function LocationMap({
   focus: MapFocus | null;
   onPinChange: (coordinates: Coordinates) => void;
 }) {
+  const t = useTranslations("checkout.location");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
@@ -157,8 +159,7 @@ export default function LocationMap({
   if (failed) {
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm text-balance">
-        The map can&apos;t load in this browser. Use your current location or
-        type the address below.
+        {t("noWebGL")}
       </div>
     );
   }
@@ -169,7 +170,7 @@ export default function LocationMap({
     <div
       ref={containerRef}
       role="application"
-      aria-label="Map. Tap to drop the delivery pin, then drag it to adjust."
+      aria-label={t("mapLabel")}
       className="size-full"
     />
   );

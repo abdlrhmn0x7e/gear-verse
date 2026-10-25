@@ -53,6 +53,8 @@ export function ProfileDropdown({ className }: { className?: string }) {
   const { setTheme, theme } = useTheme();
   const { data, isPending: isPendingSession } = authClient.useSession();
   const { mutate: signOut, isPending: isSigningOut } = useSignOut();
+  const t = useTranslations("nav");
+  const tAuth = useTranslations("auth");
 
   // login anonymously if the user is not authenticated
   useEffect(() => {
@@ -125,30 +127,30 @@ export function ProfileDropdown({ className }: { className?: string }) {
           <DropdownMenuSubTrigger>
             <SunIcon className="text-muted-foreground me-1 size-4 h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
             <MoonIcon className="text-muted-foreground absolute me-1 size-4 h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-            Theme
+            {t("theme.label")}
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => setTheme("light")}>
               {theme === "light" ? <CheckIcon /> : <SunIcon />}
-              Light
+              {t("theme.light")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setTheme("dark")}>
               {theme === "dark" ? <CheckIcon /> : <MoonIcon />}
-              Dark
+              {t("theme.dark")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setTheme("system")}>
               {theme === "system" ? <CheckIcon /> : <MonitorIcon />}
-              System
+              {t("theme.system")}
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuItem render={<Link href="/orders" />}>
           <PackageOpenIcon />
-          Orders
+          {tAuth("orders")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOutIcon />
-          Sign out
+          {t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

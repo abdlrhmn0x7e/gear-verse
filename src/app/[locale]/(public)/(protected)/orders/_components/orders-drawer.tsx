@@ -17,7 +17,7 @@ import { useTRPC } from "~/trpc/client";
 import { OrderDetails } from "../../_components/order-details";
 import { OrderStatusLabel } from "../../_components/order-status";
 import { useOrderDrawer } from "../_hooks/use-orders-search-params";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export function OrdersDrawer({
   whatsappNumber,
@@ -26,6 +26,7 @@ export function OrdersDrawer({
   whatsappNumber: string | null;
 }) {
   const locale = useLocale();
+  const t = useTranslations("orders");
   const trpc = useTRPC();
   const drawer = useOrderDrawer();
   // the drawer keeps showing the last order while it slides out after the param clears
@@ -64,7 +65,9 @@ export function OrdersDrawer({
     >
       <DrawerContent className="data-[swipe-direction=down]:max-h-[min(92svh,calc(var(--drawer-visible-height,100svh)-1.5rem))] data-[swipe-direction=right]:sm:max-w-xl">
         <DrawerHeader className="gap-1 px-3 pt-3 pb-4 text-start group-data-[swipe-direction=down]/drawer-content:text-start">
-          <DrawerTitle className="text-title">Order #{shownId}</DrawerTitle>
+          <DrawerTitle className="text-title">
+            {t("orderNumber", { id: String(shownId) })}
+          </DrawerTitle>
           <DrawerDescription
             render={
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1" />
@@ -72,16 +75,18 @@ export function OrdersDrawer({
           >
             {order ? (
               <>
-                <span>Placed {formatDate(order.createdAt, locale)}</span>
+                <span>
+                  {t("placed", { date: formatDate(order.createdAt, locale) })}
+                </span>
                 <OrderStatusLabel
                   status={order.status}
                   className="text-foreground"
                 />
               </>
             ) : isError ? (
-              "We couldn't load this order."
+              t("drawer.loadError")
             ) : (
-              <span className="sr-only">Loading the order…</span>
+              <span className="sr-only">{t("drawer.loading")}</span>
             )}
           </DrawerDescription>
         </DrawerHeader>
@@ -97,8 +102,7 @@ export function OrdersDrawer({
             </div>
           ) : isError ? (
             <p className="text-muted-foreground px-2 text-sm text-pretty">
-              It may belong to another account, or the link is out of date.
-              Close this and pick an order from your list.
+              {t("drawer.loadErrorHint")}
             </p>
           ) : null}
         </DrawerBody>

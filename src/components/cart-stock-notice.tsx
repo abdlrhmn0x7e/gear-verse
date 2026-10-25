@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MinusIcon, Trash2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "~/i18n/navigation";
 import { useState } from "react";
 import { toast } from "~/components/ui/toast";
@@ -27,6 +28,7 @@ export function CartStockNotice({
   };
   className?: string;
 }) {
+  const t = useTranslations("cart.stock");
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -43,13 +45,14 @@ export function CartStockNotice({
   if (issue === "backorder") {
     return (
       <p className={cn("text-muted-foreground text-sm text-pretty", className)}>
-        <span className="text-foreground font-medium">
-          {stock > 0
-            ? `${stock} in stock, ${item.quantity - stock} on backorder`
-            : "On backorder"}
-        </span>
-        . About {BACKORDER_LEAD_DAYS} days on average after we confirm on
-        WhatsApp.
+        {t.rich(stock > 0 ? "backorderPartial" : "backorderAll", {
+          stock,
+          backorder: item.quantity - stock,
+          days: BACKORDER_LEAD_DAYS,
+          strong: (chunks) => (
+            <span className="text-foreground font-medium">{chunks}</span>
+          ),
+        })}
       </p>
     );
   }
@@ -65,7 +68,7 @@ export function CartStockNotice({
         });
       }
     } catch {
-      toast.error("We couldn't update your cart. Please try again.");
+      toast.error(t("fixError"));
     } finally {
       await queryClient.invalidateQueries({
         queryKey: trpc.public.carts.queries.find.queryKey(),
@@ -82,7 +85,7 @@ export function CartStockNotice({
       className={cn("flex flex-wrap items-center gap-x-3 gap-y-1", className)}
     >
       <p className="text-destructive text-sm font-medium">
-        {issue === "out" ? "Out of stock" : `Only ${stock} left`}
+        {issue === "out" ? t("out") : t("short", { stock })}
       </p>
       <Button
         type="button"
@@ -96,7 +99,7 @@ export function CartStockNotice({
         ) : (
           <Icon data-icon="inline-start" />
         )}
-        {issue === "out" ? "Remove" : `Change to ${stock}`}
+        {issue === "out" ? t("remove") : t("changeTo", { stock })}
       </Button>
     </div>
   );

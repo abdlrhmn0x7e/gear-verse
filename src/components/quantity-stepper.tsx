@@ -1,4 +1,5 @@
 import { MinusIcon, PlusIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
 
@@ -20,10 +21,12 @@ export function QuantityStepper({
   pending?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("cart.quantity");
+
   return (
     <div
       role="group"
-      aria-label={`Quantity of ${itemLabel}`}
+      aria-label={t("group", { item: itemLabel })}
       className={cn(
         "surface-control inline-flex h-9 items-center rounded-full p-0.5",
         className,
@@ -34,7 +37,11 @@ export function QuantityStepper({
         size="icon-sm"
         onClick={onDecrement}
         disabled={pending}
-        aria-label={quantity === 1 ? `Remove ${itemLabel}` : `Decrease quantity of ${itemLabel}`}
+        aria-label={
+          quantity === 1
+            ? t("remove", { item: itemLabel })
+            : t("decrease", { item: itemLabel })
+        }
       >
         <MinusIcon />
       </Button>
@@ -49,7 +56,7 @@ export function QuantityStepper({
         size="icon-sm"
         onClick={onIncrement}
         disabled={pending || !canIncrement}
-        aria-label={`Increase quantity of ${itemLabel}`}
+        aria-label={t("increase", { item: itemLabel })}
       >
         <PlusIcon />
       </Button>
