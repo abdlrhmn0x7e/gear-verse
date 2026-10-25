@@ -151,7 +151,12 @@ export const usersColumns: ListColumn<UserRow>[] = [
   {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
-    cell: ({ row }) => <UsersTableActions user={row.original} />,
+    cell: ({ row }) => (
+      // the menu and its dialogs portal out, but React still bubbles their clicks to the row, which opens the orders drawer
+      <div onClick={(event) => event.stopPropagation()}>
+        <UsersTableActions user={row.original} />
+      </div>
+    ),
     meta: { headerTitle: "Actions", cellClassName: "text-right" },
   },
 ];
