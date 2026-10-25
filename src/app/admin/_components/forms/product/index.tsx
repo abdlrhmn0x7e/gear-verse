@@ -69,6 +69,7 @@ import { AttributeCombobox } from "../../inputs/attributes-combobox";
 import { getDiscountPercentage } from "~/components/features/products/product-card";
 import { toast } from "~/components/ui/toast";
 import { generateSlug } from "~/lib/utils/slugs";
+import { Badge } from "~/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -331,7 +332,11 @@ export function ProductForm({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <CardTitle>Arabic</CardTitle>
-                <ArabicStatusBadge status={saved?.arabicStatus ?? "missing"} />
+                {saved ? (
+                  <ArabicStatusBadge status={saved.arabicStatus} />
+                ) : (
+                  <Badge variant="outline">Optional</Badge>
+                )}
               </div>
               <CardDescription>
                 Shown on the Arabic site. Empty fields show the English instead.
