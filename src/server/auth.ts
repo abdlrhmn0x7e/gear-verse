@@ -103,7 +103,8 @@ export const auth = betterAuth({
 
       disableDeleteAnonymousUser: true,
     }),
-    jwt(),
+    // otherwise every session check signs a JWT nobody reads, a JWKS query on each page view
+    jwt({ disableSettingJwtHeader: true }),
     mcp({
       resource: mcpResource,
       scopes: ["openid", "profile", "email", "offline_access", "catalog"],
