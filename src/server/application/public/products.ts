@@ -11,9 +11,12 @@ export const _products = {
       return paginate({ input, getPage: data.public.products.queries.getPage });
     },
 
-    findBySlug: async (slug: string, locale: Locale) => {
+    findBySlug: async (slug: string, locale: Locale, includeDrafts = false) => {
       const { data: product, error } = await tryCatch(
-        data.public.products.queries.findBySlug(slug, { locale }),
+        data.public.products.queries.findBySlug(slug, {
+          includeDrafts,
+          locale,
+        }),
       );
       if (error) {
         console.error("Error getting product by slug:", error);

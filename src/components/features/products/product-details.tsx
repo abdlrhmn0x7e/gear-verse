@@ -1,5 +1,6 @@
 import {
   AwardIcon,
+  EyeIcon,
   PackageIcon,
   Undo2Icon,
   type LucideIcon,
@@ -12,6 +13,7 @@ import { Fragment, Suspense, type JSX, type ReactNode } from "react";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { WhatsAppNumberLink } from "~/components/whatsapp-number-link";
 import { ImageWithFallback } from "~/components/image-with-fallback";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { ProductDescription } from "~/components/product-description";
 import {
@@ -103,19 +105,19 @@ export async function ProductDetails({
   slug,
   className,
   Reviews,
-  hideActions,
+  preview,
 }: {
   slug: string;
   className?: string;
   Reviews?: (props: { productId: number }) => JSX.Element;
-  /** admin preview: no buying, breadcrumb or related products */
-  hideActions?: boolean;
+  /** The admin preview: drafts render too, without the buying controls. */
+  preview?: boolean;
 }) {
   "use cache";
 
   const locale = await getLocale();
   const { data: product, error } = await tryCatch(
-    app.public.products.queries.findBySlug(slug, locale),
+    app.public.products.queries.findBySlug(slug, locale, preview),
   );
   if (error) {
     return notFound();
@@ -142,38 +144,49 @@ export async function ProductDetails({
       <MaxWidthWrapper
         className={cn("@container flex flex-col gap-8", className)}
       >
-        {!hideActions && (
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink render={<Link href="/products" />}>
-                  {t("breadcrumbStore")}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {/* the whole path, root first, not just the leaf category */}
-              {categoryPath.map((node) => (
-                <Fragment key={node.id}>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      render={<Link href={`/categories/${node.slug}`} />}
-                    >
-                      <bdi {...localizedCopyProps(locale, node.fallback?.name)}>
-                        {node.name}
-                      </bdi>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                </Fragment>
-              ))}
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="min-w-0">
-                <BreadcrumbPage dir="auto" className="truncate">
-                  {product.title}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        {preview && (
+          <Alert role="note">
+            <EyeIcon />
+            <AlertTitle>Preview. Only admins can see this page.</AlertTitle>
+            {!product.published && (
+              <AlertDescription>
+                This product is a draft. Customers can&apos;t see it until you
+                publish it.
+              </AlertDescription>
+            )}
+          </Alert>
         )}
+
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/products" />}>
+                {t("breadcrumbStore")}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            {/* the whole path, root first, not just the leaf category */}
+            {categoryPath.map((node) => (
+              <Fragment key={node.id}>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    render={<Link href={`/categories/${node.slug}`} />}
+                  >
+                    <bdi {...localizedCopyProps(locale, node.fallback?.name)}>
+                      {node.name}
+                    </bdi>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </Fragment>
+            ))}
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage dir="auto" className="truncate">
+                {product.title}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="grid gap-10 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] @4xl:gap-16">
           <ProductGallery
@@ -236,10 +249,10 @@ export async function ProductDetails({
               hasVariants={hasVariants}
               price={product.price}
               strikeThroughPrice={product.strikeThroughPrice}
-              showActions={!hideActions}
+              showActions={!preview}
             />
 
-            {!hideActions && whatsappNumber && (
+            {!preview && whatsappNumber && (
               <p className="text-muted-foreground -mt-4 px-1 text-sm text-pretty">
                 {t.rich("details.questions", {
                   link: () => (
@@ -321,12 +334,7 @@ export async function ProductDetails({
           </div>
         )}
 
-        {!hideActions && (
-          <RelatedProducts
-            productId={product.id}
-            categorySlug={category?.slug}
-          />
-        )}
+        <RelatedProducts productId={product.id} categorySlug={category?.slug} />
       </MaxWidthWrapper>
     </VariantSelectionStoreProvider>
   );
