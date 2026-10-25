@@ -5,36 +5,66 @@ import { useEffect, useRef, useState } from "react";
 import { ImageWithFallback } from "~/components/image-with-fallback";
 import { cn } from "~/lib/utils";
 import { useVariantSelectionStore } from "~/stores/variant-selection/provider";
+import type { StoredVariant } from "~/stores/variant-selection/store";
+
+function scrollToPhoto(
+  scroller: HTMLUListElement | null,
+  strip: HTMLUListElement | null,
+  index: number,
+) {
+  if (!scroller) return;
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "instant"
+    : "smooth";
+  const inline = getComputedStyle(scroller).direction === "rtl" ? -1 : 1;
+  scroller.scrollTo({ left: inline * index * scroller.clientWidth, behavior });
+
+  // centres the thumbnail by scrolling the strip alone; scrollIntoView would scroll the page too
+  const thumb = strip?.children[index];
+  if (!strip || !thumb) return;
+  const stripBox = strip.getBoundingClientRect();
+  const thumbBox = thumb.getBoundingClientRect();
+  strip.scrollBy({
+    left:
+      thumbBox.left + thumbBox.width / 2 - (stripBox.left + stripBox.width / 2),
+    behavior,
+  });
+}
 
 export function ProductGallery({
   media,
+  variantPhotos,
   title,
-  variantCount,
 }: {
   media: string[];
+  variantPhotos: string[];
   title: string;
-  variantCount: number;
 }) {
   const t = useTranslations("products.gallery");
   const selectedVariant = useVariantSelectionStore(
     (store) => store.selectedVariant,
   );
-  const photos = (
-    selectedVariant?.thumbnailUrl && variantCount > 1
-      ? [selectedVariant.thumbnailUrl, ...media]
-      : media
-  ).filter(Boolean);
+  // every variant's photo first, so the default variant opens the gallery, then the product's own; shared photos show once
+  const photos = [...new Set([...variantPhotos, ...media].filter(Boolean))];
+  const variantIndex = selectedVariant
+    ? photos.indexOf(selectedVariant.thumbnailUrl)
+    : -1;
 
-  // the selection is tied to the photo set it was made for, so a variant change starts at its own photo
-  const photosKey = photos.join("|");
-  const [selection, setSelection] = useState({ key: photosKey, index: 0 });
-  const activeIndex = selection.key === photosKey ? selection.index : 0;
+  // picking a variant moves the gallery to its photo; a swipe or a thumbnail then holds until the next pick
+  const [pick, setPick] = useState<{
+    variant: StoredVariant | null;
+    index: number;
+  }>({ variant: null, index: 0 });
+  const activeIndex =
+    pick.variant === selectedVariant ? pick.index : Math.max(variantIndex, 0);
 
   const scrollerRef = useRef<HTMLUListElement>(null);
+  const stripRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    scrollerRef.current?.scrollTo({ left: 0 });
-  }, [photosKey]);
+    if (!selectedVariant || variantIndex < 0) return;
+    scrollToPhoto(scrollerRef.current, stripRef.current, variantIndex);
+  }, [selectedVariant, variantIndex]);
 
   // the photos swipe; the thumbnails follow whichever one the scroller settles on
   function handleScroll(event: React.UIEvent<HTMLUListElement>) {
@@ -43,26 +73,18 @@ export function ProductGallery({
     // RTL scrolls from 0 into negative scrollLeft
     const index = Math.round(Math.abs(scrollLeft) / clientWidth);
     if (index !== activeIndex && index >= 0 && index < photos.length) {
-      setSelection({ key: photosKey, index });
+      setPick({ variant: selectedVariant, index });
     }
   }
 
   function showPhoto(index: number) {
-    setSelection({ key: photosKey, index });
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const inline = getComputedStyle(scroller).direction === "rtl" ? -1 : 1;
-    scroller.scrollTo({
-      left: inline * index * scroller.clientWidth,
-      behavior: reduceMotion ? "instant" : "smooth",
-    });
+    setPick({ variant: selectedVariant, index });
+    scrollToPhoto(scrollerRef.current, stripRef.current, index);
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    // min-w-0, or the thumbnail strip's full width sets the width of the page's one-column grid on phones
+    <div className="flex min-w-0 flex-col gap-4">
       <ul
         ref={scrollerRef}
         onScroll={handleScroll}
@@ -97,6 +119,7 @@ export function ProductGallery({
 
       {photos.length > 1 && (
         <ul
+          ref={stripRef}
           aria-label={t("thumbnails")}
           className="no-scrollbar -mx-1.5 flex gap-3 overflow-x-auto p-1.5"
         >
