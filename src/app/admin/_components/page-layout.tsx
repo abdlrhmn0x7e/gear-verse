@@ -100,7 +100,7 @@ export function PageLayout({
             >
               <Link
                 href={parent.href}
-                className="text-muted-foreground hover:text-foreground truncate text-base font-medium transition-colors duration-150 ease-out max-sm:hidden"
+                className="text-muted-foreground hover:text-foreground max-w-56 truncate text-base font-medium transition-colors duration-150 ease-out max-sm:hidden"
               >
                 {parent.title}
               </Link>

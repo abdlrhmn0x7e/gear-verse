@@ -206,7 +206,8 @@ export function ListGrid<Row extends object>({
 /** The stats bar under a page's list: equal cells split by hairlines. */
 function ListStats({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-border grid shrink-0 auto-cols-fr grid-flow-col gap-px border-t">
+    // never narrower than its words: on a phone the bar scrolls sideways rather than cutting them off
+    <div className="bg-border no-scrollbar grid shrink-0 auto-cols-[minmax(max-content,1fr)] grid-flow-col gap-px overflow-x-auto border-t">
       {children}
     </div>
   );
