@@ -1,7 +1,9 @@
-import { TriangleAlertIcon } from "lucide-react";
+import { ArrowUpRightIcon, TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditProduct } from "./_components/edit-product";
 import { api } from "~/trpc/server";
+import { Button } from "~/components/ui/button";
 import { requireAdmin } from "~/server/auth";
 import { tryCatch } from "~/lib/utils/try-catch";
 import { AppError } from "~/lib/errors/app-error";
@@ -52,6 +54,23 @@ export default async function EditProductPage({
       }
       description="Let's get this product looking good alright?"
       parent={{ title: "Products", href: "/admin/products" }}
+      actions={
+        // the last saved state, drafts included
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={
+            <Link
+              href={`/products/${product.slug}/preview`}
+              target="_blank"
+              rel="noopener"
+            />
+          }
+        >
+          Preview in store
+          <ArrowUpRightIcon data-icon="inline-end" />
+        </Button>
+      }
       contentWidth="reading"
     >
       <div className="bg-primary/80 fixed inset-x-0 top-0 z-50 border-b px-2 py-2 sm:hidden">
