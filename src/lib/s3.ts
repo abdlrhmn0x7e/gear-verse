@@ -42,6 +42,27 @@ async function s3GetPresignedUrl({
   };
 }
 
+/** Uploads a file the server already holds, for media that doesn't come from an admin's browser. */
+async function s3PutObject({
+  key,
+  body,
+  mimeType,
+}: {
+  key: string;
+  body: Uint8Array;
+  mimeType: string;
+}) {
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+      Body: body,
+      ContentType: mimeType,
+    }),
+  );
+  return s3GetPublicUrl(key);
+}
+
 function s3GetPublicUrl(key: string) {
   return `https://${env.AWS_S3_BUCKET_NAME}.s3.${env.AWS_S3_REGION}.amazonaws.com/${key}`;
 }
@@ -66,4 +87,4 @@ function s3IsPublicUrl(url: string) {
   );
 }
 
-export { s3, s3GetPresignedUrl, s3GetPublicUrl, s3IsPublicUrl };
+export { s3, s3GetPresignedUrl, s3GetPublicUrl, s3IsPublicUrl, s3PutObject };
