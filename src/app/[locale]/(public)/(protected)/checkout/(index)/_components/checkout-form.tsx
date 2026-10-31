@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import {
   Field,
@@ -30,8 +30,17 @@ import { AddressForm } from "~/components/forms/address-form";
 import { useLocale, useTranslations } from "next-intl";
 import { SHIPPING_RATES } from "~/lib/shipping-rates";
 import { formatCurrency } from "~/lib/utils/format-currency";
+import { useEffect } from "react";
+import { useShippingGovernorate } from "./shipping-fee";
+import type { AddressGovernoratesEnum } from "~/lib/schemas/entities/address";
 
 const checkoutFormSchema = checkoutInputSchema;
+
+function setShippingGovernorate(
+  governorate: AddressGovernoratesEnum | undefined,
+) {
+  useShippingGovernorate.setState({ governorate: governorate ?? null });
+}
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
 export function CheckoutForm({
@@ -61,6 +70,15 @@ export function CheckoutForm({
       };
     },
   });
+
+  const addressId = useWatch({ control: form.control, name: "addressId" });
+  const selectedGovernorate = addresses?.find(
+    (address) => address.id === addressId,
+  )?.governorate;
+  useEffect(() => {
+    // with no saved address, the first-address form reports its governorate instead
+    if (addresses?.length) setShippingGovernorate(selectedGovernorate);
+  }, [addresses?.length, selectedGovernorate]);
 
   if (form.formState.isLoading || addressesPending) {
     return <CheckoutFormSkeleton />;
@@ -92,6 +110,7 @@ export function CheckoutForm({
             {/* takes the checkout form's id, so place order saves the address with the order */}
             <AddressForm
               id="checkout-form"
+              onGovernorateChange={setShippingGovernorate}
               onSubmit={(address) =>
                 onSubmit({
                   paymentMethod: form.getValues("paymentMethod"),

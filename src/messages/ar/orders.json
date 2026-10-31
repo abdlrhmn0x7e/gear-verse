@@ -92,7 +92,9 @@
   },
   "totals": {
     "estimate": "التوصيل المتوقع: يوم أو اتنين شغل",
-    "confirmedByTeam": "هنأكدها معاك على واتساب"
+    "from": "من {price}",
+    "pickGovernorate": "اختار محافظتك",
+    "confirmedOnWhatsApp": "هنأكدها معاك على واتساب"
   },
   "drawer": {
     "loadError": "معرفناش نفتح الطلب ده.",
