@@ -25,10 +25,9 @@ export function getSameAs(settings: StoreSettings) {
 /**
  * What schema.org can say about the policy. The rest of it (defects, damage
  * or our mistakes only, reported within 24 hours of opening, inspected before
- * approval, collected, refunded within 7 days, no change-of-mind returns) is
- * on /returns, which `merchantReturnLink` points to. There are no return fees
- * or method to state, and shipping is left out because its fee depends on
- * the address.
+ * approval, refunded within 7 days, no change-of-mind returns) is on
+ * /returns, which `merchantReturnLink` points to. We collect the product at
+ * no charge, so it goes back by courier for free.
  */
 function returnPolicy(locale: Locale) {
   return {
@@ -37,10 +36,43 @@ function returnPolicy(locale: Locale) {
     returnPolicyCountry: "EG",
     returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
     merchantReturnDays: 1,
+    returnMethod: "https://schema.org/ReturnByMail",
+    returnFees: "https://schema.org/FreeReturn",
     refundType: "https://schema.org/FullRefund",
     merchantReturnLink: absoluteUrl(localizedPath("/returns", locale)),
   };
 }
+
+/**
+ * Aramex's 1 kg rate from Helwan ranges from 107 to 307 EGP across
+ * Egypt (checked 2026-10-31). Google only reads country-level destinations
+ * for Egypt, so the range stands in for the per-city rate.
+ */
+const SHIPPING_DETAILS = {
+  "@type": "OfferShippingDetails",
+  shippingDestination: { "@type": "DefinedRegion", addressCountry: "EG" },
+  shippingRate: {
+    "@type": "MonetaryAmount",
+    minValue: 107,
+    maxValue: 307,
+    currency: "EGP",
+  },
+  deliveryTime: {
+    "@type": "ShippingDeliveryTime",
+    handlingTime: {
+      "@type": "QuantitativeValue",
+      minValue: 0,
+      maxValue: 1,
+      unitCode: "DAY",
+    },
+    transitTime: {
+      "@type": "QuantitativeValue",
+      minValue: 1,
+      maxValue: 2,
+      unitCode: "DAY",
+    },
+  },
+};
 
 /** The store and the site, rendered once by the root layout. */
 export function siteJsonLd(settings: StoreSettings, locale: Locale) {
@@ -173,6 +205,7 @@ export function productJsonLd({
           : "https://schema.org/OutOfStock",
       itemCondition: ITEM_CONDITIONS[product.condition],
       seller: { "@id": ORGANIZATION_ID },
+      shippingDetails: SHIPPING_DETAILS,
       hasMerchantReturnPolicy: returnPolicy(locale),
     },
     // product reviews only: the store testimonials are not about this product
