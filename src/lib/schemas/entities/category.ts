@@ -47,6 +47,8 @@ export const categoryEntitySchema = z.object({
     .nullish(),
 
   parent_id: z.number("Parent ID must be a number").nullish(),
+  // the home page tile's image; null uses the newest product's photo
+  cover_media_id: z.number().nullish(),
 
   created_at: z.coerce.date<Date>("Created at must be a date"),
   updated_at: z.coerce.date<Date>("Updated at must be a date"),
@@ -70,6 +72,8 @@ export const categoryTreeSchema = z.object({
   name_ar: z.string().nullish(),
   description_ar: z.string().nullish(),
   ar_reviewed: z.boolean().optional(),
+  cover_media_id: z.number().nullish(),
+  cover_url: z.string().nullish(),
   // the storefront's tree: which fields show in English on the Arabic site
   fallback: z
     .object({ name: z.boolean(), description: z.boolean().optional() })

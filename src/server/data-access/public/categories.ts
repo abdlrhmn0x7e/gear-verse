@@ -233,8 +233,10 @@ export const _categories = {
           icon: categories.icon,
           slug: categories.slug,
           created_at: categories.created_at,
+          coverUrl: media.url,
         })
         .from(categories)
+        .leftJoin(media, eq(categories.cover_media_id, media.id))
         .where(isNull(categories.parent_id));
     },
 

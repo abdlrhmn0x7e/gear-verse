@@ -149,11 +149,11 @@ export async function WhyUs() {
                 className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-3"
                 aria-label={t("categoriesLabel")}
               >
-                {covers.slice(0, 3).map(({ category, product }) => (
+                {covers.slice(0, 3).map(({ category, imageUrl }) => (
                   <li key={category.slug} className="min-w-0 space-y-2">
                     <div className="image-well relative aspect-[4/3] overflow-hidden rounded-[0.75rem]">
                       <ImageWithFallback
-                        src={product.thumbnailUrl}
+                        src={imageUrl}
                         alt=""
                         width={240}
                         height={240}

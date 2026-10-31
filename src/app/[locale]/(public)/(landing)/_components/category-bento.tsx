@@ -47,7 +47,7 @@ export async function CategoryBento() {
             covers.length === 1 ? "lg:grid-cols-2" : "lg:grid-cols-4",
           )}
         >
-          {covers.map(({ category, product }, index) => {
+          {covers.map(({ category, imageUrl }, index) => {
             const layout = tileLayout(index, covers.length);
             return (
               <li key={category.slug} className={tileClassName[layout]}>
@@ -94,7 +94,7 @@ export async function CategoryBento() {
                     )}
                   >
                     <ImageWithFallback
-                      src={product.thumbnailUrl}
+                      src={imageUrl}
                       alt=""
                       width={800}
                       height={800}
