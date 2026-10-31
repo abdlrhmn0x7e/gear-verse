@@ -126,16 +126,14 @@
   --chart-bar: var(--plum-700);
   --chart-bar-hover: var(--plum-900);
 
-  /* the admin frame takes the card surface and the content card sits on it at page white; item text is the foreground
-     at 75% (10.24:1 on the frame), group labels at 70% (8.67:1), the account email muted-foreground (5.22:1) */
-  --sidebar: var(--neutral-100);
-  --sidebar-foreground: var(--foreground);
+  /* the admin's navigation sits on the page colour behind a hairline, in either theme */
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--muted-foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  /* the active item; hover takes it at half strength. Full foreground on it measures 15.84:1 */
-  --sidebar-accent: var(--neutral-200);
+  --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--neutral-200);
+  --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
   --font-serif: Georgia, serif;
@@ -237,13 +235,6 @@
   /* photos ship on white, so the well stays light, only dimmer than the light theme's */
   --image-well: var(--neutral-250);
   --image-outline: oklch(1 0 0 / 0.1);
-
-  /* the frame steps up from the page like a card, so the content card reads as the page itself: items at 75% measure
-     8.30:1, labels at 70% 7.32:1, the email 6.94:1; the active item (neutral-800) keeps the foreground at 13.02:1 */
-  --sidebar: var(--neutral-850);
-  --sidebar-accent: var(--neutral-800);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--neutral-800);
 
   --shadow-2xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
   --shadow-xs: 0px 4px 16px 0px oklch(0 0 0 / 0.17);
@@ -382,11 +373,23 @@
   --info-foreground: oklch(0.82 0.09 255);
 }
 
-/* The admin's own palette, after sales-crm-kargulstudio: the storefront's dark surfaces with the plum brand kept as
-   the accent. The admin's root layout sets .admin on <html> next to next-themes' forced .dark, so dark: variants still
-   apply and portalled layers (menus, drawers, toasts) take it from :root; :root.admin outranks .dark. Leaving the admin
-   crosses root layouts, a full page load, so the class never reaches the storefront. */
+/* The admin's own palette, after sales-crm-kargulstudio, following the storefront's saved theme. The admin's root
+   layout sets .admin on <html> next to next-themes' theme class, so portalled layers (menus, drawers, toasts) take it
+   from :root; :root.admin outranks :root and .dark. Leaving the admin crosses root layouts, a full page load, so the
+   class never reaches the storefront. */
 :root.admin {
+  /* controls carry no border: a ring edges them, a hairline in light and a dark ring with an inset highlight in dark */
+  --control-border: transparent;
+  --control-fill: var(--background);
+  --control-shadow: 0 0 0 1px var(--input);
+
+  /* the reference's one curve, so every duration-150 ease-out transition in the admin moves alike */
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* In light the admin takes the storefront's light palette as is; in dark, the storefront's surfaces with the reference's
+   plum-600 primary and raised controls */
+:root.admin.dark {
   /* the storefront's dark surfaces (.dark's aubergine ramp), laid out the reference's way: the sidebar sits on the
      page colour behind a hairline, controls and cards one step up */
   --background: var(--neutral-900);
@@ -415,17 +418,6 @@
   --tile-hover: var(--neutral-800);
   --raised: var(--neutral-800);
 
-  --sidebar: var(--neutral-900);
-  --sidebar-foreground: var(--muted-foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--neutral-800);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--neutral-800);
-  --sidebar-ring: var(--ring);
-
-  /* controls carry no border: a dark outer ring and a faint inset highlight edge them (surface-control) */
-  --control-border: transparent;
   --control-fill: var(--neutral-850);
   --control-fill-hover: var(--neutral-800);
   --control-shadow:
@@ -439,9 +431,6 @@
   --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
   --shadow-xl: 0 16px 40px rgb(0 0 0 / 0.5), 0 0 0 1px #0e0e0e;
   --shadow-2xl: 0 24px 64px rgb(0 0 0 / 0.6), 0 0 0 1px #0e0e0e;
-
-  /* the reference's one curve, so every duration-150 ease-out transition in the admin moves alike */
-  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 @theme inline {

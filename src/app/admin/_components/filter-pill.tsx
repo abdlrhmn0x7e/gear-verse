@@ -42,7 +42,7 @@ export function FilterPill<T extends string>({
         <span className="text-muted-foreground flex items-center px-[9px]">
           {label}
         </span>
-        <span aria-hidden className="w-px bg-white/8" />
+        <span aria-hidden className="w-px bg-foreground/8" />
         <span className="flex items-center gap-1.5 ps-[9px] pe-2 font-medium">
           {current?.label ?? anyLabel}
           <ChevronDownIcon

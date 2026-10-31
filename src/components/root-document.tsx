@@ -77,7 +77,7 @@ export function RootDocument({
   children,
 }: {
   locale: Locale;
-  /** The admin's own palette (`:root.admin` in globals.css), always dark. Its root layout is separate, so leaving it reloads the page and the class never reaches the storefront. */
+  /** The admin's own palette (`:root.admin` in globals.css), on the storefront's saved theme. Its root layout is separate, so leaving it reloads the page and the class never reaches the storefront. */
   admin?: boolean;
   children: React.ReactNode;
 }) {
@@ -117,8 +117,6 @@ export function RootDocument({
               attribute="class"
               defaultTheme="light"
               enableSystem
-              // forced, so the admin never writes the storefront's saved theme
-              forcedTheme={admin ? "dark" : undefined}
               disableTransitionOnChange
             >
               <ThemeColorSync />
