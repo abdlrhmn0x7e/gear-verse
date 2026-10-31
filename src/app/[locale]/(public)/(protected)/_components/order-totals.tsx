@@ -2,7 +2,7 @@ import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useLocale, useTranslations } from "next-intl";
 
-/** Subtotal and total for an order or cart. Shipping depends on the address and is confirmed by the team after the order, so no fee is shown or added here. */
+/** Subtotal and total for an order or cart. Shipping depends on the address and weight and is confirmed on WhatsApp after the order, so no fee is added here. */
 export function OrderTotals({ subtotal }: { subtotal: number }) {
   const locale = useLocale();
   const t = useTranslations("orders");
