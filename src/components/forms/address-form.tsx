@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import {
@@ -23,6 +23,7 @@ import {
 } from "~/components/ui/select";
 import {
   ADDRESS_ERRORS,
+  type AddressGovernoratesEnum,
   addressGovernoratesEnum,
   createAddressInputSchema,
 } from "~/lib/schemas/entities";
@@ -55,10 +56,14 @@ type PrefillField = "governorate" | "city" | "address";
 export function AddressForm({
   id = "address-form",
   onSubmit,
+  onGovernorateChange,
   className,
 }: {
   id?: string;
   onSubmit: (values: AddressFormValues) => void;
+  onGovernorateChange?: (
+    governorate: AddressGovernoratesEnum | undefined,
+  ) => void;
   className?: string;
 }) {
   const locale = useLocale();
@@ -88,6 +93,10 @@ export function AddressForm({
     control: form.control,
     name: ["latitude", "longitude", "governorate"],
   });
+  useEffect(() => {
+    onGovernorateChange?.(governorate);
+  }, [governorate, onGovernorateChange]);
+
   const pin: Coordinates | null =
     latitude != null && longitude != null ? { latitude, longitude } : null;
 
