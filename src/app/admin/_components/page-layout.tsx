@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 
+import { ThemeToggle } from "~/components/theme-toggle";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 import { AccountMenu } from "./account-menu";
@@ -118,6 +119,7 @@ export function PageLayout({
         <div className="admin-controls flex shrink-0 items-center gap-2">
           {headerContent}
           {!toolbar && actions}
+          <ThemeToggle />
           <AccountMenu />
         </div>
       </header>

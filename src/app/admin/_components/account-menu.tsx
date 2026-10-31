@@ -20,7 +20,7 @@ import { authClient } from "~/lib/auth-client";
 
 /**
  * The signed-in account as the page header's profile pill: the way back to the
- * store, and sign out. The admin is always dark, so it has no theme switch.
+ * store, and sign out. The theme switch sits beside it in the header.
  * Phones show the avatar alone.
  */
 export function AccountMenu() {
