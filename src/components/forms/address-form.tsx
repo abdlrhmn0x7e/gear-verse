@@ -27,6 +27,8 @@ import {
   createAddressInputSchema,
 } from "~/lib/schemas/entities";
 import { PHONE_NUMBER_ERRORS } from "~/lib/schemas/phone-number";
+import { SHIPPING_RATES } from "~/lib/shipping-rates";
+import { formatCurrency } from "~/lib/utils/format-currency";
 import { cn } from "~/lib/utils";
 import type { ReverseGeocodeResult } from "~/lib/schemas/contracts/public/geocoding";
 import { useLocale, useTranslations } from "next-intl";
@@ -82,9 +84,9 @@ export function AddressForm({
     },
   });
 
-  const [latitude, longitude] = useWatch({
+  const [latitude, longitude, governorate] = useWatch({
     control: form.control,
-    name: ["latitude", "longitude"],
+    name: ["latitude", "longitude", "governorate"],
   });
   const pin: Coordinates | null =
     latitude != null && longitude != null ? { latitude, longitude } : null;
@@ -246,6 +248,14 @@ export function AddressForm({
                   ))}
                 </SelectContent>
               </Select>
+              {governorate && (
+                <FormDescription>
+                  {t("shippingFee", {
+                    governorate: tGovernorates(governorate),
+                    price: formatCurrency(SHIPPING_RATES[governorate], locale),
+                  })}
+                </FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}

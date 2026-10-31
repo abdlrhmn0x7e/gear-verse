@@ -27,7 +27,9 @@ import { AddAddressDrawerDialog } from "./add-address-drawer-dialog";
 import { DeleteAddressDialog } from "./delete-address-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AddressForm } from "~/components/forms/address-form";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { SHIPPING_RATES } from "~/lib/shipping-rates";
+import { formatCurrency } from "~/lib/utils/format-currency";
 
 const checkoutFormSchema = checkoutInputSchema;
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -37,6 +39,7 @@ export function CheckoutForm({
 }: {
   onSubmit: (data: CompleteCheckoutInput) => void;
 }) {
+  const locale = useLocale();
   const t = useTranslations("checkout");
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -134,6 +137,14 @@ export function CheckoutForm({
                                 </FieldTitle>
                                 <FieldDescription dir="auto">
                                   {address.address}
+                                </FieldDescription>
+                                <FieldDescription>
+                                  {t("shippingFrom", {
+                                    price: formatCurrency(
+                                      SHIPPING_RATES[address.governorate],
+                                      locale,
+                                    ),
+                                  })}
                                 </FieldDescription>
                               </FieldContent>
                               <RadioGroupItem
