@@ -11,6 +11,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { categoryAttributes } from "./attributes";
+import { media } from "./media";
 
 export const categoryIconEnum = pgEnum("category_icon", [
   "KEYBOARDS",
@@ -55,6 +56,11 @@ export const categories = pgTable(
       .$onUpdate(() => new Date()),
 
     parent_id: bigint("parent_id", { mode: "number" }),
+    // the home page tile's image; null uses the newest in-stock product's photo
+    cover_media_id: bigint("cover_media_id", { mode: "number" }).references(
+      () => media.id,
+      { onDelete: "set null" },
+    ),
   },
   (table) => [
     foreignKey({
@@ -63,6 +69,7 @@ export const categories = pgTable(
       name: "categories_parent_id_fkey",
     }).onDelete("cascade"),
     index("categories_parent_id_idx").on(table.parent_id),
+    index("categories_cover_media_id_idx").on(table.cover_media_id),
     uniqueIndex("categories_slug_unique").on(table.slug),
   ],
 );

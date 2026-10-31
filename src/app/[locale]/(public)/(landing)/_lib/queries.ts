@@ -41,7 +41,7 @@ export async function getLatestProducts() {
   return page.data;
 }
 
-/** Root categories that have at least one product in stock, each with its newest product as the cover. */
+/** Root categories that have at least one product in stock, each with its chosen cover or else its newest product's photo. */
 export async function getCategoryCovers() {
   "use cache";
 
@@ -57,7 +57,9 @@ export async function getCategoryCovers() {
         locale,
       });
       const product = page.data[0];
-      return product ? { category, product } : null;
+      return product
+        ? { category, imageUrl: category.coverUrl ?? product.thumbnailUrl }
+        : null;
     }),
   );
 

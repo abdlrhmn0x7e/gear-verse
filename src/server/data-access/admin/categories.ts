@@ -20,15 +20,16 @@ export const _categories = {
           .where(isNull(categories.parent_id));
       }
 
+      const coverUrl = sql`(SELECT url FROM media WHERE media.id = categories.cover_media_id) AS cover_url`;
       const query = sql<{ tree: string }[]>`
         WITH RECURSIVE all_categories AS (
-          SELECT categories.*, 0 AS level
+          SELECT categories.*, ${coverUrl}, 0 AS level
           FROM categories
           WHERE parent_id IS NULL
 
           UNION ALL
 
-          SELECT categories.*, all_categories.level + 1
+          SELECT categories.*, ${coverUrl}, all_categories.level + 1
           FROM categories
           INNER JOIN all_categories
             ON all_categories.id = categories.parent_id
