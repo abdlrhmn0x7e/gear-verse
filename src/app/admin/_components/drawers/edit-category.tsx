@@ -86,7 +86,13 @@ export function EditCategoryDrawer({
               description: category.description,
               name_ar: category.name_ar,
               description_ar: category.description_ar,
+              cover_media_id: category.cover_media_id,
             }}
+            defaultCover={
+              category.cover_media_id && category.cover_url
+                ? { mediaId: category.cover_media_id, url: category.cover_url }
+                : undefined
+            }
             onSubmit={handleSubmit}
             showParentCombobox={false}
             saved={{

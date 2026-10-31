@@ -2,11 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useId } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import type z from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,6 +28,9 @@ import {
 import { iconsMap } from "~/lib/icons-map";
 import type { ArabicStatus } from "~/lib/arabic";
 import { ArabicStatusBadge, MarkArabicReviewedButton } from "../arabic-status";
+import { FileDropzone } from "../inputs/file-dropzone";
+import { MediaStoreProvider } from "../../_stores/media/provider";
+import type { SelectedMedia } from "../../_stores/media/store";
 
 const categoryFormSchema = categoryEntitySchema.omit({
   id: true,
@@ -54,8 +58,10 @@ export function CategoryForm({
   formId = "category-form",
   onSubmit,
   saved,
+  defaultCover,
 }: {
   defaultValues: Partial<CategoryFormValues>;
+  defaultCover?: Pick<SelectedMedia, "mediaId" | "url">;
   showParentCombobox?: boolean;
   /** For the submit button's `form`; give each form open at once its own. */
   formId?: string;
@@ -77,8 +83,11 @@ export function CategoryForm({
       description: defaultValues.description ?? "",
       name_ar: defaultValues.name_ar ?? "",
       description_ar: defaultValues.description_ar ?? "",
+      cover_media_id: defaultValues.cover_media_id ?? null,
     },
   });
+  // only root categories get a home page tile
+  const isRoot = useWatch({ control: form.control, name: "parent_id" }) == null;
 
   return (
     <Form {...form}>
@@ -156,6 +165,36 @@ export function CategoryForm({
             </FormItem>
           )}
         />
+        {isRoot && (
+          <FormField
+            control={form.control}
+            name="cover_media_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Homepage image (optional)</FormLabel>
+                <FormControl>
+                  <MediaStoreProvider
+                    maxFiles={1}
+                    defaultMedia={defaultCover ? [defaultCover] : []}
+                  >
+                    <FileDropzone
+                      onChange={(media) =>
+                        field.onChange(media[0]?.mediaId ?? null)
+                      }
+                      uploadButtonVariant="outline"
+                      showFiles
+                    />
+                  </MediaStoreProvider>
+                </FormControl>
+                <FormDescription>
+                  Shown on the home page. Leave empty to use the newest
+                  product&apos;s photo.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <div
           role="group"
           aria-labelledby={arabicHeadingId}
