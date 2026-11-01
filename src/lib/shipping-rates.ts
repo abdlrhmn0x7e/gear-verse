@@ -1,37 +1,39 @@
 import type { AddressGovernoratesEnum } from "~/lib/schemas/entities/address";
 
 /**
- * The cheapest Aramex rate for 1 kg from Helwan to each governorate, in EGP,
- * checked on aramex.com on 2026-10-31. Remote areas (Siwa, Abu Simbel, Marsa
+ * What a customer pays to ship to each governorate, in EGP: the cheapest
+ * Aramex 1 kg rate from Helwan (aramex.com, 2026-10-31) priced up with the
+ * 5 EGP bank collection fee and rounded. The 120 and 130 tiers match real
+ * invoices; 155 and 325 are estimates. Remote areas (Siwa, Abu Simbel, Marsa
  * Alam, Saint Catherine, Al Wahat) and heavier orders cost more, so the
  * storefront says "from" and the team confirms the fee on WhatsApp.
  */
 export const SHIPPING_RATES = {
-  ALEXANDRIA: 107,
-  ASWAN: 142,
-  ASYUT: 142,
-  BEHEIRA: 117,
-  BENI_SUEF: 142,
-  CAIRO: 107,
-  DAKAHLIA: 117,
-  DAMIETTA: 117,
-  FAIYUM: 142,
-  GHARBIA: 117,
-  GIZA: 107,
-  ISMAILIA: 117,
-  KAFR_EL_SHEIKH: 117,
-  LUXOR: 142,
-  MATROUH: 142,
-  MINYA: 142,
-  MONUFIA: 117,
-  NEW_VALLEY: 307,
-  NORTH_SINAI: 307,
-  PORT_SAID: 117,
-  QALYUBIA: 107,
-  QENA: 142,
-  RED_SEA: 142,
-  SHARQIA: 117,
-  SOHAG: 142,
-  SOUTH_SINAI: 142,
-  SUEZ: 117,
+  ALEXANDRIA: 120,
+  ASWAN: 155,
+  ASYUT: 155,
+  BEHEIRA: 130,
+  BENI_SUEF: 155,
+  CAIRO: 120,
+  DAKAHLIA: 130,
+  DAMIETTA: 130,
+  FAIYUM: 155,
+  GHARBIA: 130,
+  GIZA: 120,
+  ISMAILIA: 130,
+  KAFR_EL_SHEIKH: 130,
+  LUXOR: 155,
+  MATROUH: 155,
+  MINYA: 155,
+  MONUFIA: 130,
+  NEW_VALLEY: 325,
+  NORTH_SINAI: 325,
+  PORT_SAID: 130,
+  QALYUBIA: 120,
+  QENA: 155,
+  RED_SEA: 155,
+  SHARQIA: 130,
+  SOHAG: 155,
+  SOUTH_SINAI: 155,
+  SUEZ: 130,
 } satisfies Record<AddressGovernoratesEnum, number>;
