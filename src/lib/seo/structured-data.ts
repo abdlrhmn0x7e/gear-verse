@@ -1,5 +1,6 @@
 import type { Locale } from "~/i18n/routing";
 import type { StoreSettings } from "~/lib/schemas/entities/store-settings";
+import { SHIPPING_RATES } from "~/lib/shipping-rates";
 import { localizedPath } from "./metadata";
 import { joinSummary } from "./product";
 import { absoluteUrl, SITE_NAME, SITE_URL } from "./site";
@@ -43,18 +44,21 @@ function returnPolicy(locale: Locale) {
   };
 }
 
+const rates = Object.values(SHIPPING_RATES);
+
 /**
- * Aramex's 1 kg rate from Helwan ranges from 107 to 307 EGP across
- * Egypt (checked 2026-10-31). Google only reads country-level destinations
- * for Egypt, so the range stands in for the per-city rate.
+ * Google only reads country-level destinations for Egypt, so the range across
+ * governorates stands in for the per-governorate rate. The farthest
+ * governorates start at the top rate, so the highest "from" is also the
+ * highest rate.
  */
 const SHIPPING_DETAILS = {
   "@type": "OfferShippingDetails",
   shippingDestination: { "@type": "DefinedRegion", addressCountry: "EG" },
   shippingRate: {
     "@type": "MonetaryAmount",
-    minValue: 107,
-    maxValue: 307,
+    minValue: Math.min(...rates),
+    maxValue: Math.max(...rates),
     currency: "EGP",
   },
   deliveryTime: {

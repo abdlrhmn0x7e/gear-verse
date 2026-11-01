@@ -1,8 +1,9 @@
 import { Separator } from "~/components/ui/separator";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useLocale, useTranslations } from "next-intl";
+import { ShippingFee } from "../checkout/(index)/_components/shipping-fee";
 
-/** Subtotal and total for an order or cart. Shipping depends on the address and is confirmed by the team after the order, so no fee is shown or added here. */
+/** Subtotal and total for the checkout. The shipping fee shown is a starting rate: weight and remote areas can raise it, and it's confirmed on WhatsApp after the order, so it isn't added to the total. */
 export function OrderTotals({ subtotal }: { subtotal: number }) {
   const locale = useLocale();
   const t = useTranslations("orders");
@@ -25,9 +26,7 @@ export function OrderTotals({ subtotal }: { subtotal: number }) {
             </p>
           </div>
 
-          <p className="text-muted-foreground text-end">
-            {t("totals.confirmedByTeam")}
-          </p>
+          <ShippingFee />
         </div>
       </div>
 
