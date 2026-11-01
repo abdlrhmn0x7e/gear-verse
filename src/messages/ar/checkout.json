@@ -45,7 +45,7 @@
     "phoneHint": "هنكلّمك أو نبعتلك واتساب عليه عشان نأكد طلبك.",
     "governorate": "المحافظة",
     "governoratePlaceholder": "اختار المحافظة",
-    "shippingFee": "الشحن لـ{governorate} بيبدأ من {price}، وهنأكد معاك المصاريف بالظبط على واتساب.",
+    "shippingFee": "الشحن لمحافظة {governorate} بيبدأ من {price}، وهنأكد معاك المصاريف بالظبط على واتساب.",
     "city": "المدينة أو المنطقة",
     "cityPlaceholder": "مثلًا مدينة نصر",
     "street": "الشارع",
