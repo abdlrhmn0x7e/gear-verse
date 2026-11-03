@@ -58,6 +58,8 @@ async function s3PutObject({
       Key: key,
       Body: body,
       ContentType: mimeType,
+      // keys are never reused, so browsers can keep the file for good
+      CacheControl: "public, max-age=31536000, immutable",
     }),
   );
   return s3GetPublicUrl(key);
