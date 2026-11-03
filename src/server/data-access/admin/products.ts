@@ -788,8 +788,19 @@ export const _products = {
             );
         }
 
-        if (seoData) {
-          await tx.update(seo).set(seoData).where(eq(seo.productId, productId));
+        // most products have no SEO row yet, so an edit creates it; the form
+        // sends a cleared field as "", stored as null so the page's default applies
+        if (seoData && Object.keys(seoData).length > 0) {
+          const values = Object.fromEntries(
+            Object.entries(seoData).map(([key, value]) => [
+              key,
+              value === "" ? null : value,
+            ]),
+          );
+          await tx
+            .insert(seo)
+            .values({ ...values, productId })
+            .onConflictDoUpdate({ target: seo.productId, set: values });
         }
       });
     },

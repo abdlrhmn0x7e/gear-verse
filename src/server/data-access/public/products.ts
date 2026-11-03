@@ -246,7 +246,7 @@ export const _products = {
             isNull(inventoryItems.productVariantId),
           ),
         )
-        .leftJoin(seo, eq(seo.urlHandler, products.slug))
+        .leftJoin(seo, eq(seo.productId, products.id))
 
         .where(
           and(
@@ -313,7 +313,7 @@ export const _products = {
         .leftJoin(brands, eq(products.brandId, brands.id))
         .leftJoin(media, eq(products.thumbnailMediaId, media.id))
         .leftJoin(productMedia, eq(productMedia.productId, products.id))
-        .leftJoin(seo, eq(seo.urlHandler, products.slug))
+        .leftJoin(seo, eq(seo.productId, products.id))
         .where(
           and(
             eq(products.slug, slug),
