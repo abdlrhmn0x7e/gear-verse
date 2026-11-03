@@ -36,6 +36,8 @@ const config = {
     }));
   },
   images: {
+    // shortcut: Vercel's optimizer quota ran out (402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED), so images load straight from S3; remove once the quota is back
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
