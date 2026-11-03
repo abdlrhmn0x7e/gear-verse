@@ -38,6 +38,8 @@ const config = {
   images: {
     // shortcut: Vercel's optimizer quota ran out (402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED), so images load straight from S3; remove once the quota is back
     unoptimized: true,
+    // media keys are fresh cuids that never change, so a month-long cache can't go stale; the 4-hour default re-bills every width six times a day
+    minimumCacheTTL: 2678400, // 31 days
     remotePatterns: [
       {
         protocol: "https",
