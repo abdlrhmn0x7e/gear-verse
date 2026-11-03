@@ -23,6 +23,10 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Sentry registers this ESM hook by file path, so the trace misses it and the package.json that marks it ESM
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/@sentry/server-runtime-injection/build/esm/**/*"],
+  },
   // shortcut: hand-listed renamed product slugs, until slug edits in the admin record their own redirects
   async redirects() {
     return ["", "/ar"].map((prefix) => ({
