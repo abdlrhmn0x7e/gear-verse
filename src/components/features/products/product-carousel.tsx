@@ -7,15 +7,17 @@ import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
 /**
- * A native scroll-snap row that keeps three cards in view from tablets up, with previous and next buttons; phones swipe
+ * A native scroll-snap row that keeps three cards in view on tablets and four from laptops up (in one or two rows), with previous and next buttons; phones swipe
  * it like the plain product row. The browser's own scrolling carries the physics, so touch and trackpads feel native.
  */
 export function ProductCarousel({
   label,
+  rows = 1,
   className,
   children,
 }: {
   label: string;
+  rows?: 1 | 2;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -71,7 +73,10 @@ export function ProductCarousel({
     >
       <ul
         ref={listRef}
-        className="no-scrollbar -mx-6 -my-2 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto overscroll-x-contain px-6 py-2 [contain:paint] md:mx-0 md:scroll-px-0 md:gap-6 md:px-0"
+        className={cn(
+          "no-scrollbar -mx-6 -my-2 grid snap-x snap-mandatory scroll-px-6 auto-cols-[80vw] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain px-6 py-2 [contain:paint] md:mx-0 md:scroll-px-0 md:auto-cols-[calc((100%-3rem)/3)] md:gap-6 md:px-0 lg:auto-cols-[calc((100%-4.5rem)/4)]",
+          rows === 2 && "auto-cols-[42vw] grid-rows-2",
+        )}
       >
         {children}
       </ul>
@@ -102,7 +107,7 @@ export function ProductCarousel({
   );
 }
 
-/** Three to a view from tablets up, the next one peeking on phones. */
+/** Sized by the carousel's grid columns: the next one peeks on phones. */
 export function ProductCarouselItem({
   className,
   children,
@@ -110,14 +115,5 @@ export function ProductCarouselItem({
   className?: string;
   children: React.ReactNode;
 }) {
-  return (
-    <li
-      className={cn(
-        "w-[80vw] shrink-0 snap-start md:w-[calc((100%-3rem)/3)]",
-        className,
-      )}
-    >
-      {children}
-    </li>
-  );
+  return <li className={cn("snap-start", className)}>{children}</li>;
 }
