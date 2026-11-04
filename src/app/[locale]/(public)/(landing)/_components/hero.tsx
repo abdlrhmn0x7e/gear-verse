@@ -66,7 +66,7 @@ export async function Hero() {
               <ProductCarouselItem key={product.id}>
                 <ProductCard
                   product={product}
-                  sizes="(min-width: 768px) 33vw, 80vw"
+                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 80vw"
                   eager={index === 0}
                 />
               </ProductCarouselItem>
