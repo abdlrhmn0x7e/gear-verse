@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +22,7 @@ import {
 import { DeleteProductDialog } from "../../dialogs/delete-product";
 import { PublishProductDialog } from "../../dialogs/publish-product";
 import { useDialog } from "~/hooks/use-dialog";
+import { useCopyToClipboard } from "../../copy-button";
 
 export function ProductsTableActions({
   id,
@@ -36,13 +36,14 @@ export function ProductsTableActions({
   const [open, setOpen] = useState(false);
   const publishDialog = useDialog();
   const deleteDialog = useDialog();
+  const { copy } = useCopyToClipboard();
 
   function handleCopyProductLink(e: React.MouseEvent) {
     e.stopPropagation();
-    void navigator.clipboard.writeText(
-      `${window.location.origin}/products/${slug}`,
-    );
-    toast.success("Product link copied to clipboard");
+    void copy(`${window.location.origin}/products/${slug}`, {
+      success: "Product link copied to clipboard",
+      error: "Couldn't copy the product link. Try again.",
+    });
     setOpen(false);
   }
 

@@ -11,6 +11,10 @@ import { format } from "date-fns";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { OrdersTableActions } from "./actions";
 import type { ListColumn } from "../list-grid";
+import {
+  formatAddressLine,
+  formatGovernorate,
+} from "~/app/admin/(index)/_components/format";
 
 export type OrderRow =
   RouterOutput["admin"]["orders"]["queries"]["getPage"]["data"][number];
@@ -29,7 +33,7 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
           nativeButton={false}
           render={
             <Link
-              href={`/admin/orders/${row.original.id}`}
+              href={`/admin/orders?orderId=${row.original.id}`}
               onClick={(event) => event.stopPropagation()}
             />
           }
@@ -41,15 +45,33 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
   },
 
   {
-    accessorKey: "address",
-    header: "Address",
+    accessorKey: "customerName",
+    header: "Customer",
     cell: ({ row }) => {
       return (
-        <span
-          className="block max-w-72 truncate capitalize"
-          title={row.original.address}
-        >
-          {row.original.address.toLowerCase()}
+        <div className="flex max-w-56 min-w-0 flex-col">
+          <span className="truncate" title={row.original.customerName ?? ""}>
+            {row.original.customerName}
+          </span>
+          <span className="text-muted-foreground truncate text-xs tabular-nums">
+            {row.original.phoneNumber}
+          </span>
+        </div>
+      );
+    },
+  },
+
+  {
+    id: "address",
+    header: "Address",
+    cell: ({ row }) => {
+      const parts = row.original.addressParts;
+      const area = parts
+        ? `${parts.city}, ${formatGovernorate(parts.governorate)}`
+        : "";
+      return (
+        <span className="block max-w-72 truncate" title={area}>
+          {area}
         </span>
       );
     },
@@ -60,8 +82,20 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
   },
 
   {
+    accessorKey: "itemCount",
+    header: "Items",
+    cell: ({ row }) => {
+      return <span>{row.original.itemCount}</span>;
+    },
+    meta: {
+      headerClassName: "hidden lg:table-cell text-right",
+      cellClassName: "hidden lg:table-cell text-right tabular-nums",
+    },
+  },
+
+  {
     accessorKey: "totalValue",
-    header: "Total Value",
+    header: "Total",
     cell: ({ row }) => {
       return <span>{formatCurrency(row.original.totalValue, "en")}</span>;
     },
@@ -81,7 +115,7 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
 
   {
     accessorKey: "paymentMethod",
-    header: "Payment Method",
+    header: "Payment",
     cell: ({ row }) => {
       return <PaymentMethod method={row.original.paymentMethod} />;
     },
@@ -98,7 +132,7 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
       return (
         <div className="text-muted-foreground flex items-center gap-2 tabular-nums">
           <CalendarIcon className="size-4" />
-          <span>{format(row.original.createdAt, "dd MMM, yyyy")}</span>
+          <span>{format(row.original.createdAt, "dd MMM, HH:mm")}</span>
         </div>
       );
     },
@@ -116,7 +150,11 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
         // The menu portals out, but the trigger's click would still open the
         // row's drawer.
         <div onClick={(event) => event.stopPropagation()}>
-          <OrdersTableActions id={row.original.id} />
+          <OrdersTableActions
+            id={row.original.id}
+            phoneNumber={row.original.phoneNumber}
+            addressLine={formatAddressLine(row.original.addressParts)}
+          />
         </div>
       );
     },

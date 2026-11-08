@@ -22,6 +22,16 @@ export const adminOrdersRouter = createTRPCRouter({
         return data;
       }),
 
+    getPresetCounts: adminProcedure.query(async ({ ctx }) => {
+      const { data, error } = await tryCatch(
+        ctx.app.admin.orders.queries.getPresetCounts(),
+      );
+      if (error) {
+        throw errorMap(error);
+      }
+      return data;
+    }),
+
     getCount: adminProcedure.query(async ({ ctx }) => {
       const { data, error } = await tryCatch(
         ctx.app.admin.orders.queries.getCount(),

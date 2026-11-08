@@ -1,7 +1,15 @@
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
+import { getDashboardWindow } from "../helpers/dashboard-range";
 import { AppError } from "~/lib/errors/app-error";
-import type { OrdersGetPageInput } from "~/lib/schemas/contracts/admin/orders";
+import type {
+  OrdersFilter,
+  OrdersGetPageInput,
+} from "~/lib/schemas/contracts/admin/orders";
+import { orderPresets, type OrderPresetId } from "~/lib/orders/presets";
+import type { OrderListFilters } from "~/server/data-access/admin/orders";
+
+type OrdersFilterInput = Partial<OrdersFilter>;
 import type {
   CreateFullOrderInput,
   UpdateFullOrderInput,
@@ -28,10 +36,37 @@ async function assertAddressBelongsToUser(addressId: number, userId: number) {
   }
 }
 
+/** The list's filters for the data layer: "placed" becomes the Cairo-time instant its window starts. */
+function toListFilters({ placed, ...filters }: OrdersFilterInput = {}) {
+  return {
+    ...filters,
+    placedSince: placed ? getDashboardWindow(placed).start : undefined,
+  };
+}
+
 export const _orders = {
   queries: {
-    getPage: (input: OrdersGetPageInput) => {
-      return paginate({ input, getPage: data.admin.orders.queries.getPage });
+    getPage: ({ filters, ...input }: OrdersGetPageInput) => {
+      return paginate({
+        input: { ...input, filters: toListFilters(filters) },
+        getPage: data.admin.orders.queries.getPage,
+      });
+    },
+
+    /** How many orders each preset tab holds, ignoring the search box. */
+    getPresetCounts: () => {
+      return data.admin.orders.queries.countMatching(
+        Object.fromEntries(
+          orderPresets.map((preset) => [
+            preset.id,
+            toListFilters({
+              status: preset.filters.status ?? undefined,
+              paymentMethod: preset.filters.paymentMethod ?? undefined,
+              placed: preset.filters.placed ?? undefined,
+            }),
+          ]),
+        ) as Record<OrderPresetId, Omit<OrderListFilters, "search">>,
+      );
     },
 
     getCount: async () => {

@@ -1,4 +1,15 @@
-import { sql, eq, lt, desc, and, ilike, isNull } from "drizzle-orm";
+import {
+  sql,
+  eq,
+  lt,
+  gte,
+  desc,
+  and,
+  or,
+  ilike,
+  isNull,
+  type SQL,
+} from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -31,6 +42,45 @@ type InsertOrderItem = typeof orderItems.$inferInsert;
 type UpdateOrder = Partial<InsertOrder>;
 type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
 
+export type OrderListFilters = {
+  search: string;
+  status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
+  paymentMethod: "COD" | "ONLINE";
+  placedSince: Date;
+};
+
+/**
+ * The orders list's filters as SQL, shared by the list and its preset counts.
+ * A search needs `addresses` and `users` joined.
+ */
+function orderListWhere(filters: Partial<OrderListFilters> = {}) {
+  const where: SQL[] = [];
+  const search = filters.search?.trim();
+  if (search) {
+    const pattern = `%${search}%`;
+    const matches = [
+      ilike(addresses.phoneNumber, pattern),
+      ilike(addresses.fullName, pattern),
+      ilike(users.name, pattern),
+    ];
+    const orderNumber = search.replace(/^#\s*/, "");
+    if (/^\d+$/.test(orderNumber)) {
+      matches.push(eq(orders.id, Number(orderNumber)));
+    }
+    where.push(or(...matches)!);
+  }
+  if (filters.status) {
+    where.push(eq(orders.status, filters.status));
+  }
+  if (filters.paymentMethod) {
+    where.push(eq(orders.paymentMethod, filters.paymentMethod));
+  }
+  if (filters.placedSince) {
+    where.push(gte(orders.createdAt, filters.placedSince));
+  }
+  return where;
+}
+
 export const _orders = {
   queries: {
     findOwnership: async (id: number) => {
@@ -46,22 +96,10 @@ export const _orders = {
       pageSize,
       cursor,
       filters,
-    }: Pagination<{
-      phoneNumber: string;
-      status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
-      paymentMethod: "COD" | "ONLINE";
-    }>) => {
-      const whereClause = cursor ? [lt(orders.id, cursor)] : [];
-      if (filters?.phoneNumber) {
-        whereClause.push(
-          ilike(addresses.phoneNumber, `%${filters.phoneNumber}%`),
-        );
-      }
-      if (filters?.status) {
-        whereClause.push(eq(orders.status, filters.status));
-      }
-      if (filters?.paymentMethod) {
-        whereClause.push(eq(orders.paymentMethod, filters.paymentMethod));
+    }: Pagination<OrderListFilters>) => {
+      const whereClause = orderListWhere(filters);
+      if (cursor) {
+        whereClause.push(lt(orders.id, cursor));
       }
 
       const totalValueCTE = db.$with("total_value_cte").as(
@@ -72,6 +110,9 @@ export const _orders = {
               sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`
                 .mapWith(Number)
                 .as("totalValue"),
+            itemCount: sql<number>`coalesce(SUM(${orderItems.quantity}), 0)`
+              .mapWith(Number)
+              .as("itemCount"),
           })
           .from(orders)
           .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -90,15 +131,47 @@ export const _orders = {
           paymentMethod: orders.paymentMethod,
           status: orders.status,
           totalValue: totalValueCTE.totalValue,
-          address: sql<string>`concat(${addresses.city}, ', ', ${addresses.governorate})`,
+          itemCount: totalValueCTE.itemCount,
+          customerName: sql<
+            string | null
+          >`coalesce(${addresses.fullName}, ${users.name})`,
+          phoneNumber: addresses.phoneNumber,
+          addressParts: {
+            address: addresses.address,
+            buildingNameOrNumber: addresses.buildingNameOrNumber,
+            city: addresses.city,
+            governorate: addresses.governorate,
+          },
           createdAt: orders.createdAt,
         })
         .from(orders)
         .leftJoin(addresses, eq(orders.addressId, addresses.id))
+        .leftJoin(users, eq(orders.userId, users.id))
         .leftJoin(totalValueCTE, eq(orders.id, totalValueCTE.orderId))
         .where(and(...whereClause))
         .orderBy(desc(orders.id))
         .limit(pageSize + 1);
+    },
+
+    /** How many orders each set of filters matches, in one scan. Searches aren't counted, so nothing is joined. */
+    countMatching: async <K extends string>(
+      views: Record<K, Partial<Omit<OrderListFilters, "search">>>,
+    ) => {
+      const columns = Object.fromEntries(
+        Object.entries<Partial<OrderListFilters>>(views).map(
+          ([key, filters]) => [
+            key,
+            sql<number>`count(*) filter (where ${and(...orderListWhere(filters)) ?? sql`true`})`.mapWith(
+              Number,
+            ),
+          ],
+        ),
+      ) as Record<K, SQL<number>>;
+
+      return db
+        .select(columns)
+        .from(orders)
+        .then(([res]) => res!);
     },
 
     findById: async (id: number) => {
@@ -277,6 +350,8 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt,
           address: {
             fullName: addresses.fullName,
             phoneNumber: addresses.phoneNumber,
@@ -288,8 +363,16 @@ export const _orders = {
             longitude: addresses.longitude,
           },
           user: {
+            id: users.id,
             name: users.name,
+            email: users.email,
             image: users.image,
+            isAnonymous: users.isAnonymous,
+            orderCount:
+              // the outer row is also `orders`, so the inner one needs its own name
+              sql<number>`(select count(*) from ${orders} as customer_orders where customer_orders.user_id = ${orders.userId})`.mapWith(
+                Number,
+              ),
           },
           items: sql<OrderItem[]>`coalesce(${itemsJson.json}, '[]'::jsonb)`,
         })

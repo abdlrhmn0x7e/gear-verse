@@ -4,7 +4,10 @@ import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { OrdersFilters } from "../_components/tables/orders/filters";
-import { loadOrderSearchParams } from "../_hooks/use-order-search-params";
+import {
+  loadOrderSearchParams,
+  toOrdersFilter,
+} from "../_hooks/use-order-search-params";
 import { CreateOrderDrawer } from "./_components/create-order-drawer";
 import { requireAdmin } from "~/server/auth";
 import type { SearchParams } from "nuqs/server";
@@ -21,33 +24,31 @@ export default async function AdminOrdersPage({
     trpc.admin.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 15,
-        filters: params
-          ? {
-              phoneNumber: params.search ?? undefined,
-              status: params.status ?? undefined,
-              paymentMethod: params.paymentMethod ?? undefined,
-            }
-          : undefined,
+        filters: toOrdersFilter(params),
       },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),
   );
 
+  // awaited so the tabs render with their counts on the server; the list still streams
+  await prefetch(trpc.admin.orders.queries.getPresetCounts.queryOptions());
+
+  // the toolbar's preset counts are prefetched too, so it sits inside the boundary
   return (
-    <PageLayout
-      title="Orders"
-      description="View all orders placed in your store."
-      contentWidth="table"
-      actions={<CreateOrderDrawer />}
-      toolbar={<OrdersFilters />}
-    >
-      <HydrateClient>
+    <HydrateClient>
+      <PageLayout
+        title="Orders"
+        description="View all orders placed in your store."
+        contentWidth="table"
+        actions={<CreateOrderDrawer />}
+        toolbar={<OrdersFilters />}
+      >
         <Suspense fallback={<OrdersTableSkeleton />}>
           <OrdersTable />
         </Suspense>
-      </HydrateClient>
 
-      <OrderDrawer />
-    </PageLayout>
+        <OrderDrawer />
+      </PageLayout>
+    </HydrateClient>
   );
 }
