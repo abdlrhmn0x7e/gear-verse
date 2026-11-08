@@ -61,7 +61,6 @@ export const _orders = {
             preset.id,
             toListFilters({
               status: preset.filters.status ?? undefined,
-              paymentMethod: preset.filters.paymentMethod ?? undefined,
               placed: preset.filters.placed ?? undefined,
             }),
           ]),

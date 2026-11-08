@@ -2,7 +2,6 @@ import type { OrdersFilter } from "~/lib/schemas/contracts/admin/orders";
 
 export type OrderPresetFilters = {
   status: OrdersFilter["status"] | null;
-  paymentMethod: OrdersFilter["paymentMethod"] | null;
   placed: OrdersFilter["placed"] | null;
 };
 
@@ -14,22 +13,32 @@ export const orderPresets = [
   {
     id: "all",
     label: "All",
-    filters: { status: null, paymentMethod: null, placed: null },
+    filters: { status: null, placed: null },
   },
   {
     id: "to-ship",
     label: "To ship",
-    filters: { status: "PENDING", paymentMethod: null, placed: null },
+    filters: { status: "PENDING", placed: null },
   },
   {
     id: "out-for-delivery",
     label: "Out for delivery",
-    filters: { status: "SHIPPED", paymentMethod: null, placed: null },
+    filters: { status: "SHIPPED", placed: null },
+  },
+  {
+    id: "delivered",
+    label: "Delivered",
+    filters: { status: "DELIVERED", placed: null },
+  },
+  {
+    id: "cancelled",
+    label: "Cancelled",
+    filters: { status: "CANCELLED", placed: null },
   },
   {
     id: "today",
     label: "Placed today",
-    filters: { status: null, paymentMethod: null, placed: "today" },
+    filters: { status: null, placed: "today" },
   },
 ] as const satisfies readonly {
   id: string;
@@ -43,7 +52,6 @@ export function findOrderPreset(filters: OrderPresetFilters) {
   return orderPresets.find(
     (preset) =>
       preset.filters.status === filters.status &&
-      preset.filters.paymentMethod === filters.paymentMethod &&
       preset.filters.placed === filters.placed,
   );
 }

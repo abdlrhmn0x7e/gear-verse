@@ -36,17 +36,17 @@ export default async function AdminOrdersPage({
   // awaited so the tabs render with their counts on the server; the list still streams
   await prefetch(trpc.admin.orders.queries.getPresetCounts.queryOptions());
 
-  // the toolbar's preset counts are prefetched too, so it sits inside the boundary
+  // the preset tabs read their counts from the cache, so they sit inside the boundary
   return (
     <HydrateClient>
       <PageLayout
         title="Orders"
-        titleContent={<OrderPresetTabs className="ms-2 max-lg:hidden" />}
         description="View all orders placed in your store."
         contentWidth="table"
         actions={<CreateOrderDrawer />}
         toolbar={<OrdersFilters />}
       >
+        <OrderPresetTabs />
         <Suspense fallback={<OrdersTableSkeleton />}>
           <OrdersTable />
         </Suspense>

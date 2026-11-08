@@ -64,12 +64,7 @@ export function OrdersTable() {
     }
   }, [inView, fetchNextPage]);
 
-  const filtered = [
-    params.search,
-    params.status,
-    params.paymentMethod,
-    params.placed,
-  ].some(Boolean);
+  const filtered = [params.search, params.status, params.placed].some(Boolean);
 
   return (
     <ListGrid

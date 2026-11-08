@@ -20,7 +20,6 @@ const orderSearchParams = {
     "REFUNDED",
     "CANCELLED",
   ]),
-  paymentMethod: parseAsStringEnum(["COD", "ONLINE"]),
   placed: parseAsStringEnum([...dashboardRanges]),
   create: parseAsBoolean,
 };
@@ -34,7 +33,6 @@ export const loadOrderSearchParams = createLoader(orderSearchParams);
 type OrderFilterParams = {
   search: string | null;
   status: OrdersFilter["status"] | null;
-  paymentMethod: OrdersFilter["paymentMethod"] | null;
   placed: OrdersFilter["placed"] | null;
 };
 
@@ -43,7 +41,6 @@ export function toOrdersFilter(params: OrderFilterParams) {
   return {
     search: params.search ?? undefined,
     status: params.status ?? undefined,
-    paymentMethod: params.paymentMethod ?? undefined,
     placed: params.placed ?? undefined,
   };
 }

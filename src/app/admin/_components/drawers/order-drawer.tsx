@@ -119,7 +119,7 @@ function OrderDrawerContent() {
 
   return (
     <>
-      <DrawerHeader className="gap-3">
+      <DrawerHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 text-start">
             <DrawerTitle>
@@ -148,21 +148,6 @@ function OrderDrawerContent() {
             />
           </div>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="self-start"
-          onClick={() =>
-            void copy(shippingDetails, {
-              success: "Shipping details copied",
-              error: "Couldn't copy the shipping details. Try again.",
-            })
-          }
-        >
-          <CopyIconSwap copied={shippingCopied} />
-          Copy shipping details
-        </Button>
       </DrawerHeader>
 
       <div className="max-h-full space-y-6 divide-y overflow-y-auto px-4 [&>section]:pb-6 [&>section:last-child]:pb-0">
@@ -231,7 +216,24 @@ function OrderDrawerContent() {
         </DetailSection>
 
         {address && (
-          <DetailSection title="Delivery">
+          <DetailSection
+            title="Delivery"
+            action={
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  void copy(shippingDetails, {
+                    success: "Shipping details copied",
+                    error: "Couldn't copy the shipping details. Try again.",
+                  })
+                }
+              >
+                <CopyIconSwap copied={shippingCopied} />
+                Copy all
+              </Button>
+            }
+          >
             <DetailRow
               label="Recipient"
               value={
@@ -341,14 +343,20 @@ function OrderDrawerContent() {
 
 function DetailSection({
   title,
+  action,
   children,
 }: {
   title: string;
+  /** Sits at the end of the heading row: an action on the whole section. */
+  action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="flex flex-col gap-4">
-      <Heading level={4}>{title}</Heading>
+      <div className="flex min-h-8 items-center justify-between gap-2">
+        <Heading level={4}>{title}</Heading>
+        {action}
+      </div>
       {children}
     </section>
   );
