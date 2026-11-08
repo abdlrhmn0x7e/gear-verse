@@ -12,7 +12,10 @@ import { useInView } from "react-intersection-observer";
 
 // Custom hooks
 import { useDebounce } from "~/hooks/use-debounce";
-import { useOrderSearchParams } from "../../../_hooks/use-order-search-params";
+import {
+  toOrdersFilter,
+  useOrderSearchParams,
+} from "../../../_hooks/use-order-search-params";
 
 // Table logic & components
 import { useTRPC } from "~/trpc/client";
@@ -33,11 +36,7 @@ export function OrdersTable() {
     trpc.admin.orders.queries.getPage.infiniteQueryOptions(
       {
         pageSize: 15,
-        filters: {
-          phoneNumber: debouncedFilters.search ?? undefined,
-          status: debouncedFilters.status ?? undefined,
-          paymentMethod: debouncedFilters.paymentMethod ?? undefined,
-        },
+        filters: toOrdersFilter(debouncedFilters),
       },
       {
         placeholderData: keepPreviousData,
@@ -65,9 +64,7 @@ export function OrdersTable() {
     }
   }, [inView, fetchNextPage]);
 
-  const filtered = [params.search, params.status, params.paymentMethod].some(
-    Boolean,
-  );
+  const filtered = [params.search, params.status, params.placed].some(Boolean);
 
   return (
     <ListGrid
@@ -99,7 +96,7 @@ export function OrdersTable() {
           ? {
               title: "No orders match these filters",
               description:
-                "Try a different phone number, status or payment method.",
+                "Try a different name, phone or order number, or clear a filter.",
             }
           : {
               title: "No Orders Found.",

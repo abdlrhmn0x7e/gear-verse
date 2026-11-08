@@ -60,3 +60,13 @@ export type BanUserInput = z.infer<typeof banUserInputSchema>;
 
 export const userIdInputSchema = z.object({ userId: userIdSchema });
 export type UserIdInput = z.infer<typeof userIdInputSchema>;
+
+export const renameUserInputSchema = z.object({
+  userId: userIdSchema,
+  name: z
+    .string()
+    .trim()
+    .min(1, "Enter a name")
+    .max(100, "Keep the name under 100 characters"),
+});
+export type RenameUserInput = z.infer<typeof renameUserInputSchema>;

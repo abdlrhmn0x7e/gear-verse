@@ -1,6 +1,13 @@
 "use client";
 
-import { ClockFadingIcon, PencilIcon, MoreHorizontal } from "lucide-react";
+import {
+  ClockFadingIcon,
+  HashIcon,
+  MapPinIcon,
+  MoreHorizontal,
+  PencilIcon,
+  PhoneIcon,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 import {
@@ -9,6 +16,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -21,9 +29,19 @@ import { toast } from "~/components/ui/toast";
 import { useRefreshOrderViews } from "../../../_hooks/use-refresh-order-views";
 import type { OrderStatus as OrderStatusType } from "~/lib/schemas/entities";
 import { OrderStatus } from "./order-status";
+import { useCopyToClipboard } from "../../copy-button";
 
-export function OrdersTableActions({ id }: { id: number }) {
+export function OrdersTableActions({
+  id,
+  phoneNumber,
+  addressLine,
+}: {
+  id: number;
+  phoneNumber: string | null;
+  addressLine: string;
+}) {
   const trpc = useTRPC();
+  const { copy } = useCopyToClipboard();
   const refreshOrderViews = useRefreshOrderViews();
   const { mutate: updateOrder, isPending: isUpdatingOrder } = useMutation(
     trpc.admin.orders.mutations.update.mutationOptions({
@@ -103,6 +121,49 @@ export function OrdersTableActions({ id }: { id: number }) {
           </DropdownMenuSub>
 
           <DeleteOrderDialog id={id} className="w-full justify-start" />
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Copy</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() =>
+              void copy(String(id), {
+                success: "Order number copied",
+                error: "Couldn't copy the order number. Try again.",
+              })
+            }
+          >
+            <HashIcon className="text-muted-foreground" />
+            Copy order number
+          </DropdownMenuItem>
+          {phoneNumber && (
+            <DropdownMenuItem
+              onClick={() =>
+                void copy(phoneNumber, {
+                  success: "Phone number copied",
+                  error: "Couldn't copy the phone number. Try again.",
+                })
+              }
+            >
+              <PhoneIcon className="text-muted-foreground" />
+              Copy phone number
+            </DropdownMenuItem>
+          )}
+          {addressLine && (
+            <DropdownMenuItem
+              onClick={() =>
+                void copy(addressLine, {
+                  success: "Address copied",
+                  error: "Couldn't copy the address. Try again.",
+                })
+              }
+            >
+              <MapPinIcon className="text-muted-foreground" />
+              Copy address
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

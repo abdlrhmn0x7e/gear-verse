@@ -3,6 +3,7 @@ import { tryCatch } from "~/lib/utils/try-catch";
 import { adminProcedure, createTRPCRouter } from "../../init";
 import {
   banUserInputSchema,
+  renameUserInputSchema,
   setUserRoleInputSchema,
   userIdInputSchema,
   usersGetManagePageInputSchema,
@@ -66,6 +67,18 @@ export const usersRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.users.mutations.create(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
+    rename: adminProcedure
+      .input(renameUserInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.users.mutations.rename(input),
         );
         if (error) {
           throw errorMap(error);

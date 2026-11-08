@@ -6,6 +6,8 @@ import {
   parseAsString,
   parseAsStringEnum,
 } from "nuqs/server";
+import type { OrdersFilter } from "~/lib/schemas/contracts/admin/orders";
+import { dashboardRanges } from "~/server/application/helpers/dashboard-range";
 
 const orderSearchParams = {
   search: parseAsString,
@@ -18,7 +20,7 @@ const orderSearchParams = {
     "REFUNDED",
     "CANCELLED",
   ]),
-  paymentMethod: parseAsStringEnum(["COD", "ONLINE"]),
+  placed: parseAsStringEnum([...dashboardRanges]),
   create: parseAsBoolean,
 };
 
@@ -27,3 +29,18 @@ export function useOrderSearchParams() {
 }
 
 export const loadOrderSearchParams = createLoader(orderSearchParams);
+
+type OrderFilterParams = {
+  search: string | null;
+  status: OrdersFilter["status"] | null;
+  placed: OrdersFilter["placed"] | null;
+};
+
+/** The list's query filters; the page's prefetch and the table must build the same key. */
+export function toOrdersFilter(params: OrderFilterParams) {
+  return {
+    search: params.search ?? undefined,
+    status: params.status ?? undefined,
+    placed: params.placed ?? undefined,
+  };
+}

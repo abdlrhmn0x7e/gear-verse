@@ -102,6 +102,30 @@ export function formatGovernorate(governorate: string) {
     .join(" ");
 }
 
+/** "12 Tahrir St, Building 4, Nasr City, Cairo": a delivery address on one line, for couriers and copying. */
+export function formatAddressLine(
+  address:
+    | {
+        address: string;
+        buildingNameOrNumber: string;
+        city: string;
+        governorate: string;
+      }
+    | null
+    | undefined,
+) {
+  if (!address) return "";
+  return [
+    address.address,
+    address.buildingNameOrNumber,
+    address.city,
+    formatGovernorate(address.governorate),
+  ]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
 const cairoHourFormatter = new Intl.DateTimeFormat("en-GB", {
   hour: "numeric",
   hourCycle: "h23",

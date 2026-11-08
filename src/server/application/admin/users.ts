@@ -7,6 +7,7 @@ import { tryCatch } from "~/lib/utils/try-catch";
 import {
   banDurations,
   type BanUserInput,
+  type RenameUserInput,
   type SetUserRoleInput,
   type UserIdInput,
   type UsersGetManagePageInput,
@@ -79,6 +80,25 @@ export const _users = {
   mutations: {
     create: async (input: CreateUserInput) => {
       return data.admin.users.mutations.create(input);
+    },
+
+    /**
+     * Names a guest checkout's account. Registered users own their names, and
+     * the guest stays anonymous so signing up later still merges it.
+     */
+    rename: async ({ userId, name }: RenameUserInput) => {
+      const user = await data.admin.users.queries.findById(userId);
+      if (!user) {
+        throw new AppError("User not found", "NOT_FOUND");
+      }
+      if (!user.isAnonymous) {
+        throw new AppError(
+          "Only guest customers can be renamed here",
+          "BAD_REQUEST",
+        );
+      }
+
+      return data.admin.users.mutations.rename(userId, name);
     },
 
     setRole: async ({ userId, role }: SetUserRoleInput, actor: Actor) => {

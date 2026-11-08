@@ -132,6 +132,15 @@ export const _users = {
         .then(([user]) => user ?? null);
     },
 
+    /** Any user, guests included. */
+    findById: async (id: number) => {
+      return db
+        .select({ id: users.id, isAnonymous: users.isAnonymous })
+        .from(users)
+        .where(eq(users.id, id))
+        .then(([user]) => user ?? null);
+    },
+
     // matches the customers list, which leaves anonymous visitors out
     getCount: async () => {
       return db.$count(users, eq(users.isAnonymous, false));
@@ -144,6 +153,16 @@ export const _users = {
         .insert(users)
         .values(input)
         .returning({ id: users.id })
+        .then(([res]) => res);
+    },
+
+    // updatedAt has no $onUpdate in the schema, so it is set here
+    rename: async (id: number, name: string) => {
+      return db
+        .update(users)
+        .set({ name, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning({ id: users.id, name: users.name })
         .then(([res]) => res);
     },
 
