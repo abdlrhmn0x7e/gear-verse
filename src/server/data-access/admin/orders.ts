@@ -1,4 +1,4 @@
-import { sql, eq, gt, desc, and, ilike, isNull } from "drizzle-orm";
+import { sql, eq, lt, desc, and, ilike, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "~/server/db";
 import {
@@ -51,7 +51,7 @@ export const _orders = {
       status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
       paymentMethod: "COD" | "ONLINE";
     }>) => {
-      const whereClause = [gt(orders.id, cursor ?? 0)];
+      const whereClause = cursor ? [lt(orders.id, cursor)] : [];
       if (filters?.phoneNumber) {
         whereClause.push(
           ilike(addresses.phoneNumber, `%${filters.phoneNumber}%`),
@@ -98,7 +98,7 @@ export const _orders = {
         .leftJoin(totalValueCTE, eq(orders.id, totalValueCTE.orderId))
         .where(and(...whereClause))
         .orderBy(desc(orders.id))
-        .limit(pageSize);
+        .limit(pageSize + 1);
     },
 
     findById: async (id: number) => {
