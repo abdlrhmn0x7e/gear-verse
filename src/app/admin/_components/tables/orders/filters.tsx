@@ -36,39 +36,12 @@ const placedOptions = [
  * in the orders search params. Rendered straight into the page's toolbar row.
  */
 export function OrdersFilters() {
-  const trpc = useTRPC();
   const [filters, setFilters] = useOrderSearchParams();
-  const { data: counts } = useQuery(
-    trpc.admin.orders.queries.getPresetCounts.queryOptions(),
-  );
-  const activePreset = findOrderPreset(filters);
 
   return (
     <>
-      {/* scrolls sideways on narrow screens instead of wrapping */}
-      <div className="-mx-4 w-[calc(100%+2rem)] [scrollbar-width:none] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:px-0">
-        <Tabs
-          value={activePreset?.id ?? null}
-          onValueChange={(id: OrderPresetId) => {
-            const preset = orderPresets.find((preset) => preset.id === id);
-            if (preset) void setFilters(preset.filters);
-          }}
-        >
-          <TabsList aria-label="Order views">
-            {orderPresets.map((preset) => (
-              <TabsTrigger key={preset.id} value={preset.id}>
-                {preset.label}
-                {/* nothing until loaded; the page prefetches them, so this is rarely seen */}
-                {counts && (
-                  <span className="text-muted-foreground text-xs tabular-nums">
-                    {counts[preset.id]}
-                  </span>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
+      {/* on phones the views sit here and scroll sideways; wider screens show them on the title line */}
+      <OrderPresetTabs className="-mx-4 w-[calc(100%+2rem)] [scrollbar-width:none] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:px-0 lg:hidden" />
       <SearchInput
         className="w-full sm:w-64"
         placeholder="Search name, phone or order #"
@@ -97,5 +70,41 @@ export function OrdersFilters() {
         onChange={(placed) => void setFilters({ placed })}
       />
     </>
+  );
+}
+
+/** The preset views as tabs, each with its order count; picking one replaces the filters but keeps the search. */
+export function OrderPresetTabs({ className }: { className?: string }) {
+  const trpc = useTRPC();
+  const [filters, setFilters] = useOrderSearchParams();
+  const { data: counts } = useQuery(
+    trpc.admin.orders.queries.getPresetCounts.queryOptions(),
+  );
+  const activePreset = findOrderPreset(filters);
+
+  return (
+    <div className={className}>
+      <Tabs
+        value={activePreset?.id ?? null}
+        onValueChange={(id: OrderPresetId) => {
+          const preset = orderPresets.find((preset) => preset.id === id);
+          if (preset) void setFilters(preset.filters);
+        }}
+      >
+        <TabsList aria-label="Order views">
+          {orderPresets.map((preset) => (
+            <TabsTrigger key={preset.id} value={preset.id}>
+              {preset.label}
+              {/* nothing until loaded; the page prefetches them, so this is rarely seen */}
+              {counts && (
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {counts[preset.id]}
+                </span>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>{" "}
+    </div>
   );
 }

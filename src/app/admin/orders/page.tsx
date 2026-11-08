@@ -3,7 +3,10 @@ import { OrdersTable } from "../_components/tables/orders/table";
 import { OrderDrawer } from "../_components/drawers/order-drawer";
 import { Suspense } from "react";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
-import { OrdersFilters } from "../_components/tables/orders/filters";
+import {
+  OrderPresetTabs,
+  OrdersFilters,
+} from "../_components/tables/orders/filters";
 import {
   loadOrderSearchParams,
   toOrdersFilter,
@@ -38,6 +41,7 @@ export default async function AdminOrdersPage({
     <HydrateClient>
       <PageLayout
         title="Orders"
+        titleContent={<OrderPresetTabs className="ms-2 max-lg:hidden" />}
         description="View all orders placed in your store."
         contentWidth="table"
         actions={<CreateOrderDrawer />}
