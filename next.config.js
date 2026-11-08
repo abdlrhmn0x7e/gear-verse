@@ -10,6 +10,16 @@ import { env } from "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   cacheComponents: true,
+  // Every cached read is expired by its tag when the admin or a checkout changes the data, so the built-in 15-minute
+  // revalidate only re-rendered unchanged pages for crawlers and prefetches, which used up Vercel's CPU allowance.
+  // Redefining "default" covers each `use cache` that calls no cacheLife.
+  cacheLife: {
+    default: {
+      stale: 300, // 5 minutes
+      revalidate: 86400, // 1 day
+      expire: 2592000, // 30 days
+    },
+  },
   partialPrefetching: true,
   reactCompiler: true,
   experimental: {

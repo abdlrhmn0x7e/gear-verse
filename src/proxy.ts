@@ -4,7 +4,6 @@ import createMiddleware from "next-intl/middleware";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-import { auth } from "./server/auth";
 import { env } from "./env";
 import { routing } from "./i18n/routing";
 import { isFacetedSearch, isListingPath } from "./lib/seo/faceted";
@@ -66,6 +65,9 @@ export async function proxy(req: NextRequest) {
 
   // Protect admin routes - require admin role
   if (path.startsWith("/admin")) {
+    // loaded here only: the auth server pulls in the database and adapters, and every storefront page and link
+    // prefetch also runs this proxy, so importing it up top cost each cold start ~250ms of CPU for nothing
+    const { auth } = await import("./server/auth");
     const session = await auth.api.getSession({
       headers: await headers(),
     });
