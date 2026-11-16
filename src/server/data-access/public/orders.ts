@@ -46,6 +46,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          trackingNumber: orders.trackingNumber,
           totalPrice:
             sql<number>`SUM(${orderItems.quantity} * ${orderLineUnitPrice})`.mapWith(
               Number,
@@ -239,6 +240,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          trackingNumber: orders.trackingNumber,
           createdAt: orders.createdAt,
           updatedAt: orders.updatedAt,
 
@@ -248,6 +250,9 @@ export const _orders = {
             phoneNumber: addresses.phoneNumber,
             address: addresses.address,
             buildingNameOrNumber: addresses.buildingNameOrNumber,
+            floor: addresses.floor,
+            apartment: addresses.apartment,
+            additionalDetails: addresses.additionalDetails,
             city: addresses.city,
             governorate: addresses.governorate,
           },

@@ -1,3 +1,4 @@
+import { formatStreetLine } from "~/lib/address";
 import { whatsAppLink } from "~/lib/whatsapp";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -102,24 +103,23 @@ export function formatGovernorate(governorate: string) {
     .join(" ");
 }
 
-/** "12 Tahrir St, Building 4, Nasr City, Cairo": a delivery address on one line, for couriers and copying. */
+/** "12 Tahrir St, Building 4, Floor 2, Apt 6, Nasr City, Cairo, next to the bank": a delivery address on one line, for couriers and copying. */
 export function formatAddressLine(
   address:
-    | {
-        address: string;
-        buildingNameOrNumber: string;
+    | (Parameters<typeof formatStreetLine>[0] & {
         city: string;
         governorate: string;
-      }
+        additionalDetails?: string | null;
+      })
     | null
     | undefined,
 ) {
   if (!address) return "";
   return [
-    address.address,
-    address.buildingNameOrNumber,
+    formatStreetLine(address),
     address.city,
     formatGovernorate(address.governorate),
+    address.additionalDetails ?? "",
   ]
     .map((part) => part.trim())
     .filter(Boolean)

@@ -29,7 +29,7 @@ import type { Pagination } from "../common/types";
 import type { CategoryProductsFilters } from "~/lib/schemas/contracts/public/categories";
 import { getCategoryIdsBySlug } from "../common/category-ids";
 import { variantsCTE } from "../common/cte";
-import { purchasableSql } from "../common/purchasable";
+import { listedPriceSql, purchasableSql } from "../common/purchasable";
 import {
   getProductsOrdering,
   type ProductsSortBy,
@@ -295,10 +295,10 @@ export const _categories = {
       }
 
       if (filters?.price?.min) {
-        preds.push(gte(products.price, filters.price.min));
+        preds.push(gte(listedPriceSql(products.id), filters.price.min));
       }
       if (filters?.price?.max) {
-        preds.push(lte(products.price, filters.price.max));
+        preds.push(lte(listedPriceSql(products.id), filters.price.max));
       }
 
       return db
@@ -307,7 +307,7 @@ export const _categories = {
           id: products.id,
           slug: products.slug,
           title: products.title,
-          price: products.price,
+          price: listedPriceSql(products.id),
           strikeThroughPrice: products.strikeThroughPrice,
           summary: localized<string>(
             products.summary,

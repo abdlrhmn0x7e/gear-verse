@@ -43,6 +43,9 @@ export function AddressForm({
       city: "",
       address: "",
       buildingNameOrNumber: "",
+      floor: "",
+      apartment: "",
+      additionalDetails: "",
     },
   });
 
@@ -144,9 +147,9 @@ export function AddressForm({
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Street name or number</FormLabel>
               <FormControl>
-                <Input placeholder="123 Main St" {...field} />
+                <Input placeholder="15 Abbas El Akkad St" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -158,9 +161,56 @@ export function AddressForm({
           name="buildingNameOrNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Building Name/Number</FormLabel>
+              <FormLabel>Building number</FormLabel>
               <FormControl>
-                <Input placeholder="Building 12, floor 3, apt 5" {...field} />
+                <Input placeholder="12" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="floor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Floor (optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="3" {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="apartment"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apartment (optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="5" {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="additionalDetails"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Landmark or directions (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Next to the pharmacy, gate 2"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

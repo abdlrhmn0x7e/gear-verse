@@ -5,6 +5,7 @@ import {
   CreditCardIcon,
   HandCoinsIcon,
   PackageIcon,
+  TruckIcon,
   XIcon,
 } from "lucide-react";
 import { Link } from "~/i18n/navigation";
@@ -14,6 +15,7 @@ import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { formatDate } from "~/lib/utils/format-date";
+import { aramexTrackingUrl } from "~/lib/aramex";
 import { whatsAppLink } from "~/lib/whatsapp";
 import type { RouterOutput } from "~/trpc/client";
 import { orderTimeline, type TimelineStep } from "./order-status";
@@ -52,6 +54,25 @@ export function OrderDetails({
     <div className={cn("flex flex-col gap-3", className)}>
       <OrderSection title={t("details.status")} as={Heading}>
         <OrderTimeline order={order} />
+        {order.trackingNumber &&
+          (order.status === "SHIPPED" || order.status === "DELIVERED") && (
+            <Button
+              variant="outline"
+              size="lg"
+              className="mt-5"
+              nativeButton={false}
+              render={
+                <a
+                  href={aramexTrackingUrl(order.trackingNumber)}
+                  target="_blank"
+                  rel="noopener"
+                />
+              }
+            >
+              <TruckIcon data-icon="inline-start" />
+              {t("details.trackPackage")}
+            </Button>
+          )}
       </OrderSection>
 
       <OrderSection title={t("details.whatsNext")} as={Heading}>
@@ -116,12 +137,31 @@ export function OrderDetails({
                     second: () => <bdi>{address.address}</bdi>,
                   })}
                 </span>
+                {(!!address.floor || !!address.apartment) && (
+                  <span className="block">
+                    {[
+                      address.floor &&
+                        t("details.floor", { floor: address.floor }),
+                      address.apartment &&
+                        t("details.apartment", {
+                          apartment: address.apartment,
+                        }),
+                    ]
+                      .filter(Boolean)
+                      .join(t("details.partSeparator"))}
+                  </span>
+                )}
                 <span className="block">
                   {t.rich("details.addressParts", {
                     first: () => <bdi>{address.city}</bdi>,
                     second: () => tGovernorates(address.governorate),
                   })}
                 </span>
+                {address.additionalDetails && (
+                  <span className="block">
+                    <bdi>{address.additionalDetails}</bdi>
+                  </span>
+                )}
                 <span className="block tabular-nums" dir="ltr">
                   {address.phoneNumber}
                 </span>

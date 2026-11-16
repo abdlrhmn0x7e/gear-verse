@@ -109,6 +109,7 @@ export const variantsCTE = db.$with("variants").as(
       ),
     )
     .leftJoin(media, eq(productVariants.thumbnailMediaId, media.id))
+    .where(eq(productVariants.archived, false))
     .groupBy(productVariants.productId),
 );
 

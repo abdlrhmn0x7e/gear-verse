@@ -51,6 +51,7 @@
   },
   "details": {
     "status": "الحالة",
+    "trackPackage": "تابع شحنتك",
     "whatsNext": "اللي جاي",
     "contactWhatsApp": "كلّمنا على واتساب",
     "returnsPolicy": "سياسة الاسترجاع",
@@ -64,7 +65,10 @@
     "partialBackorder": "{backordered} من {quantity} بالطلب",
     "shippingPending": "بنأكده على واتساب",
     "shippingPaid": "بيتدفع لوحده",
-    "addressParts": "<first></first>، <second></second>"
+    "addressParts": "<first></first>، <second></second>",
+    "floor": "الدور {floor}",
+    "apartment": "شقة {apartment}",
+    "partSeparator": "، "
   },
   "steps": {
     "whatsapp": {

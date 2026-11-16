@@ -20,6 +20,7 @@ import {
 import { Spinner } from "~/components/spinner";
 import { AddAddressDialog } from "../../dialogs/add-address";
 import { IconHome, IconHomeOff, IconPhone } from "@tabler/icons-react";
+import { formatStreetLine } from "~/lib/address";
 
 export function AddressesCombobox({
   userId,
@@ -104,7 +105,7 @@ export function AddressesCombobox({
         <IconHome />
         <span className="truncate capitalize">
           {address.governorate.toLowerCase()}, {address.city} -{" "}
-          {address.address}, {address.buildingNameOrNumber}
+          {formatStreetLine(address)}
         </span>
       </>
     );

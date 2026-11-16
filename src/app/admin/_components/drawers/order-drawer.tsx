@@ -22,6 +22,7 @@ import {
 } from "~/components/ui/drawer";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { aramexTrackingUrl } from "~/lib/aramex";
 import { googleMapsUrl } from "~/lib/google-maps";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
@@ -289,6 +290,27 @@ function OrderDrawerContent() {
             label="Status"
             value={<OrderStatus status={data.status} />}
           />
+          {data.trackingNumber && (
+            <DetailRow
+              label="Tracking no."
+              value={
+                <CopyableValue
+                  text={data.trackingNumber}
+                  label="Copy tracking number"
+                  success="Tracking number copied"
+                >
+                  <a
+                    href={aramexTrackingUrl(data.trackingNumber)}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-foreground tabular-nums underline-offset-4 hover:underline"
+                  >
+                    {data.trackingNumber}
+                  </a>
+                </CopyableValue>
+              }
+            />
+          )}
           <DetailRow
             label="Payment method"
             value={<PaymentMethod method={data.paymentMethod} />}

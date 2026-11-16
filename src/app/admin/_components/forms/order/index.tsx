@@ -17,7 +17,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "~/components/ui/field";
-import { NumberInput } from "~/components/ui/input";
+import { Input, NumberInput } from "~/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Skeleton } from "~/components/ui/skeleton";
 import { createFullOrderInputSchema } from "~/lib/schemas/entities";
@@ -354,6 +354,31 @@ export function OrderForm({
             </RadioGroup>
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </FieldSet>
+        )}
+      />
+
+      <Controller
+        name="trackingNumber"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="order-tracking-number">
+              Aramex tracking number
+            </FieldLabel>
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              id="order-tracking-number"
+              inputMode="numeric"
+              autoComplete="off"
+              aria-invalid={fieldState.invalid}
+            />
+            <FieldDescription>
+              The customer gets a Track your package button once the order is
+              shipped.
+            </FieldDescription>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     </form>

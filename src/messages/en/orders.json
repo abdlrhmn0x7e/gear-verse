@@ -51,6 +51,7 @@
   },
   "details": {
     "status": "Status",
+    "trackPackage": "Track your package",
     "whatsNext": "What's next",
     "contactWhatsApp": "Contact us on WhatsApp",
     "returnsPolicy": "Returns policy",
@@ -64,7 +65,10 @@
     "partialBackorder": "{backordered} of {quantity} on backorder",
     "shippingPending": "Confirmed on WhatsApp",
     "shippingPaid": "Paid separately",
-    "addressParts": "<first></first>, <second></second>"
+    "addressParts": "<first></first>, <second></second>",
+    "floor": "Floor {floor}",
+    "apartment": "Apartment {apartment}",
+    "partSeparator": ", "
   },
   "steps": {
     "whatsapp": {

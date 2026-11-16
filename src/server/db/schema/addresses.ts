@@ -56,6 +56,11 @@ export const addresses = pgTable(
     phoneNumber: text("phone_number").notNull(),
     address: text("address").notNull(),
     buildingNameOrNumber: text("building_name_or_number").notNull(),
+    // optional: villas and houses have neither
+    floor: text("floor"),
+    apartment: text("apartment"),
+    // landmarks and directions for the courier
+    additionalDetails: text("additional_details"),
     city: text("city").notNull(),
     governorate: addressGovernoratesEnum("governorate").notNull(),
     latitude: doublePrecision("latitude"),

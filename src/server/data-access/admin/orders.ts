@@ -130,6 +130,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          trackingNumber: orders.trackingNumber,
           totalValue: totalValueCTE.totalValue,
           itemCount: totalValueCTE.itemCount,
           customerName: sql<
@@ -139,6 +140,9 @@ export const _orders = {
           addressParts: {
             address: addresses.address,
             buildingNameOrNumber: addresses.buildingNameOrNumber,
+            floor: addresses.floor,
+            apartment: addresses.apartment,
+            additionalDetails: addresses.additionalDetails,
             city: addresses.city,
             governorate: addresses.governorate,
           },
@@ -207,6 +211,7 @@ export const _orders = {
         .select({
           status: orders.status,
           paymentMethod: orders.paymentMethod,
+          trackingNumber: orders.trackingNumber,
           userId: orders.userId,
           addressId: orders.addressId,
           items: orderItemsJsonCTE.json,
@@ -350,6 +355,7 @@ export const _orders = {
           id: orders.id,
           paymentMethod: orders.paymentMethod,
           status: orders.status,
+          trackingNumber: orders.trackingNumber,
           createdAt: orders.createdAt,
           updatedAt: orders.updatedAt,
           address: {
@@ -357,6 +363,9 @@ export const _orders = {
             phoneNumber: addresses.phoneNumber,
             address: addresses.address,
             buildingNameOrNumber: addresses.buildingNameOrNumber,
+            floor: addresses.floor,
+            apartment: addresses.apartment,
+            additionalDetails: addresses.additionalDetails,
             city: addresses.city,
             governorate: addresses.governorate,
             latitude: addresses.latitude,

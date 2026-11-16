@@ -25,7 +25,7 @@ import {
 } from "~/server/db/schema";
 import { getCategoryIdsBySlug } from "../common/category-ids";
 import { fullVariantsCTE, variantsCTE, type FullVariant } from "../common/cte";
-import { inStockSql } from "../common/purchasable";
+import { inStockSql, listedPriceSql } from "../common/purchasable";
 import type { Pagination } from "../common/types";
 import {
   getProductsOrdering,
@@ -84,10 +84,10 @@ export const _products = {
       }
 
       if (filters?.price?.min) {
-        whereClause.push(gte(products.price, filters.price.min));
+        whereClause.push(gte(listedPriceSql(products.id), filters.price.min));
       }
       if (filters?.price?.max) {
-        whereClause.push(lte(products.price, filters.price.max));
+        whereClause.push(lte(listedPriceSql(products.id), filters.price.max));
       }
 
       const brandsMedia = alias(media, "brands_media");
@@ -97,7 +97,7 @@ export const _products = {
           id: products.id,
           slug: products.slug,
           title: products.title,
-          price: products.price,
+          price: listedPriceSql(products.id),
           strikeThroughPrice: products.strikeThroughPrice,
           summary: localizedSummary(locale),
           trending: sql<boolean>`${products.pinnedPosition} is not null`,
@@ -282,7 +282,7 @@ export const _products = {
           slug: products.slug,
           title: products.title,
           summary: localizedSummary(locale),
-          price: products.price,
+          price: listedPriceSql(products.id),
           strikeThroughPrice: products.strikeThroughPrice,
           condition: products.condition,
           categoryId: products.categoryId,
@@ -348,7 +348,10 @@ export const _products = {
       }
 
       const [range] = await db
-        .select({ min: min(products.price), max: max(products.price) })
+        .select({
+          min: min(listedPriceSql(products.id)).mapWith(Number),
+          max: max(listedPriceSql(products.id)).mapWith(Number),
+        })
         .from(products)
         .where(and(...where));
 

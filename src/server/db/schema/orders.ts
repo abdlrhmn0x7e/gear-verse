@@ -5,6 +5,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -41,6 +42,8 @@ export const orders = pgTable(
 
     paymentMethod: orderPaymentMethodsEnum("payment_method").notNull(),
     status: orderStatusEnum("status").notNull().default("PENDING"),
+    // the Aramex shipment number, set once the order ships
+    trackingNumber: text("tracking_number"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

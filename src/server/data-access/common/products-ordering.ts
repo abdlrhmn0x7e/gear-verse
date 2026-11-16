@@ -1,5 +1,6 @@
 import { asc, desc, gt, lt, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { categoryProductPositions, products } from "~/server/db/schema";
+import { listedPriceSql } from "./purchasable";
 
 export type ProductsSortBy =
   "price-asc" | "price-desc" | "newest" | "oldest" | "trending";
@@ -20,21 +21,22 @@ export function getProductsOrdering(
   cursor: number | undefined,
   categoryId?: number,
 ) {
-  const cursorPrice = sql`(select cursor_products.price from ${products} as cursor_products where cursor_products.id = ${cursor})`;
+  const price = listedPriceSql(products.id);
+  const cursorPrice = listedPriceSql(cursor);
 
   switch (sortBy) {
     case "price-asc":
       return {
-        orderBy: [asc(products.price), asc(products.id)],
+        orderBy: [asc(price), asc(products.id)],
         cursorWhere: cursor
-          ? sql`(${products.price}, ${products.id}) > (${cursorPrice}, ${cursor})`
+          ? sql`(${price}, ${products.id}) > (${cursorPrice}, ${cursor})`
           : undefined,
       };
     case "price-desc":
       return {
-        orderBy: [desc(products.price), desc(products.id)],
+        orderBy: [desc(price), desc(products.id)],
         cursorWhere: cursor
-          ? sql`(${products.price}, ${products.id}) < (${cursorPrice}, ${cursor})`
+          ? sql`(${price}, ${products.id}) < (${cursorPrice}, ${cursor})`
           : undefined,
       };
     // pinned products first, then the store order, then the newest
