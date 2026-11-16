@@ -84,6 +84,9 @@ export function AddressForm({
       city: "",
       address: "",
       buildingNameOrNumber: "",
+      floor: "",
+      apartment: "",
+      additionalDetails: "",
       latitude: null,
       longitude: null,
     },
@@ -320,9 +323,76 @@ export function AddressForm({
                 <Input
                   autoComplete="address-line2"
                   dir="auto"
+                  inputMode="numeric"
                   placeholder={t("buildingPlaceholder")}
                   className={touchField}
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="floor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("floor")}</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    dir="auto"
+                    inputMode="numeric"
+                    placeholder={t("floorPlaceholder")}
+                    className={touchField}
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="apartment"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("apartment")}</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete="off"
+                    dir="auto"
+                    inputMode="numeric"
+                    placeholder={t("apartmentPlaceholder")}
+                    className={touchField}
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="additionalDetails"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("additionalDetails")}</FormLabel>
+              <FormControl>
+                <Input
+                  autoComplete="off"
+                  dir="auto"
+                  placeholder={t("additionalDetailsPlaceholder")}
+                  className={touchField}
+                  {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />

@@ -57,6 +57,9 @@ export const addressEntitySchema = z.object({
   phoneNumber: phoneNumberSchema,
   address: z.string().min(1, ADDRESS_ERRORS.addressRequired),
   buildingNameOrNumber: z.string().min(1, ADDRESS_ERRORS.buildingRequired),
+  floor: z.string().trim().nullable(),
+  apartment: z.string().trim().nullable(),
+  additionalDetails: z.string().trim().nullable(),
   city: z.string().min(1, ADDRESS_ERRORS.cityRequired),
   governorate: z.enum(
     addressGovernoratesEnum.options,
@@ -93,6 +96,9 @@ const createAddressBaseSchema = addressEntitySchema
     updatedAt: true,
   })
   .extend({
+    floor: z.string().trim().nullish(),
+    apartment: z.string().trim().nullish(),
+    additionalDetails: z.string().trim().nullish(),
     latitude: latitudeSchema.nullish(),
     longitude: longitudeSchema.nullish(),
   });

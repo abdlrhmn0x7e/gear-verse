@@ -14,6 +14,11 @@ export const orderEntitySchema = z.object({
 
   paymentMethod: z.enum(["COD", "ONLINE"]),
   status: orderStatusEnum,
+  trackingNumber: z
+    .string()
+    .trim()
+    .max(64, "Tracking number is too long")
+    .nullish(),
   userId: z
     .number("User ID must be a number")
     .positive("User ID must be positive"),

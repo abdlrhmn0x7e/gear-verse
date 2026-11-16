@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { Resend } from "resend";
 import { env } from "~/env";
+import { formatStreetLine } from "~/lib/address";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { humanizeString } from "~/lib/utils/humanize-string";
 import { data } from "~/server/data-access";
@@ -93,10 +94,10 @@ export function renderOrderPlacedEmail(order: OrderDetails, appUrl: string) {
   const addressLines = order.address
     ? [
         order.address.fullName,
-        order.address.address,
-        order.address.buildingNameOrNumber,
+        formatStreetLine(order.address),
         `${order.address.city}, ${humanizeString(order.address.governorate, "snake")}`,
-      ]
+        order.address.additionalDetails ?? "",
+      ].filter(Boolean)
     : [];
 
   const subject = `New order #${order.id} · ${formatCurrency(subtotal, "en")}`;
