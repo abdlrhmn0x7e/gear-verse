@@ -25,3 +25,21 @@ export function inStockSql(productId: AnyPgColumn | SQL): SQL<boolean> {
 export function purchasableSql(): SQL<boolean> {
   return sql<boolean>`(${products.allowBackorder} or ${inStockSql(products.id)})`;
 }
+
+/**
+ * The price a product is listed at: its cheapest variant still on sale, or
+ * its own price when it has none. Raw names so it also reads a cursor id.
+ */
+export function listedPriceSql(
+  productId: AnyPgColumn | SQL | number | undefined,
+): SQL<number> {
+  return sql<number>`(
+    select coalesce(min(coalesce(listed_variants.override_price, listed_products.price)), listed_products.price)
+    from ${products} as listed_products
+    left join ${productVariants} as listed_variants
+      on listed_variants.product_id = listed_products.id
+      and listed_variants.archived = false
+    where listed_products.id = ${productId}
+    group by listed_products.price
+  )`;
+}
