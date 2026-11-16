@@ -4,6 +4,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({
   region: env.AWS_S3_REGION,
+  // the default signs the CRC32 of an empty body into presigned URLs, so S3 rejects every browser upload
+  requestChecksumCalculation: "WHEN_REQUIRED",
   credentials: {
     accessKeyId: env.AWS_S3_ACCESS_KEY_ID,
     secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY,
