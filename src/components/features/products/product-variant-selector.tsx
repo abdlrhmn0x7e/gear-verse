@@ -47,11 +47,13 @@ export function ProductVariantSelector({
     [variants],
   );
 
-  // the first value of each option is selected by default
-  const defaultValues = useMemo(
-    () => Object.values(options).map((valuesSet) => Array.from(valuesSet)[0]!),
-    [options],
-  );
+  // open on the first variant in stock, else the first variant
+  const defaultValues = useMemo(() => {
+    const variant = variants.find((v) => v.stock > 0) ?? variants[0];
+    return Object.entries(options).map(
+      ([key, values]) => variant?.options[key]?.value ?? Array.from(values)[0]!,
+    );
+  }, [options, variants]);
 
   // the selection is tied to the options it was made for, so it resets to the defaults when they change
   const [selection, setSelection] = useState<{
@@ -188,7 +190,7 @@ function PrimaryOptionValueButton({
             aria-pressed={selectedValues.includes(value)}
             aria-label={value}
             className={cn(
-              "image-well size-16 cursor-pointer overflow-hidden rounded-2xl outline-2 outline-offset-2 outline-transparent transition-[outline-color] duration-150 hover:outline-border focus-visible:outline-focus aria-pressed:outline-foreground",
+              "image-well hover:outline-border focus-visible:outline-focus aria-pressed:outline-foreground size-16 cursor-pointer overflow-hidden rounded-2xl outline-2 outline-offset-2 outline-transparent transition-[outline-color] duration-150",
               className,
             )}
             onClick={() => handleOptionValueSelect?.(value)}
