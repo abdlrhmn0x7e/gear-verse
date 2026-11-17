@@ -16,7 +16,8 @@ import { useTRPC } from "~/trpc/client";
 
 const presetIcons: Record<OrderPresetId, ReactNode> = {
   all: <ListIcon />,
-  "to-ship": orderStatusMap.PENDING.icon,
+  "to-confirm": orderStatusMap.PENDING.icon,
+  "to-ship": orderStatusMap.CONFIRMED.icon,
   "out-for-delivery": orderStatusMap.SHIPPED.icon,
   delivered: orderStatusMap.DELIVERED.icon,
   cancelled: orderStatusMap.CANCELLED.icon,

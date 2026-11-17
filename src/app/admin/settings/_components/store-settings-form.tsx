@@ -35,7 +35,13 @@ import {
   InputGroupText,
 } from "~/components/ui/input-group";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  orderMessageVariantLabels,
+  orderMessageVariants,
+} from "~/lib/order-message";
+import { MessageTemplateEditor } from "./message-template-editor";
 import {
   socialHosts,
   updateStoreSettingsInputSchema,
@@ -94,6 +100,7 @@ function toFormValues(settings: Settings): UpdateStoreSettingsFormValues {
     youtubeUrl: settings.youtubeUrl ?? "",
     lowStockThreshold: settings.lowStockThreshold,
     orderNotificationEmails: settings.orderNotificationEmails.join("\n"),
+    orderMessageTemplates: settings.orderMessageTemplates,
   };
 }
 
@@ -259,6 +266,13 @@ export function StoreSettingsForm({ settings }: { settings: Settings }) {
           />
         </Section>
 
+        <Section
+          title="WhatsApp messages"
+          description="What the dashboard's WhatsApp button types in to confirm an order. Each kind of order has its own message."
+        >
+          <OrderMessageTemplatesField />
+        </Section>
+
         <SaveBar
           form="store-settings-form"
           visible={isDirty || isPending}
@@ -324,6 +338,44 @@ function WhatsAppField() {
   );
 }
 
+function OrderMessageTemplatesField() {
+  return (
+    <Tabs defaultValue={orderMessageVariants[0]} className="gap-4">
+      <TabsList className="max-w-full [scrollbar-width:none] overflow-x-auto">
+        {orderMessageVariants.map((variant) => (
+          <TabsTrigger key={variant} value={variant} className="flex-none">
+            {orderMessageVariantLabels[variant].label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      {orderMessageVariants.map((variant) => (
+        <TabsContent key={variant} value={variant}>
+          <FormField<
+            UpdateStoreSettingsFormValues,
+            `orderMessageTemplates.${typeof variant}`
+          >
+            name={`orderMessageTemplates.${variant}`}
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormDescription>
+                  {orderMessageVariantLabels[variant].description}
+                </FormDescription>
+                <MessageTemplateEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  label={`${orderMessageVariantLabels[variant].label} message`}
+                  invalid={fieldState.invalid}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </TabsContent>
+      ))}
+    </Tabs>
+  );
+}
+
 /** A settings group: its heading on the left, its fields in a card on the right. */
 export function Section({
   title,
@@ -352,7 +404,7 @@ export function Section({
 export function StoreSettingsFormSkeleton() {
   return (
     <div className="flex flex-col gap-10">
-      {[1, 6, 1, 1].map((fields, index) => (
+      {[1, 6, 1, 1, 1].map((fields, index) => (
         <div
           key={index}
           className="grid gap-x-10 gap-y-4 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]"

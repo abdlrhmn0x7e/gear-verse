@@ -20,6 +20,7 @@ export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", [
 ]);
 export const orderStatusEnum = pgEnum("order_status", [
   "PENDING",
+  "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
   "REFUNDED",

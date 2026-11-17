@@ -1,35 +1,21 @@
 "use client";
 
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { CircleCheckIcon, ClockIcon, PhoneIcon, TruckIcon } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { CircleCheckIcon, ClockIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
-import { toast } from "~/components/ui/toast";
 import { Badge } from "~/components/reui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
-import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
+import { NextStatusButton } from "../../_components/tables/orders/next-status-button";
 import {
-  firstName,
   formatAge,
   formatGovernorate,
   formatMoney,
   isOverdue,
   telLink,
-  whatsAppConfirmationLink,
 } from "./format";
 import { Panel, PanelEmpty } from "./panel";
 
@@ -98,14 +84,7 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
   ]
     .filter(Boolean)
     .join(", ");
-  const whatsApp = order.phoneNumber
-    ? whatsAppConfirmationLink({
-        phone: order.phoneNumber,
-        customerName: order.customerName,
-        orderId: order.id,
-        total: order.total,
-      })
-    : null;
+  const { whatsApp } = order;
 
   return (
     <li className="@container/row py-3">
@@ -177,58 +156,10 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
               WhatsApp
             </Button>
           )}
-          <MarkShippedButton order={order} />
+          <NextStatusButton order={{ id: order.id, status: "PENDING" }} />
         </div>
       </div>
     </li>
-  );
-}
-
-function MarkShippedButton({ order }: { order: PendingOrder }) {
-  const trpc = useTRPC();
-  const refreshOrderViews = useRefreshOrderViews();
-  const { mutate, isPending } = useMutation(
-    trpc.admin.orders.mutations.update.mutationOptions({
-      onSuccess: () => {
-        toast.success(`Order #${order.id} marked as shipped`);
-        void refreshOrderViews();
-      },
-      onError: () => {
-        toast.error(`Couldn't mark order #${order.id} as shipped. Try again.`);
-      },
-    }),
-  );
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger
-        render={<Button variant="outline" size="sm" disabled={isPending} />}
-      >
-        <TruckIcon data-icon="inline-start" />
-        Mark shipped
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Mark order #{order.id} as shipped?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Only ship once {firstName(order.customerName)} has confirmed the
-            order and paid the shipping fee. It leaves this queue and its status
-            becomes Shipped.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => mutate({ id: order.id, status: "SHIPPED" })}
-          >
-            <TruckIcon data-icon="inline-start" />
-            Mark shipped
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }
 

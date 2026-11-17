@@ -29,3 +29,32 @@ export function whatsAppLink(number: string, message?: string) {
   const url = `https://wa.me/${number.replace(/\D/g, "")}`;
   return message ? `${url}?text=${encodeURIComponent(message)}` : url;
 }
+
+/**
+ * The digits wa.me wants for an address's phone number: the full international
+ * number with no plus or zeros in front. Egyptian numbers are stored either as
+ * typed ("01012345678") or in E.164 ("+201012345678"); both come out as
+ * "201012345678". Returns null for anything too short to dial.
+ */
+export function toWhatsAppNumber(phone: string) {
+  let digits = phone.replace(/\D/g, "");
+
+  if (digits.startsWith("00")) digits = digits.slice(2);
+
+  // a local number with its trunk 0: 01x xxxx xxxx
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return `20${digits.slice(1)}`;
+  }
+
+  // a local mobile number typed without the 0: 1x xxxx xxxx
+  if (digits.length === 10 && digits.startsWith("1")) {
+    return `20${digits}`;
+  }
+
+  // "+20 0101…" keeps a stray trunk 0 after the country code
+  if (digits.length === 13 && digits.startsWith("200")) {
+    return `20${digits.slice(3)}`;
+  }
+
+  return digits.length >= 8 ? digits : null;
+}

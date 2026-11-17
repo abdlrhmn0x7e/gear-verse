@@ -15,7 +15,7 @@ export default async function AdminSettingsPage() {
   return (
     <PageLayout
       title="Store settings"
-      description="Contact details and social links shown on the store, and who gets order emails."
+      description="Contact details and social links shown on the store, who gets order emails, and the WhatsApp order messages."
     >
       <div className="flex flex-col gap-10">
         <Suspense fallback={<StoreSettingsFormSkeleton />}>

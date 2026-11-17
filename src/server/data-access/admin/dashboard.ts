@@ -129,7 +129,34 @@ export const _dashboard = {
 
     /** The oldest PENDING orders with who to call and what they ordered. */
     pendingOrders: async (limit: number) => {
-      type Line = { title: string; quantity: number };
+      type Line = {
+        title: string;
+        quantity: number;
+        backorderedQuantity: number;
+      };
+
+      const variantLabels = db
+        .select({
+          productVariantId: productOptionValuesVariants.productVariantId,
+          label:
+            sql<string>`string_agg(${productOptionValues.value}, ' ' order by ${productOptions.order}, ${productOptions.id})`.as(
+              "label",
+            ),
+        })
+        .from(productOptionValuesVariants)
+        .innerJoin(
+          productOptionValues,
+          eq(
+            productOptionValuesVariants.productOptionValueId,
+            productOptionValues.id,
+          ),
+        )
+        .innerJoin(
+          productOptions,
+          eq(productOptionValues.productOptionId, productOptions.id),
+        )
+        .groupBy(productOptionValuesVariants.productVariantId)
+        .as("variant_labels");
 
       const lines = db
         .select({
@@ -138,8 +165,16 @@ export const _dashboard = {
           quantity: sql<number>`sum(${orderItems.quantity})::int`.as(
             "quantity",
           ),
+          backordered:
+            sql<boolean>`bool_or(${orderItems.backorderedQuantity} > 0)`.as(
+              "backordered",
+            ),
           lines: sql<Line[]>`jsonb_agg(
-            jsonb_build_object('title', ${products.title}, 'quantity', ${orderItems.quantity})
+            jsonb_build_object(
+              'title', concat_ws(' ', ${products.title}, ${variantLabels.label}),
+              'quantity', ${orderItems.quantity},
+              'backorderedQuantity', ${orderItems.backorderedQuantity}
+            )
             order by ${orderItems.id}
           )`.as("lines"),
         })
@@ -149,6 +184,10 @@ export const _dashboard = {
           productVariants,
           eq(orderItems.productVariantId, productVariants.id),
         )
+        .leftJoin(
+          variantLabels,
+          eq(orderItems.productVariantId, variantLabels.productVariantId),
+        )
         .groupBy(orderItems.orderId)
         .as("lines");
 
@@ -156,12 +195,19 @@ export const _dashboard = {
         .select({
           id: orders.id,
           createdAt: orders.createdAt,
+          paymentMethod: orders.paymentMethod,
           customerName: sql<string>`coalesce(${addresses.fullName}, ${users.name})`,
           phoneNumber: addresses.phoneNumber,
+          address: addresses.address,
+          buildingNameOrNumber: addresses.buildingNameOrNumber,
+          floor: addresses.floor,
+          apartment: addresses.apartment,
+          additionalDetails: addresses.additionalDetails,
           city: addresses.city,
           governorate: addresses.governorate,
           total: sql<number>`coalesce(${lines.total}, 0)`,
           quantity: sql<number>`coalesce(${lines.quantity}, 0)`,
+          backordered: sql<boolean>`coalesce(${lines.backordered}, false)`,
           lines: sql<Line[]>`coalesce(${lines.lines}, '[]'::jsonb)`,
         })
         .from(orders)
@@ -284,7 +330,12 @@ export const _dashboard = {
         )
         .where(
           and(
-            inArray(orders.status, ["PENDING", "SHIPPED", "DELIVERED"]),
+            inArray(orders.status, [
+              "PENDING",
+              "CONFIRMED",
+              "SHIPPED",
+              "DELIVERED",
+            ]),
             gte(orders.createdAt, start),
             lt(orders.createdAt, end),
           ),

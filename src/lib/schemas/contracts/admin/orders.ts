@@ -5,7 +5,14 @@ import { paginationSchema } from "../pagination";
 export const ordersFilterSchema = z.object({
   /** Matches the phone, the recipient or account name, or the order number. */
   search: z.string(),
-  status: z.enum(["PENDING", "SHIPPED", "DELIVERED", "REFUNDED", "CANCELLED"]),
+  status: z.enum([
+    "PENDING",
+    "CONFIRMED",
+    "SHIPPED",
+    "DELIVERED",
+    "REFUNDED",
+    "CANCELLED",
+  ]),
   paymentMethod: z.enum(["COD", "ONLINE"]),
   /** Placed since the start of this Cairo-time window. */
   placed: z.enum(dashboardRanges),

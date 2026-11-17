@@ -297,6 +297,8 @@ function nextSteps(order: Order): NextStep[] | "cancelled" | "refunded" {
   switch (order.status) {
     case "PENDING":
       return ["whatsapp", ...(cod ? (["prepay", "payRest"] as const) : [])];
+    case "CONFIRMED":
+      return [...(cod ? (["payRest"] as const) : []), "checkGear"];
     case "SHIPPED":
       return [...(cod ? (["payRestShipped"] as const) : []), "checkGear"];
     case "DELIVERED":

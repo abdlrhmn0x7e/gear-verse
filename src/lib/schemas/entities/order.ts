@@ -2,6 +2,7 @@ import z from "zod";
 
 export const orderStatusEnum = z.enum([
   "PENDING",
+  "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
   "REFUNDED",

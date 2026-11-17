@@ -1,4 +1,5 @@
 import * as z from "zod";
+import type { OrderMessageTemplates } from "~/lib/order-message";
 
 /** The store's contact details and social links, as the storefront reads them. */
 export type StoreSettings = {
@@ -177,6 +178,19 @@ export const orderNotificationEmailsSchema = z
     return emails.join("\n");
   });
 
+const orderMessageTemplateSchema = z
+  .string()
+  .trim()
+  .min(1, "Write a message")
+  .max(4000, "Keep it under 4,000 characters");
+
+export const orderMessageTemplatesSchema = z.object({
+  cod: orderMessageTemplateSchema,
+  codBackorder: orderMessageTemplateSchema,
+  online: orderMessageTemplateSchema,
+  onlineBackorder: orderMessageTemplateSchema,
+}) satisfies z.ZodType<OrderMessageTemplates>;
+
 export function splitEmails(value: string) {
   return value.split("\n").filter(Boolean);
 }
@@ -191,6 +205,7 @@ export const updateStoreSettingsInputSchema = z.object({
   youtubeUrl: socialUrlSchema(socialHosts.youtubeUrl),
   lowStockThreshold: lowStockThresholdSchema,
   orderNotificationEmails: orderNotificationEmailsSchema,
+  orderMessageTemplates: orderMessageTemplatesSchema,
 });
 /** What the settings form holds: text as typed, empty strings for none. */
 export type UpdateStoreSettingsFormValues = z.input<

@@ -20,6 +20,7 @@ const columns = {
   youtubeUrl: storeSettings.youtubeUrl,
   lowStockThreshold: storeSettings.lowStockThreshold,
   orderNotificationEmails: storeSettings.orderNotificationEmails,
+  orderMessageTemplates: storeSettings.orderMessageTemplates,
   updatedAt: storeSettings.updatedAt,
 };
 
@@ -39,6 +40,14 @@ export const _settings = {
         .from(storeSettings)
         .where(eq(storeSettings.id, SETTINGS_ID))
         .then(([row]) => row?.emails ?? []);
+    },
+
+    findOrderMessageTemplates: async () => {
+      return db
+        .select({ templates: storeSettings.orderMessageTemplates })
+        .from(storeSettings)
+        .where(eq(storeSettings.id, SETTINGS_ID))
+        .then(([row]) => row?.templates ?? null);
     },
   },
 
