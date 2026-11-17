@@ -1,4 +1,5 @@
 import {
+  BadgeCheckIcon,
   BanknoteArrowDownIcon,
   CheckCircleIcon,
   ClockFadingIcon,
@@ -9,6 +10,7 @@ import { Badge } from "~/components/ui/badge";
 
 export const orderStatuses = [
   "PENDING",
+  "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
   "REFUNDED",
@@ -22,6 +24,11 @@ export const orderStatusMap = {
     icon: <ClockFadingIcon />,
     label: "Pending",
     badgeVariant: "warning" as const,
+  },
+  CONFIRMED: {
+    icon: <BadgeCheckIcon />,
+    label: "Confirmed",
+    badgeVariant: "brand" as const,
   },
   SHIPPED: {
     icon: <TruckIcon />,
@@ -43,6 +50,15 @@ export const orderStatusMap = {
     label: "Cancelled",
     badgeVariant: "error" as const,
   },
+};
+
+/** The one step forward from each status, and what the button that takes it says. Final statuses have none. */
+export const nextOrderStatus: Partial<
+  Record<OrderStatusValue, { status: OrderStatusValue; action: string }>
+> = {
+  PENDING: { status: "CONFIRMED", action: "Confirm" },
+  CONFIRMED: { status: "SHIPPED", action: "Ship" },
+  SHIPPED: { status: "DELIVERED", action: "Deliver" },
 };
 
 export function OrderStatus({

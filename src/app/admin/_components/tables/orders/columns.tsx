@@ -10,6 +10,8 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { OrdersTableActions } from "./actions";
+import { NextStatusButton } from "./next-status-button";
+import { Skeleton } from "~/components/ui/skeleton";
 import type { ListColumn } from "../list-grid";
 import {
   formatAddressLine,
@@ -149,7 +151,11 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
       return (
         // The menu portals out, but the trigger's click would still open the
         // row's drawer.
-        <div onClick={(event) => event.stopPropagation()}>
+        <div
+          className="flex items-center justify-end gap-1"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <NextStatusButton order={row.original} />
           <OrdersTableActions
             id={row.original.id}
             phoneNumber={row.original.phoneNumber}
@@ -158,6 +164,15 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
         </div>
       );
     },
-    meta: { headerTitle: "Actions", cellClassName: "text-right" },
+    meta: {
+      headerTitle: "Actions",
+      cellClassName: "text-right",
+      skeleton: (
+        <div className="flex items-center justify-end gap-1">
+          <Skeleton className="h-8 w-20 rounded-full" />
+          <Skeleton className="size-8 rounded-full" />
+        </div>
+      ),
+    },
   },
 ];

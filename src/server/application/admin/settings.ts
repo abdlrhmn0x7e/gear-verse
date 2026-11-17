@@ -6,6 +6,10 @@ import {
   type UpdateStoreSettingsInput,
 } from "~/lib/schemas/entities/store-settings";
 import { tryCatch } from "~/lib/utils/try-catch";
+import {
+  defaultOrderMessageTemplates,
+  type OrderMessageTemplates,
+} from "~/lib/order-message";
 import { data } from "~/server/data-access";
 import { isUndefinedTable } from "~/server/data-access/common/errors";
 
@@ -26,6 +30,7 @@ export const _settings = {
           return {
             ...defaultStoreSettings,
             orderNotificationEmails: [] as string[],
+            orderMessageTemplates: defaultOrderMessageTemplates,
             ready: false,
           };
         }
@@ -40,6 +45,7 @@ export const _settings = {
       return {
         orderNotificationEmails: [] as string[],
         ...(row ?? defaultStoreSettings),
+        orderMessageTemplates: withDefaultTemplates(row?.orderMessageTemplates),
         ready: true,
       };
     },
@@ -70,7 +76,18 @@ export const _settings = {
       // storefront request waits for fresh settings instead of serving stale.
       revalidateTag("store-settings", { expire: 0 });
 
-      return { ...row, ready: true };
+      return {
+        ...row,
+        orderMessageTemplates: withDefaultTemplates(row.orderMessageTemplates),
+        ready: true,
+      };
     },
   },
 };
+
+/** Saved templates over the defaults, so a template added later still has text. */
+export function withDefaultTemplates(
+  saved: Partial<OrderMessageTemplates> | null | undefined,
+): OrderMessageTemplates {
+  return { ...defaultOrderMessageTemplates, ...saved };
+}

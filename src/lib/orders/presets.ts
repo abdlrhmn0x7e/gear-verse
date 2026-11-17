@@ -16,9 +16,14 @@ export const orderPresets = [
     filters: { status: null, placed: null },
   },
   {
+    id: "to-confirm",
+    label: "To confirm",
+    filters: { status: "PENDING", placed: null },
+  },
+  {
     id: "to-ship",
     label: "To ship",
-    filters: { status: "PENDING", placed: null },
+    filters: { status: "CONFIRMED", placed: null },
   },
   {
     id: "out-for-delivery",

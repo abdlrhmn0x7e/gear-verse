@@ -15,6 +15,7 @@ const orderSearchParams = {
   editId: parseAsInteger,
   status: parseAsStringEnum([
     "PENDING",
+    "CONFIRMED",
     "SHIPPED",
     "DELIVERED",
     "REFUNDED",

@@ -44,7 +44,7 @@ type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
 
 export type OrderListFilters = {
   search: string;
-  status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
+  status: NonNullable<InsertOrder["status"]>;
   paymentMethod: "COD" | "ONLINE";
   placedSince: Date;
 };

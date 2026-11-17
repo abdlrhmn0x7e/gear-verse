@@ -6,7 +6,10 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { useFlatCategories } from "~/hooks/use-flat-categories";
 import { iconsMap } from "~/lib/icons-map";
 import type { RouterOutput } from "~/trpc/client";
-import { OrderStatus } from "./tables/orders/order-status";
+import {
+  OrderStatus,
+  type OrderStatusValue,
+} from "./tables/orders/order-status";
 import { PaymentMethod } from "~/app/[locale]/(public)/(protected)/_components/payment-method";
 import type { CategoryTree } from "~/lib/schemas/entities";
 
@@ -31,13 +34,13 @@ export type FilterKey = "brands" | "categories" | "status" | "paymentMethod";
 type FilterValue = {
   brands: number[];
   categories: number[];
-  status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
+  status: OrderStatusValue;
   paymentMethod: "COD" | "ONLINE";
 };
 type FilterItemsValue = {
   brands: number;
   categories: number;
-  status: "PENDING" | "SHIPPED" | "DELIVERED" | "REFUNDED" | "CANCELLED";
+  status: OrderStatusValue;
   paymentMethod: "COD" | "ONLINE";
 };
 type FilterValueProp = {
@@ -125,17 +128,7 @@ export function FilterList({
 
       case "status": {
         return (
-          <OrderStatus
-            variant="plain"
-            status={
-              value as
-                | "PENDING"
-                | "SHIPPED"
-                | "DELIVERED"
-                | "REFUNDED"
-                | "CANCELLED"
-            }
-          />
+          <OrderStatus variant="plain" status={value as OrderStatusValue} />
         );
       }
 

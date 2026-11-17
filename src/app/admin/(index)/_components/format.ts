@@ -1,5 +1,4 @@
 import { formatStreetLine } from "~/lib/address";
-import { whatsAppLink } from "~/lib/whatsapp";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -23,35 +22,6 @@ export function formatAge(createdAt: Date, now: Date = new Date()) {
   return `${Math.floor(hours / 24)}d`;
 }
 
-/**
- * The digits wa.me wants for an address's phone number: the full international
- * number with no plus or zeros in front. Egyptian numbers are stored either as
- * typed ("01012345678") or in E.164 ("+201012345678"); both come out as
- * "201012345678". Returns null for anything too short to dial.
- */
-export function toWhatsAppNumber(phone: string) {
-  let digits = phone.replace(/\D/g, "");
-
-  if (digits.startsWith("00")) digits = digits.slice(2);
-
-  // a local number with its trunk 0: 01x xxxx xxxx
-  if (digits.length === 11 && digits.startsWith("0")) {
-    return `20${digits.slice(1)}`;
-  }
-
-  // a local mobile number typed without the 0: 1x xxxx xxxx
-  if (digits.length === 10 && digits.startsWith("1")) {
-    return `20${digits}`;
-  }
-
-  // "+20 0101…" keeps a stray trunk 0 after the country code
-  if (digits.length === 13 && digits.startsWith("200")) {
-    return `20${digits.slice(3)}`;
-  }
-
-  return digits.length >= 8 ? digits : null;
-}
-
 export function firstName(fullName: string) {
   return fullName.trim().split(/\s+/)[0] ?? fullName;
 }
@@ -65,26 +35,6 @@ const moneyFormatter = new Intl.NumberFormat("en-EG", {
 /** Whole pounds: "EGP 4,250". Prices are stored in whole pounds. */
 export function formatMoney(amount: number) {
   return moneyFormatter.format(amount);
-}
-
-/** A wa.me link that opens a chat with the customer, the confirmation message typed in. */
-export function whatsAppConfirmationLink({
-  phone,
-  customerName,
-  orderId,
-  total,
-}: {
-  phone: string;
-  customerName: string;
-  orderId: number;
-  total: number;
-}) {
-  const number = toWhatsAppNumber(phone);
-  if (!number) return null;
-
-  const message = `Hi ${firstName(customerName)}, this is Gear Verse about your order #${orderId} (${formatMoney(total).replace(/\s/g, " ")}). We'd like to confirm it and your shipping fee before we ship. Is now a good time?`;
-
-  return whatsAppLink(number, message);
 }
 
 /** A tel: link that keeps the leading plus of an international number. */

@@ -583,7 +583,12 @@ export const _products = {
         .where(
           and(
             eq(orderItems.productId, id),
-            inArray(orders.status, ["PENDING", "SHIPPED", "DELIVERED"]),
+            inArray(orders.status, [
+              "PENDING",
+              "CONFIRMED",
+              "SHIPPED",
+              "DELIVERED",
+            ]),
           ),
         )
         .then(([row]) => row ?? { orders: 0, unitsSold: 0, revenue: 0 });

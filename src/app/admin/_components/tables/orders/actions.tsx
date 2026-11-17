@@ -28,7 +28,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "~/components/ui/toast";
 import { useRefreshOrderViews } from "../../../_hooks/use-refresh-order-views";
 import type { OrderStatus as OrderStatusType } from "~/lib/schemas/entities";
-import { OrderStatus } from "./order-status";
+import { OrderStatus, orderStatuses } from "./order-status";
 import { useCopyToClipboard } from "../../copy-button";
 
 export function OrdersTableActions({
@@ -87,36 +87,15 @@ export function OrdersTableActions({
             </DropdownMenuSubTrigger>
 
             <DropdownMenuSubContent className="w-3xs">
-              <DropdownMenuItem
-                onClick={() => changeStatus("PENDING")}
-                disabled={isUpdatingOrder}
-              >
-                <OrderStatus variant="plain" status="PENDING" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeStatus("SHIPPED")}
-                disabled={isUpdatingOrder}
-              >
-                <OrderStatus variant="plain" status="SHIPPED" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeStatus("DELIVERED")}
-                disabled={isUpdatingOrder}
-              >
-                <OrderStatus variant="plain" status="DELIVERED" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeStatus("REFUNDED")}
-                disabled={isUpdatingOrder}
-              >
-                <OrderStatus variant="plain" status="REFUNDED" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeStatus("CANCELLED")}
-                disabled={isUpdatingOrder}
-              >
-                <OrderStatus variant="plain" status="CANCELLED" />
-              </DropdownMenuItem>
+              {orderStatuses.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={() => changeStatus(status)}
+                  disabled={isUpdatingOrder}
+                >
+                  <OrderStatus variant="plain" status={status} />
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 

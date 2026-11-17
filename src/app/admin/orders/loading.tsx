@@ -3,6 +3,7 @@ import { PageLayout } from "../_components/page-layout";
 import { OrdersTableSkeleton } from "../_components/tables/orders/skeleton";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
+import { orderPresets } from "~/lib/orders/presets";
 
 // Opening an order only changes the URL on the client, so this shows on
 // arriving here and never over a row click.
@@ -18,13 +19,14 @@ export default function AdminOrdersLoading() {
           Create Order
         </Button>
       }
-      toolbar={
-        <>
-          <Skeleton className="h-9 w-full rounded-full sm:w-72" />
-          <Skeleton className="h-9 w-28 rounded-full" />
-        </>
-      }
+      toolbar={<Skeleton className="h-9 w-full rounded-full sm:w-72" />}
     >
+      {/* the preset tabs' row: one bar per tab */}
+      <div className="flex h-10 shrink-0 items-center gap-5 overflow-hidden px-3">
+        {orderPresets.map((preset) => (
+          <Skeleton key={preset.id} className="h-4 w-20 shrink-0" />
+        ))}
+      </div>
       <OrdersTableSkeleton />
     </PageLayout>
   );

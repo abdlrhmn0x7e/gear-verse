@@ -20,6 +20,7 @@
   },
   "status": {
     "PENDING": "Awaiting confirmation",
+    "CONFIRMED": "Confirmed",
     "SHIPPED": "On its way",
     "DELIVERED": "Delivered",
     "CANCELLED": "Cancelled",
@@ -27,6 +28,7 @@
   },
   "nextStep": {
     "PENDING": "We'll WhatsApp you to confirm the order and the shipping fee.",
+    "CONFIRMED": "Confirmed. We're packing it to ship.",
     "SHIPPED_COD": "With the courier. Pay the rest when it arrives, by cash, InstaPay or mobile wallet.",
     "SHIPPED": "With the courier and on its way to you.",
     "DELIVERED": "Delivered. Enjoy your gear.",

@@ -1,12 +1,14 @@
 import {
   check,
   integer,
+  jsonb,
   pgTable,
   smallint,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import type { OrderMessageTemplates } from "~/lib/order-message";
 
 /**
  * The store's own details, one row only: the `id = 1` check keeps a second
@@ -33,6 +35,11 @@ export const storeSettings = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+
+    /** WhatsApp order confirmation messages; `null` until first saved, which means the defaults. */
+    orderMessageTemplates: jsonb(
+      "order_message_templates",
+    ).$type<OrderMessageTemplates>(),
 
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()

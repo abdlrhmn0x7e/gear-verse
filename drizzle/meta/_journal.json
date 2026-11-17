@@ -92,6 +92,13 @@
       "when": 1794862838102,
       "tag": "0012_address_parts",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794931153779,
+      "tag": "0013_order_confirmed_and_message_templates",
+      "breakpoints": true
     }
   ]
 }
