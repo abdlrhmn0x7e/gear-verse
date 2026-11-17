@@ -1,5 +1,6 @@
 import { data } from "~/server/data-access";
 import { paginate } from "../helpers/pagination";
+import { confirmationsById } from "../helpers/order-message";
 import { getDashboardWindow } from "../helpers/dashboard-range";
 import { AppError } from "~/lib/errors/app-error";
 import type {
@@ -46,11 +47,22 @@ function toListFilters({ placed, ...filters }: OrdersFilterInput = {}) {
 
 export const _orders = {
   queries: {
-    getPage: ({ filters, ...input }: OrdersGetPageInput) => {
-      return paginate({
+    getPage: async ({ filters, ...input }: OrdersGetPageInput) => {
+      const page = await paginate({
         input: { ...input, filters: toListFilters(filters) },
         getPage: data.admin.orders.queries.getPage,
       });
+      const confirmations = await confirmationsById(
+        page.data.map((order) => order.id),
+      );
+
+      return {
+        ...page,
+        data: page.data.map((order) => ({
+          ...order,
+          confirmation: confirmations.get(order.id) ?? null,
+        })),
+      };
     },
 
     /** How many orders each preset tab holds, ignoring the search box. */
@@ -83,13 +95,16 @@ export const _orders = {
     },
 
     findDetailsById: async (id: number) => {
-      const order = await data.admin.orders.queries.findDetailsById(id);
+      const [order, confirmations] = await Promise.all([
+        data.admin.orders.queries.findDetailsById(id),
+        confirmationsById([id]),
+      ]);
 
       if (!order) {
         throw new AppError("Order not found", "NOT_FOUND");
       }
 
-      return order;
+      return { ...order, confirmation: confirmations.get(id) ?? null };
     },
   },
 

@@ -38,6 +38,7 @@ import {
 import { EditOrderDrawer } from "../../orders/_components/edit-order-drawer";
 import { formatAddressLine, telLink } from "../../(index)/_components/format";
 import { CopyButton, CopyIconSwap, useCopyToClipboard } from "../copy-button";
+import { WhatsAppActions } from "../whatsapp-actions";
 import { RenameGuestDrawer } from "./rename-guest-drawer";
 
 export function OrderDrawer() {
@@ -131,6 +132,9 @@ function OrderDrawerContent() {
             </DrawerDescription>
           </div>
           <div className="flex items-center gap-2">
+            {data.confirmation && (
+              <WhatsAppActions confirmation={data.confirmation} size="icon" />
+            )}
             <Button
               variant="outline"
               size="icon"
@@ -500,6 +504,8 @@ function OrderDrawerSkeleton() {
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-32" />
           <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-9 rounded-md" />
+            <Skeleton className="h-9 w-9 rounded-md" />
             <Skeleton className="h-9 w-9 rounded-md" />
             <Skeleton className="h-9 w-9 rounded-md" />
           </div>

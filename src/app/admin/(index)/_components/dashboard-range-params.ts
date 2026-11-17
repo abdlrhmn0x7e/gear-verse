@@ -1,7 +1,11 @@
 import { createLoader, parseAsStringEnum } from "nuqs/server";
 import type { DashboardRange } from "~/server/application/helpers/dashboard-range";
 
-export const ranges = ["today", "7d", "30d"] as const satisfies DashboardRange[];
+export const ranges = [
+  "today",
+  "7d",
+  "30d",
+] as const satisfies DashboardRange[];
 
 export const rangeParser = parseAsStringEnum([...ranges]).withDefault("7d");
 

@@ -127,8 +127,8 @@ export const _dashboard = {
         .then(([row]) => row ?? { count: 0, oldestCreatedAt: null });
     },
 
-    /** The oldest PENDING orders with who to call and what they ordered. */
-    pendingOrders: async (limit: number) => {
+    /** Orders with who to call and what they ordered: the oldest PENDING ones, or the given ids. */
+    confirmationOrders: async (select: { limit: number } | { ids: number[] }) => {
       type Line = {
         title: string;
         quantity: number;
@@ -214,9 +214,13 @@ export const _dashboard = {
         .leftJoin(addresses, eq(orders.addressId, addresses.id))
         .leftJoin(users, eq(orders.userId, users.id))
         .leftJoin(lines, eq(orders.id, lines.orderId))
-        .where(eq(orders.status, "PENDING"))
+        .where(
+          "ids" in select
+            ? inArray(orders.id, select.ids)
+            : eq(orders.status, "PENDING"),
+        )
         .orderBy(asc(orders.createdAt), asc(orders.id))
-        .limit(limit);
+        .limit("ids" in select ? select.ids.length : select.limit);
     },
 
     /** store_settings.low_stock_threshold, or 2 while the table or its row is missing. */
