@@ -5,6 +5,7 @@ import { IconPackageOff } from "@tabler/icons-react";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import z from "zod";
+import { format } from "date-fns";
 import { Button } from "~/components/ui/button";
 import {
   Field,
@@ -356,6 +357,37 @@ export function OrderForm({
           </FieldSet>
         )}
       />
+
+      {!defaultValues && (
+        <Controller
+          name="createdAt"
+          control={form.control}
+          render={({ field: { value, onChange, ...field }, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="order-created-at">Order date</FieldLabel>
+              {/* datetime-local is the admin's own time, so the browser turns it into the instant */}
+              <Input
+                {...field}
+                type="datetime-local"
+                id="order-created-at"
+                value={value ? format(value, "yyyy-MM-dd'T'HH:mm") : ""}
+                onChange={(event) =>
+                  onChange(
+                    event.target.value
+                      ? new Date(event.target.value)
+                      : undefined,
+                  )
+                }
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldDescription>
+                For an order taken earlier. Leave it empty to use now.
+              </FieldDescription>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+      )}
 
       <Controller
         name="trackingNumber"

@@ -32,11 +32,15 @@ export const orderEntitySchema = z.object({
 });
 export type Order = z.infer<typeof orderEntitySchema>;
 
-export const createOrderInputSchema = orderEntitySchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createOrderInputSchema = orderEntitySchema
+  .omit({
+    id: true,
+    updatedAt: true,
+  })
+  .extend({
+    /** Backdates an order taken outside the store; left out, it's now. */
+    createdAt: orderEntitySchema.shape.createdAt.optional(),
+  });
 export type CreateOrderInput = z.infer<typeof createOrderInputSchema>;
 
 export const updateOrderInputSchema = orderEntitySchema
@@ -84,5 +88,7 @@ export const createFullOrderInputSchema = createOrderInputSchema.extend({
 });
 export type CreateFullOrderInput = z.infer<typeof createFullOrderInputSchema>;
 
-export const updateFullOrderInputSchema = createFullOrderInputSchema.partial();
+export const updateFullOrderInputSchema = createFullOrderInputSchema
+  .omit({ createdAt: true })
+  .partial();
 export type UpdateFullOrderInput = z.infer<typeof updateFullOrderInputSchema>;

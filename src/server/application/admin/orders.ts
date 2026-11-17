@@ -114,6 +114,12 @@ export const _orders = {
       if (items.length === 0) {
         throw new AppError("An order needs at least one item.", "BAD_REQUEST");
       }
+      if (order.createdAt && order.createdAt > new Date()) {
+        throw new AppError(
+          "The order date can't be in the future.",
+          "BAD_REQUEST",
+        );
+      }
       await assertAddressBelongsToUser(order.addressId, order.userId);
 
       const { data: newOrder, error } = await tryCatch(
