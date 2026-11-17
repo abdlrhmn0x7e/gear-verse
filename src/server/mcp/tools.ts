@@ -16,6 +16,14 @@ import { createBrandInputSchema } from "~/lib/schemas/entities/brand";
 import { createCategoryInputSchema } from "~/lib/schemas/entities/category";
 import { deleteCategoryInputSchema } from "~/lib/schemas/contracts/admin/categories";
 import { contentExtensions } from "~/lib/editor/content-extensions";
+import {
+  createFullOrderInputSchema,
+  updateFullOrderInputSchema,
+} from "~/lib/schemas/entities/order";
+import { createAddressInputSchema } from "~/lib/schemas/entities/address";
+import { userEntitySchema } from "~/lib/schemas/entities/users";
+import { usersGetPageInputSchema } from "~/lib/schemas/contracts/admin/users";
+import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
 import { _admin } from "~/server/application/admin";
 
 export interface McpTool {
@@ -122,6 +130,33 @@ const productId = z
   .int()
   .positive()
   .describe("A product id, from search_products.");
+
+const orderId = z
+  .number()
+  .int()
+  .positive()
+  .describe("An order id, from list_orders.");
+
+const userId = z
+  .number()
+  .int()
+  .positive()
+  .describe("A customer id, from search_customers or create_customer.");
+
+const orderItemsText =
+  "The order's lines: productId from search_products and, for a product with variants, productVariantId from get_product's variants (null otherwise), with a quantity of 1 or more. Prices are taken from the products.";
+
+const orderFields = createFullOrderInputSchema.extend({
+  userId,
+  addressId: z
+    .number()
+    .int()
+    .positive()
+    .describe("One of this customer's address ids, from list_addresses."),
+  paymentMethod: createFullOrderInputSchema.shape.paymentMethod.default("COD"),
+  status: createFullOrderInputSchema.shape.status.default("PENDING"),
+  items: createFullOrderInputSchema.shape.items.describe(orderItemsText),
+});
 
 const productFields = updateProductInputSchema
   .omit({ published: true })
@@ -341,5 +376,128 @@ export const tools: McpTool[] = [
     input: deleteCategoryInputSchema,
     annotations: { ...write, destructiveHint: true },
     handler: (input) => _admin.categories.mutations.delete(input),
+  }),
+  defineTool({
+    name: "search_customers",
+    title: "Search customers",
+    description:
+      "Lists customers with their id, name and email, newest first, filtered by name. Pass the returned nextCursor as cursor to get the next page. To find a customer by phone, search list_orders by the phone number instead.",
+    input: usersGetPageInputSchema,
+    annotations: read,
+    handler: (input) => _admin.users.queries.getPage(input),
+  }),
+
+  defineTool({
+    name: "create_customer",
+    title: "Create a customer",
+    description:
+      "Creates a customer to place orders for, such as someone who ordered by phone or chat. Check search_customers first so it isn't a duplicate. The email is optional; one is made up when it's left out. Then add their shipping address with create_address. Returns the new customer's id.",
+    input: z.object({
+      name: userEntitySchema.shape.name.describe("The customer's full name."),
+      email: userEntitySchema.shape.email.optional(),
+    }),
+    annotations: write,
+    // like the admin's Add Customer form: customers made by the admin get a placeholder email
+    handler: ({ name, email }) =>
+      _admin.users.mutations.create({
+        name,
+        email: email ?? `temp-user-${Date.now()}@gearverse.com`,
+        role: "user",
+        isAnonymous: false,
+      }),
+  }),
+
+  defineTool({
+    name: "list_addresses",
+    title: "List a customer's addresses",
+    description:
+      "Lists a customer's saved shipping addresses with their id, recipient, phone and location. An order ships to one of these (addressId).",
+    input: z.object({ userId }),
+    annotations: read,
+    handler: (input) => _admin.addresses.queries.findByUserId(input),
+  }),
+
+  defineTool({
+    name: "create_address",
+    title: "Add an address",
+    description:
+      "Saves a shipping address for a customer, for an order's addressId. phoneNumber is an Egyptian mobile number. floor, apartment, additionalDetails and the map pin (latitude with longitude) are optional. Returns the new address's id.",
+    input: createAddressInputSchema.extend({ userId }),
+    annotations: write,
+    handler: (input) => _admin.addresses.mutations.create(input),
+  }),
+
+  defineTool({
+    name: "list_orders",
+    title: "List orders",
+    description:
+      "Lists orders, newest first, with their id, customer, phone, shipping address, status, payment method, tracking number, item count, total, date and WhatsApp confirmation message. search matches the phone, the recipient or customer name, or the order number; filter by status, paymentMethod or how recently they were placed. Pass the returned nextCursor as cursor to get the next page.",
+    input: ordersGetPageInputSchema,
+    annotations: read,
+    handler: (input) => _admin.orders.queries.getPage(input),
+  }),
+
+  defineTool({
+    name: "get_order",
+    title: "Get an order",
+    description:
+      "Gets one order with its customer, shipping address, status, payment, tracking number, totals and items (productId, productVariantId, quantity, price and stock on hand).",
+    input: z.object({ id: orderId }),
+    annotations: read,
+    handler: ({ id }) => _admin.orders.queries.findDetailsById(id),
+  }),
+
+  defineTool({
+    name: "create_order",
+    title: "Create an order",
+    description:
+      "Creates an order for a customer (search_customers or create_customer) shipping to one of their addresses (list_addresses or create_address), and takes the items out of stock. Payment defaults to cash on delivery and status to PENDING. Set createdAt to backdate an order taken earlier; left out, it's now. Returns the order as saved.",
+    input: orderFields.extend({
+      // a Date has no JSON Schema, so the model sends ISO text
+      createdAt: z.iso
+        .datetime({ offset: true })
+        .optional()
+        .describe(
+          "When the order was placed, with its UTC offset, e.g. 2026-11-15T14:30:00+02:00 for Cairo time. Not in the future.",
+        ),
+    }),
+    annotations: write,
+    handler: async ({ createdAt, ...order }) => {
+      const { id } = await _admin.orders.mutations.create({
+        ...order,
+        createdAt: createdAt ? new Date(createdAt) : undefined,
+      });
+      return _admin.orders.queries.findDetailsById(id);
+    },
+  }),
+
+  defineTool({
+    name: "update_order",
+    title: "Update an order",
+    description:
+      "Changes an order's fields; leave out what stays the same. items replaces every line, so to add, remove or change one, send all the lines from get_order with the change. Lines already on the order keep their price; stock follows the change. Setting status to CANCELLED puts the items back in stock. Returns the order as saved.",
+    input: z.object({
+      id: orderId,
+      data: updateFullOrderInputSchema.extend({
+        userId: userId.optional(),
+        addressId: orderFields.shape.addressId.optional(),
+        items: orderFields.shape.items.optional(),
+      }),
+    }),
+    annotations: write,
+    handler: async ({ id, data }) => {
+      await _admin.orders.mutations.update({ ...data, id });
+      return _admin.orders.queries.findDetailsById(id);
+    },
+  }),
+
+  defineTool({
+    name: "delete_order",
+    title: "Delete an order",
+    description:
+      "Deletes an order for good and puts its items back in stock. To keep a record, set its status to CANCELLED with update_order instead. Only call this when the admin has asked for the order to be deleted.",
+    input: z.object({ id: orderId }),
+    annotations: { ...write, destructiveHint: true },
+    handler: ({ id }) => _admin.orders.mutations.delete(id),
   }),
 ];
