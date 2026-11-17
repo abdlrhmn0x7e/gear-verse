@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { formatCurrency } from "~/lib/utils/format-currency";
 import { OrdersTableActions } from "./actions";
 import { NextStatusButton } from "./next-status-button";
+import { WhatsAppActions } from "../../whatsapp-actions";
 import { Skeleton } from "~/components/ui/skeleton";
 import type { ListColumn } from "../list-grid";
 import {
@@ -155,6 +156,12 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
           className="flex items-center justify-end gap-1"
           onClick={(event) => event.stopPropagation()}
         >
+          {row.original.confirmation && (
+            <WhatsAppActions
+              confirmation={row.original.confirmation}
+              size="icon-sm"
+            />
+          )}
           <NextStatusButton order={row.original} />
           <OrdersTableActions
             id={row.original.id}
@@ -169,6 +176,8 @@ export const ordersColumns: ListColumn<OrderRow>[] = [
       cellClassName: "text-right",
       skeleton: (
         <div className="flex items-center justify-end gap-1">
+          <Skeleton className="size-8 rounded-full" />
+          <Skeleton className="size-8 rounded-full" />
           <Skeleton className="h-8 w-20 rounded-full" />
           <Skeleton className="size-8 rounded-full" />
         </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { IconBrandWhatsapp } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CircleCheckIcon, ClockIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
@@ -10,6 +9,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { NextStatusButton } from "../../_components/tables/orders/next-status-button";
+import { WhatsAppActions } from "../../_components/whatsapp-actions";
 import {
   formatAge,
   formatGovernorate,
@@ -84,7 +84,6 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
   ]
     .filter(Boolean)
     .join(", ");
-  const { whatsApp } = order;
 
   return (
     <li className="@container/row py-3">
@@ -143,19 +142,7 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
               Call
             </Button>
           )}
-          {whatsApp && (
-            <Button
-              variant="outline"
-              size="sm"
-              nativeButton={false}
-              render={
-                <a href={whatsApp} target="_blank" rel="noopener noreferrer" />
-              }
-            >
-              <IconBrandWhatsapp data-icon="inline-start" />
-              WhatsApp
-            </Button>
-          )}
+          <WhatsAppActions confirmation={order} />
           <NextStatusButton order={{ id: order.id, status: "PENDING" }} />
         </div>
       </div>
