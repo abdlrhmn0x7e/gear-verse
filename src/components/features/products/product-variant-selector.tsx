@@ -13,6 +13,8 @@ type Variant =
 
 interface ProductVariantSelectorProps {
   variants: Variant[];
+  /** The product's options and their values, in the admin's order. */
+  options: { name: string; values: string[] }[];
 }
 
 /*
@@ -22,30 +24,23 @@ interface ProductVariantSelectorProps {
 */
 export function ProductVariantSelector({
   variants,
+  options: productOptions,
 }: ProductVariantSelectorProps) {
   const setSelectedVariant = useVariantSelectionStore(
     (store) => store.setSelectedVariant,
   );
 
-  // build the options
-  const options = useMemo(
-    () =>
-      variants.reduce(
-        (acc, variant) => {
-          const { options } = variant;
-          for (const [key, opt] of Object.entries(options)) {
-            if (!key || !opt) return acc;
-
-            acc[key] ??= new Set();
-            acc[key].add(opt.value);
-          }
-
-          return acc;
-        },
-        {} as Record<string, Set<string>>,
-      ),
-    [variants],
-  );
+  // the options in the admin's order, keeping only the values a live variant has
+  const options = useMemo(() => {
+    const acc: Record<string, Set<string>> = {};
+    for (const { name, values } of productOptions) {
+      const live = values.filter((value) =>
+        variants.some((v) => v.options[name]?.value === value),
+      );
+      if (live.length) acc[name] = new Set(live);
+    }
+    return acc;
+  }, [productOptions, variants]);
 
   // open on the first variant in stock, else the first variant
   const defaultValues = useMemo(() => {
@@ -63,19 +58,14 @@ export function ProductVariantSelector({
   const selectedValues =
     selection?.options === options ? selection.values : defaultValues;
 
-  // get the combination values key for a variant
-  function getValuesKey(variant: Variant) {
-    return Object.values(variant.options)
-      .map((opt) => opt.value)
-      .join("-");
-  }
-
-  // construct the map of variant values key to variant id
+  // construct the map of variant values key (in option order, like selectedValues) to variant id
   const variantsMap = useMemo(
     () =>
       new Map<string, StoredVariant>(
         variants.map((variant) => [
-          getValuesKey(variant),
+          Object.keys(options)
+            .map((name) => variant.options[name]?.value)
+            .join("-"),
           {
             id: variant.id,
             thumbnailUrl: variant.thumbnailUrl ?? "",
@@ -84,7 +74,7 @@ export function ProductVariantSelector({
           },
         ]),
       ),
-    [variants],
+    [options, variants],
   );
 
   function handleOptionValueSelect(
@@ -136,7 +126,7 @@ export function ProductVariantSelector({
         <PrimaryOptionValueButton
           values={values}
           variantThumbnails={variants.map((v) => ({
-            value: Object.values(v.options)[0]!.value,
+            value: v.options[optionName]?.value ?? "",
             thumbnailUrl: v.thumbnailUrl ?? "",
           }))}
           selectedValues={selectedValues}

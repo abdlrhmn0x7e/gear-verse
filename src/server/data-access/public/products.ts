@@ -219,6 +219,22 @@ export const _products = {
           variants: sql<
             FullVariant[]
           >`coalesce(${fullVariantsCTE.json}, '[]'::jsonb)`,
+          // the admin's option and value order; a variant's `options` object can't carry it, since jsonb sorts its keys
+          options: sql<{ name: string; values: string[] }[]>`coalesce((
+            select jsonb_agg(
+              jsonb_build_object(
+                'name', po.name,
+                'values', (
+                  select coalesce(jsonb_agg(pov.value order by pov."order", pov.id), '[]'::jsonb)
+                  from product_option_values pov
+                  where pov.product_option_id = po.id
+                )
+              )
+              order by po."order", po.id
+            )
+            from product_options po
+            where po.product_id = ${products.id}
+          ), '[]'::jsonb)`,
           thumbnailUrl: sql<string>`${media.url}`,
           media: sql<
             string[]

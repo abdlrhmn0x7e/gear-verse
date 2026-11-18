@@ -281,6 +281,7 @@ export const _products = {
             valueId: productOptionValues.id,
             value: productOptionValues.value,
             productOptionId: productOptionValues.productOptionId,
+            order: productOptionValues.order,
           })
           .from(productOptionValues)
           .innerJoin(
@@ -325,6 +326,7 @@ export const _products = {
                           'id', ${nonArchivedOptionValues.valueId},
                           'value', ${nonArchivedOptionValues.value}
                         )
+                        order by ${nonArchivedOptionValues.order}, ${nonArchivedOptionValues.valueId}
                       )
                     from ${nonArchivedOptionValues}
                     where
@@ -333,6 +335,7 @@ export const _products = {
                   '[]'::jsonb
                 )
               )
+              order by ${productOptions.order}, ${productOptions.id}
             )
           `.as("options"), // the where clause had to be hard coded for some reason
           // the generated query was ambiguous. it was mixing the value id with the product option id
@@ -1021,7 +1024,11 @@ export const _products = {
         for (const item of data) {
           const [newOption] = await tx
             .insert(productOptions)
-            .values({ productId: item.productId, name: item.name })
+            .values({
+              productId: item.productId,
+              name: item.name,
+              order: item.order,
+            })
             .onConflictDoUpdate({
               target: [productOptions.productId, productOptions.name],
               set: { name: item.name, order: item.order },
@@ -1036,7 +1043,11 @@ export const _products = {
           for (const value of item.values) {
             const [newOptionValue] = await tx
               .insert(productOptionValues)
-              .values({ value: value.value, productOptionId: newOption.id })
+              .values({
+                value: value.value,
+                order: value.order,
+                productOptionId: newOption.id,
+              })
               .onConflictDoUpdate({
                 target: [
                   productOptionValues.productOptionId,

@@ -17,7 +17,11 @@ export const _options = {
         for (const item of data) {
           const [newOption] = await tx
             .insert(productOptions)
-            .values({ productId: item.productId, name: item.name })
+            .values({
+              productId: item.productId,
+              name: item.name,
+              order: item.order,
+            })
             .onConflictDoUpdate({
               target: [productOptions.productId, productOptions.name],
               set: { name: item.name, order: item.order },
@@ -32,7 +36,11 @@ export const _options = {
           for (const value of item.values) {
             const [newOptionValue] = await tx
               .insert(productOptionValues)
-              .values({ value: value.value, productOptionId: newOption.id })
+              .values({
+                value: value.value,
+                order: value.order,
+                productOptionId: newOption.id,
+              })
               .onConflictDoUpdate({
                 target: [
                   productOptionValues.productOptionId,

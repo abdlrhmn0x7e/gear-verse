@@ -239,7 +239,10 @@ export async function ProductDetails({
             </div>
 
             {hasVariants && (
-              <ProductVariantSelector variants={product.variants} />
+              <ProductVariantSelector
+                variants={product.variants}
+                options={product.options}
+              />
             )}
 
             <PurchasePanel
