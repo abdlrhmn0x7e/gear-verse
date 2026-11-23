@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheTag } from "next/cache";
 import type { SearchParams } from "nuqs/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,15 +10,23 @@ import {
 } from "~/components/features/products/category-chips";
 import { MaxWidthWrapper } from "~/components/max-width-wrapper";
 import { Skeleton } from "~/components/ui/skeleton";
+import type { Locale } from "~/i18n/routing";
 import { localizedCopyProps } from "~/lib/arabic";
 import { findCategoryPath, getCategoryTree } from "~/lib/category-tree";
+import { getCategorySeoConfig } from "~/lib/seo/category-content";
+import { JsonLd } from "~/lib/seo/json-ld";
 import { pageMetadata } from "~/lib/seo/metadata";
 import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
-import { JsonLd } from "~/lib/seo/json-ld";
-import { breadcrumbJsonLd, categoryTrail } from "~/lib/seo/structured-data";
+import {
+  breadcrumbJsonLd,
+  categoryTrail,
+  collectionPageJsonLd,
+} from "~/lib/seo/structured-data";
 import { app } from "~/server/application";
+import { CategorySeoSection } from "./_components/category-seo-section";
 import { Filters } from "./_components/filters";
-import { Products, ProductsSkeleton } from "./_components/products";
+import { CATEGORY_PAGE_SIZE } from "./_components/product-list";
+import { Products, StaticProductsGrid } from "./_components/products";
 import { loadFilterSearchParams } from "./_components/utils";
 
 // Category and product edits expire this page (`expire: 0`), and the blocking
@@ -43,6 +52,24 @@ async function findCategoryBySlug(slug: string) {
   return { path, category: path.at(-1) };
 }
 
+/** Cached first page of unfiltered products for the static shell and ItemList JSON-LD. */
+async function getInitialCategoryProducts(slug: string, locale: Locale) {
+  "use cache";
+
+  cacheTag("recent-products", "sitemap", "categories-menu");
+
+  return app.public.categories.queries.getProductsPage({
+    pageSize: CATEGORY_PAGE_SIZE,
+    slug,
+    filters: {
+      brands: undefined,
+      attributes: [],
+      price: undefined,
+    },
+    locale,
+  });
+}
+
 /** Google cuts snippets at about 160 characters, so end on a whole word. */
 function clampDescription(text: string) {
   if (text.length <= 160) return text;
@@ -57,16 +84,20 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const [{ category }, indexable, t] = await Promise.all([
+  const [{ category }, indexable, t, tGuides] = await Promise.all([
     findCategoryBySlug(slug),
     findSitemapEntries(),
     getTranslations("products.metadata"),
+    getTranslations("guides.categorySeo.categories"),
   ]);
   if (!category) {
     notFound();
   }
 
-  const title = t("categoryTitle", { name: category.name });
+  const seoConfig = getCategorySeoConfig(slug);
+  const title = seoConfig
+    ? tGuides(`${seoConfig.slug}.metaTitle`)
+    : t("categoryTitle", { name: category.name });
   const isEmpty = !indexable.categories.some((live) => live.slug === slug);
 
   return {
@@ -104,10 +135,20 @@ export default async function CategoryPage({
   if (!category) {
     notFound();
   }
-  const [locale, t] = await Promise.all([
-    getLocale(),
+  const locale = await getLocale();
+  const [t, tGuides, initialPage] = await Promise.all([
     getTranslations("products"),
+    getTranslations("guides.categorySeo.categories"),
+    getInitialCategoryProducts(slug, locale),
   ]);
+  const seoConfig = getCategorySeoConfig(slug);
+  const heading = seoConfig
+    ? tGuides(`${seoConfig.slug}.heading`)
+    : category.name;
+  const collectionDescription =
+    category.description && !category.fallback?.description
+      ? category.description
+      : t("metadata.categoryDescription", { name: category.name });
 
   return (
     <MaxWidthWrapper className="pt-28 pb-12 md:pt-36">
@@ -117,11 +158,26 @@ export default async function CategoryPage({
           locale,
         )}
       />
+      {initialPage.data.length > 0 && (
+        <JsonLd
+          data={collectionPageJsonLd({
+            name: heading,
+            description: collectionDescription,
+            path: `/categories/${slug}`,
+            products: initialPage.data,
+            locale,
+          })}
+        />
+      )}
       <header className="max-w-2xl space-y-3">
         <h1 className="text-headline-sm md:text-display-sm text-balance">
-          <bdi {...localizedCopyProps(locale, category.fallback?.name)}>
-            {category.name}
-          </bdi>
+          {seoConfig ? (
+            heading
+          ) : (
+            <bdi {...localizedCopyProps(locale, category.fallback?.name)}>
+              {category.name}
+            </bdi>
+          )}
         </h1>
         {/* dir="auto" for copy of unknown language; on the Arabic site the read model says which it is */}
         <p
@@ -156,14 +212,17 @@ export default async function CategoryPage({
           </div>
         </aside>
 
-        <Suspense fallback={<ProductsSkeleton />}>
+        <Suspense fallback={<StaticProductsGrid products={initialPage.data} />}>
           <FilteredProducts
             searchParams={searchParams}
             slug={slug}
+            initialPage={initialPage}
             filtersPanel={<Filters slug={slug} />}
           />
         </Suspense>
       </div>
+
+      <CategorySeoSection slug={slug} />
     </MaxWidthWrapper>
   );
 }
@@ -175,6 +234,7 @@ async function FilteredProducts({
 }: {
   searchParams: Promise<SearchParams>;
   slug: string;
+  initialPage: Awaited<ReturnType<typeof getInitialCategoryProducts>>;
   filtersPanel: React.ReactNode;
 }) {
   const filters = loadFilterSearchParams(

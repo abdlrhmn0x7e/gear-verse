@@ -3,6 +3,7 @@
 import {
   IconArrowRight,
   IconArrowUpRight,
+  IconBook,
   IconBrandWhatsapp,
   IconBuildingStore,
   IconCategory,
@@ -199,6 +200,9 @@ export function MobileNav({
                 </DrawerContent>
               </Drawer>
             </li>
+            <RowLink href="/guides" icon={IconBook} onNavigate={closeAll}>
+              {t("guides")}
+            </RowLink>
             <RowLink href="/#faq" icon={IconHelpCircle} onNavigate={closeAll}>
               {t("faq")}
             </RowLink>

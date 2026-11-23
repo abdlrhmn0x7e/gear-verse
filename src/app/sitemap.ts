@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { routing } from "~/i18n/routing";
+import { GUIDE_LIST } from "~/lib/seo/guides";
 import { languageAlternates, localizedPath } from "~/lib/seo/metadata";
 import { findSitemapEntries } from "~/lib/seo/sitemap-entries";
 import { absoluteUrl } from "~/lib/seo/site";
@@ -12,6 +13,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: { path: string; lastModified?: Date }[] = [
     { path: "/", lastModified: newest },
     { path: "/products", lastModified: newest },
+    { path: "/guides", lastModified: new Date("2026-11-23") },
+    ...GUIDE_LIST.map((guide) => ({
+      path: `/guides/${guide.slug}`,
+      lastModified: new Date(guide.dateModified),
+    })),
     { path: "/returns" },
     ...categories.map((category) => ({
       path: `/categories/${category.slug}`,

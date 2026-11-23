@@ -28,6 +28,8 @@ type ProductsSearchParams = Awaited<
   ReturnType<typeof loadAllProductSearchParams>
 >;
 
+export const STORE_PAGE_SIZE = 24;
+
 /** One mapping from URL filters to the products query, shared by the server prefetch and the client list. */
 export function toProductsPageInput(
   filters: ProductsSearchParams,
@@ -36,7 +38,7 @@ export function toProductsPageInput(
   const hasPrice = filters.minPrice !== null || filters.maxPrice !== null;
 
   return {
-    pageSize: 12,
+    pageSize: STORE_PAGE_SIZE,
     filters: {
       title: filters.title ?? undefined,
       brands: filters.brands ?? undefined,

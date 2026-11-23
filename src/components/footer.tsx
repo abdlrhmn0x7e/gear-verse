@@ -14,6 +14,7 @@ import { SocialLinks } from "./social-links";
 import { WhatsAppNumberLink } from "./whatsapp-number-link";
 
 const HELP_LINKS = [
+  { key: "guides", href: "/guides" },
   { key: "requestItem", href: "/#request" },
   { key: "faq", href: "/#faq" },
   { key: "myOrders", href: "/orders" },

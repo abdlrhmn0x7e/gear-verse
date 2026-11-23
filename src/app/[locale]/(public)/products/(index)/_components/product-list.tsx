@@ -1,11 +1,10 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { XIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Button } from "~/components/ui/button";
 import {
   toProductsPageInput,
@@ -19,20 +18,42 @@ import {
 import { ProductsEmptyState } from "~/components/features/products/products-empty-state";
 import { LoadMore } from "~/components/load-more";
 import { useDebounce } from "~/hooks/use-debounce";
-import { useTRPC } from "~/trpc/client";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 
-export function ProductList() {
+export type StoreProductsPage =
+  RouterOutput["public"]["products"]["queries"]["getPage"];
+
+export function ProductList({
+  initialPage,
+}: {
+  initialPage?: StoreProductsPage;
+}) {
   const t = useTranslations("products.listing");
   const [filters, setFilters] = useAllProductSearchParams();
   const debouncedFilters = useDebounce(filters);
+  const isDefaultQuery =
+    !debouncedFilters.title &&
+    !debouncedFilters.brands?.length &&
+    !debouncedFilters.categories?.length &&
+    debouncedFilters.minPrice === null &&
+    debouncedFilters.maxPrice === null &&
+    debouncedFilters.sortBy === null;
+
   const trpc = useTRPC();
   const locale = useLocale();
-  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
-    trpc.public.products.queries.getPage.infiniteQueryOptions(
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
+    ...trpc.public.products.queries.getPage.infiniteQueryOptions(
       toProductsPageInput(debouncedFilters, locale),
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     ),
-  );
+    ...(isDefaultQuery &&
+      initialPage && {
+        initialData: {
+          pages: [initialPage],
+          pageParams: [null],
+        },
+      }),
+  });
   const products = data.pages.flatMap((page) => page.data);
 
   const { ref, inView } = useInView();

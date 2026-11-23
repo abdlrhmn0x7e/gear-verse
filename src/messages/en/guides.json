@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "title": "IEM & Audio Buying Guides in Egypt",
+    "description": "Practical guides to choosing in-ear monitors (IEMs), USB-C DAC dongles, cables and gaming audio gear in Egypt."
+  },
+  "index": {
+    "title": "Buying Guides",
+    "description": "Straightforward guides to picking in-ear monitors (IEMs), DAC dongles and accessories for gaming and music in Egypt.",
+    "readGuide": "Read guide",
+    "shopIems": "Browse IEMs in stock"
+  },
+  "article": {
+    "breadcrumbGuides": "Guides",
+    "inStockHeading": "In stock in Egypt right now",
+    "inStockDescription": "Curated picks ready to ship in 1–2 days with cash on delivery.",
+    "shopCategory": "Browse full category",
+    "relatedHeading": "More guides",
+    "needHelpHeading": "Not sure which one fits you?",
+    "needHelpBody": "Message us on WhatsApp with the games you play, the music you listen to and your budget in EGP — we'll point you to one or two models worth the money.",
+    "shopIemsCta": "Shop IEMs in Egypt"
+  },
+  "categorySeo": {
+    "relatedCategoriesHeading": "Complete your setup",
+    "guidesHeading": "Buying guides",
+    "faqHeading": "Common questions",
+    "categoryLabels": {
+      "iems": "In-Ear Monitors (IEMs)",
+      "iems-dac": "USB-C DACs & Dongles",
+      "iems-cables": "IEM Cables",
+      "iems-ear-tips": "IEM Ear Tips"
+    },
+    "categories": {
+      "iems": {
+        "metaTitle": "Buy IEMs (In-Ear Monitors) in Egypt",
+        "heading": "In-Ear Monitors (IEMs) in Egypt",
+        "guideHeading": "Buying IEMs in Egypt: gaming, music & what to look for",
+        "guideBody1": "In-ear monitors (IEMs) give you cleaner detail, tighter directional imaging for footsteps in Valorant, CS2, PUBG and COD Mobile, and far better comfort in Egypt's weather than heavy over-ear gaming headsets. Every model we stock — from SIMGOT, 7Hz, TANGZU, TANCHJIM, Kiwi Ears, Kefine and ZiiGaat — is hand-picked, authentic and already in stock locally.",
+        "guideBody2": "All prices are in EGP with 1–2 day delivery across Cairo, Giza, Alexandria and all Egyptian governorates, and cash on delivery is available. Looking for a specific IEM model that isn't listed? Request it on WhatsApp and we'll quote the landed price to your door.",
+        "faqs": {
+          "whatAreIems": {
+            "question": "What are IEMs and why do gamers and music listeners prefer them?",
+            "answer": "IEMs (in-ear monitors) seal directly inside your ear canal with tuned dynamic, planar or hybrid drivers. Because they isolate outside noise passively and place instruments and footsteps precisely, a well-tuned IEM often outperforms gaming headsets that cost twice as much."
+          },
+          "gaming": {
+            "question": "Which IEMs are best for competitive gaming (Valorant, CS2, PUBG, COD Mobile)?",
+            "answer": "Look for IEMs with clean imaging and controlled bass so explosions don't mask footsteps — models like SIMGOT EW300, SIMGOT EM6L, TANCHJIM Bunny G and 7Hz x Crinacle Zero series are popular picks for both PC and mobile gaming."
+          },
+          "dacNeeded": {
+            "question": "Do I need a USB-C DAC dongle for my IEMs?",
+            "answer": "If your phone doesn't have a 3.5mm headphone jack (or your PC motherboard output sounds noisy or quiet), either choose a Type-C DSP version or pair a 3.5mm IEM with a compact USB-C DAC dongle. Both give you clean, zero-latency wired audio."
+          },
+          "deliveryAndCod": {
+            "question": "Do you deliver IEMs across Egypt with cash on delivery?",
+            "answer": "Yes. Everything marked in stock ships locally from Egypt in 1–2 business days to Cairo, Giza, Alexandria and other governorates. Cash on delivery is available alongside InstaPay, Vodafone Cash, Orange Cash and e& cash."
+          }
+        }
+      },
+      "iems-dac": {
+        "metaTitle": "Buy USB-C DACs & Dongles for IEMs in Egypt",
+        "heading": "USB-C DACs & Dongles for IEMs in Egypt",
+        "guideHeading": "Clean wired audio from any phone or PC",
+        "guideBody1": "A dedicated USB-C DAC dongle converts digital audio cleanly before it reaches your in-ear monitors, removing background hiss from motherboard jacks and giving modern Type-C phones a proper 3.5mm output with enough power for multi-driver IEMs.",
+        "guideBody2": "Every DAC dongle we carry is tested with popular 3.5mm IEMs and cables with inline microphones (TRRS), in stock in Egypt with prices in EGP and 1–2 day delivery.",
+        "faqs": {
+          "whenNeeded": {
+            "question": "When do I actually need a USB-C DAC dongle?",
+            "answer": "You need one if your phone lacks a 3.5mm jack, if you hear static/hiss from your laptop or PC audio port, or if you want more volume headroom and cleaner separation from hybrid or planar IEMs."
+          },
+          "phoneAndPc": {
+            "question": "Do USB-C DAC dongles work on both Android/iPhone and PC?",
+            "answer": "Yes. Standard USB-C DAC dongles are plug-and-play on Android, USB-C iPhones, Windows and macOS — no drivers required. Check each product's details if you need inline mic (TRRS) support."
+          }
+        }
+      },
+      "iems-cables": {
+        "metaTitle": "Buy IEM Cables & Mic Cables in Egypt",
+        "heading": "IEM Upgrade & Mic Cables in Egypt",
+        "guideHeading": "Replace a worn cable or add a built-in microphone",
+        "guideBody1": "Because quality IEMs use detachable 0.78mm 2-pin cables, you never have to throw away a pair when a cable wears out. Upgrade cables from Tripowin and KBEAR improve drape and durability, and inline-mic cables let you use your favorite IEMs for Discord, calls and mobile gaming.",
+        "guideBody2": "Make sure the connector type (usually 0.78mm 2-pin) matches your IEM before ordering — or message us on WhatsApp and we'll confirm compatibility in seconds.",
+        "faqs": {
+          "connectors": {
+            "question": "Will these cables fit my IEMs?",
+            "answer": "Most enthusiast IEMs from SIMGOT, 7Hz, TANGZU, TANCHJIM, Kiwi Ears, Kefine and ZiiGaat use standard 0.78mm 2-pin connectors. Check the connector listed on the cable page or ask us on WhatsApp to double-check your exact model."
+          },
+          "inlineMic": {
+            "question": "Can I add a microphone to any 2-pin IEM?",
+            "answer": "Yes. Swapping to a 2-pin cable with an inline mic (such as the Tripowin Zombur) adds a clear microphone for Discord, voice chat and phone calls without replacing the earphones themselves."
+          }
+        }
+      },
+      "iems-ear-tips": {
+        "metaTitle": "Buy IEM Ear Tips in Egypt",
+        "heading": "IEM Ear Tips in Egypt",
+        "guideHeading": "Better seal, comfort and bass in one small upgrade",
+        "guideBody1": "Ear tips are the cheapest upgrade that changes how an IEM feels and sounds. A proper seal locks in bass response, improves passive noise isolation, and keeps your earphones comfortable during long gaming or study sessions.",
+        "guideBody2": "We stock proven aftermarket ear tips like DUNU S&S, NICEHCK C04 liquid silicone and Kiwi Ears Flex locally in Egypt with 1–2 day shipping.",
+        "faqs": {
+          "whyUpgrade": {
+            "question": "Do aftermarket ear tips really make a difference?",
+            "answer": "Yes. If your stock tips slip out, hurt after an hour, or sound thin in the bass, switching to better silicone or shaped tips improves seal consistency, comfort and isolation right away."
+          },
+          "sizing": {
+            "question": "How do I pick the right ear tip size?",
+            "answer": "Most people fit Medium, while smaller ear canals prefer Small and wider canals need Large for a full seal. Multi-size packs let you test both ears independently since left and right ears are often slightly different sizes."
+          }
+        }
+      }
+    }
+  },
+  "articles": {
+    "best-iems-in-egypt": {
+      "metaTitle": "Best IEMs in Egypt (2026): Gaming & Music Buyer's Guide",
+      "metaDescription": "How to pick the best in-ear monitors (IEMs) in Egypt for gaming and music — budget vs mid-range models, tuning, 3.5mm vs Type-C, and buying locally in EGP.",
+      "title": "Best IEMs in Egypt for Gaming & Music",
+      "summary": "How to pick the right in-ear monitors in Egypt without overspending — covering tuning, gaming imaging, 3.5mm vs USB-C and local availability.",
+      "intro": "If you're buying your first pair of in-ear monitors (IEMs) in Egypt — or upgrading from a bulky gaming headset — the number of model names can get overwhelming fast. Here is a practical breakdown of what actually matters so you can pick once and be happy with it.",
+      "sections": {
+        "whatAreIems": {
+          "heading": "Why IEMs beat regular earbuds and most gaming headsets",
+          "body": "Unlike generic earbuds that sit loosely in your ear, IEMs seal comfortably in the ear canal and use dedicated acoustic chambers and drivers (dynamic, balanced armature, planar or hybrid combinations). You get tighter bass, clearer vocals, accurate left-to-right spatial cues, and a detachable cable so one snag doesn't ruin the whole pair."
+        },
+        "forGaming": {
+          "heading": "What to look for in gaming IEMs (Valorant, CS2, PUBG, COD Mobile)",
+          "body": "For competitive shooters, avoid overly boomy bass that drowns out footsteps and reloads. Prioritize clean directional imaging and crisp upper mids. Entry gaming-focused picks like the TANCHJIM Bunny G and 7Hz x Crinacle Zero series handle positional cues reliably on a budget, while mid-range hybrid and tribrid sets like the SIMGOT EW300 and SIMGOT EM6L step up separation and soundstage depth noticeably."
+        },
+        "forMusic": {
+          "heading": "What to look for if music is your priority",
+          "body": "Decide whether you prefer warm/relaxed listening (smooth treble, fuller vocals and bass — great for long sessions) or detailed/analytical tuning (sparklier highs and micro-detail). Models like Tangzu Wan'er SG II, Kiwi Ears Cadenza II, Kefine Klean SV and SIMGOT SuperMix 4 cover everything from warm everyday listening to hi-fi detail."
+        },
+        "howToPick": {
+          "heading": "Check your connector and comfort before ordering",
+          "body": "Decide early between a standard 3.5mm cable (works with PCs, consoles and USB-C DAC dongles) and a Type-C DSP cable (plugs straight into phones with built-in tuning). If you chat on Discord or play mobile games without a desk mic, either pick a mic version or pair any 2-pin IEM with an inline-mic upgrade cable. And if stock tips feel loose, aftermarket silicone ear tips are the easiest comfort upgrade."
+        },
+        "buyingInEgypt": {
+          "heading": "Buying IEMs locally in Egypt vs importing yourself",
+          "body": "Ordering a single pair from abroad often means weeks of waiting, unpredictable customs fees and no easy recourse if a unit arrives defective. Buying from local stock in Egypt gives you transparent EGP pricing, 1–2 day delivery and cash on delivery — and if there's a specific niche model you want that isn't in stock yet, you can still request a custom quote with customs handled upfront."
+        }
+      }
+    },
+    "iems-vs-gaming-headsets": {
+      "metaTitle": "IEMs vs Gaming Headsets: Which Is Better for Gaming?",
+      "metaDescription": "Comparing in-ear monitors (IEMs) and over-ear gaming headsets for competitive FPS gaming, comfort in Egypt's heat, mic setups and value for money.",
+      "title": "IEMs vs Gaming Headsets: Why Gamers Are Switching",
+      "summary": "A straight comparison of sound imaging, comfort in Egypt's weather, microphone options and price-to-performance.",
+      "intro": "Watch almost any pro Valorant, CS2 or mobile esports stage and you'll notice players wearing in-ear monitors under noise-cancelling earcups. More everyday PC and mobile gamers in Egypt are making the same switch — here is why, and the few cases where a traditional headset still makes sense.",
+      "sections": {
+        "imagingAndSound": {
+          "heading": "Sound quality & footstep accuracy per EGP",
+          "body": "Gaming headsets spend a large chunk of their budget on plastic shells, RGB lighting, wireless chips and marketing. IEMs put almost the entire budget into the drivers and acoustic tuning. At the same price in EGP, a good wired IEM usually delivers clearer detail, zero wireless latency and sharper positional audio for footsteps and utility."
+        },
+        "comfortInEgypt": {
+          "heading": "Comfort during long sessions (especially in warm weather)",
+          "body": "Over-ear headsets clamp your head, trap heat around your ears and leave headband dents — which gets uncomfortable fast during Egyptian summers or 4-hour ranked sessions. Lightweight IEMs weigh a few grams, never press on glasses arms, and isolate room noise passively without heating up your ears."
+        },
+        "microphoneOptions": {
+          "heading": "What about the microphone?",
+          "body": "The biggest hesitation gamers have about IEMs is giving up the attached boom mic. You have two easy options: use a dedicated USB desk mic (which sounds far better than any headset mic anyway), or swap in a detachable 0.78mm 2-pin cable with an inline mic like the Tripowin Zombur for Discord, console controllers and mobile gaming."
+        },
+        "whenToSwitch": {
+          "heading": "When an IEM is the right move",
+          "body": "If you want cleaner audio for both competitive gaming and music, hate sweaty earpads, wear glasses, or switch between PC and phone, IEMs are an easy upgrade. Keep a headset only if you strictly want an all-in-one wireless device with a flip-to-mute mic."
+        }
+      }
+    },
+    "usb-c-dac-dongle-guide": {
+      "metaTitle": "3.5mm vs USB-C DSP vs DAC Dongle for IEMs in Egypt",
+      "metaDescription": "Do you need a USB-C DAC dongle for your IEMs? Learn the difference between 3.5mm, Type-C DSP cables and portable DAC dongles for phones and PCs.",
+      "title": "3.5mm vs USB-C DSP vs DAC Dongle for IEMs",
+      "summary": "How to connect your IEMs cleanly to modern phones, laptops and gaming PCs — and when a dedicated USB-C DAC dongle is worth it.",
+      "intro": "Most phones no longer have a 3.5mm headphone jack, and many PC front-panel audio ports add audible static or compress dynamic range. Choosing the right connection for your IEMs is simple once you know how the three options compare.",
+      "sections": {
+        "threePointFiveVsDsp": {
+          "heading": "Standard 3.5mm vs Type-C DSP cables",
+          "body": "A standard 3.5mm cable is the most versatile choice: it plugs directly into PCs, controllers, laptops and any DAC dongle. A Type-C DSP version (like the SIMGOT EW300 DSP) builds a tiny DAC and custom digital tuning directly into the USB-C plug — ideal if you mainly listen on a phone and want plug-and-play convenience with no extra adapter."
+        },
+        "whyDacMatters": {
+          "heading": "What a dedicated USB-C DAC dongle actually improves",
+          "body": "A good USB-C DAC dongle (such as the NICEHCK NK1 MAX or Kiwi Ears AD1) bypasses the noisy audio chip inside your phone or motherboard. You get a dead-silent background with sensitive IEMs, cleaner bass control, and plenty of volume headroom without distortion — for a fraction of the price of a desktop amplifier."
+        },
+        "pcVsMobile": {
+          "heading": "Using a DAC dongle on both phone and PC",
+          "body": "USB-C DAC dongles work plug-and-play on Android phones, USB-C iPhones, laptops and desktop PCs (via a USB-C port or a simple USB-C-to-USB-A adapter). If you plan to use an inline-mic cable for calls or Discord, make sure you pick a TRRS-compatible dongle that passes microphone signals through."
+        },
+        "upgradeAccessories": {
+          "heading": "Small upgrades that complete your IEM kit",
+          "body": "Once your audio chain is clean, two small accessories make the biggest everyday difference: well-fitting aftermarket ear tips (for comfort and consistent bass seal) and a soft, tangle-free replacement cable if you want extra length or a built-in mic."
+        }
+      }
+    }
+  }
+}

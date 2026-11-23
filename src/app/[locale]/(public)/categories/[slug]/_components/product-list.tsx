@@ -11,18 +11,33 @@ import {
 } from "~/components/features/products/product-card";
 import { ProductsEmptyState } from "~/components/features/products/products-empty-state";
 import { LoadMore } from "~/components/load-more";
-import { useTRPC } from "~/trpc/client";
+import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useCategoryProductsFilters } from "./hooks";
 
-export function ProductList({ slug }: { slug: string }) {
+export const CATEGORY_PAGE_SIZE = 24;
+
+export type CategoryProductsPage =
+  RouterOutput["public"]["categories"]["queries"]["getProductsPage"];
+
+export function ProductList({
+  slug,
+  initialPage,
+}: {
+  slug: string;
+  initialPage?: CategoryProductsPage;
+}) {
   const [filters, setFilters] = useCategoryProductsFilters();
+  const hasFilters =
+    Boolean(filters.brands?.length) ||
+    filters.attributes.length > 0 ||
+    Boolean(filters.price);
 
   const trpc = useTRPC();
   const locale = useLocale();
-  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery(
-    trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
+  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
+    ...trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
       {
-        pageSize: 12,
+        pageSize: CATEGORY_PAGE_SIZE,
         slug,
         filters,
         locale,
@@ -31,7 +46,14 @@ export function ProductList({ slug }: { slug: string }) {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     ),
-  );
+    ...(!hasFilters &&
+      initialPage && {
+        initialData: {
+          pages: [initialPage],
+          pageParams: [null],
+        },
+      }),
+  });
   const products = data.pages.flatMap((page) => page.data);
 
   const { ref, inView } = useInView();
@@ -45,11 +67,7 @@ export function ProductList({ slug }: { slug: string }) {
   if (products.length === 0) {
     return (
       <ProductsEmptyState
-        hasFilters={
-          Boolean(filters.brands?.length) ||
-          filters.attributes.length > 0 ||
-          Boolean(filters.price)
-        }
+        hasFilters={hasFilters}
         onClearFilters={() => void setFilters(null)}
       />
     );

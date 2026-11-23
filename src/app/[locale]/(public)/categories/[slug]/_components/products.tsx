@@ -1,8 +1,17 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { MobileFiltersDrawer } from "~/components/features/products/mobile-filters-drawer";
+import {
+  ProductCard,
+  productGridClassName,
+} from "~/components/features/products/product-card";
 import { HydrateClient, prefetch, trpc } from "~/trpc/server";
-import { ProductList, ProductListSkeleton } from "./product-list";
+import {
+  CATEGORY_PAGE_SIZE,
+  ProductList,
+  ProductListSkeleton,
+  type CategoryProductsPage,
+} from "./product-list";
 import type {
   AttributeFilter,
   CategoryProductsFilters as NativeCategoryProductsFilters,
@@ -13,11 +22,13 @@ export async function Products({
   slug,
   filters,
   filtersPanel,
+  initialPage,
 }: {
   slug: string;
   filters: NativeCategoryProductsFilters;
   /** the filter panel, rendered again inside the mobile sheet */
   filtersPanel: React.ReactNode;
+  initialPage: CategoryProductsPage;
 }) {
   const t = await getTranslations("products.listing");
   const attributeFilters = Array.from(Object.entries(filters)).reduce(
@@ -51,17 +62,24 @@ export async function Products({
       : undefined,
   } satisfies CategoryProductsFilters;
 
-  void prefetch(
-    trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
-      {
-        pageSize: 12,
-        slug,
-        filters: parsedFilters,
-        locale: await getLocale(),
-      },
-      { getNextPageParam: (lastPage) => lastPage.nextCursor },
-    ),
-  );
+  const hasFilters =
+    Boolean(parsedFilters.brands?.length) ||
+    parsedFilters.attributes.length > 0 ||
+    Boolean(parsedFilters.price);
+
+  if (hasFilters) {
+    void prefetch(
+      trpc.public.categories.queries.getProductsPage.infiniteQueryOptions(
+        {
+          pageSize: CATEGORY_PAGE_SIZE,
+          slug,
+          filters: parsedFilters,
+          locale: await getLocale(),
+        },
+        { getNextPageParam: (lastPage) => lastPage.nextCursor },
+      ),
+    );
+  }
 
   return (
     <section aria-labelledby="products-heading" className="min-w-0 space-y-8">
@@ -72,20 +90,41 @@ export async function Products({
         <MobileFiltersDrawer>{filtersPanel}</MobileFiltersDrawer>
       </div>
 
-      <HydrateClient>
-        <Suspense fallback={<ProductListSkeleton />}>
-          <ProductList slug={slug} />
-        </Suspense>
-      </HydrateClient>
+      {hasFilters ? (
+        <HydrateClient>
+          <Suspense fallback={<ProductListSkeleton />}>
+            <ProductList slug={slug} initialPage={initialPage} />
+          </Suspense>
+        </HydrateClient>
+      ) : (
+        <ProductList slug={slug} initialPage={initialPage} />
+      )}
     </section>
   );
 }
 
-export async function ProductsSkeleton() {
+/**
+ * Static SSR grid rendered inside the Suspense fallback so the prerendered HTML
+ * shell contains real product links, titles, images and prices right inside
+ * `<main>` rather than skeletons streamed after the footer.
+ */
+export async function StaticProductsGrid({
+  products,
+}: {
+  products: CategoryProductsPage["data"];
+}) {
   const t = await getTranslations("products.listing");
   return (
-    <section aria-label={t("heading")}>
-      <ProductListSkeleton />
+    <section aria-label={t("heading")} className="min-w-0 space-y-8">
+      {products.length > 0 ? (
+        <div className={productGridClassName}>
+          {products.map((product, index) => (
+            <ProductCard key={product.id} product={product} eager={index < 2} />
+          ))}
+        </div>
+      ) : (
+        <ProductListSkeleton />
+      )}
     </section>
   );
 }

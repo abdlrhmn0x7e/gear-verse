@@ -4,6 +4,7 @@ import checkout from "~/messages/en/checkout.json";
 import common from "~/messages/en/common.json";
 import errors from "~/messages/en/errors.json";
 import footer from "~/messages/en/footer.json";
+import guides from "~/messages/en/guides.json";
 import landing from "~/messages/en/landing.json";
 import nav from "~/messages/en/nav.json";
 import orders from "~/messages/en/orders.json";
@@ -22,6 +23,7 @@ const en = {
   common,
   errors,
   footer,
+  guides,
   landing,
   nav,
   orders,

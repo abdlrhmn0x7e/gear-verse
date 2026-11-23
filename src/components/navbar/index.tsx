@@ -64,6 +64,10 @@ export function Navbar() {
             </NavigationMenu.Item>
 
             <NavigationMenu.Item>
+              <NavTextLink href="/guides">{t("guides")}</NavTextLink>
+            </NavigationMenu.Item>
+
+            <NavigationMenu.Item>
               <NavTextLink href="/#faq">{t("faq")}</NavTextLink>
             </NavigationMenu.Item>
           </NavigationMenu.List>

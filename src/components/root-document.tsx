@@ -25,11 +25,11 @@ import * as Sentry from "@sentry/nextjs";
 export const siteMetadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
-    default: "Gear Verse: Imported Gaming Gear in Egypt",
+    default: "Gear Verse: Buy IEMs & Gaming Gear in Egypt",
     template: "%s | Gear Verse",
   },
   description:
-    "Hard-to-find gaming peripherals from international brands, hand-imported, customs cleared and delivered to your door anywhere in Egypt. Prices in EGP, cash on delivery.",
+    "Curated in-ear monitors (IEMs), USB-C DACs, cables, and gaming keyboards & mice in stock in Egypt. Prices in EGP, 1–2 day delivery, cash on delivery.",
   applicationName: "Gear Verse",
   // the image comes from app/opengraph-image.png
   openGraph: {

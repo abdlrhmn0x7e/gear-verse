@@ -124,6 +124,79 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[], locale: Locale) {
   };
 }
 
+/** CollectionPage + ItemList for category and store listings. */
+export function collectionPageJsonLd({
+  name,
+  description,
+  path,
+  products,
+  locale,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  products: { slug: string; title: string }[];
+  locale: Locale;
+}) {
+  const url = absoluteUrl(localizedPath(path, locale));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#collection`,
+    name,
+    description,
+    url,
+    inLanguage: `${locale}-EG`,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: products.length,
+      itemListElement: products.map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: product.title,
+        url: absoluteUrl(localizedPath(`/products/${product.slug}`, locale)),
+      })),
+    },
+  };
+}
+
+/** Article structured data for buying guides. */
+export function articleJsonLd({
+  title,
+  description,
+  path,
+  datePublished,
+  dateModified,
+  locale,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  datePublished: string;
+  dateModified: string;
+  locale: Locale;
+}) {
+  const url = absoluteUrl(localizedPath(path, locale));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": `${url}#article`,
+    headline: title,
+    description,
+    url,
+    inLanguage: `${locale}-EG`,
+    datePublished,
+    dateModified,
+    image: absoluteUrl("/opengraph-image.png"),
+    author: { "@id": ORGANIZATION_ID },
+    publisher: { "@id": ORGANIZATION_ID },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  };
+}
+
 /** The store, under its translated name, then the category from its root down to `category` itself. */
 export function categoryTrail(
   categoryPath: { name: string; slug: string }[],
