@@ -20,6 +20,7 @@ export const orderPaymentMethodsEnum = pgEnum("order_payment_methods", [
 ]);
 export const orderStatusEnum = pgEnum("order_status", [
   "PENDING",
+  "CONTACTED",
   "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
@@ -86,6 +87,8 @@ export const orderItems = pgTable(
     unitPrice: integer("unit_price"),
     // units not taken from stock at placement; the line holds quantity - this from inventory
     backorderedQuantity: integer("backordered_quantity").notNull().default(0),
+    // set only on orders with backordered lines, to ship them apart; null follows the order's status
+    status: orderStatusEnum("status"),
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")

@@ -1,7 +1,7 @@
 "use client";
 
 import { IconExternalLink } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { PackageOpenIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -29,6 +29,16 @@ import { useTRPC, type RouterOutput } from "~/trpc/client";
 import { useOrderSearchParams } from "../../_hooks/use-order-search-params";
 import { DeleteOrderDialog } from "../dialogs/delete-order";
 import { OrderStatus } from "../tables/orders/order-status";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+} from "~/components/ui/select";
+import { toast } from "~/components/ui/toast";
+import { orderItemStatusEnum } from "~/lib/schemas/entities";
+import { useRefreshOrderViews } from "../../_hooks/use-refresh-order-views";
 import {
   Empty,
   EmptyHeader,
@@ -104,6 +114,8 @@ function OrderDrawerContent() {
   const addressLine = formatAddressLine(address);
   const mapsUrl = googleMapsUrl(address);
   const accountName = user?.name ?? address?.fullName;
+  // only orders waiting on a backordered line can ship their lines apart
+  const splits = data.items.some((item) => item.backorderedQuantity > 0);
 
   // what a courier needs to deliver it, in the order they read it
   const shippingDetails = [
@@ -357,7 +369,11 @@ function OrderDrawerContent() {
               </Empty>
             ) : (
               data.items.map((item, index) => (
-                <OrderItem key={`${item.id}-${index}`} item={item} />
+                <OrderItem
+                  key={`${item.id}-${index}`}
+                  item={item}
+                  orderStatus={splits ? data.status : null}
+                />
               ))
             )}
           </div>
@@ -408,10 +424,16 @@ function CopyableValue({
   );
 }
 
+type OrderDetails =
+  RouterOutput["admin"]["orders"]["queries"]["findDetailsById"];
+
 function OrderItem({
   item,
+  orderStatus,
 }: {
-  item: RouterOutput["admin"]["orders"]["queries"]["findDetailsById"]["items"][number];
+  item: OrderDetails["items"][number];
+  /** the order's status when its lines can have their own, else null */
+  orderStatus: OrderDetails["status"] | null;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -441,12 +463,73 @@ function OrderItem({
               : `${item.backorderedQuantity} of ${item.quantity} on backorder`}
           </Badge>
         )}
+        {orderStatus && (
+          <ItemStatusSelect
+            itemId={item.id}
+            status={item.status}
+            orderStatus={orderStatus}
+          />
+        )}
 
         <p className="text-muted-foreground ml-auto">
           {formatCurrency(item.quantity * item.price, "en")}
         </p>
       </div>
     </div>
+  );
+}
+
+const FOLLOW_ORDER = "ORDER";
+
+/** One line's own status, e.g. the in-stock lines shipped while a backordered one is sourced. */
+function ItemStatusSelect({
+  itemId,
+  status,
+  orderStatus,
+}: {
+  itemId: number;
+  status: OrderDetails["items"][number]["status"];
+  orderStatus: OrderDetails["status"];
+}) {
+  const trpc = useTRPC();
+  const refreshOrderViews = useRefreshOrderViews();
+  const { mutate, isPending } = useMutation(
+    trpc.admin.orders.mutations.setItemStatus.mutationOptions({
+      onSuccess: () => void refreshOrderViews(),
+      onError: (error) => {
+        toast.error(
+          error.message || "Couldn't change the item's status. Try again.",
+        );
+      },
+    }),
+  );
+
+  return (
+    <Select
+      value={status ?? FOLLOW_ORDER}
+      onValueChange={(value) =>
+        mutate({
+          id: itemId,
+          status:
+            value === FOLLOW_ORDER ? null : orderItemStatusEnum.parse(value),
+        })
+      }
+      disabled={isPending}
+    >
+      <SelectTrigger size="sm" aria-label="Item status">
+        <OrderStatus variant="plain" status={status ?? orderStatus} />
+        {!status && <span className="text-muted-foreground">(order)</span>}
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={FOLLOW_ORDER}>Same as the order</SelectItem>
+        <SelectSeparator />
+        {orderItemStatusEnum.options.map((option) => (
+          <SelectItem key={option} value={option}>
+            <OrderStatus variant="plain" status={option} />
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

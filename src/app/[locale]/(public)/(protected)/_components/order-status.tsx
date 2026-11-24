@@ -10,6 +10,7 @@ export type OrderPaymentMethod =
 /** each status's dot; its label is orders.status.<status> */
 export const ORDER_STATUS: Record<OrderStatusValue, { dot: string }> = {
   PENDING: { dot: "bg-amber-500" },
+  CONTACTED: { dot: "bg-sky-500" },
   CONFIRMED: { dot: "bg-violet-500" },
   SHIPPED: { dot: "bg-blue-500" },
   DELIVERED: { dot: "bg-green-600" },
@@ -54,6 +55,7 @@ type TimelineText =
   | "placed"
   | "confirmed"
   | "confirmedDetail"
+  | "contactedDetail"
   | "shipped"
   | "shippedDetail"
   | "delivered"
@@ -71,7 +73,7 @@ const FLOW = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED"] as const;
 
 /**
  * Placed, confirmed by the team, shipped, delivered, one step per status.
- * While pending, the confirmation call is the step in progress. Cancelled and
+ * While pending or contacted, the confirmation is the step in progress. Cancelled and
  * refunded orders end the line with their own step.
  */
 export function orderTimeline({
@@ -103,7 +105,11 @@ export function orderTimeline({
   }
 
   const reached =
-    status === "REFUNDED" ? FLOW.length - 1 : FLOW.indexOf(status);
+    status === "REFUNDED"
+      ? FLOW.length - 1
+      : status === "CONTACTED"
+        ? 0
+        : FLOW.indexOf(status);
 
   const steps: TimelineStep[] = [
     placed,
@@ -112,7 +118,7 @@ export function orderTimeline({
       state: reached === 0 ? "current" : "done",
       detail:
         reached === 0
-          ? t("confirmedDetail")
+          ? t(status === "CONTACTED" ? "contactedDetail" : "confirmedDetail")
           : status === "CONFIRMED"
             ? updated
             : undefined,

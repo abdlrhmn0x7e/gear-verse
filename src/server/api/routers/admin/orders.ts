@@ -5,6 +5,7 @@ import { errorMap } from "../../error-map";
 import { ordersGetPageInputSchema } from "~/lib/schemas/contracts/admin/orders";
 import {
   createFullOrderInputSchema,
+  setOrderItemStatusInputSchema,
   updateFullOrderInputSchema,
 } from "~/lib/schemas/entities";
 
@@ -86,6 +87,18 @@ export const adminOrdersRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         const { data, error } = await tryCatch(
           ctx.app.admin.orders.mutations.update(input),
+        );
+        if (error) {
+          throw errorMap(error);
+        }
+        return data;
+      }),
+
+    setItemStatus: adminProcedure
+      .input(setOrderItemStatusInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const { data, error } = await tryCatch(
+          ctx.app.admin.orders.mutations.setItemStatus(input),
         );
         if (error) {
           throw errorMap(error);

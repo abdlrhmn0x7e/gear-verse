@@ -32,7 +32,7 @@ type Order = {
 };
 
 /**
- * Moves an order one step along Pending → Confirmed → Shipped → Delivered.
+ * Moves an order one step along Pending → Contacted → Confirmed → Shipped → Delivered.
  * Shipping asks for the Aramex tracking number first; the other steps take
  * one click. Renders nothing for a final status.
  */

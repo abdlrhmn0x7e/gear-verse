@@ -2,6 +2,7 @@ import z from "zod";
 
 export const orderStatusEnum = z.enum([
   "PENDING",
+  "CONTACTED",
   "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
@@ -9,6 +10,23 @@ export const orderStatusEnum = z.enum([
   "CANCELLED",
 ]);
 export type OrderStatus = z.infer<typeof orderStatusEnum>;
+
+/** What one line of a backordered order can be set to on its own, e.g. the in-stock lines shipped ahead. */
+export const orderItemStatusEnum = orderStatusEnum.extract([
+  "CONFIRMED",
+  "SHIPPED",
+  "DELIVERED",
+]);
+export type OrderItemStatus = z.infer<typeof orderItemStatusEnum>;
+
+export const setOrderItemStatusInputSchema = z.object({
+  id: z.number().positive(),
+  /** null makes the line follow the order's status again */
+  status: orderItemStatusEnum.nullable(),
+});
+export type SetOrderItemStatusInput = z.infer<
+  typeof setOrderItemStatusInputSchema
+>;
 
 export const orderEntitySchema = z.object({
   id: z.number("ID must be a number").nonnegative("ID must be positive"),

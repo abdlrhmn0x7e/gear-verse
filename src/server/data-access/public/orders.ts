@@ -133,6 +133,7 @@ export const _orders = {
 
           quantity: orderItems.quantity,
           backorderedQuantity: orderItems.backorderedQuantity,
+          status: orderItems.status,
           productId: sql<number>`${products.id}`.as("order_item_product_id"),
           title: products.title,
           summary: products.summary,
@@ -202,6 +203,8 @@ export const _orders = {
 
         quantity: number;
         backorderedQuantity: number;
+        /** set when this line ships apart from the rest of the order */
+        status: NonNullable<NewOrder["status"]> | null;
         stock: number;
 
         price: number;
@@ -219,6 +222,7 @@ export const _orders = {
                 'id', ${items.id},
                 'quantity', ${items.quantity},
                 'backorderedQuantity', ${items.backorderedQuantity},
+                'status', ${items.status},
                 'productId', ${items.productId},
                 'productVariantId', ${items.productVariantId},
                 'stock', ${items.stock},

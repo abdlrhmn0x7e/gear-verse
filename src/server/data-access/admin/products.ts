@@ -588,6 +588,7 @@ export const _products = {
             eq(orderItems.productId, id),
             inArray(orders.status, [
               "PENDING",
+              "CONTACTED",
               "CONFIRMED",
               "SHIPPED",
               "DELIVERED",

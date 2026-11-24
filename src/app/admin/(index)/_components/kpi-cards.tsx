@@ -241,9 +241,9 @@ export function AwaitingConfirmationCard() {
       label="Awaiting confirmation"
       definition={
         <>
-          Every Pending order, however old. Each needs a call or WhatsApp to
-          confirm it and collect the prepaid shipping fee before it ships. Turns
-          amber once the oldest has waited more than 24 hours.
+          Every Pending or Contacted order, however old. Each needs a call or
+          WhatsApp to confirm it and collect the prepaid shipping fee before it
+          ships. Turns amber once the oldest has waited more than 24 hours.
         </>
       }
       value={data.count.toLocaleString("en-EG")}

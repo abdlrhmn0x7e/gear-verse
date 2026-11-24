@@ -13,6 +13,7 @@ import type { OrderListFilters } from "~/server/data-access/admin/orders";
 type OrdersFilterInput = Partial<OrdersFilter>;
 import type {
   CreateFullOrderInput,
+  SetOrderItemStatusInput,
   UpdateFullOrderInput,
 } from "~/lib/schemas/entities";
 import { tryCatch } from "~/lib/utils/try-catch";
@@ -169,6 +170,17 @@ export const _orders = {
         await invalidateProducts(items.map((item) => item.productId));
       }
       return updatedOrder;
+    },
+
+    setItemStatus: async ({ id, status }: SetOrderItemStatusInput) => {
+      const item = await data.admin.orders.mutations.setItemStatus(id, status);
+      if (!item) {
+        throw new AppError(
+          "Only items on an order with a backordered item can have their own status.",
+          "BAD_REQUEST",
+        );
+      }
+      return item;
     },
 
     delete: async (id: number) => {

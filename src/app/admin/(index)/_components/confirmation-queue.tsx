@@ -25,7 +25,7 @@ type PendingOrder =
 const DESCRIPTION =
   "Call or WhatsApp each order to confirm it and collect the shipping fee before it ships.";
 
-/** Pending orders, oldest first: who to call, what they ordered, and the three things to do about it. */
+/** Pending then contacted orders, oldest first: who to call, what they ordered, and the three things to do about it. */
 export function ConfirmationQueue({ className }: { className?: string }) {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
@@ -143,7 +143,7 @@ function QueueRow({ order, now }: { order: PendingOrder; now: Date }) {
             </Button>
           )}
           <WhatsAppActions confirmation={order} />
-          <NextStatusButton order={{ id: order.id, status: "PENDING" }} />
+          <NextStatusButton order={order} />
         </div>
       </div>
     </li>

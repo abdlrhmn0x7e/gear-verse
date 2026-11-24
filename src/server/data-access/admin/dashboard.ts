@@ -45,6 +45,8 @@ const lineTotal = sql`${orderItems.quantity} * coalesce(${orderItems.unitPrice},
 
 const FALLBACK_LOW_STOCK_THRESHOLD = 2;
 
+const awaitingConfirmation = ["PENDING", "CONTACTED"] as const;
+
 export const _dashboard = {
   queries: {
     /** SHIPPED and DELIVERED revenue per bucket of the current period, and the previous period's total. */
@@ -113,7 +115,7 @@ export const _dashboard = {
         .then(([row]) => row ?? { count: 0, value: 0, previousCount: 0 });
     },
 
-    /** Every PENDING order, whenever it was placed: how many and since when. */
+    /** Every order not yet confirmed (PENDING or CONTACTED), whenever it was placed: how many and since when. */
     pendingSummary: async () => {
       return db
         .select({
@@ -123,12 +125,14 @@ export const _dashboard = {
           ),
         })
         .from(orders)
-        .where(eq(orders.status, "PENDING"))
+        .where(inArray(orders.status, awaitingConfirmation))
         .then(([row]) => row ?? { count: 0, oldestCreatedAt: null });
     },
 
-    /** Orders with who to call and what they ordered: the oldest PENDING ones, or the given ids. */
-    confirmationOrders: async (select: { limit: number } | { ids: number[] }) => {
+    /** Orders with who to call and what they ordered: the ones not yet contacted, then the ones awaiting a reply, oldest first; or the given ids. */
+    confirmationOrders: async (
+      select: { limit: number } | { ids: number[] },
+    ) => {
       type Line = {
         title: string;
         quantity: number;
@@ -191,36 +195,40 @@ export const _dashboard = {
         .groupBy(orderItems.orderId)
         .as("lines");
 
-      return db
-        .select({
-          id: orders.id,
-          createdAt: orders.createdAt,
-          paymentMethod: orders.paymentMethod,
-          customerName: sql<string>`coalesce(${addresses.fullName}, ${users.name})`,
-          phoneNumber: addresses.phoneNumber,
-          address: addresses.address,
-          buildingNameOrNumber: addresses.buildingNameOrNumber,
-          floor: addresses.floor,
-          apartment: addresses.apartment,
-          additionalDetails: addresses.additionalDetails,
-          city: addresses.city,
-          governorate: addresses.governorate,
-          total: sql<number>`coalesce(${lines.total}, 0)`,
-          quantity: sql<number>`coalesce(${lines.quantity}, 0)`,
-          backordered: sql<boolean>`coalesce(${lines.backordered}, false)`,
-          lines: sql<Line[]>`coalesce(${lines.lines}, '[]'::jsonb)`,
-        })
-        .from(orders)
-        .leftJoin(addresses, eq(orders.addressId, addresses.id))
-        .leftJoin(users, eq(orders.userId, users.id))
-        .leftJoin(lines, eq(orders.id, lines.orderId))
-        .where(
-          "ids" in select
-            ? inArray(orders.id, select.ids)
-            : eq(orders.status, "PENDING"),
-        )
-        .orderBy(asc(orders.createdAt), asc(orders.id))
-        .limit("ids" in select ? select.ids.length : select.limit);
+      return (
+        db
+          .select({
+            id: orders.id,
+            status: orders.status,
+            createdAt: orders.createdAt,
+            paymentMethod: orders.paymentMethod,
+            customerName: sql<string>`coalesce(${addresses.fullName}, ${users.name})`,
+            phoneNumber: addresses.phoneNumber,
+            address: addresses.address,
+            buildingNameOrNumber: addresses.buildingNameOrNumber,
+            floor: addresses.floor,
+            apartment: addresses.apartment,
+            additionalDetails: addresses.additionalDetails,
+            city: addresses.city,
+            governorate: addresses.governorate,
+            total: sql<number>`coalesce(${lines.total}, 0)`,
+            quantity: sql<number>`coalesce(${lines.quantity}, 0)`,
+            backordered: sql<boolean>`coalesce(${lines.backordered}, false)`,
+            lines: sql<Line[]>`coalesce(${lines.lines}, '[]'::jsonb)`,
+          })
+          .from(orders)
+          .leftJoin(addresses, eq(orders.addressId, addresses.id))
+          .leftJoin(users, eq(orders.userId, users.id))
+          .leftJoin(lines, eq(orders.id, lines.orderId))
+          .where(
+            "ids" in select
+              ? inArray(orders.id, select.ids)
+              : inArray(orders.status, awaitingConfirmation),
+          )
+          // enum order puts PENDING before CONTACTED
+          .orderBy(asc(orders.status), asc(orders.createdAt), asc(orders.id))
+          .limit("ids" in select ? select.ids.length : select.limit)
+      );
     },
 
     /** store_settings.low_stock_threshold, or 2 while the table or its row is missing. */
@@ -336,6 +344,7 @@ export const _dashboard = {
           and(
             inArray(orders.status, [
               "PENDING",
+              "CONTACTED",
               "CONFIRMED",
               "SHIPPED",
               "DELIVERED",

@@ -18,7 +18,11 @@ import { formatDate } from "~/lib/utils/format-date";
 import { aramexTrackingUrl } from "~/lib/aramex";
 import { whatsAppLink } from "~/lib/whatsapp";
 import type { RouterOutput } from "~/trpc/client";
-import { orderTimeline, type TimelineStep } from "./order-status";
+import {
+  OrderStatusLabel,
+  orderTimeline,
+  type TimelineStep,
+} from "./order-status";
 import { useLocale, useTranslations } from "next-intl";
 
 type Order = RouterOutput["public"]["orders"]["queries"]["findById"];
@@ -296,6 +300,7 @@ function nextSteps(order: Order): NextStep[] | "cancelled" | "refunded" {
 
   switch (order.status) {
     case "PENDING":
+    case "CONTACTED":
       return ["whatsapp", ...(cod ? (["prepay", "payRest"] as const) : [])];
     case "CONFIRMED":
       return [...(cod ? (["payRest"] as const) : []), "checkGear"];
@@ -415,6 +420,12 @@ function OrderItems({ order }: { order: Order }) {
                       })}
                 </Badge>
               )}
+              {item.status && (
+                <OrderStatusLabel
+                  status={item.status}
+                  className="mt-1 flex text-xs"
+                />
+              )}
               <div className="mt-1 flex items-baseline justify-between gap-4 text-sm tabular-nums">
                 <p className="text-muted-foreground">
                   {item.quantity} × {formatCurrency(item.price, locale)}
@@ -437,7 +448,7 @@ function OrderItems({ order }: { order: Order }) {
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">{t("shipping")}</dt>
             <dd className="text-end">
-              {order.status === "PENDING"
+              {order.status === "PENDING" || order.status === "CONTACTED"
                 ? t("details.shippingPending")
                 : t("details.shippingPaid")}
             </dd>

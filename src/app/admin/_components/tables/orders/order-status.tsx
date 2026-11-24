@@ -3,6 +3,7 @@ import {
   BanknoteArrowDownIcon,
   CheckCircleIcon,
   ClockFadingIcon,
+  MessageCircleIcon,
   TruckIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -10,6 +11,7 @@ import { Badge } from "~/components/ui/badge";
 
 export const orderStatuses = [
   "PENDING",
+  "CONTACTED",
   "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
@@ -24,6 +26,11 @@ export const orderStatusMap = {
     icon: <ClockFadingIcon />,
     label: "Pending",
     badgeVariant: "warning" as const,
+  },
+  CONTACTED: {
+    icon: <MessageCircleIcon />,
+    label: "Contacted",
+    badgeVariant: "secondary" as const,
   },
   CONFIRMED: {
     icon: <BadgeCheckIcon />,
@@ -56,7 +63,8 @@ export const orderStatusMap = {
 export const nextOrderStatus: Partial<
   Record<OrderStatusValue, { status: OrderStatusValue; action: string }>
 > = {
-  PENDING: { status: "CONFIRMED", action: "Confirm" },
+  PENDING: { status: "CONTACTED", action: "Mark contacted" },
+  CONTACTED: { status: "CONFIRMED", action: "Confirm" },
   CONFIRMED: { status: "SHIPPED", action: "Ship" },
   SHIPPED: { status: "DELIVERED", action: "Deliver" },
 };

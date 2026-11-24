@@ -20,6 +20,7 @@
   },
   "status": {
     "PENDING": "Awaiting confirmation",
+    "CONTACTED": "Awaiting your reply",
     "CONFIRMED": "Confirmed",
     "SHIPPED": "On its way",
     "DELIVERED": "Delivered",
@@ -28,6 +29,7 @@
   },
   "nextStep": {
     "PENDING": "We'll WhatsApp you to confirm the order and the shipping fee.",
+    "CONTACTED": "We messaged you on WhatsApp. Reply there to confirm the order.",
     "CONFIRMED": "Confirmed. We're packing it to ship.",
     "SHIPPED_COD": "With the courier. Pay the rest when it arrives, by cash, InstaPay or mobile wallet.",
     "SHIPPED": "With the courier and on its way to you.",
@@ -39,6 +41,7 @@
     "placed": "Order placed",
     "confirmed": "Confirmed by our team",
     "confirmedDetail": "We'll WhatsApp you to confirm the order and the shipping fee.",
+    "contactedDetail": "We messaged you on WhatsApp. Reply there to confirm the order.",
     "shipped": "Shipped",
     "shippedDetail": "With the courier. Delivery takes 1–2 business days.",
     "delivered": "Delivered",

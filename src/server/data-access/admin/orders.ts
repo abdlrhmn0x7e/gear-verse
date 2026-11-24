@@ -2,7 +2,9 @@ import {
   sql,
   eq,
   lt,
+  gt,
   gte,
+  inArray,
   desc,
   and,
   or,
@@ -41,10 +43,11 @@ type InsertOrderItem = typeof orderItems.$inferInsert;
 
 type UpdateOrder = Partial<InsertOrder>;
 type UpdateOrderItem = Omit<InsertOrderItem, "orderId">;
+type OrderStatus = NonNullable<InsertOrder["status"]>;
 
 export type OrderListFilters = {
   search: string;
-  status: NonNullable<InsertOrder["status"]>;
+  status: OrderStatus;
   paymentMethod: "COD" | "ONLINE";
   placedSince: Date;
 };
@@ -262,6 +265,7 @@ export const _orders = {
           >`${orderItems.productVariantId}`.as("order_item_product_variant_id"),
           quantity: orderItems.quantity,
           backorderedQuantity: orderItems.backorderedQuantity,
+          status: orderItems.status,
           title: products.title,
           summary: products.summary,
           price: sql<number>`${orderLineUnitPrice}`.as("price"),
@@ -316,6 +320,7 @@ export const _orders = {
         productVariantId: number | null;
         quantity: number;
         backorderedQuantity: number;
+        status: OrderStatus | null;
         stock: number | null;
         title: string;
         price: number;
@@ -335,6 +340,7 @@ export const _orders = {
                 'productVariantId', ${items.productVariantId},
                 'quantity', ${items.quantity},
                 'backorderedQuantity', ${items.backorderedQuantity},
+                'status', ${items.status},
                 'stock', ${items.stock},
                 'title', ${items.title},
                 'summary', ${items.summary},
@@ -557,6 +563,7 @@ export const _orders = {
               productVariantId: orderItems.productVariantId,
               unitPrice: orderItems.unitPrice,
               backorderedQuantity: orderItems.backorderedQuantity,
+              status: orderItems.status,
             });
           const previousLines = new Map(
             deleted.map((line) => [cartLineKey(line), line]),
@@ -567,20 +574,28 @@ export const _orders = {
           // quantity drops backordered units before held ones, so we source
           // less instead of releasing stock we have; added units come from stock
           const prices = await getCurrentUnitPrices(tx, itemsInput);
+          const lines = withUnitPrices(
+            itemsInput,
+            prices,
+            toPreviousUnitPrices(deleted),
+          ).map((item) => ({
+            ...item,
+            orderId: id,
+            backorderedQuantity: backorderedAfterEdit(
+              previousLines.get(cartLineKey(item)),
+              item.quantity,
+            ),
+          }));
+          // lines keep their own status only while the order still has a backordered line
+          const splits = lines.some((line) => line.backorderedQuantity > 0);
           const created = await tx
             .insert(orderItems)
             .values(
-              withUnitPrices(
-                itemsInput,
-                prices,
-                toPreviousUnitPrices(deleted),
-              ).map((item) => ({
-                ...item,
-                orderId: id,
-                backorderedQuantity: backorderedAfterEdit(
-                  previousLines.get(cartLineKey(item)),
-                  item.quantity,
-                ),
+              lines.map((line) => ({
+                ...line,
+                status: splits
+                  ? (previousLines.get(cartLineKey(line))?.status ?? null)
+                  : null,
               })),
             )
             .returning({
@@ -614,6 +629,28 @@ export const _orders = {
 
         return { id };
       });
+    },
+
+    /** Sets one line's own status, only on an order with a backordered line. Undefined when there's no such line. */
+    setItemStatus: async (itemId: number, status: OrderStatus | null) => {
+      const backordered = alias(orderItems, "backordered");
+      return db
+        .update(orderItems)
+        .set({ status })
+        .where(
+          and(
+            eq(orderItems.id, itemId),
+            inArray(
+              orderItems.orderId,
+              db
+                .select({ orderId: backordered.orderId })
+                .from(backordered)
+                .where(gt(backordered.backorderedQuantity, 0)),
+            ),
+          ),
+        )
+        .returning({ id: orderItems.id, productId: orderItems.productId })
+        .then(([res]) => res);
     },
 
     moveOwnership: async (oldUserId: number, newUserId: number) => {

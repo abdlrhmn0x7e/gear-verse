@@ -21,6 +21,11 @@ export const orderPresets = [
     filters: { status: "PENDING", placed: null },
   },
   {
+    id: "contacted",
+    label: "Awaiting reply",
+    filters: { status: "CONTACTED", placed: null },
+  },
+  {
     id: "to-ship",
     label: "To ship",
     filters: { status: "CONFIRMED", placed: null },

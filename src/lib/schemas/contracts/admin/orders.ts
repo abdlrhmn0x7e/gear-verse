@@ -7,6 +7,7 @@ export const ordersFilterSchema = z.object({
   search: z.string(),
   status: z.enum([
     "PENDING",
+    "CONTACTED",
     "CONFIRMED",
     "SHIPPED",
     "DELIVERED",
